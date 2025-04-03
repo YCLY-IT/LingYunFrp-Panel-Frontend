@@ -1,0 +1,82 @@
+@use './variables' as *;
+
+.auth-container {
+    min-height: calc(100vh - 64px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.logo-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.title-with-icon {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+}
+
+.title-with-icon :deep(svg) {
+    color: $primary-color;
+}
+
+.logo-link h2 {
+    font-size: 1.5rem;
+    margin: 0;
+    background: $primary-gradient;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.form-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin: -8px 0 16px;
+}
+
+.register-link {
+    justify-content: center;
+    margin: 16px 0 0;
+    gap: 8px;
+}
+
+.register-link span {
+    color: $text-color-2;
+}
+
+.register-link a {
+    color: $primary-color;
+    text-decoration: none;
+    transition: $transition-all;
+
+    &:hover {
+        color: $primary-pressed;
+    }
+}
+
+.forgot-link {
+    font-size: 0.9rem;
+    color: $text-color-2;
+    text-decoration: none;
+    transition: $transition-all;
+
+    &:hover {
+        color: $primary-color;
+    }
+}

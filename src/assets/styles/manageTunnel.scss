@@ -1,0 +1,154 @@
+@use './variables' as *;
+
+.proxies {
+  .toolbar {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+
+    .search-box {
+      flex: 1;
+    }
+
+    .toolbar-right {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+  }
+
+  .proxy-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    min-height: 200px;
+
+    &:empty,
+    > .no-data:only-child {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  }
+
+  .proxy-card {
+    position: relative;
+    padding-bottom: 48px;
+
+    .proxy-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+
+      h3 {
+        margin: 0;
+        font-size: 16px;
+      }
+    }
+
+    .proxy-info {
+      .info-item {
+        display: flex;
+        margin-bottom: 8px;
+        align-items: center;
+
+        .label {
+          color: $text-color-2;
+          width: 80px;
+        }
+
+        .value {
+          flex: 1;
+        }
+      }
+    }
+
+    .proxy-actions {
+      position: absolute;
+      bottom: 22px;
+      left: 0;
+      right: 8px;
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      padding: 0 16px;
+      background: $bg-color;
+    }
+  }
+
+  .action-btn {
+    margin-right: 8px;
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .toolbar {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 12px;
+
+      .toolbar-right {
+        justify-content: space-between;
+      }
+    }
+
+    .proxy-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 387px) {
+    .view-suffix {
+      display: none;
+    }
+  }
+}
+
+.proxy-detail-container {
+  display: flex;
+  gap: 24px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+
+  .proxy-detail-left {
+    flex: 1.2;
+  }
+
+  .proxy-detail-right {
+    flex: 1.5;
+    min-width: 300px;
+
+    @media (max-width: 768px) {
+      min-width: unset;
+    }
+  }
+}
+
+.modal-info-item {
+  margin-bottom: 12px;
+
+  .label {
+    color: $text-color-2;
+    margin-right: 8px;
+  }
+}
+
+.no-data {
+  margin: 48px 0;
+  width: 100%;
+  text-align: center;
+  
+  :deep(.n-empty) {
+    font-size: 0.95rem;
+  }
+}

@@ -1,0 +1,11 @@
+@use 'variables' as *;
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: $transition-all;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}

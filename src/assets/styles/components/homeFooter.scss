@@ -1,0 +1,282 @@
+@use '../variables' as *;
+
+.footer {
+    padding-top: 10px;
+    color: #f0f0f0;
+    background-color: #18181c;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    
+    .n-theme-dark & {
+        background-color: #f4f4f5;
+        color: #2c2c2c;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+    }
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    
+    // 移动端上下布局
+    @media (max-width: 768px) {
+        flex-direction: column;
+        text-align: center;
+        
+        .footer-left, .footer-right {
+            width: 100%;
+        }
+        
+        .footer-right {
+            margin-top: 20px;
+            justify-content: center;
+        }
+    }
+}
+
+.footer-logos {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+    
+    @media (max-width: 768px) {
+        align-items: center;
+    }
+}
+
+.footer-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    
+    @media (max-width: 768px) {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    &.white-bg img {
+        background: white;
+        border-radius: 4px;
+        padding: 3px;
+    }
+    
+    img {
+        height: 36px;
+        width: auto;
+        border-radius: 4px;
+        
+        @media (max-width: 768px) {
+            display: block;
+            height: 48px;
+            margin-bottom: 5px;
+        }
+    }
+    
+    &:nth-child(2) img {
+        height: 40px; // ME Frp图标稍大一些
+        
+        @media (max-width: 768px) {
+            height: 52px;
+        }
+    }
+    
+    span {
+        font-size: 1.1rem;
+        color: #f0f0f0;
+        font-weight: 500;
+        
+        .n-theme-dark & {
+            color: #2c2c2c;
+        }
+    }
+    
+    .footer-logo-text {
+        display: flex;
+        flex-direction: column;
+        
+        @media (max-width: 768px) {
+            align-items: center;
+        }
+        
+        .logo-title {
+            font-size: 1.1rem;
+            color: #f0f0f0;
+            font-weight: 500;
+            line-height: 1.2;
+            
+            .n-theme-dark & {
+                color: #2c2c2c;
+            }
+        }
+        
+        .logo-subtitle {
+            font-size: 0.77rem;
+            color: rgba(240, 240, 240, 0.7);
+            font-weight: normal;
+            line-height: 1.2;
+            
+            .n-theme-dark & {
+                color: rgba(44, 44, 44, 0.7);
+            }
+            
+            @media (max-width: 768px) {
+                margin-top: 4px;
+            }
+        }
+    }
+}
+
+.footer-left {
+    p {
+        margin: 8px 0;
+        color: rgba(240, 240, 240, 0.7);
+        font-size: 0.9rem;
+        
+        .n-theme-dark & {
+            color: rgba(44, 44, 44, 0.7);
+        }
+    }
+    
+    a {
+        color: rgba(240, 240, 240, 0.7);
+        text-decoration: none;
+        transition: $transition-all;
+        
+        .n-theme-dark & {
+            color: rgba(44, 44, 44, 0.7);
+        }
+        
+        &:hover {
+            color: $primary-color;
+        }
+    }
+}
+
+.footer-right {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    
+    a {
+        color: rgba(240, 240, 240, 0.7);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: $transition-all;
+        position: relative;
+        
+        .n-theme-dark & {
+            color: rgba(44, 44, 44, 0.7);
+        }
+        
+        &:not(:last-child):after {
+            content: "";
+            position: absolute;
+            right: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1px;
+            height: 12px;
+            background-color: rgba(240, 240, 240, 0.3);
+            
+            .n-theme-dark & {
+                background-color: rgba(44, 44, 44, 0.3);
+            }
+            
+            @media (max-width: 768px) {
+                display: none;
+            }
+        }
+        
+        &:hover {
+            color: $primary-color;
+        }
+    }
+    
+    // 在移动端调整链接布局
+    @media (max-width: 768px) {
+        justify-content: center;
+        gap: 10px 15px;
+        
+        a {
+            padding: 4px 8px;
+        }
+    }
+}
+
+.footer-friends {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 15px 24px 0;
+    border-top: 1px solid rgba(240, 240, 240, 0.2);
+    margin-top: 20px;
+    
+    .n-theme-dark & {
+        border-top: 1px solid rgba(44, 44, 44, 0.2);
+    }
+    
+    @media (max-width: 768px) {
+        text-align: center;
+    }
+    
+    .friends-title {
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: #f0f0f0;
+        margin-bottom: 10px;
+        
+        .n-theme-dark & {
+            color: #2c2c2c;
+        }
+    }
+    
+    .friends-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        
+        @media (max-width: 768px) {
+            justify-content: center;
+            gap: 10px 14px;
+        }
+        
+        a {
+            color: rgba(240, 240, 240, 0.7);
+            font-size: 0.85rem;
+            text-decoration: none;
+            transition: $transition-all;
+            position: relative;
+            
+            .n-theme-dark & {
+                color: rgba(44, 44, 44, 0.7);
+            }
+            
+            &:not(:last-child):after {
+                content: "";
+                position: absolute;
+                right: -8px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 1px;
+                height: 10px;
+                background-color: rgba(240, 240, 240, 0.3);
+                
+                .n-theme-dark & {
+                    background-color: rgba(44, 44, 44, 0.3);
+                }
+                
+                @media (max-width: 768px) {
+                    display: none;
+                }
+            }
+            
+            &:hover {
+                color: $primary-color;
+            }
+        }
+    }
+}

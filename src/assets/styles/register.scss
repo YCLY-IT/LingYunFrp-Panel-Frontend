@@ -1,0 +1,72 @@
+@use './variables' as *;
+
+.auth-container {
+    min-height: calc(100vh - 64px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.logo-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.logo-link h2 {
+    margin: 0 0 0px;
+    font-size: 1.5rem;
+    background: $primary-gradient;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.form-footer {
+    display: flex;
+    justify-content: center;
+    margin-top: 16px;
+    margin-bottom: 8px;
+    gap: 8px;
+    font-size: 14px;
+
+    span {
+        color: $text-color-2;
+    }
+
+    a {
+        color: $primary-color;
+        text-decoration: none;
+        transition: $transition-all;
+
+        &:hover {
+            color: $primary-pressed;
+        }
+    }
+}
+
+.login-link {
+    margin-top: 8px;
+}
+
+.title-with-icon {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+}
+
+.title-with-icon :deep(svg) {
+    color: $primary-color;
+}

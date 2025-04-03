@@ -1,0 +1,36 @@
+// 主色调
+$primary-color: #2196F3;
+$primary-hover: #42A5F5;
+$primary-pressed: #1976D2;
+$primary-suppl: #90CAF9;
+
+// 渐变
+$primary-gradient: linear-gradient(45deg, $primary-color, $primary-hover);
+
+// 文本颜色
+$text-color: var(--n-text-color);
+$text-color-2: var(--n-text-color-2);
+$text-color-3: var(--n-text-color-3);
+
+// 背景色
+$bg-color: var(--n-color);
+$bg-color-hover: var(--n-color-hover);
+$bg-color-pressed: var(--n-color-pressed);
+$bg-color-modal: var(--n-modal-color);
+
+// 边框
+$border-color: var(--n-border-color);
+
+// 阴影
+$box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+$box-shadow-light: 0 2px 4px rgba(0, 0, 0, 0.08);
+$box-shadow-dark: 0 4px 8px rgba(0, 0, 0, 0.25);
+
+// 深色模式阴影
+$box-shadow-dark-mode: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+$box-shadow-hover: var(--n-box-shadow-hover);
+$box-shadow-focus: var(--n-box-shadow-focus);
+$box-shadow-active: var(--n-box-shadow-active);
+
+// 过渡
+$transition-all: all 0.2s ease-in; 
