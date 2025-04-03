@@ -97,7 +97,7 @@ function get(url: string, headers: Record<string, string>, success: Function, fa
         if (data.code === 0) {
             success(data);
         } else {
-            failure(data.message, data.code, data.url);
+            failure(data);
         }
     }).catch(err => error(err));
 }

@@ -362,6 +362,11 @@
   resolved "https://registry.npmmirror.com/@types/estree/-/estree-1.0.6.tgz"
   integrity sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==
 
+"@types/highlight.js@^9.12.4":
+  version "9.12.4"
+  resolved "https://registry.npmmirror.com/@types/highlight.js/-/highlight.js-9.12.4.tgz"
+  integrity sha512-t2szdkwmg2JJyuCM20e8kR2X59WCE5Zkl4bzm1u1Oukjm79zpbiAv+QjnwLnuuV0WHEcX2NgUItu0pAMKuOPww==
+
 "@types/katex@^0.16.2":
   version "0.16.7"
   resolved "https://registry.npmmirror.com/@types/katex/-/katex-0.16.7.tgz"
@@ -1067,7 +1072,7 @@ hasown@^2.0.2:
   dependencies:
     function-bind "^1.1.2"
 
-highlight.js@^11.8.0:
+highlight.js@^11.11.1, highlight.js@^11.8.0:
   version "11.11.1"
   resolved "https://registry.npmmirror.com/highlight.js/-/highlight.js-11.11.1.tgz"
   integrity sha512-Xwwo44whKBVCYoliBQwaPvtd/2tYFkRQtXDWj1nackaV2JPXx3L0+Jvd8/qCJ2p+ML0/XVkJ2q+Mr+UVdpJK5w==
