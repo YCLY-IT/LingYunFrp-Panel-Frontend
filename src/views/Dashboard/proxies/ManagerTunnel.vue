@@ -344,18 +344,6 @@
       </template>
     </NModal>
 
-    <!-- 强制下线确认弹窗 -->
-    <NModal v-model:show="showKickModal" preset="dialog" style="width: 400px">
-      <template #header>
-        <div>强制下线确认</div>
-      </template>
-      <div>确认要强制下线此隧道吗？</div>
-      <template #action>
-        <NButton size="small" @click="showKickModal = false">取消</NButton>
-        <NButton size="small" type="warning" :loading="loading" @click="handleKickConfirm">确定</NButton>
-      </template>
-    </NModal>
-
     <!-- 启动参数和配置文件 Modal -->
     <NModal v-model:show="showConfigModal" preset="dialog" style="width: 800px; max-width: 90vw" class="config-dialog">
       <template #header>
@@ -367,13 +355,13 @@
             <NScrollbar style="max-height: 200px; overflow: auto">
               <NCode :code="runArgs" language="yaml" :hljs="hljs" />
             </NScrollbar>
-            <div style="margin-top: 8px;">Windows 用户如果启动失败，请尝试把 <NCode>mefrpc</NCode> 换成 <NCode>.\mefrpc.exe</NCode>。</div>
+            <div style="margin-top: 8px;">Windows 用户如果启动失败，请尝试把 <NCode>lyfrpc</NCode> 换成 <NCode>.\lyfrpc.exe</NCode>。</div>
           </NCollapseItem>
           <NCollapseItem title="配置文件" name="config">
             <NAlert type="error" style="margin-bottom: 16px" title="友情提示">
               此处是为专业用户准备的配置文件, 请不要在没有判断能力的情况下随意修改, 否则隧道可能无法正常启动。<br>
               请使用 "
-              <NCode>./mefrpc -c </NCode>配置文件 " 进行启动。
+              <NCode>./lyfrpc -c </NCode>配置文件 " 进行启动。
             </NAlert>
             <NAlert type="warning" style="margin-bottom: 16px" title="HTTPS 隧道配置修改提示" v-if="selectedProxy?.proxyType == 'https'">
               请修改相关 SSL 配置, 否则隧道无法正常启动。
@@ -386,7 +374,6 @@
                 style="margin-top: 20px"
             >
               <NTabPane name="toml" tab="Toml">
-                <NText depth="3">仅 Next 核心可用</NText>
                 <NSpin :show="loading && configFormat === 'toml'">
                   <NScrollbar style="max-height: 500px; overflow: auto">
                     <NCode :code="tomlContent" language="toml" :hljs="hljs" />
@@ -395,7 +382,6 @@
               </NTabPane>
 
               <NTabPane name="json" tab="Json">
-                <NText depth="3">仅 Next 核心可用</NText>
                 <NSpin :show="loading && configFormat === 'json'">
                   <NScrollbar style="max-height: 500px; overflow: auto">
                     <NCode :code="jsonContent" language="json" :hljs="hljs" />
@@ -404,7 +390,6 @@
               </NTabPane>
 
               <NTabPane name="yml" tab="Yaml">
-                <NText depth="3">仅 Next 核心可用</NText>
                 <NSpin :show="loading && configFormat === 'yml'">
                   <NScrollbar style="max-height: 500px; overflow: auto">
                     <NCode :code="ymlContent" language="yaml" :hljs="hljs" />
@@ -413,7 +398,6 @@
               </NTabPane>
 
               <NTabPane name="ini" tab="Ini">
-                <NText depth="3">仅推荐用于 Legacy 核心</NText>
                 <NSpin :show="loading && configFormat === 'ini'">
                   <NScrollbar style="max-height: 500px; overflow: auto">
                     <NCode :code="iniContent" language="ini" :hljs="hljs" />
@@ -755,11 +739,6 @@ const dropdownOptions = (proxy: Proxy) => [
     icon: renderIcon(CreateOutline)
   },
   {
-    label: '强制下线',
-    key: 'kickProxy',
-    icon: renderIcon(PowerOutline)
-  },
-  {
     type: 'divider',
     key: 'd2'
   },
@@ -784,9 +763,20 @@ const handleToggleConfirm = async () => {
   if (!proxyToOperate.value) return
   try {
     loading.value = true
-    await AuthApi.toggleProxy(proxyToOperate.value.proxyId, !proxyToOperate.value.isDisabled)
-    message.success(proxyToOperate.value.isDisabled ? '启用隧道成功' : '禁用隧道成功')
-    handleRefresh()
+    userApi.post("/proxy/toggle", {
+      proxyId: proxyToOperate.value.proxyId,
+      isDisabled: !proxyToOperate.value.isDisabled
+    }, accessHandle(), (data) => {
+      if (data.code === 0) {
+        message.success('操作成功')
+        showToggleModal.value = false
+        handleRefresh()
+      } else {
+        message.error(data.message || '操作失败')
+      }
+    }, (error) => {
+      message.error(error.message || '操作失败')
+    })
   } catch (error: any) {
     message.error(error?.response?.data?.message || '操作失败')
   } finally {
@@ -798,21 +788,6 @@ const handleToggleConfirm = async () => {
 const handleKickClick = (proxy: Proxy) => {
   proxyToOperate.value = proxy
   showKickModal.value = true
-}
-
-const handleKickConfirm = async () => {
-  if (!proxyToOperate.value) return
-  try {
-    loading.value = true
-    await AuthApi.kickProxy(proxyToOperate.value.proxyId)
-    message.success('强制下线成功')
-    handleRefresh()
-  } catch (error: any) {
-    message.error(error?.response?.data?.message || '强制下线失败')
-  } finally {
-    loading.value = false
-    showKickModal.value = false
-  }
 }
 
 const handleEdit = (proxy: Proxy) => {
@@ -933,16 +908,16 @@ const handleSelect = (key: string, proxy: Proxy) => {
 const handleGetFreePortForEdit = async () => {
   try {
     gettingFreePort.value = true
-    const protocol = editForm.value.proxyType === 'udp' ? 'udp' : 'tcp'
-    const res = await AuthApi.getFreeNodePort({
+    userApi.post("/proxy/freePort", {
       nodeId: editForm.value.nodeId,
-      protocol
+      protocol: editForm.value.proxyType === 'udp' ? 'udp' : 'tcp'
+      }, accessHandle(), (data) => {
+      if (data.code === 0) {
+        editForm.value.remotePort = data.data
+      } else {
+        message.error(data.message || '获取空闲端口失败')
+      }
     })
-    if (res.data.code === 200) {
-      editForm.value.remotePort = res.data.data
-    } else {
-      message.error(res.data.message || '获取空闲端口失败')
-    }
   } catch (error: any) {
     message.error(error?.response?.data?.message || '获取空闲端口失败')
   } finally {

@@ -74,6 +74,22 @@ const router = createRouter({
                 title: '用户信息',
             }
         },
+        {
+          path: 'user/my-profile',
+          name: 'user-my-profile',
+          component: () => import('../views/Dashboard/Profile.vue'),
+          meta: {
+              title: '我的信息',
+          }
+        },
+        {
+          path: 'downloads',
+          name: 'downloads',
+          component: () => import('../views/Dashboard/downloads.vue'),
+          meta: {
+            title: '下载',
+          }
+        }
       ]
     }
   ],

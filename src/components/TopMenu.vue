@@ -148,7 +148,7 @@ const handleUserMenuSelect = (key: string) => {
       })
       break
     case 'profile':
-      router.push('/dashboard/profile')
+      router.push('/dashboard/user/my-profile')
       break
     case 'home':
       router.push('/')

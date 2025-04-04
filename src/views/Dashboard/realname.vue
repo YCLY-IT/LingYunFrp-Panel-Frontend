@@ -1,11 +1,12 @@
 <template>
     <div class="realname-Modal">
-      <NCard title="实人信息" class="info-card">
         <NAlert v-if="IsRealname === false" type="warning" title="未实人认证" style="margin-bottom: 16px">
           您的账户尚未完成实人认证, 请尽快完成实人认证。<br>
           <NButton text type="primary" @click="goToRealname">立即前往</NButton>
         </NAlert>
-      </NCard>
+        <NAlert v-else type="success" title="已实人认证" style="margin-bottom: 16px">
+          您的账户已完成实人认证<br>
+        </NAlert>
       <NModal v-model:show="showRealnameModal" title="实人认证" preset="dialog" style="width: 400px;">
         <p></p>
         <NForm ref="formRef" :model="formValue" :rules="rules">
@@ -80,6 +81,20 @@ const formValue = ref({
 const goToRealname = () => {
   showRealnameModal.value = true
 }
+
+const handleRealname = () => {
+  showRealnameModal.value = false
+  userApi.get("/user/info/info", accessHandle(), (data) => {
+    if (data.code === 0) {
+      IsRealname.value = data.data.realname
+    } else {
+      message.error(data.message || '获取用户信息失败')
+    }
+  }, (error) => {
+    message.error(error.message)
+  })
+}
+handleRealname()
 
 const emailCodeButtonText = computed(() => {
   if (isPhoneCodeSending.value) return '发送中...'

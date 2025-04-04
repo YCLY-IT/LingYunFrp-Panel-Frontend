@@ -25,7 +25,7 @@ const baseMenuOptions: MenuOption[] = [
     label: '节点监控',
     icon: renderIcon(StatsChartOutline),
     key: 'node-status',
-    redirect: '/dashboard/node/status',
+    link: '/dashboard/node/status',
   },
   {
     label: '文件下载',
@@ -42,8 +42,19 @@ const baseMenuOptions: MenuOption[] = [
   {
     label: '用户中心',
     icon: renderIcon(IdCardOutline),
-    key: 'user-profile',
-    link: '/dashboard/user/profile',
+    key: 'user-section',
+    children: [
+      {
+        label: '个人中心',
+        key: 'user-profile',
+        link: '/dashboard/user/profile',
+      },
+        {
+          label: '我的资料',
+          key: 'user-my-profile',
+          link: '/dashboard/user/my-profile',
+        },
+    ],
   },
   {
     label: '增值服务',
