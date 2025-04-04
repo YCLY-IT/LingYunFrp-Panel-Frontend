@@ -352,7 +352,7 @@ const fetchNodes = async () => {
         message.error(data.message || '获取节点列表失败')
       }
     }, (error) => {
-        message.error(error?.response?.data?.message || '获取节点列表失败')
+        message.error(error.message || '获取节点列表失败')
     })
 }
 const selectedNode = ref<{
@@ -453,7 +453,7 @@ const handleCreate = () => {
           useCompression: formValue.value.useCompression
         };
 
-        await userApi.post(
+        userApi.post(
             "/proxy/create",
               requestData,
               accessHandle(),

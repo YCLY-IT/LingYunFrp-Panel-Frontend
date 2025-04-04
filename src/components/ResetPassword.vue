@@ -143,7 +143,7 @@ const handleSendEmailCode = async () => {
   }
 
   isEmailCodeSending.value = true
-  userApi.sendCode(
+  userApi.sendEmailCode(
       formValue.value.email,
       "forget",
       (data) => {

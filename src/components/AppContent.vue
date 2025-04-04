@@ -12,6 +12,7 @@
 import { computed, onMounted } from 'vue'
 import { useRoute, RouterView } from 'vue-router'
 import { NGlobalStyle, useLoadingBar, useMessage, useDialog, useNotification } from 'naive-ui'
+import { Window } from '@/types'
 import HomeMenu from './HomeMenu.vue'
 
 // 声明window类型

@@ -153,7 +153,7 @@ const handleSendEmailCode = async () => {
   }
 
   isEmailCodeSending.value = true
-  userApi.sendCode(
+  userApi.sendEmailCode(
       formValue.value.email,
       "register",
       (data) => {
@@ -180,14 +180,20 @@ const handleSubmit = async () => {
       formValue.value.email,
       formValue.value.emailCode,
       (data) => {
+        if (data.code === 0) {
         message.success(data.message)
         setTimeout(() => {
           router.push('/login');
         }, 1200);
+        } else {
+          message.error(data.message)
+        }
+        isSubmitting.value = false
       },
-      (message) => {
-        message.error(message);
-      }
+      (messageText, code, url) => {
+        message.error(messageText);
+        isSubmitting.value = false
+      },
   )
 }
 </script>

@@ -66,6 +66,14 @@ const router = createRouter({
                   title: '隧道列表',
               }
           },
+        {
+            path: 'user/profile',
+            name: 'user-profile',
+            component: () => import('../views/Dashboard/UserProfile.vue'),
+            meta: {
+                title: '用户信息',
+            }
+        },
       ]
     }
   ],

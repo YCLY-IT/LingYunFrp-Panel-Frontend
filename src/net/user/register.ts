@@ -15,8 +15,15 @@ export function register(username: string, nickname: string, password: string, e
     }, {
         'Content-Type': 'application/x-www-form-urlencoded'
     }, (data: any) => {
-        success(data);
+        if (data.code === 0) {
+            success(data);
+        }else {
+            failure(data.message, data.code, data.url);
+        }
+
     }, (message, code, url) => {
         failure(message, code, url);
+    }, (err) => {
+        failure(err);
     });
 }
