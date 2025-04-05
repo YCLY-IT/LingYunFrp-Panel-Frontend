@@ -54,10 +54,10 @@
                 <NTag :type="proxy.isOnline ? 'success' : 'error'" size="small">
                   {{ proxy.isOnline ? '在线' : '离线' }}
                 </NTag>
-                <NTag v-if="proxy.isBanned" type="error" size="small" style="margin-left: 4px">
+                <NTag v-if="proxy.is_banned" type="error" size="small" style="margin-left: 4px">
                   已封禁
                 </NTag>
-                <NTag v-if="proxy.isDisabled" type="warning" size="small" style="margin-left: 4px">
+                <NTag v-if="proxy.is_disabled" type="warning" size="small" style="margin-left: 4px">
                   已禁用
                 </NTag>
               </div>
@@ -307,7 +307,7 @@
           <NInput v-model:value="editForm.headerXFromWhere" placeholder="请输入 X-From-Where 请求头值" />
         </NFormItem>
         <NFormItem label="Proxy Protocol" path="proxyProtocolVersion">
-          <NSelect v-model:value="editForm.proxyProtocolVersion" :options="[
+          <NSelect v-model:value="editForm.proxy_protocol_version" :options="[
             { label: '不启用', value: '' },
             { label: 'v1', value: 'v1' },
             { label: 'v2', value: 'v2' }
@@ -315,11 +315,11 @@
         </NFormItem>
         <NFormItem label="其他选项">
           <div style="display: flex; gap: 16px;">
-            <NSwitch v-model:value="editForm.useEncryption" :rail-style="switchButtonRailStyle">
+            <NSwitch v-model:value="editForm.use_encryption" :rail-style="switchButtonRailStyle">
               <template #checked>启用加密</template>
               <template #unchecked>禁用加密</template>
             </NSwitch>
-            <NSwitch v-model:value="editForm.useCompression" :rail-style="switchButtonRailStyle">
+            <NSwitch v-model:value="editForm.use_compression" :rail-style="switchButtonRailStyle">
               <template #checked>启用压缩</template>
               <template #unchecked>禁用压缩</template>
             </NSwitch>
@@ -500,9 +500,9 @@ const editForm = ref({
   accessKey: '',
   hostHeaderRewrite: '',
   headerXFromWhere: '',
-  useEncryption: false,
-  useCompression: false,
-  proxyProtocolVersion: '',
+  use_encryption: false,
+  use_compression: false,
+  proxy_protocol_version: '',
   proxyType: '',
   nodeId: 0
 })
@@ -653,12 +653,12 @@ const proxyToOperate = ref<Proxy | null>(null)
 
 const toggleModalTitle = computed(() => {
   if (!proxyToOperate.value) return ''
-  return proxyToOperate.value.isDisabled ? '启用确认' : '禁用确认'
+  return proxyToOperate.value.is_disabled ? '启用确认' : '禁用确认'
 })
 
 const toggleModalContent = computed(() => {
   if (!proxyToOperate.value) return ''
-  return proxyToOperate.value.isDisabled ? '确认要启用此隧道吗？' : '确认要禁用此隧道吗？'
+  return proxyToOperate.value.is_disabled ? '确认要启用此隧道吗？' : '确认要禁用此隧道吗？'
 })
 
 const handleToken = async () => {
@@ -743,7 +743,7 @@ const dropdownOptions = (proxy: Proxy) => [
     key: 'd2'
   },
   {
-    label: proxy.isDisabled ? '启用' : '禁用',
+    label: proxy.is_disabled ? '启用' : '禁用',
     key: 'toggle',
     icon: renderIcon(PowerOutline)
   },
@@ -765,7 +765,7 @@ const handleToggleConfirm = async () => {
     loading.value = true
     userApi.post("/proxy/toggle", {
       proxyId: proxyToOperate.value.proxyId,
-      isDisabled: !proxyToOperate.value.isDisabled
+      isDisabled: !proxyToOperate.value.is_disabled
     }, accessHandle(), (data) => {
       if (data.code === 0) {
         message.success('操作成功')
@@ -802,9 +802,9 @@ const handleEdit = (proxy: Proxy) => {
     accessKey: '',
     hostHeaderRewrite: proxy.hostHeaderRewrite || '',
     headerXFromWhere: proxy.headerXFromWhere || '',
-    useEncryption: proxy.useEncryption || false,
-    useCompression: proxy.useCompression || false,
-    proxyProtocolVersion: proxy.proxyProtocolVersion || '',
+    use_encryption: proxy.useEncryption || false,
+    use_compression: proxy.useCompression || false,
+    proxy_protocol_version: proxy.proxyProtocolVersion || '',
     proxyType: proxy.proxyType,
     nodeId: proxy.nodeId
   }

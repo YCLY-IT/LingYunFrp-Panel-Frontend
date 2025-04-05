@@ -89,7 +89,67 @@ const router = createRouter({
           meta: {
             title: '下载',
           }
-        }
+        },
+        {
+          path: 'cash',
+          name: 'cash',
+          component: () => import('../views/Dashboard/cash.vue'),
+          meta: {
+            title: '增值服务',
+          }
+        },
+        {
+          path: 'admin',
+          name: 'admin',
+          redirect: '/dashboard/admin/users',
+          children: [
+            {
+              path: 'users',
+              name: 'admin-users',
+              component: () => import('../views/dashboard/admin/Users.vue'),
+              meta: {
+                title: '用户管理',
+                requiresAdmin: true
+              }
+            },
+            {
+              path: 'nodes',
+              name: 'admin-nodes',
+              component: () => import('../views/dashboard/admin/Nodes.vue'),
+              meta: {
+                title: '节点管理',
+                requiresAdmin: true
+              }
+            },
+            {
+              path: 'proxies',
+              name: 'admin-proxies',
+              component: () => import('../views/dashboard/admin/Proxies.vue'),
+              meta: {
+                title: '隧道管理',
+                requiresAdmin: true
+              }
+            },
+            {
+              path: 'system',
+              name: 'admin-system',
+              component: () => import('../views/dashboard/admin/System.vue'),
+              meta: {
+                title: '系统管理',
+                requiresAdmin: true
+              }
+            },
+            {
+              path: 'products',
+              name: 'admin-products',
+              component: () => import('../views/dashboard/admin/Products.vue'),
+              meta: {
+                title: '产品管理',
+                requiresAdmin: true
+              }
+            },
+          ]
+        },
       ]
     }
   ],

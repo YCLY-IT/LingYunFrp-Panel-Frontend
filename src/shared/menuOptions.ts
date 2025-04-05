@@ -94,12 +94,6 @@ const adminMenuOptions: MenuOption = {
       icon: renderIcon(BuildOutline)
     },
     {
-      label: '广告管理',
-      key: 'admin-ads',
-      link: '/dashboard/admin/ads',
-      icon: renderIcon(PricetagsOutline)
-    },
-    {
       label: '系统管理',
       key: 'admin-system',
       link: '/dashboard/admin/system',
@@ -112,7 +106,6 @@ export function getMenuOptions(): MenuOption[] {
   const userGroup = localStorage.getItem('group')
   const options = [...baseMenuOptions]
 
-  //options.push(moreMenuOptions)
   if (userGroup === 'admin') {
     options.push(adminMenuOptions)
     defaultExpandedKeys.value.push('admin')

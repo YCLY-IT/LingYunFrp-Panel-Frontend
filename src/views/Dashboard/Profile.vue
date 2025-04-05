@@ -131,7 +131,7 @@ const userInfo = ref<UserInfo>({
   email: '',
   nickname: '',
   groupFriendlyName: '普通用户',
-  isRealname: false
+  is_realname: false
 })
 
 // 表单数据

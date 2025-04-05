@@ -1,5 +1,8 @@
 @use './variables' as *;
-
+.divider-line {
+  border-bottom: 1px solid $divider-color;
+  margin: 16px 0;
+}
 .content-grid {
   display: grid;
   grid-template-columns: 1fr 1.75fr;
