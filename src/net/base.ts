@@ -2,7 +2,7 @@ import axios from 'axios';
 import { createDiscreteApi } from 'naive-ui'; // 新增离散式API
 
 const api = axios.create({
-    baseURL: 'http://localhost/api/',
+    baseURL: 'http://localhost:8081/',
     headers: {
         //* NOTE: defalut content-type is set
         'Content-Type': 'application/x-www-form-urlencoded'

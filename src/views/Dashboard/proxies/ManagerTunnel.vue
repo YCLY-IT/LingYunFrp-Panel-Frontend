@@ -57,7 +57,7 @@
                 <NTag v-if="proxy.is_banned" type="error" size="small" style="margin-left: 4px">
                   已封禁
                 </NTag>
-                <NTag v-if="proxy.is_disabled" type="warning" size="small" style="margin-left: 4px">
+                <NTag v-if="proxy.isDisabled" type="warning" size="small" style="margin-left: 4px">
                   已禁用
                 </NTag>
               </div>
@@ -743,7 +743,7 @@ const dropdownOptions = (proxy: Proxy) => [
     key: 'd2'
   },
   {
-    label: proxy.is_disabled ? '启用' : '禁用',
+    label: proxy.isDisabled ? '启用' : '禁用',
     key: 'toggle',
     icon: renderIcon(PowerOutline)
   },
@@ -765,7 +765,7 @@ const handleToggleConfirm = async () => {
     loading.value = true
     userApi.post("/proxy/toggle", {
       proxyId: proxyToOperate.value.proxyId,
-      isDisabled: !proxyToOperate.value.is_disabled
+      isDisabled: !proxyToOperate.value.isDisabled
     }, accessHandle(), (data) => {
       if (data.code === 0) {
         message.success('操作成功')

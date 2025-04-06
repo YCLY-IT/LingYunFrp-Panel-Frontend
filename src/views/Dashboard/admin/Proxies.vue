@@ -107,16 +107,16 @@
     </NModal>
 
     <!-- 启用/禁用确认模态框 -->
-    <NModal v-model:show="showToggleModal" preset="dialog" :title="currentProxy?.is_disabled ? '确认启用' : '确认禁用'">
+    <NModal v-model:show="showToggleModal" preset="dialog" :title="currentProxy?.isDisabled ? '确认启用' : '确认禁用'">
       <template #default>
-        {{ currentProxy?.is_disabled ? '确认启用此隧道？' : '确认禁用此隧道？' }}
+        {{ currentProxy?.isDisabled ? '确认启用此隧道？' : '确认禁用此隧道？' }}
       </template>
       <template #action>
         <NButton secondary size="small" @click="showToggleModal = false">取消</NButton>
         <NButton 
           secondary
           size="small" 
-          :type="currentProxy?.is_disabled ? 'success' : 'warning'"
+          :type="currentProxy?.isDisabled ? 'success' : 'warning'"
           :loading="loading" 
           @click="handleToggleProxy(currentProxy)"
         >确定</NButton>
@@ -386,11 +386,11 @@ const renderStatus = (row: Proxy) => {
   tags.push(h(
     NTag,
     {
-      type: row.isOnline ? 'success' : 'warning',
+      type: row.is_online ? 'success' : 'warning',
       size: 'small',
       style: 'margin-right: 4px'
     },
-    { default: () => row.isOnline ? '在线' : '离线' }
+    { default: () => row.is_online ? '在线' : '离线' }
   ))
 
   // 封禁状态标签
@@ -428,7 +428,7 @@ const handleToggleProxy = async (proxy: Proxy | null) => {
       isDisabled: !proxy.is_disabled
     }, accessHandle(), (data) => {
       if (data.code === 0) {
-        proxy.is_disabled = !proxy.is_disabled
+        proxy.isDisabled = !proxy.is_disabled
       } else {
         message.error(data.message || '操作失败')
       }
@@ -602,7 +602,7 @@ const columns: DataTableColumns<Proxy> = [
   },
   {
     title: '状态',
-    key: 'status',
+    key: 'is_online',
     render: renderStatus
   },
   {
