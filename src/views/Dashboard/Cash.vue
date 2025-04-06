@@ -10,25 +10,48 @@
               class="service-card"
               :title="product.name"
           >
-            <div class="price">
+            <div v-if="product.type === 'traffic'" class="price">
               ¥{{ product.price }} <span class="unit">/ GB</span>
             </div>
+            <div v-else-if="product.type === 'proxies'" class="price">
+              ¥{{ product.price }} <span class="unit">/ 个</span>
+            </div>
+            <div v-else class="price">
+              ¥{{ product.price }} <span class="unit">/ 月</span>
+            </div>
+
+            <!-- 使用 v-for 循环处理描述中的换行 -->
             <div class="features">
-              <div
-                  v-for="(feature, index) in product.features"
-                  :key="index"
-                  class="feature-item"
-              >
-                <NIcon><CheckmarkCircle /></NIcon>
-                {{ feature }}
+              <div v-for="(line, index) in product.desc.split('<br>')" :key="index" class="feature-line">
+                <NIcon class="feature-icon"><CheckmarkCircle /></NIcon>
+                <span>{{ line }}</span>
               </div>
             </div>
+
             <div v-if="product.type === 'traffic'">
               <NInputNumber
                   v-model:value="product.selectedAmount"
-                  :min="10"
+                  :min="1"
                   :max="200"
                   placeholder="输入购买数量(GB)"
+                  style="margin-bottom: 12px"
+              />
+            </div>
+            <div v-else-if="product.type === 'proxies'">
+              <NInputNumber
+                  v-model:value="product.selectedAmount"
+                  :min="1"
+                  :max="200"
+                  placeholder="输入购买数量(个)"
+                  style="margin-bottom: 12px"
+              />
+            </div>
+            <div v-else>
+              <NInputNumber
+                  v-model:value="product.selectedAmount"
+                  :min="1"
+                  :max="200"
+                  placeholder="输入购买数量"
                   style="margin-bottom: 12px"
               />
             </div>
@@ -38,7 +61,7 @@
               <div class="option-label">支付方式:</div>
               <div class="option-buttons">
                 <NButton
-                    type="primary"
+                    type="default"
                     :class="{ active: product.isPoint }"
                     @click="product.isPoint = true"
                     style="margin-right: 8px"
@@ -93,7 +116,6 @@ const fetchProducts = () => {
       products.value = data.data.products.map(product => {
         return {
           ...product,
-          selectedAmount: 1, // 默认购买数量为1
           isPoint: false, // 默认不使用积分支付
         }
       })
@@ -116,8 +138,8 @@ const handleBuy = (product) => {
   }
 
   // 验证购买数量是否在合理范围内
-  if (product.selectedAmount < 10 || product.selectedAmount > 200) {
-    message.error('购买数量必须在10到200之间')
+  if (product.selectedAmount < 1 || product.selectedAmount > 200) {
+    message.error('购买数量必须在1到200之间')
     return
   }
 
@@ -187,5 +209,17 @@ onMounted(() => {
   margin: 12px 0;
   font-weight: bold;
   text-align: center;
+}
+
+/* 新增样式：确保每行内容和图标在同一行 */
+.feature-line {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.feature-icon {
+  margin-right: 8px;
+  color: #ff8c00;
 }
 </style>
