@@ -16,7 +16,7 @@
               </NGi>
               <NGi>
                 <NFormItem label="用户组">
-                  <NTag type="info">{{ userInfo.friendlyGroup }}</NTag>
+                  <NTag type="info">{{ userInfo.groupFriendlyName }}</NTag>
                 </NFormItem>
                 <NFormItem label="实名状态">
                   <NTag :type="userInfo.isRealname ? 'success' : 'warning'">
@@ -36,18 +36,22 @@
           </NForm>
         </NCard>
 
-        <!-- 修改信息表单 -->
-        <NCard title="修改资料" size="small">
-          <NForm ref="formRef"
-                 :model="formValue"
-                 :rules="rules"
-                 @submit.prevent="handleSubmit"
-          >
+        <!-- 修改昵称表单 -->
+        <NCard title="修改昵称" size="small">
+          <NForm ref="nicknameFormRef" :model="nicknameForm" :rules="nicknameRules">
             <NFormItem label="昵称" path="nickname">
-              <NInput v-model:value="formValue.nickname" placeholder="请输入昵称"/>
+              <NInput v-model:value="nicknameForm.nickname" placeholder="请输入昵称"/>
             </NFormItem>
+            <div class="form-actions">
+              <NButton type="primary" @click="handleNicknameSubmit">保存修改</NButton>
+            </div>
+          </NForm>
+        </NCard>
 
-            <NFormItem label="头像" path="avatar">
+        <!-- 修改头像表单 -->
+        <NCard title="修改头像" size="small">
+          <NForm ref="avatarFormRef" :model="avatarForm">
+            <NFormItem label="头像">
               <NUpload
                   v-model:file-list="avatarFiles"
                   accept="image/*"
@@ -56,32 +60,55 @@
                   @before-upload="handleBeforeUpload"
               />
             </NFormItem>
-
             <div class="form-actions">
-              <NButton type="primary" attr-type="submit">保存修改</NButton>
+              <NButton type="primary" @click="handleAvatarSubmit">保存修改</NButton>
             </div>
           </NForm>
         </NCard>
-        <NCard title="修改密码" size="small">
-          <NForm ref="formRef" :model="formValue" :rules="rules">
-            <NFormItem label="旧密码" path="oldPassword">
-              <NInput v-model:value="formValue.oldPassword" placeholder="请输入旧密码"/>
+
+        <!-- 修改用户名表单 -->
+        <NCard title="修改用户名" size="small">
+          <NForm ref="usernameFormRef" :model="usernameForm" :rules="usernameRules">
+            <NFormItem label="新用户名" path="newUsername">
+              <NInput v-model:value="usernameForm.newUsername" placeholder="请输入新用户名"/>
             </NFormItem>
             <NFormItem label="邮箱" path="email">
-              <NInput v-model:value="formValue.email" placeholder="请输入邮箱"/>
+              <NInput v-model:value="usernameForm.email" placeholder="请输入邮箱"/>
               <NButton type="primary" style="margin-left: 8px;" ghost :disabled="isEmailCodeSending || emailCodeCountdown > 0"
-                       @click="handleSendEmailCode('UpdatePassword')" :loading="isEmailCodeSending">
+                       @click="handleSendEmailCode('UpdateUsername', usernameForm.email)" :loading="isEmailCodeSending">
                 {{ emailCodeButtonText }}
               </NButton>
             </NFormItem>
             <NFormItem label="邮箱验证码" path="emailCode">
-              <NInput v-model:value="formValue.emailCode" placeholder="请输入邮箱验证码"/>
+              <NInput v-model:value="usernameForm.emailCode" placeholder="请输入邮箱验证码"/>
+            </NFormItem>
+            <div class="form-actions">
+              <NButton type="primary" @click="handleUsernameSubmit">保存修改</NButton>
+            </div>
+          </NForm>
+        </NCard>
+
+        <!-- 修改密码表单 -->
+        <NCard title="修改密码" size="small">
+          <NForm ref="passwordFormRef" :model="passwordForm" :rules="passwordRules">
+            <NFormItem label="旧密码" path="oldPassword">
+              <NInput v-model:value="passwordForm.oldPassword" placeholder="请输入旧密码"/>
             </NFormItem>
             <NFormItem label="新密码" path="newPassword">
-              <NInput v-model:value="formValue.newPassword" placeholder="请输入新密码"/>
+              <NInput v-model:value="passwordForm.newPassword" placeholder="请输入新密码"/>
             </NFormItem>
             <NFormItem label="确认密码" path="confirmPassword">
-              <NInput v-model:value="formValue.confirmPassword" placeholder="请确认新密码"/>
+              <NInput v-model:value="passwordForm.confirmPassword" placeholder="请确认新密码"/>
+            </NFormItem>
+            <NFormItem label="邮箱" path="email">
+              <NInput v-model:value="passwordForm.email" placeholder="请输入邮箱"/>
+              <NButton type="primary" style="margin-left: 8px;" ghost :disabled="isEmailCodeSending || emailCodeCountdown > 0"
+                       @click="handleSendEmailCode('UpdatePassword', passwordForm.email)" :loading="isEmailCodeSending">
+                {{ emailCodeButtonText }}
+              </NButton>
+            </NFormItem>
+            <NFormItem label="邮箱验证码" path="emailCode">
+              <NInput v-model:value="passwordForm.emailCode" placeholder="请输入邮箱验证码"/>
             </NFormItem>
             <div class="form-actions">
               <NButton type="primary" @click="handlePasswordSubmit">保存修改</NButton>
@@ -94,7 +121,7 @@
 </template>
 
 <script setup lang="ts">
-import {ref, onMounted, computed} from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   NCard,
@@ -104,12 +131,12 @@ import {
   NUpload,
   NTag,
   NButton,
-  NText,
-  useMessage, type FormInst
+  useMessage,
+  type FormInst
 } from 'naive-ui'
 import type { FormRules, UploadFileInfo } from 'naive-ui'
 import { userApi } from '@/net'
-import {accessHandle, removeToken} from "@/net/base.ts";
+import { accessHandle, removeToken } from '@/net/base.ts'
 
 interface UserInfo {
   username: string
@@ -119,11 +146,6 @@ interface UserInfo {
   isRealname: boolean
   avatar?: string
 }
-const formRef = ref<FormInst | null>(null)
-const router = useRouter()
-const message = useMessage()
-const isEmailCodeSending = ref(false)
-const emailCodeCountdown = ref(0)
 
 // 用户信息
 const userInfo = ref<UserInfo>({
@@ -131,72 +153,80 @@ const userInfo = ref<UserInfo>({
   email: '',
   nickname: '',
   groupFriendlyName: '普通用户',
-  is_realname: false
+  isRealname: false
 })
 
-// 表单数据
-const formValue = ref({
-  nickname: '',
-  email: '',
-  oldPassword: '',
-  newPassword: '',
-  confirmPassword: '',
-  emailCode: ''
+// 昵称表单
+const nicknameFormRef = ref<FormInst | null>(null)
+const nicknameForm = ref({
+  nickname: ''
 })
-
-// 头像上传
-const avatarFiles = ref<UploadFileInfo[]>([])
-
-// 表单校验规则
-const rules: FormRules = {
+const nicknameRules: FormRules = {
   nickname: [
     { required: true, message: '请输入昵称' },
     { min: 2, max: 16, message: '长度需在2-16个字符之间' }
   ]
 }
 
+// 头像表单
+const avatarFormRef = ref<FormInst | null>(null)
+const avatarForm = ref({})
+const avatarFiles = ref<UploadFileInfo[]>([])
 
-// 添加在fetchUserInfo方法之前
-const fetchUserGroups = async () => {
-  userApi.get("/user/info/groups", accessHandle(), (data) => {
-    if (data.code === 0 && data.data?.groups) {
-      groupNameMap.value = data.data.groups.reduce((acc, group) => {
-        acc[group.name] = group.friendlyName // 确保字段名正确
-        return acc
-      }, {} as Record<string, string>)
-    }
-  })
-}
-// 获取用户信息
-const fetchUserInfo = async () => {
-  userApi.get('/user/info/info', accessHandle(), (data) => {
-    if (data.code === 0) {
-      userInfo.value = {
-        ...data.data,
-        groupFriendlyName: groupNameMap.value[data.data.group] || data.data.group
-      }
-      formValue.value.nickname = data.data.nickname
-    }
-  })
-}
-
-
-// 添加在userInfo声明之后
-const groupNameMap = ref<Record<string, string>>({})
-
-// 头像上传前校验
-const handleBeforeUpload = (file: UploadFileInfo) => {
-  if (!file.file?.type.startsWith('image/')) {
-    message.error('只能上传图片文件')
-    return false
-  }
-  if (file.file.size > 2 * 1024 * 1024) {
-    message.error('图片大小不能超过2MB')
-    return false
-  }
-  return true
+// 用户名表单
+const usernameFormRef = ref<FormInst | null>(null)
+const usernameForm = ref({
+  currentUsername: '',
+  newUsername: '',
+  email: '',
+  emailCode: ''
+})
+const usernameRules: FormRules = {
+  newUsername: [
+    { required: true, message: '请输入新用户名' },
+    { pattern: /^[a-zA-Z0-9_]{2,16}$/, message: '用户名只能包含字母、数字和下划线，长度为2-16个字符' }
+  ],
+  email: [
+    { required: true, message: '请输入邮箱' },
+    { type: 'email', message: '请输入有效的邮箱地址' }
+  ],
+  emailCode: [
+    { required: true, message: '请输入邮箱验证码' }
+  ]
 }
 
+// 密码表单
+const passwordFormRef = ref<FormInst | null>(null)
+const passwordForm = ref({
+  oldPassword: '',
+  newPassword: '',
+  confirmPassword: '',
+  email: '',
+  emailCode: ''
+})
+const passwordRules: FormRules = {
+  oldPassword: [
+    { required: true, message: '请输入旧密码' }
+  ],
+  newPassword: [
+    { required: true, message: '请输入新密码' },
+    { min: 6, message: '密码长度不能少于6位' }
+  ],
+  confirmPassword: [
+    { required: true, message: '请确认新密码' }
+  ],
+  email: [
+    { required: true, message: '请输入邮箱' },
+    { type: 'email', message: '请输入有效的邮箱地址' }
+  ],
+  emailCode: [
+    { required: true, message: '请输入邮箱验证码' }
+  ]
+}
+
+// 邮箱验证码相关
+const isEmailCodeSending = ref(false)
+const emailCodeCountdown = ref(0)
 const emailCodeButtonText = computed(() => {
   if (isEmailCodeSending.value) return '发送中...'
   if (emailCodeCountdown.value > 0) return `${emailCodeCountdown.value}s后重试`
@@ -213,106 +243,175 @@ const startEmailCodeCountdown = () => {
   }, 1000)
 }
 
-function handleSendEmailCode(module: string) {
-  if (!formValue.value.email) {
+function handleSendEmailCode(module: string, email: string) {
+  if (!email) {
     message.error('请输入邮箱')
     return
   }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formValue.value.email)) {
+  if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
     message.error('请输入有效的邮箱地址')
     return
   }
 
   isEmailCodeSending.value = true
   userApi.sendEmailCode(
-      formValue.value.email,
+      email,
       module,
       (data) => {
         message.success(data.message)
         startEmailCodeCountdown()
-        formValue.value.emailCode = ''
-        isEmailCodeSending.value = false // 确保发送成功后将状态设置为false
+        isEmailCodeSending.value = false
       },
       (error) => {
         message.error(error)
-        isEmailCodeSending.value = false // 发送失败后也需要将状态设置为false
-      },
+        isEmailCodeSending.value = false
+      }
   )
 }
 
-
-// 提交表单
-const handleSubmit = async () => {
-  const formData = new FormData()
-  formData.append('nickname', formValue.value.nickname)
-  if (avatarFiles.value[0]?.file) {
-    formData.append('avatar', avatarFiles.value[0].file)
+// 头像上传前校验
+const handleBeforeUpload = (file: UploadFileInfo) => {
+  if (!file.file?.type.startsWith('image/')) {
+    message.error('只能上传图片文件')
+    return false
   }
+  if (file.file.size > 2 * 1024 * 1024) {
+    message.error('图片大小不能超过2MB')
+    return false
+  }
+  return true
+}
 
-  userApi.post('/user/info/update', formData, accessHandle(), (data) => {
+// 提交昵称
+const handleNicknameSubmit = async () => {
+  if (!nicknameFormRef.value) return
+  await nicknameFormRef.value.validate()
+  userApi.post(`/user/update/nickname/${nicknameForm.value.nickname}`, {
+  }, accessHandle(), (data) => {
     if (data.code === 0) {
-      message.success('资料更新成功')
-      fetchUserInfo()
-    }else{
-      message.error(data.message || '资料更新失败')
+      localStorage.setItem('nickname', nicknameForm.value.nickname)
+      message.success('昵称更新成功')
+      setTimeout(() => {
+        window.location.reload()
+      }, 2000)
+    } else {
+      message.error('昵称更新失败')
     }
   })
 }
 
+// 提交头像
+const handleAvatarSubmit = async () => {
+  if (avatarFiles.value.length === 0) {
+    message.error('请上传头像')
+    return
+  }
+  const formData = new FormData()
+  formData.append('avatar', avatarFiles.value[0].file)
+  userApi.post('/user/update/avatar', formData, accessHandle(), (data) => {
+    if (data.code === 0) {
+      localStorage.setItem('avatar', data.path)
+      message.success('头像更新成功')
+      setTimeout(() => {
+        window.location.reload()
+      }, 2000)
+    } else {
+      message.error('头像更新失败')
+    }
+  }, () => {
+    message.error('头像更新失败')
+  })
+}
+
+// 提交用户名
+const handleUsernameSubmit = async () => {
+  if (!usernameFormRef.value) return
+  await usernameFormRef.value.validate()
+  userApi.post('/user/update/username', {
+    currentUsername: usernameForm.value.currentUsername,
+    newUsername: usernameForm.value.newUsername,
+    email: usernameForm.value.email,
+    emailCode: usernameForm.value.emailCode
+  }, accessHandle(), (data) => {
+    if (data.code === 0) {
+      message.success('用户名更新成功')
+      removeToken()
+      router.push('/login')
+      fetchUserInfo()
+    } else {
+      message.error('用户名更新失败')
+    }
+  })
+}
+
+// 提交密码
 const handlePasswordSubmit = async () => {
-  if (!formValue.value.oldPassword) {
-    message.error('请输入旧密码')
-    return
-  }
-  if (!formValue.value.newPassword) {
-    message.error('请输入新密码')
-    return
-  }
-  if (!formValue.value.confirmPassword) {
-    message.error('请确认新密码')
-    return
-  }
-  if (formValue.value.newPassword !== formValue.value.confirmPassword) {
+  if (!passwordFormRef.value) return
+  await passwordFormRef.value.validate()
+  if (passwordForm.value.newPassword !== passwordForm.value.confirmPassword) {
     message.error('两次输入的密码不一致')
     return
   }
-  if (formValue.value.newPassword.length < 6) {
-    message.error('密码长度不能少于6位')
-    return
-  }
-  if (formValue.value.newPassword === formValue.value.oldPassword) {
+  if (passwordForm.value.newPassword === passwordForm.value.oldPassword) {
     message.error('新密码不能与旧密码相同')
     return
   }
   userApi.post('/user/update/password', {
-    oldPassword: formValue.value.oldPassword,
-    newPassword: formValue.value.newPassword,
-    confirmPassword: formValue.value.confirmPassword,
-    emailCode: formValue.value.emailCode
+    oldPassword: passwordForm.value.oldPassword,
+    newPassword: passwordForm.value.newPassword,
+    confirmPassword: passwordForm.value.confirmPassword,
+    email: passwordForm.value.email,
+    emailCode: passwordForm.value.emailCode
   }, accessHandle(), (data) => {
     if (data.code === 0) {
-      formValue.value.oldPassword = ''
-      formValue.value.newPassword = ''
-      formValue.value.confirmPassword = ''
-      formValue.value.emailCode = ''
-      handleLogout()
       message.success('密码更新成功')
+      passwordForm.value.oldPassword = ''
+      passwordForm.value.newPassword = ''
+      passwordForm.value.confirmPassword = ''
+      passwordForm.value.emailCode = ''
+      removeToken()
+      router.push('/login')
     } else {
       message.error('密码更新失败')
     }
-  }, (error) => {
-    message.error(error || '密码更新失败')
   })
 }
-const handleLogout = () => {
-  removeToken()
-  router.push('/login')
-}
-onMounted(async () => {
-  await fetchUserGroups() // 先获取用户组映射
-  await fetchUserInfo()         // 再获取用户信息
-})
 
+// 获取用户信息
+const fetchUserInfo = async () => {
+  userApi.get('/user/info/info', accessHandle(), (data) => {
+    if (data.code === 0) {
+      userInfo.value = {
+        ...data.data,
+        groupFriendlyName: groupNameMap.value[data.data.group] || data.data.group
+      }
+      nicknameForm.value.nickname = data.data.nickname
+      usernameForm.value.currentUsername = data.data.username
+    }
+  })
+}
+
+// 获取用户组信息
+const groupNameMap = ref<Record<string, string>>({})
+const fetchUserGroups = async () => {
+  userApi.get("/user/info/groups", accessHandle(), (data) => {
+    if (data.code === 0 && data.data?.groups) {
+      groupNameMap.value = data.data.groups.reduce((acc, group) => {
+        acc[group.name] = group.friendlyName
+        return acc
+      }, {} as Record<string, string>)
+    }
+  })
+}
+
+
+// 初始化
+const router = useRouter()
+const message = useMessage()
+onMounted(async () => {
+  await fetchUserGroups()
+  await fetchUserInfo()
+})
 </script>
 
 <style lang="scss">

@@ -67,8 +67,8 @@ const fetchNotice = async (): Promise<void> => {
     } else {
       message.error(data.message || '获取公告失败')
     }
-  }, (error) => {
-    message.error('获取公告失败:' + error.message)
+  }, (messageText) => {
+    message.error('获取公告失败:' + messageText)
   })
 }
 

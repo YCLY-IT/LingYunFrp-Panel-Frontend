@@ -74,6 +74,7 @@ const handleSubmit = async () => {
       (data) => {
         localStorage.setItem('username', data.data.username)
         localStorage.setItem('nickname', data.data.nickname)
+        localStorage.setItem('avatar', data.data.avatar)
         message.success(data.message)
         setTimeout(() => {
           router.push('/dashboard');

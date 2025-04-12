@@ -60,7 +60,9 @@
             <div class="payment-options">
               <div class="option-label">支付方式:</div>
               <div class="option-buttons">
+                <!-- 动态显示积分支付按钮 -->
                 <NButton
+                    v-if="product.payMethods.includes('points')"
                     type="default"
                     :class="{ active: product.isPoint }"
                     @click="product.isPoint = true"
@@ -68,7 +70,9 @@
                 >
                   积分支付
                 </NButton>
+                <!-- 动态显示价格支付按钮 -->
                 <NButton
+                    v-if="product.payMethods.includes('money')"
                     type="default"
                     :class="{ active: !product.isPoint }"
                     @click="product.isPoint = false"
@@ -114,9 +118,14 @@ const fetchProducts = () => {
   userApi.get("/user/info/product", accessHandle(), (data) => {
     if (data.code === 0) {
       products.value = data.data.products.map(product => {
+        // 解析 pay_method 字段为数组
+        const payMethods = product.pay_method.split(';')
+        // 默认选中第一个可用的支付方式
+        const isPoint = payMethods.includes('points') && (payMethods[0] === 'points')
         return {
           ...product,
-          isPoint: false, // 默认不使用积分支付
+          payMethods, // 存储支付方式数组
+          isPoint, // 默认选中第一个可用的支付方式
         }
       })
     } else {

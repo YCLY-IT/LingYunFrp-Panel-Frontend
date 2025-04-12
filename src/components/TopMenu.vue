@@ -13,7 +13,7 @@
           <div class="mobile-menu">
             <NScrollbar style="max-height: 500px">
               <NMenu :options="menuOptions" :value="currentKey" @update:value="handleMenuSelect"
-                :default-expanded-keys="defaultExpandedKeys" />
+                     :default-expanded-keys="defaultExpandedKeys" />
             </NScrollbar>
           </div>
         </NPopover>
@@ -24,7 +24,9 @@
           <NButton text>
             <template #icon>
               <NIcon>
-                <PersonCircleOutline />
+                <div class="avatar">
+                  <img :src="avatarUrl" alt="avatar" />
+                </div>
               </NIcon>
             </template>
             {{ nickname }}
@@ -51,7 +53,7 @@ import { switchButtonRailStyle } from '../constants/theme.ts'
 import { getMenuOptions, renderIcon, defaultExpandedKeys } from '../shared/menuOptions.ts'
 import LeftMenu from './LeftMenu.vue'
 import { userApi } from "@/net";
-import {accessHandle, removeToken} from "@/net/base.ts";
+import { accessHandle, removeToken } from "@/net/base.ts";
 
 const router = useRouter()
 const route = useRoute()
@@ -62,6 +64,9 @@ const message = useMessage()
 const nickname = localStorage.getItem('nickname')
 const showMobileMenu = ref(false)
 const isMobile = ref(window.innerWidth <= 768)
+
+// 从 localStorage 获取头像链接
+const avatarUrl = ref(localStorage.getItem('avatar') || 'https://via.placeholder.com/50')
 
 // 注入主题相关函数
 const { isDarkMode, toggleTheme } = inject('theme') as {
@@ -124,12 +129,14 @@ const options = [
 const handleThemeChange = () => {
   toggleTheme()
 }
+
 function userLogout() {
   userApi.get('/user/logout', accessHandle(), () => {
     removeToken();
   })
   router.push({ name: 'login' });
 }
+
 const handleUserMenuSelect = (key: string) => {
   switch (key) {
     case 'logout':
@@ -179,3 +186,23 @@ onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
 })
 </script>
+
+<style scoped>
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  transform: translateY(-6px) translateX(-12px);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+</style>

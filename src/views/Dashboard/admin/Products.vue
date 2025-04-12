@@ -305,8 +305,8 @@ const handleSubmitProduct = async () => {
     formData.pay_method = formValue.value.paymentMethod.join(';');
 
     const apiPath = mode.value === 'add'
-        ? '/user/admin/product/create'
-        : `/user/admin/product/update/${currentProduct.value?.ID}`;
+        ? '/admin/product/create'
+        : `/admin/product/update/${currentProduct.value?.ID}`;
 
     userApi.post(apiPath, formData, accessHandle(), (data) => {
       if (data.code === 0) {
@@ -325,7 +325,7 @@ const handleSubmitProduct = async () => {
 // 删除产品
 const handleDeleteProduct = async (productId: number) => {
   try {
-    userApi.post(`/user/admin/product/delete/${productId}`, {}, accessHandle(), (data) => {
+    userApi.post(`/admin/product/delete/${productId}`, {}, accessHandle(), (data) => {
       if (data.code === 0) {
         message.success('删除产品成功')
         fetchProducts()

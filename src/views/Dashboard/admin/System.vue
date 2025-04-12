@@ -372,7 +372,7 @@ import { ref, onMounted } from 'vue'
 import {
   NCard, NTabs, NTabPane, NForm, NFormItem,
   NInput, NInputNumber, NSwitch, NSpace, NButton,
-  useMessage, NTag, NDynamicTags, NDivider,
+  useMessage,
   NDataTable, NModal
 } from 'naive-ui'
 import type { FormRules, FormInst, DataTableColumns } from 'naive-ui'
@@ -692,7 +692,7 @@ const groupColumns: DataTableColumns<Group> = [
 // 保存公告
 const handleSaveBasic = async () => {
   try {
-    userApi.post("/user/admin/setting/set/Broadcast", {
+    userApi.post("/admin/setting/set/Broadcast", {
       message: basicForm.value.notice
     }, accessHandle(), (data) => {
       if (data.code === 0) {
@@ -710,7 +710,7 @@ const handleSaveBasic = async () => {
 const handleSaveSecurity = async () => {
   try {
     await securityFormRef.value?.validate()
-    userApi.post("/user/admin/setting/set/safety", {
+    userApi.post("/admin/setting/set/safety", {
       allowRegister: securityForm.value.allowRegister,
       allowRealname: securityForm.value.allowRealName,
       allowLogin: securityForm.value.allowLogin,
@@ -762,7 +762,7 @@ const fetchBasicSettings = async () => {
 // 获取安全设置
 const fetchSecuritySettings = async () => {
   try {
-    userApi.get("/user/admin/setting/get", accessHandle(), (data) => {
+    userApi.get("/admin/setting/get", accessHandle(), (data) => {
       if (data.code === 0) {
         const configs = data.data;
 
@@ -808,7 +808,7 @@ const handleAddDownloadSource = async () => {
   }
 
   try {
-    userApi.post("/user/admin/setting/download/create", {
+    userApi.post("/admin/setting/download/create", {
       id: addSourceForm.value.id,
       path: addSourceForm.value.path,
       name: addSourceForm.value.name,
@@ -844,7 +844,7 @@ const handleEditSource = async () => {
 
   try {
     userApi.post(
-        `/user/admin/setting/download/update/${editSourceForm.value.originalId}`,
+        `/admin/setting/download/update/${editSourceForm.value.originalId}`,
         {
           id: editSourceForm.value.id,
           path: editSourceForm.value.path,
@@ -873,7 +873,7 @@ const handleEditSource = async () => {
 // 删除下载源
 const handleRemoveDownloadSource = async (id: string) => {
   try {
-    userApi.post(`/user/admin/setting/download/delete/${id}`, {
+    userApi.post(`/admin/setting/download/delete/${id}`, {
       id: id,
     }, accessHandle(), (data) => {
       if (data.code === 0) {
@@ -893,7 +893,7 @@ const handleRemoveDownloadSource = async (id: string) => {
 // 添加用户组
 const handleAddGroup = async () => {
   try {
-    userApi.post(`/user/admin/setting/groups/create`, {
+    userApi.post(`/admin/setting/groups/create`, {
       ...groupForm.value,
       traffic: groupForm.value.traffic
     }, accessHandle(), (data) => {
@@ -924,7 +924,7 @@ const handleAddGroup = async () => {
 // 编辑用户组
 const handleEditGroup = async () => {
   try {
-    userApi.post(`/user/admin/setting/groups/update/${editGroupForm.value.id}`,
+    userApi.post(`/admin/setting/groups/update/${editGroupForm.value.id}`,
         {
           ...editGroupForm.value,
           traffic: editGroupForm.value.traffic
@@ -947,7 +947,7 @@ const handleEditGroup = async () => {
 // 删除用户组
 const handleRemoveGroup = async (id: string) => {
   try {
-    userApi.post(`/user/admin/setting/groups/delete/${id}`, {}, accessHandle(), (data) => {
+    userApi.post(`/admin/setting/groups/delete/${id}`, {}, accessHandle(), (data) => {
       if (data.code === 0) {
         message.success('删除用户组成功')
       } else {

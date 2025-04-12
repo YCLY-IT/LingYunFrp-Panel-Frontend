@@ -424,7 +424,7 @@ const renderStatus = (row: Proxy) => {
 const handleToggleProxy = async (proxy: Proxy | null) => {
   if (!proxy) return
   try {
-    userApi.post(`/user/admin/proxy/toggle/${proxy.ProxyId}`, {
+    userApi.post(`/admin/proxy/toggle/${proxy.ProxyId}`, {
       isDisabled: !proxy.is_disabled
     }, accessHandle(), (data) => {
       if (data.code === 0) {
@@ -654,7 +654,7 @@ const handleToggleBan = async (proxy: Proxy | null) => {
   if (!proxy) return
   try {
     if (proxy.is_banned) {
-      userApi.post(`/user/admin/proxy/ban/${proxy.ProxyId}`, {
+      userApi.post(`/admin/proxy/ban/${proxy.ProxyId}`, {
           isBanned: false
         }, accessHandle(), (data) => {
           if (data.code === 0) {
@@ -664,7 +664,7 @@ const handleToggleBan = async (proxy: Proxy | null) => {
           }
         })
     } else {
-      userApi.post(`/user/admin/proxy/ban/${proxy.ProxyId}`, {
+      userApi.post(`/admin/proxy/ban/${proxy.ProxyId}`, {
           isBanned: true
         }, accessHandle(), (data) => {
           if (data.code === 0) {
@@ -684,21 +684,13 @@ const handleToggleBan = async (proxy: Proxy | null) => {
 }
 
 const handleKickProxy = async (proxy: Proxy | null) => {
-  if (!proxy) return
-  try {
-    await AdminApi.kickProxy(proxy.proxyId)
-    message.success('强制下线成功')
-    showKickModal.value = false
-    loadData()
-  } catch (error: any) {
-    message.error(error?.response?.data?.message || '强制下线失败')
-  }
+  handleToggleProxy(proxy)
 }
 
 const handleDelete = async (proxy: Proxy | null) => {
   if (!proxy) return
   try {
-    userApi.post(`/user/admin/proxy/delete/${proxy.ProxyId}`, {}, accessHandle(), (data) => {
+    userApi.post(`/admin/proxy/delete/${proxy.ProxyId}`, {}, accessHandle(), (data) => {
       if (data.code === 0) {
         message.success('删除隧道成功')
       } else {
@@ -725,7 +717,7 @@ const handleEditSubmit = () => {
     if (!errors) {
       submitting.value = true
       try {
-        userApi.post("/user/admin/proxy/update", editForm.value, accessHandle(), (data) => {
+        userApi.post("/admin/proxy/update", editForm.value, accessHandle(), (data) => {
           if (data.code === 0) {
             message.success('更新隧道成功')
             showEditModal.value = false
@@ -746,7 +738,7 @@ const handleEditSubmit = () => {
 // 获取节点列表
 const fetchNodes = async () => {
   try {
-    userApi.post("/user/admin/node/list",{
+    userApi.post("/admin/node/list",{
     }, accessHandle(), (data) => {
       if (data.code === 0) {
         const nodes = data.data.nodes
@@ -790,11 +782,11 @@ const loadData = async () => {
       params.nodeId = filters.value.nodeId
     }
 
-    userApi.post("/user/admin/proxy/list", params, accessHandle(), (data) => {
+    userApi.post("/admin/proxy/list", params, accessHandle(), (data) => {
       if (data.code === 0) {
         proxies.value = data.data.proxies
         pagination.value.pageCount = Math.ceil(data.data.totalProxies / pagination.value.pageSize)
-        pagination.value.itemCount = data.data.total
+        pagination.value.itemCount = data.data.pagination.total
       } else {
         message.error(data.message || '获取数据失败')
       }

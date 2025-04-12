@@ -4,7 +4,6 @@
     <NModal v-model:show="showRealnameModal" preset="dialog" title="未实名认证提示" :show-icon="false" style="width: 400px;">
       <div>
         您的账户尚未完成实名认证, 请尽快完成实名认证。<br>
-        实名认证后, 您将获得更多节点权限, 且双向带宽将提升至 30Mbps。
       </div>
       <div style="margin-top: 12px; text-align: right;">
         <NText depth="3">{{ countDown }}秒后自动关闭</NText>
@@ -42,8 +41,8 @@
                     <NSpace align="center">
                       <NSpace :size="4">
                         <NTag type="info" size="small"># {{ node.id }}</NTag>
-                        <NTag :type="node.isOnline ? 'success' : 'error'" size="small">
-                          {{ node.isOnline ? '在线' : '离线' }}
+                        <NTag :type="!node.isOnline ? 'success' : 'error'" size="small">
+                          {{ !node.isOnline ? '在线' : '离线' }}
                         </NTag>
                       </NSpace>
                       <NText>{{ node.name }}</NText>
@@ -369,8 +368,12 @@ const selectedNode = ref<{
 
 const handleNodeChange = (value: number | null) => {
   if (value) {
-    const node = nodeOptions.value.find(opt => opt.value === value)
+    const node = nodeOptions.value.find(opt => opt.value === value);
     if (node) {
+      if (!node.isOnline) {
+        message.error('该节点当前处于离线状态，无法选择');
+        return; // 阻止选择离线节点
+      }
       selectedNode.value = {
         id: node.id,
         name: node.name,
@@ -378,21 +381,21 @@ const handleNodeChange = (value: number | null) => {
         allowedProtocols: node.allowedProtocols,
         allowGroups: node.allowGroups,
         portRange: node.portRange
-      }
-      formValue.value.nodeId = value
-      formValue.value.type = selectedNode.value?.allowedProtocols[0] || null
-      formValue.value.remotePort = null
+      };
+      formValue.value.nodeId = value;
+      formValue.value.type = selectedNode.value?.allowedProtocols[0] || null;
+      formValue.value.remotePort = null;
 
       // 在移动端选择节点后自动进入下一步
       if (isMobile.value) {
-        currentStep.value = 2
+        currentStep.value = 2;
       }
     }
   } else {
-    selectedNode.value = null
-    formValue.value.nodeId = null
+    selectedNode.value = null;
+    formValue.value.nodeId = null;
   }
-}
+};
 
 const allowedProxyTypeOptions = computed(() => {
   if (!selectedNode.value) return proxyTypeOptions
@@ -550,5 +553,125 @@ const handleGetFreePort = async () => {
 </script>
 
 <style lang="scss" scoped>
-@use '../../../assets/styles/createProxy.scss';
+@use '@/assets/styles/variables' as *;
+.divider-line {
+  border-bottom: 1px solid $divider-color;
+  margin: 16px 0;
+}
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.75fr;
+  gap: 20px;
+  align-items: start;
+
+  .node-card {
+    width: 410px;
+    :deep(.n-card-header) {
+      border-bottom: 1px solid $border-color;
+    }
+
+    :deep(.n-card__content) {
+      height: 100%;
+      max-height: calc(82vh);
+      overflow-y: auto;
+
+      &::-webkit-scrollbar {
+        width: 5px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background-color: rgba(255, 255, 255, 0.2);
+        border-radius: 5px;
+        cursor: pointer;
+
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.3);
+        }
+      }
+
+      &::-webkit-scrollbar-track {
+        background-color: transparent;
+      }
+    }
+  }
+
+  .config-card {
+    overflow-y: auto;
+
+    &::-webkit-scrollbar {
+      width: 5px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: rgba(255, 255, 255, 0.2);
+      border-radius: 5px;
+      cursor: pointer;
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.3);
+      }
+    }
+
+    &::-webkit-scrollbar-track {
+      background-color: transparent;
+    }
+  }
+
+  .node-item {
+    border: 1px solid $border-color;
+    transition: $transition-all;
+    cursor: pointer;
+    height: 100%;
+  }
+
+  .selected-node {
+    box-shadow: 0 0 8px rgba($primary-color, 0.2);
+    background-color: rgba($primary-color, 0.05);
+    border-color: $primary-color !important;
+
+    &:hover {
+      background-color: rgba($primary-color, 0.08);
+    }
+  }
+
+  .info-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+
+    .label {
+      width: 80px;
+      color: $text-color-2;
+    }
+  }
+
+  .steps-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 0 5px;
+    margin-top: 5px;
+
+    .mobile-steps {
+      flex: 1;
+    }
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+
+    .node-card, .config-card {
+      :deep(.n-card__content) {
+        height: 100%;
+        overflow-y: auto;
+        max-height: 100%;
+      }
+    }
+  }
+}
 </style>

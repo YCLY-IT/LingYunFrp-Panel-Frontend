@@ -23,11 +23,7 @@ const defaultFailure = (messageText: string, code: number, url: string) => {
 const defaultError = (err: Error) => {
     //! TODO: only console error, don't show message here
     console.error(err);
-    if (err && err.message) {
-        message.error(`请求失败，错误信息：${err.message}`);
-    } else {
-        message.error('请求失败，请检查网络或联系管理员');
-    }
+        message.error('发生了一些小问题,要不试试刷新一下（＾ω＾）');
 };
 
 //! TODO: Specifies the params and return value type

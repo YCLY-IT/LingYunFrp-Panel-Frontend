@@ -574,7 +574,7 @@ const handleEditSubmit = () => {
           allowType: formModel.value.allowType.join(';'),
           need_realname: formModel.value.need_realname
         }
-        userApi.post(`/user/admin/node/set/${editingNode.value.ID}`, config, accessHandle(), (data) => {
+        userApi.post(`/admin/node/set/${editingNode.value.ID}`, config, accessHandle(), (data) => {
           if (data.code === 0) {
             message.success('更新节点成功')
             showEditModal.value = false
@@ -623,7 +623,7 @@ const handleAddNode = () => {
           allowGroup: formModel.value.allowGroup.join(';'),
           allowType: formModel.value.allowType.join(';')
         }
-        userApi.post(`/user/admin/node/create`, config, accessHandle(), (data) => {
+        userApi.post(`/admin/node/create`, config, accessHandle(), (data) => {
           if (data.code === 0) {
             message.success('添加节点成功')
             showAddModal.value = false
@@ -682,7 +682,7 @@ const currentNode = ref<Node | null>(null)
 const handleToggleNode = async (node: Node) => {
   try {
     submitting.value = true
-    userApi.post(`/user/admin/node/toggle/${node.ID}`, { isDisabled: !node.isDisabled }, accessHandle(), (data) => {
+    userApi.post(`/admin/node/toggle/${node.ID}`, { isDisabled: !node.isDisabled }, accessHandle(), (data) => {
       if (data.code === 0) {
         node.isDisabled = !node.isDisabled
         message.success(node.isDisabled ? '禁用节点成功' : '启用节点成功')
@@ -702,7 +702,7 @@ const handleToggleNode = async (node: Node) => {
 const handleDeleteNode = async (node: Node) => {
   try {
     submitting.value = true
-    userApi.post(`/user/admin/node/delete/${node.ID}`, {}, accessHandle(), (data) => {
+    userApi.post(`/admin/node/delete/${node.ID}`, {}, accessHandle(), (data) => {
       if (data.code === 0) {
         message.success('删除节点成功')
       } else {
@@ -776,7 +776,7 @@ const fetchNodes = async () => {
       params.isDisabled = selectedStatus.value === 'disabled'
     }
 
-    userApi.post("/user/admin/node/list", params, accessHandle(), (data) => {
+    userApi.post("/admin/node/list", params, accessHandle(), (data) => {
       if (data.code === 0) {
         nodes.value = data.data.nodes.map(node => ({
           ...node,

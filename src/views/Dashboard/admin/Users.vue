@@ -338,7 +338,7 @@ const handleStatusFilter = () => {
 
 const handleToggleStatus = async (user: UserInfo) => {
   try {
-    userApi.post("/user/admin/user/toggle", {
+    userApi.post("/admin/user/toggle", {
       userId: user.ID,
       status: user.status === 1? 0 : 1
     }, accessHandle(), (data) => {
@@ -362,7 +362,7 @@ const handleEditSubmit = () => {
         editForm.value.traffic *= 1024
         editForm.value.out_limit *= 128
         editForm.value.in_limit *= 128
-        userApi.post(`/user/admin/user/set/${editForm.value.ID}`, editForm.value, accessHandle(), (data) => {
+        userApi.post(`/admin/user/set/${editForm.value.ID}`, editForm.value, accessHandle(), (data) => {
           if (data.code === 0) {
             message.success('更新用户成功')
           } else {
@@ -382,7 +382,7 @@ const handleEditSubmit = () => {
 
 const handleEdit = async (user: UserInfo) => {
   try {
-    userApi.get(`/user/admin/user/get/${user.ID}`,  accessHandle(), (data) => {
+    userApi.get(`/admin/user/get/${user.ID}`,  accessHandle(), (data) => {
       if (data.code === 0) {
         const userDetail = data.data
         editForm.value = {
@@ -468,7 +468,7 @@ const loadData = async () => {
       params.status = filters.value.status
     }
 
-    userApi.post("/user/admin/user/list", params, accessHandle(), (data) => {
+    userApi.post("/admin/user/list", params, accessHandle(), (data) => {
       if (data.code === 0) {
         users.value = processUsers(data.data.users)
         pagination.value.pageCount = data.data.totalPages

@@ -774,8 +774,8 @@ const handleToggleConfirm = async () => {
       } else {
         message.error(data.message || '操作失败')
       }
-    }, (error) => {
-      message.error(error.message || '操作失败')
+    }, (messageText) => {
+      message.error(messageText || '操作失败')
     })
   } catch (error: any) {
     message.error(error?.response?.data?.message || '操作失败')
@@ -830,8 +830,8 @@ const handleEditSubmit = () => {
           } else {
             message.error(data.message || '更新隧道失败')
           }
-        }, (error) => {
-          message.error(error.message || '更新隧道失败')
+        }, (messageText) => {
+          message.error("更新隧道失败:" + messageText || '更新隧道失败')
         }, () => {
           loading.value = false
         })
@@ -866,14 +866,16 @@ const handleDeleteConfirm = async () => {
     userApi.post("/proxy/delete", {
       proxyId: proxyToDelete.value.proxyId
     }, accessHandle(), (data) => {
+      console.log(data)
       if (data.code === 0) {
         message.success('删除隧道成功')
-        window.location.reload()
+        handleRefresh()
       } else {
-        message.error(data.message || '删除隧道失败')
+        message.error('删除隧道失败')
       }
-    }, () => {
+    }, (messageText) => {
       loading.value = false
+      message.error(messageText || '删除隧道失败')
     })
     showDeleteModal.value = false
   } catch (error: any) {
