@@ -25,7 +25,7 @@
                   <NButton v-if="!userInfo.isRealname"
                            text
                            type="primary"
-                           @click="router.push('/dashboard/realname')"
+                           @click="router.push('/dashboard/user/profile')"
                            class="ml-2"
                   >
                     立即认证

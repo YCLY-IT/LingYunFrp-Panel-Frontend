@@ -613,17 +613,13 @@ const handleRefresh = async () => {
   }
 }
 
-const getNodeLabel = (nodeId: number) => {
-  const node = nodeOptions.value.find(node => node.value === nodeId)
-  return node ? `#${nodeId} - ${node.label}` : `#${nodeId}`
-}
 
 // 获取节点列表
 const fetchNodes = async () => {
   try {
     userApi.get("/proxy/node/list",  accessHandle(), (data) => {
       if (data.code === 0) {
-        nodeOptions.value = data.data.map((node: any) => ({
+        nodeOptions.value = (data.data || []).map((node: any) => ({
           label: node.name,
           value: node.nodeId,
           hostname: node.hostname
@@ -632,11 +628,15 @@ const fetchNodes = async () => {
         message.error('获取节点列表失败')
       }
     }, () => {
-      message.error('获取节点列表失败')
     })
   } catch (error: any) {
     message.error('获取节点列表失败')
   }
+}
+
+const getNodeLabel = (nodeId: number) => {
+  const node = nodeOptions.value?.find(node => node.value === nodeId)
+  return node ? `#${nodeId} - ${node.label}` : `#${nodeId}`
 }
 
 // 初始化数据

@@ -533,7 +533,7 @@ const groupRules: FormRules = {
 const downloadSourceColumns: DataTableColumns<DownloadSource> = [
   {
     title: 'ID',
-    key: 'ID'
+    key: 'id'
   },
   {
     title: '名称',

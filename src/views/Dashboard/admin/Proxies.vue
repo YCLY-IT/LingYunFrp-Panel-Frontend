@@ -790,8 +790,8 @@ const loadData = async () => {
       } else {
         message.error(data.message || '获取数据失败')
       }
-    }, (error) => {
-      message.error(error.message || '获取数据失败')
+    }, (messageText) => {
+      message.error('获取数据失败, ' + messageText)
     })
   } catch (error: any) {
     message.error(error?.response?.data?.message || '获取数据失败')

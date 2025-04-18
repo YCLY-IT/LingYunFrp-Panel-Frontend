@@ -86,7 +86,7 @@ const handleRealname = () => {
   showRealnameModal.value = false
   userApi.get("/user/info/info", accessHandle(), (data) => {
     if (data.code === 0) {
-      IsRealname.value = data.data.realname
+      IsRealname.value = data.data.isRealname
     } else {
       message.error(data.message || '获取用户信息失败')
     }

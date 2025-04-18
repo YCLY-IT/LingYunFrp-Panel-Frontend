@@ -363,9 +363,9 @@ const pagination = ref({
 const columns: DataTableColumns = [
   {
     title: 'ID',
-    key: 'ID',
+    key: 'id',
     render(row) {
-      return h('div', { style: 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' }, row.ID)
+      return h('div', { style: 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' }, row.id)
     }
   },
   {
@@ -491,10 +491,10 @@ const columns: DataTableColumns = [
       return h(
         NTag,
         {
-          type: row.isDisabled ? 'success' : 'error',
+          type: !row.isDisabled ? 'success' : 'error',
           size: 'small'
         },
-        { default: () => row.isDisabled ? '已启用' : '已禁用' }
+        { default: () => !row.isDisabled ? '已启用' : '已禁用' }
       )
     }
   },
@@ -560,7 +560,7 @@ const handleEditSubmit = () => {
       submitting.value = true
       try {
         const config: UpdateNodeArgs = {
-          ID: editingNode.value.ID,
+          ID: editingNode.value.id,
           name: formModel.value.name,
           hostname: formModel.value.hostname,
           ip: formModel.value.ip,
@@ -574,7 +574,7 @@ const handleEditSubmit = () => {
           allowType: formModel.value.allowType.join(';'),
           need_realname: formModel.value.need_realname
         }
-        userApi.post(`/admin/node/set/${editingNode.value.ID}`, config, accessHandle(), (data) => {
+        userApi.post(`/admin/node/set/${editingNode.value.id}`, config, accessHandle(), (data) => {
           if (data.code === 0) {
             message.success('更新节点成功')
             showEditModal.value = false
@@ -682,7 +682,7 @@ const currentNode = ref<Node | null>(null)
 const handleToggleNode = async (node: Node) => {
   try {
     submitting.value = true
-    userApi.post(`/admin/node/toggle/${node.ID}`, { isDisabled: !node.isDisabled }, accessHandle(), (data) => {
+    userApi.post(`/admin/node/toggle/${node.id}`, { isDisabled: !node.isDisabled }, accessHandle(), (data) => {
       if (data.code === 0) {
         node.isDisabled = !node.isDisabled
         message.success(node.isDisabled ? '禁用节点成功' : '启用节点成功')
@@ -702,9 +702,12 @@ const handleToggleNode = async (node: Node) => {
 const handleDeleteNode = async (node: Node) => {
   try {
     submitting.value = true
-    userApi.post(`/admin/node/delete/${node.ID}`, {}, accessHandle(), (data) => {
+    userApi.post(`/admin/node/delete/${node.id}`, {}, accessHandle(), (data) => {
       if (data.code === 0) {
         message.success('删除节点成功')
+        setTimeout(() => {
+          fetchNodes()
+        }, 100)
       } else {
         message.error(data.message || '删除节点失败')
       }
@@ -727,7 +730,7 @@ const dropdownOptions = (row: Node): DropdownOption[] => [
     icon: () => h(NIcon, null, { default: () => h(CreateOutline) })
   },
   {
-    label: row.isDisabled ? '禁用' : '启用',
+    label: !row.isDisabled ? '禁用' : '启用',
     key: 'toggle',
     disabled: false,
     type: row.isDisabled ? 'warning' : 'success',
@@ -801,18 +804,21 @@ const fetchUserGroups = async () => {
   try {
     userApi.get("/user/info/groups", accessHandle(), (data) => {
       if (data.code === 0) {
-        groupOptions.value = data.data.groups.map(group => ({
-          label: group.friendlyName,
-          value: group.name
-        }))
+        // 过滤掉 traffic 和 proxies 组
+        groupOptions.value = data.data.groups
+            .filter(group => group.name !== 'traffic' && group.name !== 'proxies')
+            .map(group => ({
+              label: group.friendlyName,
+              value: group.name
+            }));
       } else {
-        message.error(data.message || '获取用户组列表失败')
+        message.error(data.message || '获取用户组列表失败');
       }
-    })
+    });
   } catch (error: any) {
-    message.error(error?.response?.data?.message || '获取用户组列表失败')
+    message.error(error?.response?.data?.message || '获取用户组列表失败');
   }
-}
+};
 
 const loadData = () => {
   fetchNodes()

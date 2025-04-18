@@ -212,9 +212,9 @@ const rules: FormRules = {
 const columns: DataTableColumns<UserInfo> = [
   {
     title: 'ID',
-    key: 'ID',
+    key: 'id',
     render(row) {
-      return h('div', { style: 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' }, row.ID)
+      return h('div', { style: 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' }, row.id)
     }
   },
   {

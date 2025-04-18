@@ -41,8 +41,8 @@
                     <NSpace align="center">
                       <NSpace :size="4">
                         <NTag type="info" size="small"># {{ node.id }}</NTag>
-                        <NTag :type="!node.isOnline ? 'success' : 'error'" size="small">
-                          {{ !node.isOnline ? '在线' : '离线' }}
+                        <NTag :type="node.isOnline ? 'success' : 'error'" size="small">
+                          {{ node.isOnline ? '在线' : '离线' }}
                         </NTag>
                       </NSpace>
                       <NText>{{ node.name }}</NText>
