@@ -100,16 +100,6 @@
             <NFormItem label="确认密码" path="confirmPassword">
               <NInput v-model:value="passwordForm.confirmPassword" placeholder="请确认新密码"/>
             </NFormItem>
-            <NFormItem label="邮箱" path="email">
-              <NInput v-model:value="passwordForm.email" placeholder="请输入邮箱"/>
-              <NButton type="primary" style="margin-left: 8px;" ghost :disabled="isEmailCodeSending || emailCodeCountdown > 0"
-                       @click="handleSendEmailCode('UpdatePassword', passwordForm.email)" :loading="isEmailCodeSending">
-                {{ emailCodeButtonText }}
-              </NButton>
-            </NFormItem>
-            <NFormItem label="邮箱验证码" path="emailCode">
-              <NInput v-model:value="passwordForm.emailCode" placeholder="请输入邮箱验证码"/>
-            </NFormItem>
             <div class="form-actions">
               <NButton type="primary" @click="handlePasswordSubmit">保存修改</NButton>
             </div>
@@ -201,8 +191,6 @@ const passwordForm = ref({
   oldPassword: '',
   newPassword: '',
   confirmPassword: '',
-  email: '',
-  emailCode: ''
 })
 const passwordRules: FormRules = {
   oldPassword: [
@@ -360,15 +348,12 @@ const handlePasswordSubmit = async () => {
     oldPassword: passwordForm.value.oldPassword,
     newPassword: passwordForm.value.newPassword,
     confirmPassword: passwordForm.value.confirmPassword,
-    email: passwordForm.value.email,
-    emailCode: passwordForm.value.emailCode
   }, accessHandle(), (data) => {
     if (data.code === 0) {
       message.success('密码更新成功')
       passwordForm.value.oldPassword = ''
       passwordForm.value.newPassword = ''
       passwordForm.value.confirmPassword = ''
-      passwordForm.value.emailCode = ''
       removeToken()
       router.push('/login')
     } else {

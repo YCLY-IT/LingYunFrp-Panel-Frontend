@@ -339,7 +339,7 @@ const handleStatusFilter = () => {
 const handleToggleStatus = async (user: UserInfo) => {
   try {
     userApi.post("/admin/user/toggle", {
-      userId: user.ID,
+      userId: user.id,
       status: user.status === 1? 0 : 1
     }, accessHandle(), (data) => {
       if (data.code === 0) {
@@ -382,11 +382,11 @@ const handleEditSubmit = () => {
 
 const handleEdit = async (user: UserInfo) => {
   try {
-    userApi.get(`/admin/user/get/${user.ID}`,  accessHandle(), (data) => {
+    userApi.get(`/admin/user/get/${user.id}`,  accessHandle(), (data) => {
       if (data.code === 0) {
         const userDetail = data.data
         editForm.value = {
-          ID: userDetail.ID,
+          ID: userDetail.id,
           username: userDetail.username,
           email: userDetail.email,
           group: userDetail.group,

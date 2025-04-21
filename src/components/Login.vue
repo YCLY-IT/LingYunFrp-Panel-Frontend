@@ -96,7 +96,7 @@ const handleSubmit = async () => {
   margin-bottom: 16px; // 根据需要调整间距
 }
 .login {
-  background-image: url('https://bing.img.run/uhd.php');
+  background-image: url('https://dailybing.com/api/v1');
   height: 100vh;
   display: flex;
 }

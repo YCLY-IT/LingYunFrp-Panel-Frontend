@@ -202,7 +202,7 @@ const handleSubmit = async () => {
 @use '../assets/styles/register.scss';
 
 .register {
-  background-image: url('https://bing.img.run/uhd.php');
+  background-image: url('https://dailybing.com/api/v1');
   display: flex;
 
 }

@@ -132,7 +132,7 @@ const message = useMessage()
 
 // 新的数据结构
 interface Product {
-  ID: number
+  id: number
   name: string
   url: string
   arch: string
@@ -168,11 +168,11 @@ const isDockerProduct = computed(() => {
 const productOptions = computed<SelectOption[]>(() =>
     products.value.map(product => ({
       label: product.name,
-      value: product.ID.toString()
+      value: product.id.toString()
     })))
 
 const currentProduct = computed(() =>
-    products.value.find(p => p.ID.toString() === selectedProduct.value))
+    products.value.find(p => p.id.toString() === selectedProduct.value))
 
 const handleProductChange = () => {
   if (currentProduct.value) {
@@ -253,7 +253,7 @@ const fetchProducts = async () => {
         arch: product.arch
       }))
       if (data.length > 0) {
-        selectedProduct.value = data[0].ID.toString()
+        selectedProduct.value = data[0].id.toString()
       }
     })
   } catch (error) {

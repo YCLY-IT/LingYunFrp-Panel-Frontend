@@ -8,11 +8,6 @@
       </template>
       <template v-else>
         <div class="user-info-item">
-          <div class="user-info-label">用户名</div>
-          <div class="user-info-value">{{ userInfo.username }}</div>
-        </div>
-
-        <div class="user-info-item">
           <div class="user-info-label">用户昵称</div>
           <div class="user-info-value">
               {{ userInfo.nickname }}
@@ -55,10 +50,13 @@
         <div class="user-info-item">
           <div class="user-info-label">剩余流量</div>
           <div class="user-info-value">
-            {{ formattedTraffic }}
-          </div>
+            {{ formattedTraffic }} </div>
         </div>
-
+        <div class="user-info-item">
+          <div class="user-info-label">剩余积分</div>
+          <div class="user-info-value">
+            {{ userInfo.point }} 分</div>
+        </div>
         <div class="user-info-item">
           <div class="user-info-label">入站带宽</div>
           <div class="user-info-value">{{ userInfo.inlimit / 128 }} Mbps</div>
@@ -112,6 +110,7 @@ const userInfo = ref({
   outlimit: 0,
   inlimit: 0,
   email: '',
+  point: 0,
   status: 0,
   todaySigned: false
 })

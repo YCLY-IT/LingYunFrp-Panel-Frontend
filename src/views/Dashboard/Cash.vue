@@ -161,7 +161,7 @@ const handleBuy = (product) => {
 
   // 调用API进行购买
   userApi.post("/user/buy", {
-    productId: product.ID,
+    productId: product.id,
     type: product.type,
     amount: product.selectedAmount,
     isPoint: product.isPoint,

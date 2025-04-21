@@ -206,16 +206,16 @@
               </span>
             </div>
           </template>
-          <div class="modal-info-item">
-            <span class="label">上次启动时间：</span>
-            <span class="value">{{ selectedProxy.lastStartTime ? formatTime(selectedProxy.lastStartTime) : '从未启动'
-              }}</span>
-          </div>
-          <div class="modal-info-item">
-            <span class="label">上次关闭时间：</span>
-            <span class="value">{{ selectedProxy.lastCloseTime ? formatTime(selectedProxy.lastCloseTime) : '从未关闭'
-              }}</span>
-          </div>
+<!--          <div class="modal-info-item">-->
+<!--            <span class="label">上次启动时间：</span>-->
+<!--            <span class="value">{{ selectedProxy.lastStartTime ? formatTime(selectedProxy.lastStartTime) : '从未启动'-->
+<!--              }}</span>-->
+<!--          </div>-->
+<!--          <div class="modal-info-item">-->
+<!--            <span class="label">上次关闭时间：</span>-->
+<!--            <span class="value">{{ selectedProxy.lastCloseTime ? formatTime(selectedProxy.lastCloseTime) : '从未关闭'-->
+<!--              }}</span>-->
+<!--          </div>-->
         </div>
         <template v-if="selectedProxy.proxyType === 'http' || selectedProxy.proxyType === 'https'">
           <div class="proxy-detail-right">
@@ -677,10 +677,11 @@ const handleToken = async () => {
   }
 }
 handleToken()
+
 const handleGenConfig = async (proxy: Proxy) => {
   selectedProxy.value = proxy
   showConfigModal.value = true
-  runArgs.value = `./lyfrpc -t ${token.value} -p ${proxy.proxyId}`
+  runArgs.value = `./lyfrpc -t ${token.value.token} -p ${proxy.proxyId}`
 
   try {
     loading.value = true
