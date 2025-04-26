@@ -245,6 +245,7 @@ interface NodeOption extends SelectOption {
   id: number;
   name: string;
   hostname: string;
+  ip: string;
 }
 
 const nodeOptions = ref<NodeOption[]>([])
@@ -508,9 +509,9 @@ const handleSelect = (key: string, row: Proxy) => {
 const columns: DataTableColumns<Proxy> = [
   {
     title: 'ID',
-    key: 'proxyId',
+    key: 'proxy_id',
     render(row) {
-      return h('div', { style: 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' }, row.ProxyId)
+      return h('div', { style: 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' }, row.proxy_id)
     }
   },
   {
@@ -553,7 +554,7 @@ const columns: DataTableColumns<Proxy> = [
   },
   {
     title: '远程端口/域名',
-    key: 'remotePort',
+    key: ' remotePort',
     render(row) {
       if (['http', 'https'].includes(row.proxy_type)) {
         const domains = (row.domain || '-')
@@ -743,10 +744,10 @@ const fetchNodes = async () => {
       if (data.code === 0) {
         const nodes = data.data.nodes
         nodeOptions.value = nodes.map((node: UserNode) => ({
-          id: node.ID,
+          id: node.id,
           name: node.name,
-          value: node.ID,
-          label: `#${node.ID} - ${node.name}`,
+          value: node.id,
+          label: `#${node.id} - ${node.name}`,
           hostname: node.hostname
         }))
       } else {

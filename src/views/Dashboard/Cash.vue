@@ -82,6 +82,11 @@
               </div>
             </div>
 
+            <!-- 新增：支付方式提示 -->
+            <div class="payment-note" v-if="!product.isPoint">
+              注意：目前金钱支付只支持支付宝
+            </div>
+
             <!-- 总价显示 -->
             <div class="price-display">
               <div v-if="product.isPoint">
@@ -217,6 +222,14 @@ onMounted(() => {
 .price-display {
   margin: 12px 0;
   font-weight: bold;
+  text-align: center;
+}
+
+/* 新增样式：支付方式提示 */
+.payment-note {
+  margin: 8px 0;
+  color: #ff4d4f;
+  font-size: 12px;
   text-align: center;
 }
 
