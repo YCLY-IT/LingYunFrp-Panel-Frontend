@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { createDiscreteApi } from 'naive-ui'; // 新增离散式API
+import { Window } from '@/types'
 
 const api = axios.create({
     baseURL: 'http://localhost:8081/',
@@ -8,22 +8,17 @@ const api = axios.create({
         'Content-Type': 'application/x-www-form-urlencoded'
     }
 });
-//! TODO: this is useless
-const { message } = createDiscreteApi(
-    ['message'],
-    { message: { duration: 4500 } }
-);
 
 const defaultFailure = (messageText: string, code: number, url: string) => {
     //! TODO: only console warning, don't show message here
-    message.warning(`${messageText}`);
+    window.$message?.warning(`${messageText}`);
 };
 
 
 const defaultError = (err: Error) => {
     //! TODO: only console error, don't show message here
     console.error(err);
-        message.error('发生了一些小问题,要不试试刷新一下（＾ω＾）');
+    window.$message?.error(`发生了一些小问题,要不试试刷新一下（＾ω＾）`);
 };
 
 //! TODO: Specifies the params and return value type
@@ -49,7 +44,7 @@ function getToken() {
         if (token.expires && token.expires < new Date().getTime()) {
             removeToken();
             //! TODO: only return error, don't show message here
-            message.warning('登录信息已过期，请重新登录');
+            window.$message?.error('登录信息已过期，请重新登录');
             return null;
         }
         return token.Authorization;
@@ -63,6 +58,8 @@ function removeToken() {
 }
 
 //! TODO: why the return value has two type(string or Object)?
+declare const window: Window
+
 function accessHandle() {
     //! TODO: what the type of token? string or Object
     const token = getToken();
@@ -70,6 +67,14 @@ function accessHandle() {
         //! TODO:                only can be string
         'Authorization': `${getToken()}`
     } : {};
+    
+    // 在请求开始时显示加载条
+    window.$loadingBar?.start()
+    
+   return {
+    'Authorization': `${getToken()}`
+};
+
 }
 
 //! TODO: use promise instead of callback
@@ -92,8 +97,10 @@ function get(url: string, headers: Record<string, string>, success: Function, fa
     }).then(({ data }) => {
         if (data.code === 0) {
             success(data);
+            window.$loadingBar?.finish()
         } else {
-            failure(data);
+            failure(data.message, data.code, data.url);
+            window.$loadingBar?.error()
         }
     }).catch(err => error(err));
 }

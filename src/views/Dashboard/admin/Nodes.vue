@@ -781,20 +781,23 @@ const fetchNodes = async () => {
 
     userApi.post("/admin/node/list", params, accessHandle(), (data) => {
       if (data.code === 0) {
-        nodes.value = data.data.nodes.map(node => ({
+        nodes.value = (data.data?.nodes || []).map(node => ({
           ...node,
           allowGroup: node.group || '',
           allowType: node.allow_type || ''
         }))
-        pagination.value.itemCount = data.data.total
-        pagination.value.pageCount = Math.ceil(data.data.total / pagination.value.pageSize)
+        pagination.value.itemCount = data.data?.total || 0
+        pagination.value.pageCount = Math.ceil((data.data?.total || 0) / pagination.value.pageSize)
       } else {
         message.error(data.message || '获取节点列表失败')
+        nodes.value = []
+        pagination.value.itemCount = 0
+        pagination.value.pageCount = 0
       }
     })
   } catch (error: any) {
-    message.error(error?.response?.data?.message || '获取节点列表失败')
-    nodes.value = [] // 确保即使失败，nodes也有默认值
+    message.error(messageText || '获取节点列表失败')
+    nodes.value = []
   } finally {
     loading.value = false
   }

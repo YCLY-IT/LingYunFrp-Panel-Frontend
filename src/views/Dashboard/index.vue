@@ -4,7 +4,6 @@
       欢迎回来, {{ nickname }}
     </div>
     <div class="content-grid">
-      <!-- 左侧列：用户信息和广告 -->
       <div class="left-column">
         <NCard title="用户信息" class="info-card">
           <NAlert v-if="IsRealname === false" type="warning" title="未实名认证" style="margin-bottom: 16px">

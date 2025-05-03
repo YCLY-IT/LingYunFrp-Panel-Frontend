@@ -40,6 +40,12 @@
         <NFormItem label="积分价格" path="pointsPrice">
           <NInputNumber v-model:value="formValue.pointsPrice" placeholder="请输入积分价格" />
         </NFormItem>
+        <NFormItem label="是否为永久" path="is_permanent">
+          <NSwitch v-model:value="formValue.is_permanent">
+            <template #on>是</template>
+            <template #off>否</template>
+          </NSwitch>
+        </NFormItem>
         <NFormItem label="支付方式" path="paymentMethod">
           <NCheckboxGroup v-model:value="formValue.paymentMethod">
             <NSpace>
@@ -81,6 +87,12 @@
         <!-- 新增积分价格字段 -->
         <NFormItem label="积分价格" path="pointsPrice">
           <NInputNumber v-model:value="formValue.pointsPrice" placeholder="请输入积分价格" />
+        </NFormItem>
+        <NFormItem label="是否为永久" path="is_permanent">
+          <NSwitch v-model:value="formValue.is_permanent">
+            <template #on>是</template>
+            <template #off>否</template>
+          </NSwitch>
         </NFormItem>
         <NFormItem label="支付方式" path="paymentMethod">
           <NCheckboxGroup v-model:value="formValue.paymentMethod">
@@ -146,6 +158,7 @@ const formValue = ref<Product>({
   type: '',
   name: '',
   desc: '',
+  is_permanent: false,
   price: 0,
   pointsPrice: 0,
   pay_method: ''
@@ -314,7 +327,7 @@ const handleSubmitProduct = async () => {
 
     const apiPath = mode.value === 'add'
         ? '/admin/product/create'
-        : `/admin/product/update/${currentProduct.value?.ID}`;
+        : `/admin/product/update/${currentProduct.value?.id}`;
 
     userApi.post(apiPath, formData, accessHandle(), (data) => {
       if (data.code === 0) {

@@ -79,7 +79,7 @@
           </template>
           {{ signButtonText }}
         </NButton>
-        <NText depth="3" style="font-size: 13px;">签到一次可以获得 100-500 积分 </NText>
+        <NText depth="3" style="font-size: 13px;">签到一次可以获得 100-500 积分 和 1-5GB 流量 </NText>
       </NSpace>
     </div>
   </div>
@@ -148,7 +148,7 @@ const handleSign = async () => {
   signLoading.value = true
   userApi.post('/user/sign', {}, accessHandle(), (data) => {
     if (data.code === 0) {
-      message.success(`签到成功, 获得 ${data.data.point} 积分`)
+      message.success(`签到成功, 获得 ${data.data.point} 积分 和 ${data.data.traffic / 1024}GB 流量`)
       isSignAvailable.value = false
       // 刷新用户信息以更新流量显示
       fetchUserInfo()

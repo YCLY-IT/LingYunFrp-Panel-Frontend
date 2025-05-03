@@ -10,7 +10,17 @@
               class="service-card"
               :title="product.name"
           >
-            <div v-if="product.type === 'traffic'" class="price">
+            <!-- 永久标签 -->
+            <div v-if="product.is_permanent" class="permanent-badge">
+              <NIcon><InfiniteOutline /></NIcon>
+              <span>永久</span>
+            </div>
+            
+            <!-- 根据是否永久和产品类型显示不同的价格单位 -->
+            <div v-if="product.is_permanent && product.type !== 'traffic' && product.type !== 'proxies'" class="price">
+              ¥{{ product.price }} <span class="unit">/ 永久</span>
+            </div>
+            <div v-else-if="product.type === 'traffic'" class="price">
               ¥{{ product.price }} <span class="unit">/ GB</span>
             </div>
             <div v-else-if="product.type === 'proxies'" class="price">
@@ -28,32 +38,40 @@
               </div>
             </div>
 
-            <div v-if="product.type === 'traffic'">
-              <NInputNumber
-                  v-model:value="product.selectedAmount"
-                  :min="1"
-                  :max="200"
-                  placeholder="输入购买数量(GB)"
-                  style="margin-bottom: 12px"
-              />
+            <!-- 流量和隧道类型始终显示输入框，其他永久产品不显示 -->
+            <div v-if="product.type === 'traffic' || product.type === 'proxies' || !product.is_permanent">
+              <div v-if="product.type === 'traffic'">
+                <NInputNumber
+                    v-model:value="product.selectedAmount"
+                    :min="1"
+                    :max="200"
+                    placeholder="输入购买数量(GB)"
+                    style="margin-bottom: 12px"
+                />
+              </div>
+              <div v-else-if="product.type === 'proxies'">
+                <NInputNumber
+                    v-model:value="product.selectedAmount"
+                    :min="1"
+                    :max="200"
+                    placeholder="输入购买数量(个)"
+                    style="margin-bottom: 12px"
+                />
+              </div>
+              <div v-else>
+                <NInputNumber
+                    v-model:value="product.selectedAmount"
+                    :min="1"
+                    :max="200"
+                    placeholder="输入购买数量"
+                    style="margin-bottom: 12px"
+                />
+              </div>
             </div>
-            <div v-else-if="product.type === 'proxies'">
-              <NInputNumber
-                  v-model:value="product.selectedAmount"
-                  :min="1"
-                  :max="200"
-                  placeholder="输入购买数量(个)"
-                  style="margin-bottom: 12px"
-              />
-            </div>
-            <div v-else>
-              <NInputNumber
-                  v-model:value="product.selectedAmount"
-                  :min="1"
-                  :max="200"
-                  placeholder="输入购买数量"
-                  style="margin-bottom: 12px"
-              />
+            <!-- 其他永久产品固定数量为1 -->
+            <div v-else class="permanent-note">
+              <NIcon><InformationCircle /></NIcon>
+              <span>一次性永久购买</span>
             </div>
 
             <!-- 支付方式选择 -->
@@ -90,10 +108,10 @@
             <!-- 总价显示 -->
             <div class="price-display">
               <div v-if="product.isPoint">
-                所需积分: {{ product.point_price * (product.selectedAmount || 1) }} 积分
+                所需积分: {{ product.point_price * (shouldUseSelectedAmount(product) ? (product.selectedAmount || 1) : 1) }} 积分
               </div>
               <div v-else>
-                总价: ¥{{ product.price * (product.selectedAmount || 1) }}
+                总价: ¥{{ product.price * (shouldUseSelectedAmount(product) ? (product.selectedAmount || 1) : 1) }}
               </div>
             </div>
 
@@ -110,13 +128,18 @@
 <script setup lang="ts">
 import { NCard, NButton, NInputNumber, NIcon } from 'naive-ui'
 import { ref, onMounted } from 'vue'
-import { CheckmarkCircle } from '@vicons/ionicons5'
+import { CheckmarkCircle, InformationCircle, InfiniteOutline } from '@vicons/ionicons5'
 import { useMessage } from 'naive-ui'
 import { userApi } from '@/net'
 import { accessHandle } from '@/net/base.ts'
 
 const message = useMessage()
 const products = ref([])
+
+// 判断是否应该使用用户选择的数量
+const shouldUseSelectedAmount = (product) => {
+  return product.type === 'traffic' || product.type === 'tunnel' || !product.is_permanent
+}
 
 // 从API获取产品数据
 const fetchProducts = () => {
@@ -131,6 +154,7 @@ const fetchProducts = () => {
           ...product,
           payMethods, // 存储支付方式数组
           isPoint, // 默认选中第一个可用的支付方式
+          selectedAmount: 1, // 默认数量为1
         }
       })
     } else {
@@ -145,14 +169,17 @@ const fetchProducts = () => {
 
 // 购买处理
 const handleBuy = (product) => {
+  // 确定使用哪个数量
+  const amount = shouldUseSelectedAmount(product) ? product.selectedAmount : 1
+
   // 验证购买数量是否为空
-  if (!product.selectedAmount) {
+  if (!amount) {
     message.error('请输入购买数量')
     return
   }
 
   // 验证购买数量是否在合理范围内
-  if (product.selectedAmount < 1 || product.selectedAmount > 200) {
+  if (amount < 1 || amount > 200) {
     message.error('购买数量必须在1到200之间')
     return
   }
@@ -168,13 +195,15 @@ const handleBuy = (product) => {
   userApi.post("/user/buy", {
     productId: product.id,
     type: product.type,
-    amount: product.selectedAmount,
+    amount: amount,
     isPoint: product.isPoint,
   }, accessHandle(), (data) => {
     if (data.code === 0) {
       message.success('购买成功')
       // 可以在这里重置购买数量
-      product.selectedAmount = 1
+      if (shouldUseSelectedAmount(product)) {
+        product.selectedAmount = 1
+      }
     } else {
       message.error(data.message)
     }
@@ -243,5 +272,46 @@ onMounted(() => {
 .feature-icon {
   margin-right: 8px;
   color: #ff8c00;
+}
+
+/* 新增样式：永久产品提示 */
+.permanent-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 12px 0;
+  color: #1890ff;
+  font-size: 14px;
+}
+
+.permanent-note .n-icon {
+  margin-right: 8px;
+}
+
+/* 新增样式：永久标签 */
+.permanent-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #f5a623;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.permanent-badge .n-icon {
+  font-size: 14px;
+}
+
+/* 确保卡片有相对定位，以便永久标签可以正确定位 */
+.service-card {
+  position: relative;
 }
 </style>
