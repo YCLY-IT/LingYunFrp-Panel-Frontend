@@ -1,32 +1,10 @@
-import {accessHandle, defaultFailure, post} from "@/net/base";
+import { post } from "@/net/base";
 
-//! TODO: module is not used
-export function sendEmailCode(email: string, module, success: Function, failure = defaultFailure) {
-    post(`/user/code/${module}`, {
-        email: email,
-    },
-        //! TODO: to be deleted
-        {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        //! TODO: why not just use "success" as param? failure is same
-        (data) => {
-            success(data);
-        }, (message, code, url) => {
-            failure(message, code, url);
-        });
+export function sendEmailCode(email: string, module: string) {
+    return post(`/user/code/${module}`, { email });
 }
-export function sendSmsCode(phone: string, module, success: Function, failure = defaultFailure) {
-    post(`/user/code/${module}`, {
+export function sendSmsCode(phone: string) {
+    return post(`/user/code/${module}`, {
         phone: phone,
-    },
-        //! TODO: to be deleted
-        accessHandle(),
-        //! TODO: why not just use "success" as param? failure is same
-        (data) => {
-            success(data);
-        }, (message, code, url) => {
-           failure(message, code, url);
-        }
-    )
+    });
 }

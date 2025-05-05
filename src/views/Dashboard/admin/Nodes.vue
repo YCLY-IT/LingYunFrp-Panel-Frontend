@@ -178,7 +178,7 @@ import { ref, h } from 'vue'
 import { NCard, NSpace, NDataTable, NButton, NModal, NForm, NFormItem, NInput, NInputNumber, useMessage, NButtonGroup, NSelect, NTag, NDropdown, NIcon } from 'naive-ui'
 import { EllipsisHorizontalCircleOutline, CreateOutline, PowerOutline, TrashOutline } from '@vicons/ionicons5'
 import type { DataTableColumns, FormRules, FormInst, SelectOption, DropdownOption } from 'naive-ui'
-import type { Node, UpdateNodeArgs, GetNodesArgs } from '@/types/User'
+import type { Node, UpdateNodeArgs, GetNodesArgs } from '@/types/user'
 import {userApi} from "@/net";
 import {accessHandle} from "@/net/base.ts";
 

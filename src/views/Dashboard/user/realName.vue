@@ -45,8 +45,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import {
   NForm,
   NFormItem,
@@ -57,50 +57,50 @@ import {
   useMessage,
   type FormInst,
   NAlert, NCard
-} from 'naive-ui'
+} from 'naive-ui';
 import {userApi} from "@/net";
 import {accessHandle} from "@/net/base.ts";
 
-const router = useRouter()
-const message = useMessage()
+const router = useRouter();
+const message = useMessage();
 
-const formRef = ref<FormInst | null>(null)
-const isSubmitting = ref(false)
-const isPhoneCodeSending = ref(false)
-const showRealnameModal = ref(false)
-const IsRealname = ref(false)
-const emailCodeCountdown = ref(0)
+const formRef = ref<FormInst | null>(null);
+const isSubmitting = ref(false);
+const isPhoneCodeSending = ref(false);
+const showRealnameModal = ref(false);
+const IsRealname = ref(false);
+const emailCodeCountdown = ref(0);
 
 const formValue = ref({
   name: '',
   phone: '',
   phoneCode: '',
   IDCard: '',
-})
+});
 
 const goToRealname = () => {
-  showRealnameModal.value = true
-}
+  showRealnameModal.value = true;
+};
 
 const handleRealname = () => {
-  showRealnameModal.value = false
+  showRealnameModal.value = false;
   userApi.get("/user/info/info", accessHandle(), (data) => {
     if (data.code === 0) {
-      IsRealname.value = data.data.isRealname
+      IsRealname.value = data.data.isRealname;
     } else {
-      message.error(data.message || '获取用户信息失败')
+      message.error(data.message || '获取用户信息失败');
     }
   }, (error) => {
-    message.error(error.message)
-  })
-}
-handleRealname()
+    message.error(error.message);
+  });
+};
+handleRealname();
 
 const emailCodeButtonText = computed(() => {
-  if (isPhoneCodeSending.value) return '发送中...'
-  if (emailCodeCountdown.value > 0) return `${emailCodeCountdown.value}s后重试`
-  return '获取验证码'
-})
+  if (isPhoneCodeSending.value) return '发送中...';
+  if (emailCodeCountdown.value > 0) return `${emailCodeCountdown.value}s后重试`;
+  return '获取验证码';
+});
 
 const rules: FormRules = {
   name: {
@@ -124,76 +124,76 @@ const rules: FormRules = {
     message: '请输入身份证号',
     trigger: 'blur'
   }
-}
+};
 
 const startPhoneCodeCountdown = () => {
-  emailCodeCountdown.value = 60
+  emailCodeCountdown.value = 60;
   const timer = setInterval(() => {
-    emailCodeCountdown.value--
+    emailCodeCountdown.value--;
     if (emailCodeCountdown.value <= 0) {
-      clearInterval(timer)
+      clearInterval(timer);
     }
-  }, 1000)
-}
+  }, 1000);
+};
 
 const handleSendPhoneCode = async () => {
   if (!formValue.value.phone) {
-    message.error('请输入手机号码')
-    return
+    message.error('请输入手机号码');
+    return;
   }
   if (!/^[1][3,4,5,7,8][0-9]{9}$/.test(formValue.value.phone)) {
-    message.error('请输入有效的手机号码')
-    return
+    message.error('请输入有效的手机号码');
+    return;
   }
 
-  isPhoneCodeSending.value = true
+  isPhoneCodeSending.value = true;
   userApi.sendSmsCode(
       formValue.value.phone,
       "realname",
       (data) => {
          if (data.code === 0) {
-           message.success(data.message)
-           startPhoneCodeCountdown()
-           formValue.value.phoneCode = ''
-           isPhoneCodeSending.value = false // 确保发送成功后将状态设置为false
+           message.success(data.message);
+           startPhoneCodeCountdown();
+           formValue.value.phoneCode = '';
+           isPhoneCodeSending.value = false; // 确保发送成功后将状态设置为false
          }else{
-           message.error(data.message)
-           isPhoneCodeSending.value = false
+           message.error(data.message);
+           isPhoneCodeSending.value = false;
          }
       },
       (error) => {
-        message.error(error)
-        isPhoneCodeSending.value = false // 发送失败后也需要将状态设置为false
+        message.error(error);
+        isPhoneCodeSending.value = false; // 发送失败后也需要将状态设置为false
       },
-  )
-}
+  );
+};
 
 
 const handleSubmit = async () => {
-  await formRef.value?.validate()
-  isSubmitting.value = true
+  await formRef.value?.validate();
+  isSubmitting.value = true;
   userApi.post(
       '/user/realname',
       formValue.value,
       accessHandle(),
       (data) => {
         if (data.code === 0) {
-          message.success(data.message)
-          showRealnameModal.value = false
-          isSubmitting.value = false
-          IsRealname.value = true
-          router.push('/dashboard')
+          message.success(data.message);
+          showRealnameModal.value = false;
+          isSubmitting.value = false;
+          IsRealname.value = true;
+          router.push('/dashboard');
         }else{
-          message.error(data.message)
-          isSubmitting.value = false
+          message.error(data.message);
+          isSubmitting.value = false;
         }
       },
       (error) => {
-        message.error(error.message)
-        isSubmitting.value = false
+        message.error(error.message);
+        isSubmitting.value = false;
       },
-  )
-}
+  );
+};
 </script>
 
 <style lang="scss" scoped>

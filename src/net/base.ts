@@ -1,35 +1,31 @@
+import { ApiRespond } from '@/types/net/base';
 import axios from 'axios';
 import { createDiscreteApi } from 'naive-ui'; // 新增离散式API
 
 const api = axios.create({
     baseURL: 'http://localhost:8081/',
     headers: {
-        //* NOTE: defalut content-type is set
         'Content-Type': 'application/x-www-form-urlencoded'
     }
 });
-//! TODO: this is useless
 const { message } = createDiscreteApi(
     ['message'],
-    { message: { duration: 4500 } }
+    {
+        messageProviderProps: {
+            duration: 4500
+        }
+    }
 );
 
-const defaultFailure = (messageText: string, code: number, url: string) => {
-    //! TODO: only console warning, don't show message here
-    message.warning(`${messageText}`);
-};
-
-
-const defaultError = (err: Error) => {
-    //! TODO: only console error, don't show message here
+const defaultErrorFunc = (err: Error) => {
     console.error(err);
-        message.error('发生了一些小问题,要不试试刷新一下（＾ω＾）');
+    message.error('发生了一些小问题,要不试试刷新一下（＾ω＾）');
 };
 
 //! TODO: Specifies the params and return value type
-function storeToken(Authorization, remember, expires) {
+function storeToken(Authorization: string, remember: boolean, expires) {
     const token = {
-        Authorization: Authorization,
+        Authorization,
         remember: remember,
         expires: expires
     };
@@ -41,14 +37,12 @@ function storeToken(Authorization, remember, expires) {
     }
 }
 
-//! TODO: Specifies the return value type
-function getToken() {
+function getToken(): string | null {
     const tokenStr = localStorage.getItem('token') || sessionStorage.getItem('token');
     if (tokenStr) {
         const token = JSON.parse(tokenStr);
         if (token.expires && token.expires < new Date().getTime()) {
             removeToken();
-            //! TODO: only return error, don't show message here
             message.warning('登录信息已过期，请重新登录');
             return null;
         }
@@ -62,44 +56,51 @@ function removeToken() {
     sessionStorage.removeItem('token');
 }
 
-//! TODO: why the return value has two type(string or Object)?
 function accessHandle() {
-    //! TODO: what the type of token? string or Object
-    const token = getToken();
-    return token ? {
-        //! TODO:                only can be string
-        'Authorization': `${getToken()}`
-    } : {};
+    return {
+        'Authorization': getToken()
+    };
 }
 
-//! TODO: use promise instead of callback
-function post(url: string, data: any, headers: Record<string, string | number>, success: Function, failure = defaultFailure, error = defaultError) {
-    api.post(url, data, {
-        headers
-    }).then(({ data }) => {
-        if (data.code === 0) {
-            success(data);
-        } else {
-            failure(data.message, data.code, data.url);
-        }
-    }).catch(err => error(err));
+/**
+ * 
+ * @param url 请求路径 
+ * @param data 数据
+ * @param headers 头
+ * @param errFunc 错误函数，**仅在请求出错时使用**
+ * @returns 
+ */
+function post(url: string, data: Record<string, unknown>, headers?: Record<string, string | number>, options?: Record<string, string | number>, errFunc = defaultErrorFunc) {
+    return new Promise<ApiRespond>((resolve, reject) => {
+        api.post(url, data, {
+            headers,
+            ...options
+        }).then(({ data }: { data: ApiRespond }) => {
+            if (data.code === 0) {
+                resolve(data);
+            } else {
+                reject(data);
+            }
+        }).catch(err => errFunc(err));
+    });
 }
 
-//! TODO: use promise instead of callback
-function get(url: string, headers: Record<string, string>, success: Function, failure = defaultFailure, error = defaultError) {
-    api.get(url, {
-        headers: headers
-    }).then(({ data }) => {
-        if (data.code === 0) {
-            success(data);
-        } else {
-            failure(data);
-        }
-    }).catch(err => error(err));
+function get(url: string, headers: Record<string, string>, errFunc = defaultErrorFunc) {
+    return new Promise((resolve, reject) => {
+        api.get(url, {
+            headers: headers
+        }).then(({ data }) => {
+            if (data.code === 0) {
+                resolve(data);
+            } else {
+                reject(data);
+            }
+        }).catch(err => errFunc(err));
+    });
 }
 
 function unauthorized() {
     return !getToken();
 }
 
-export { api, defaultFailure, defaultError, storeToken, getToken, accessHandle, removeToken, post, get, unauthorized }
+export { api, storeToken, getToken, accessHandle, removeToken, post, get, unauthorized, defaultErrorFunc };

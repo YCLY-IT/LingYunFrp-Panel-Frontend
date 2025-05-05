@@ -3,7 +3,7 @@ export const themeColors = {
   primaryHover: '#81C7F5',
   primaryPressed: '#4FC3F7',
   primarySuppl: '#BBDEFB',
-} as const
+} as const;
 
 export const themeOverrides = {
   common: {
@@ -24,11 +24,11 @@ export const themeOverrides = {
     itemTextColorActiveHover: themeColors.primaryHover,
     itemIconColorActiveHover: themeColors.primaryHover,
   }
-} as const
+} as const;
 
 export const switchButtonRailStyle = ({ focused, checked }: { focused: boolean; checked: boolean }) => {
   return {
     background: checked ? themeOverrides.common?.primaryColor : undefined,
     boxShadow: focused ? `0 0 0 2px ${themeOverrides.common?.primaryColorSuppl}` : undefined
-  }
-}
+  };
+};

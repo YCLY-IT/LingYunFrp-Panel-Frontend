@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, provide } from 'vue'
+import { ref, computed, provide } from 'vue';
 import {
   NConfigProvider,
   NMessageProvider,
@@ -21,31 +21,31 @@ import {
   NNotificationProvider,
   NLoadingBarProvider,
   darkTheme
-} from 'naive-ui'
-import { themeOverrides } from './constants/theme'
-import AppContent from './components/AppContent.vue'
+} from 'naive-ui';
+import { themeOverrides } from './constants/theme';
+import AppContent from './components/AppContent.vue';
 
 // 主题状态
-const prefersDark = window.matchMedia('(prefers-color-scheme: dark)')
-const isDarkMode = ref(prefersDark.matches)
-const theme = computed(() => isDarkMode.value ? darkTheme : null)
+const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+const isDarkMode = ref(prefersDark.matches);
+const theme = computed(() => isDarkMode.value ? darkTheme : null);
 
 // 监听系统主题变化
 prefersDark.addEventListener('change', (e) => {
-  isDarkMode.value = e.matches
-})
+  isDarkMode.value = e.matches;
+});
 
 // 主题切换函数
 const toggleTheme = () => {
-  isDarkMode.value = !isDarkMode.value
-}
+  isDarkMode.value = !isDarkMode.value;
+};
 
 // 提供给全局使用
 provide('theme', {
   isDarkMode,
   theme,
   toggleTheme
-})
+});
 </script>
 
 <style lang="scss">

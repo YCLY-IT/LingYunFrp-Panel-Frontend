@@ -1,17 +1,17 @@
 <script setup lang="ts">
-
-import Realname from "@/views/Dashboard/realname.vue";
+import Realname from "@/views/Dashboard/user/realName.vue";
 import UserInfo from "@/components/UserInfo.vue";
+import { NCard } from "naive-ui";
 </script>
 
 <template>
   <div class="user-profile">
-    <n-card title="用户信息">
+    <NCard title="用户信息">
         <UserInfo />
-    </n-card>
-    <n-card title="实人认证">
+    </NCard>
+    <NCard title="实人认证">
         <Realname />
-    </n-card>
+    </NCard>
   </div>
 </template>
 

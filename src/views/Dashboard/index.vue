@@ -23,59 +23,59 @@
 </template>
 
 <script setup lang="ts">
-import { NCard, NAlert, NButton, useMessage } from 'naive-ui'
-import { ref, onMounted, computed } from 'vue'
-import { marked } from 'marked'
-import DOMPurify from 'dompurify'
-import UserInfo from '../../components/UserInfo.vue'
-import { useRouter } from 'vue-router'
+import { NCard, NAlert, NButton, useMessage } from 'naive-ui';
+import { ref, onMounted, computed } from 'vue';
+import { marked } from 'marked';
+import DOMPurify from 'dompurify';
+import UserInfo from '../../components/UserInfo.vue';
+import { useRouter } from 'vue-router';
 import { userApi } from "@/net";
 import { accessHandle } from "@/net/base.ts";
 import userInfo from "@/components/UserInfo.vue";
 
-const router = useRouter()
-const message = useMessage()
-const notices = ref<string>('')
-const nickname = localStorage.getItem('nickname')
-const userInfoRef = ref<null | { userInfo: typeof userInfo }>(null)
-const IsRealname = computed(() => userInfoRef.value?.userInfo.isRealname)
+const router = useRouter();
+const message = useMessage();
+const notices = ref<string>('');
+const nickname = localStorage.getItem('nickname');
+const userInfoRef = ref<null | { userInfo: typeof userInfo }>(null);
+const IsRealname = computed(() => userInfoRef.value?.userInfo.isRealname);
 
 // 配置 marked
 marked.setOptions({
   gfm: true,
   breaks: true
-})
+});
 
 const goToRealname = () => {
-  router.push('/dashboard/profile')
-}
+  router.push('/dashboard/profile');
+};
 
 const renderedNotice = computed(() => {
-  if (!notices.value) return ''
+  if (!notices.value) return '';
   try {
-    const html = marked.parse(notices.value) as string
-    return DOMPurify.sanitize(html)
+    const html = marked.parse(notices.value) as string;
+    return DOMPurify.sanitize(html);
   } catch {
-    return ''
+    return '';
   }
-})
+});
 
 const fetchNotice = async (): Promise<void> => {
   userApi.get('/user/info/broadcast', accessHandle(), (data) => {
     if (data.code === 0) {
-      notices.value = data.data.broadcast
+      notices.value = data.data.broadcast;
     } else {
-      message.error(data.message || '获取公告失败')
+      message.error(data.message || '获取公告失败');
     }
   }, (messageText) => {
-    message.error('获取公告失败:' + messageText)
-  })
-}
+    message.error('获取公告失败:' + messageText);
+  });
+};
 
 
 onMounted(() => {
-  fetchNotice()
-})
+  fetchNotice();
+});
 </script>
 
 

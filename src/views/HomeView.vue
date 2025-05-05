@@ -184,7 +184,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+// import { ref } from 'vue';
 import {
   ZapIcon,
   ShieldIcon,
@@ -195,15 +195,15 @@ import {
   CheckIcon,
   GithubIcon,
   BoxIcon,
-} from 'lucide-vue-next'
+} from 'lucide-vue-next';
 import router from "@/router";
 
 // 主题设置
-const isDarkTheme = ref(false)
+// const isDarkTheme = ref(false);
 
-const toggleTheme = () => {
-  isDarkTheme.value = !isDarkTheme.value
-}
+// const toggleTheme = () => {
+//   isDarkTheme.value = !isDarkTheme.value;
+// };
 
 // 特性数据
 const features = [
@@ -237,7 +237,7 @@ const features = [
     title: '多平台兼容',
     description: '支持 Windows、Linux、macOS 等多种操作系统，无需担心平台兼容问题。'
   }
-]
+];
 
 // 使用场景
 const useCases = [
@@ -261,8 +261,8 @@ const useCases = [
     title: '游戏联机',
     description: '使用 LingYunFRP 服务，您可以轻松搭建游戏服务器，与朋友一起享受游戏乐趣。',
   }
-]
-
+];
+//!TODO by API
 // 价格方案
 const pricingPlans = [
   {
@@ -300,7 +300,7 @@ const pricingPlans = [
     buttonText: '立即登录',
     highlighted: false
   }
-]
+];
 
 // 常见问题
 const faqItems = [
@@ -324,461 +324,17 @@ const faqItems = [
     question: '如何获取技术支持？',
     answer: '您可以通过控制面板中的"支持"页面提交工单，或者发送邮件至 <EMAIL> 获取技术支持。专业版和企业版用户可以获得优先响应。'
   }
-]
+];
 
 const handleLogin = () => {
-  router.push('/login')
-}
+  router.push('/login');
+};
 const scrollToFeatures = () => {
   const featuresSection = document.getElementById('features-section');
   if (featuresSection) {
     featuresSection.scrollIntoView({ behavior: 'smooth' });
   }
-}
+};
 </script>
 
-<style scoped>
-.dark-mode {
-  --n-color-modal: #1a1a1a;
-  --n-text-color: rgba(255, 255, 255, 0.9);
-}
-
-.landing-page {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  color: var(--n-text-color);
-  background-color: var(--n-color);
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-
-/* 英雄区域样式 */
-.hero {
-  padding: 130px 0;
-  background-image: url('https://dailybing.com/api/v1');
-}
-
-.hero-content {
-  display: flex;
-  align-items: center;
-  gap: 40px;
-}
-
-.hero-text {
-  flex: 1;
-}
-
-.hero-title {
-  font-size: 48px;
-  font-weight: 800;
-  line-height: 1.2;
-  margin-bottom: 24px;
-  color: var(--n-text-color);
-}
-
-.hero-description {
-  font-size: 18px;
-  line-height: 1.6;
-  margin-bottom: 32px;
-  color: var(--n-text-color-3);
-}
-
-.hero-actions {
-  margin-top: 32px;
-}
-
-.hero-image {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-}
-
-.hero-image img {
-  max-width: 100%;
-  height: auto;
-  border-radius: 8px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-}
-
-/* 特性区域样式 */
-.features {
-  padding: 80px 0;
-  background-color: var(--n-color-modal);
-}
-
-.section-header {
-  text-align: center;
-  margin-bottom: 60px;
-}
-
-.section-title {
-  font-size: 36px;
-  font-weight: 700;
-  margin-bottom: 16px;
-  color: var(--n-text-color);
-}
-
-.section-description {
-  font-size: 18px;
-  color: var(--n-text-color-3);
-  max-width: 700px;
-  margin: 0 auto;
-}
-
-.feature-card {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 32px 24px;
-  transition: transform 0.3s ease;
-}
-
-.feature-card:hover {
-  transform: translateY(-5px);
-}
-
-.feature-icon {
-  margin-bottom: 24px;
-  color: var(--n-primary-color);
-}
-
-.feature-title {
-  font-size: 20px;
-  font-weight: 600;
-  margin-bottom: 16px;
-  color: var(--n-text-color);
-}
-
-.feature-description {
-  color: var(--n-text-color-3);
-  line-height: 1.6;
-}
-
-/* 使用场景样式 */
-.use-cases {
-  padding: 80px 0;
-}
-
-.use-case-content {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
-
-.use-case-text {
-  flex: 1;
-}
-
-.use-case-image {
-  flex-shrink: 0;
-}
-
-.use-case-image img {
-  border-radius: 8px;
-  max-width: 100%;
-  height: auto;
-}
-
-/* 价格方案样式 */
-.pricing {
-  padding: 80px 0;
-  background-color: var(--n-color-modal);
-}
-
-.pricing-card {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.3s ease;
-}
-
-.pricing-card-highlighted {
-  transform: scale(1.05);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  border: 2px solid var(--n-primary-color);
-}
-
-.pricing-card:hover:not(.pricing-card-highlighted) {
-  transform: translateY(-5px);
-}
-
-.pricing-header {
-  text-align: center;
-  padding-bottom: 24px;
-}
-
-.pricing-title {
-  font-size: 24px;
-  font-weight: 600;
-  margin-bottom: 16px;
-  color: var(--n-text-color);
-}
-
-.pricing-price {
-  font-size: 48px;
-  font-weight: 700;
-  color: var(--n-text-color);
-  margin-bottom: 16px;
-}
-
-.price-currency {
-  font-size: 24px;
-  vertical-align: super;
-}
-
-.price-period {
-  font-size: 16px;
-  color: var(--n-text-color-3);
-}
-
-.pricing-description {
-  color: var(--n-text-color-3);
-}
-
-.pricing-features {
-  list-style: none;
-  padding: 0;
-  margin: 24px 0;
-  flex-grow: 1;
-}
-
-.pricing-features li {
-  display: flex;
-  align-items: center;
-  margin-bottom: 12px;
-  color: var(--n-text-color-2);
-}
-
-.feature-check {
-  margin-right: 8px;
-  flex-shrink: 0;
-}
-
-.pricing-action {
-  margin-top: auto;
-}
-
-/* FAQ 样式 */
-.faq {
-  padding: 80px 0;
-}
-
-/* 联系我们样式 */
-.contact {
-  padding: 80px 0;
-  background-color: var(--n-color-modal);
-}
-
-.contact-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 40px;
-}
-
-.contact-text {
-  flex: 1;
-}
-
-/* 页脚样式 */
-.footer {
-  padding: 60px 0 30px;
-  background-color: var(--n-color);
-  border-top: 1px solid var(--n-border-color);
-}
-
-.footer-content {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 40px;
-}
-
-.footer-logo {
-  max-width: 300px;
-}
-
-.footer-description {
-  margin-top: 16px;
-  color: var(--n-text-color-3);
-}
-
-.footer-links {
-  display: flex;
-  gap: 60px;
-}
-
-.footer-links-title {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 16px;
-  color: var(--n-text-color);
-}
-
-.footer-links-group ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.footer-links-group ul li {
-  margin-bottom: 8px;
-}
-
-.footer-links-group ul li a {
-  color: var(--n-text-color-3);
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-.footer-links-group ul li a:hover {
-  color: var(--n-primary-color);
-}
-
-.footer-bottom {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 30px;
-  border-top: 1px solid var(--n-border-color);
-}
-
-.copyright {
-  color: var(--n-text-color-3);
-}
-
-.footer-social {
-  display: flex;
-  gap: 16px;
-}
-
-.social-link {
-  color: var(--n-text-color-3);
-  transition: color 0.2s ease;
-}
-
-.social-link:hover {
-  color: var(--n-primary-color);
-}
-
-/* 响应式调整 */
-@media (max-width: 768px) {
-  .hero-content,
-  .contact-content,
-  .footer-content {
-    flex-direction: column;
-  }
-
-  .hero-image {
-    margin-top: 40px;
-  }
-
-  .footer-links {
-    flex-direction: column;
-    gap: 30px;
-    margin-top: 40px;
-  }
-
-  .use-case-content {
-    flex-direction: column;
-  }
-
-  .hero-title {
-    font-size: 36px;
-  }
-
-  .section-title {
-    font-size: 30px;
-  }
-  /* 基础样式 */
-  a {
-    /* 去除下划线 */
-    text-decoration: none;
-    /* 设置颜色 */
-    color: #3498db;
-    /* 添加过渡效果，使变化更平滑 */
-    transition: all 0.3s ease;
-  }
-
-  /* 鼠标悬停时的样式 */
-  a:hover {
-    /* 颜色变深 */
-    color: #2980b9;
-    /* 添加文字阴影 */
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-  }
-
-  /* 鼠标按下时的样式 */
-  a:active {
-    /* 颜色变化 */
-    color: #1c6ea4;
-  }
-
-  /* 访问过后的样式 */
-  a:visited {
-    /* 设置访问过后颜色 */
-    color: #9b59b6;
-  }
-
-  /* 为超链接添加底部边框动画效果 */
-  a {
-    position: relative;
-  }
-  a::after {
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 2px;
-    bottom: -2px;
-    left: 0;
-    background-color: #3498db;
-    transition: width 0.3s ease;
-  }
-  a:hover::after {
-    width: 100%;
-  }
-
-  /* 为超链接添加背景渐变色效果 */
-  .bg-gradient {
-    background: linear-gradient(to right, #3498db, #9b59b6);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-
-  /* 为超链接添加按钮样式 */
-  .button-style {
-    display: inline-block;
-    padding: 8px 16px;
-    background-color: #3498db;
-    color: white !important;
-    border-radius: 4px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  }
-  .button-style:hover {
-    background-color: #2980b9;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  }
-
-  /* 为超链接添加圆形样式 */
-  .circle-style {
-    display: inline-block;
-    width: 40px;
-    height: 40px;
-    line-height: 40px;
-    text-align: center;
-    border-radius: 50%;
-    background-color: #3498db;
-    color: white !important;
-  }
-  .circle-style:hover {
-    background-color: #2980b9;
-    transform: scale(1.1);
-  }
-}
-</style>
+<style scoped src="@/assets/styles/home-view.scss" lang="scss"></style>

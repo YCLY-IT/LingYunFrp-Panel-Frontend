@@ -1,20 +1,15 @@
-import { defaultFailure, post } from "@/net/base.js";
-
-//! TODO: 
-export function forget(email: string, password: string, code, success: Function, failure = defaultFailure) {
-    post('/user/forget', {
-        email: email,
-        password: password,
-        code: code
-    }, 
-    //! TODO: delete
-    {
-        'Content-Type': 'application/x-www-form-urlencoded'
-    }, 
-    //! TODO: just success as param
-    (data) => {
-        success(data);
-    }, (message, code, url) => {
-        failure(message, code, url);
+import { defaultErrorFunc, post } from "@/net/base.js";
+export function forget(email: string, password: string, code:string,errFunc = defaultErrorFunc) {
+    return new Promise((resolve,reject)=>{
+        post('/user/forget', {
+            email: email,
+            password: password,
+            code: code
+        }).then((data) => {
+            if(data.code === 0)
+                resolve(data);
+            else
+                reject(data);            
+        }).catch(errFunc);
     });
 }

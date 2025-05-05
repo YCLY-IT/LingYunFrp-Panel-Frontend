@@ -1,6 +1,6 @@
-import { h, Component, ref } from 'vue'
-import { HomeOutline, AddCircleOutline, AppsOutline, DownloadOutline, IdCardOutline, StatsChartOutline, PeopleOutline, CloudyOutline, ConstructOutline, WalletOutline, BuildOutline, PricetagsOutline, SettingsOutline } from '@vicons/ionicons5'
-import { NIcon, type MenuOption } from 'naive-ui'
+import { h, Component, ref } from 'vue';
+import { HomeOutline, AddCircleOutline, AppsOutline, DownloadOutline, IdCardOutline, StatsChartOutline, PeopleOutline, CloudyOutline, ConstructOutline, WalletOutline, BuildOutline, SettingsOutline } from '@vicons/ionicons5';
+import { NIcon, type MenuOption } from 'naive-ui';
 
 const baseMenuOptions: MenuOption[] = [
   {
@@ -62,7 +62,7 @@ const baseMenuOptions: MenuOption[] = [
     icon: renderIcon(WalletOutline),
     link: '/dashboard/cash',
   },
-]
+];
 
 const adminMenuOptions: MenuOption = {
   label: '管理中心',
@@ -100,24 +100,24 @@ const adminMenuOptions: MenuOption = {
       icon: renderIcon(SettingsOutline)
     }
   ]
-}
+};
 
 export function getMenuOptions(): MenuOption[] {
-  const userGroup = localStorage.getItem('group')
-  const options = [...baseMenuOptions]
+  const userGroup = localStorage.getItem('group');
+  const options = [...baseMenuOptions];
 
   if (userGroup === 'admin') {
-    options.push(adminMenuOptions)
-    defaultExpandedKeys.value.push('admin')
+    options.push(adminMenuOptions);
+    defaultExpandedKeys.value.push('admin');
   }
-  return options
+  return options;
 }
 
 export function renderIcon(icon: Component) {
   return () => h(NIcon, {
     component: icon,
     size: 22
-  })
+  });
 }
 
-export const defaultExpandedKeys = ref<string[]>(['more'])
+export const defaultExpandedKeys = ref<string[]>(['more']);

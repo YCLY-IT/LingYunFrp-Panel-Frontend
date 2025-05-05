@@ -1,29 +1,20 @@
-import {defaultFailure, post} from "@/net/base.js";
+import { defaultErrorFunc, post } from "@/net/base.js";
+import { UserRegisterApiRespond } from "@/types/net/user";
 
-export interface RegisterData
-{
-    
-}
-
-export function register(username: string, nickname: string, password: string, email: string, code: string,  success: (arg0: any) => void, failure = defaultFailure) {
-    post('/user/register', {
-        username,
-        nickname,
-        password,
-        email,
-        code
-    }, {
-        'Content-Type': 'application/x-www-form-urlencoded'
-    }, (data: any) => {
-        if (data.code === 0) {
-            success(data);
-        }else {
-            failure(data.message, data.code, data.url);
-        }
-
-    }, (message, code, url) => {
-        failure(message, code, url);
-    }, (err) => {
-        failure(err);
+export function register(username: string, nickname: string, password: string, email: string, code: string) {
+    return new Promise<UserRegisterApiRespond>((resolve, reject) => {
+        post('/user/register', {
+            username,
+            nickname,
+            password,
+            email,
+            code
+        }).then((data) => {
+            if (data.code === 0) {
+                resolve(data);
+            } else {
+                reject(data);
+            }
+        }).catch(defaultErrorFunc);
     });
 }

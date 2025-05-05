@@ -9,7 +9,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@types/highlight.js": "^9.12.4",
     "@vicons/ionicons5": "^0.13.0",
     "axios": "^1.8.3",
     "crypto-js": "^4.2.0",
@@ -26,12 +25,21 @@
     "vue-router": "^4.5.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.25.1",
     "@types/crypto-js": "^4.2.2",
-    "@types/node": "^22.13.10",
+    "@types/highlight.js": "^9.12.4",
+    "@types/node": "^22.15.3",
+    "@typescript-eslint/eslint-plugin": "^8.31.1",
+    "@typescript-eslint/parser": "^8.31.1",
     "@vitejs/plugin-vue": "^5.2.1",
     "@vitejs/plugin-vue-jsx": "^4.1.1",
+    "@vue/eslint-config-typescript": "^14.5.0",
+    "eslint": "^9.25.1",
+    "eslint-plugin-vue": "^10.0.1",
+    "globals": "^16.0.0",
     "naive-ui": "^2.41.0",
     "typescript": "^5.8.2",
+    "typescript-eslint": "^8.31.1",
     "unplugin-auto-import": "^19.1.1",
     "unplugin-vue-components": "^28.4.1",
     "vite": "^6.2.1",

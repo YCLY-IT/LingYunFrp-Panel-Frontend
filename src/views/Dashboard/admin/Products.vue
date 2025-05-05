@@ -100,8 +100,8 @@
 </template>
 
 <script lang="ts" setup>
-import {onMounted, ref, watch} from 'vue'
-import {DataTableColumns, FormInst, NTag} from 'naive-ui'
+import {onMounted, ref, watch} from 'vue';
+import {DataTableColumns, FormInst, NTag} from 'naive-ui';
 import {
   NButton,
   NCard,
@@ -116,9 +116,9 @@ import {
   NCheckbox,
   NCheckboxGroup,
   useMessage
-} from 'naive-ui'
-import {userApi} from '@/net'
-import {accessHandle} from '@/net/base.ts'
+} from 'naive-ui';
+import {userApi} from '@/net';
+import {accessHandle} from '@/net/base.ts';
 
 interface Product {
   ID?: number
@@ -138,10 +138,10 @@ interface Group {
   name: string
 }
 
-const message = useMessage()
-const loading = ref(false)
+const message = useMessage();
+const loading = ref(false);
 
-const formRef = ref<FormInst | null>(null)
+const formRef = ref<FormInst | null>(null);
 const formValue = ref<Product>({
   type: '',
   name: '',
@@ -149,14 +149,14 @@ const formValue = ref<Product>({
   price: 0,
   pointsPrice: 0,
   pay_method: ''
-})
-const mode = ref<'add' | 'edit'>('add')
-const currentProduct = ref<Product | null>(null)
-const productsData = ref<Product[]>([])
-const groupsData = ref<Group[]>([])
-const groupsOptions = ref<{ label: string; value: string }[]>([])
-const showAddModal = ref(false)
-const showEditModal = ref(false)
+});
+const mode = ref<'add' | 'edit'>('add');
+const currentProduct = ref<Product | null>(null);
+const productsData = ref<Product[]>([]);
+const groupsData = ref<Group[]>([]);
+const groupsOptions = ref<{ label: string; value: string }[]>([]);
+const showAddModal = ref(false);
+const showEditModal = ref(false);
 
 // 从 groupsData 生成选项，过滤掉 name 为 user 和 admin 的分组
 watch(groupsData, (newGroups) => {
@@ -165,8 +165,8 @@ watch(groupsData, (newGroups) => {
       .map(group => ({
         label: group.friendlyName,
         value: group.name
-      }))
-}, { immediate: true })
+      }));
+}, { immediate: true });
 
 const productRules = {
   type: { required: true, message: '请选择产品分组', trigger: ['blur', 'change'] },
@@ -260,19 +260,19 @@ const productColumns: DataTableColumns<Product> = [
               )
             ]
           }
-      )
+      );
     }
   }
-]
+];
 
 // 关闭模态框并重置表单
 const closeModal = (modalMode: 'add' | 'edit') => {
-  showAddModal.value = false
-  showEditModal.value = false
+  showAddModal.value = false;
+  showEditModal.value = false;
   if (modalMode === 'add') {
-    resetForm()
+    resetForm();
   }
-}
+};
 
 // 重置表单
 const resetForm = () => {
@@ -283,15 +283,15 @@ const resetForm = () => {
     price: 0,
     pointsPrice: 0,
     pay_method: ''
-  }
-  mode.value = 'add'
-}
+  };
+  mode.value = 'add';
+};
 
 // 打开添加模态框
 const openAddModal = () => {
-  resetForm()
-  showAddModal.value = true
-}
+  resetForm();
+  showAddModal.value = true;
+};
 
 // 打开编辑模态框
 const openEditModal = (product: Product) => {
@@ -335,20 +335,20 @@ const handleDeleteProduct = async (productId: number) => {
   try {
     userApi.post(`/admin/product/delete/${productId}`, {}, accessHandle(), (data) => {
       if (data.code === 0) {
-        message.success('删除产品成功')
-        fetchProducts()
+        message.success('删除产品成功');
+        fetchProducts();
       } else {
-        message.error(data.message)
+        message.error(data.message);
       }
-    })
+    });
   } catch (error) {
-    message.error('删除产品失败')
+    message.error('删除产品失败');
   }
-}
+};
 
 // 获取产品列表
 const fetchProducts = async () => {
-  loading.value = true
+  loading.value = true;
   try {
     userApi.get("/user/info/product", accessHandle(), (data) => {
       if (data.code === 0) {
@@ -357,17 +357,17 @@ const fetchProducts = async () => {
           pointsPrice: product.point_price || 0
         }));
       } else {
-        message.error(data.message)
+        message.error(data.message);
       }
     }, (error) => {
-      message.error('获取产品列表失败')
-    })
+      message.error('获取产品列表失败');
+    });
   } catch (error) {
-    message.error('获取产品列表失败')
+    message.error('获取产品列表失败');
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 // 获取分组信息
 const fetchGroupsInfo = async () => {
@@ -376,18 +376,18 @@ const fetchGroupsInfo = async () => {
       if (data.code === 0) {
         groupsData.value = data.data.groups;
       } else {
-        message.error(data.message)
+        message.error(data.message);
       }
     }, (error) => {
-      message.error('获取分组列表失败')
-    })
+      message.error('获取分组列表失败');
+    });
   } catch (error) {
-    message.error('获取分组列表失败')
+    message.error('获取分组列表失败');
   }
-}
+};
 
 onMounted(() => {
-  fetchProducts()
-  fetchGroupsInfo()
-})
+  fetchProducts();
+  fetchGroupsInfo();
+});
 </script>

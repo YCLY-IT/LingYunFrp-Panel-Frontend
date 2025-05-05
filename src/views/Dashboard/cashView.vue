@@ -108,15 +108,15 @@
 </template>
 
 <script setup lang="ts">
-import { NCard, NButton, NInputNumber, NIcon } from 'naive-ui'
-import { ref, onMounted } from 'vue'
-import { CheckmarkCircle } from '@vicons/ionicons5'
-import { useMessage } from 'naive-ui'
-import { userApi } from '@/net'
-import { accessHandle } from '@/net/base.ts'
+import { NCard, NButton, NInputNumber, NIcon } from 'naive-ui';
+import { ref, onMounted } from 'vue';
+import { CheckmarkCircle } from '@vicons/ionicons5';
+import { useMessage } from 'naive-ui';
+import { userApi } from '@/net';
+import { accessHandle } from '@/net/base.ts';
 
-const message = useMessage()
-const products = ref([])
+const message = useMessage();
+const products = ref([]);
 
 // 从API获取产品数据
 const fetchProducts = () => {
@@ -124,44 +124,44 @@ const fetchProducts = () => {
     if (data.code === 0) {
       products.value = data.data.products.map(product => {
         // 解析 pay_method 字段为数组
-        const payMethods = product.pay_method.split(';')
+        const payMethods = product.pay_method.split(';');
         // 默认选中第一个可用的支付方式
-        const isPoint = payMethods.includes('points') && (payMethods[0] === 'points')
+        const isPoint = payMethods.includes('points') && (payMethods[0] === 'points');
         return {
           ...product,
           payMethods, // 存储支付方式数组
           isPoint, // 默认选中第一个可用的支付方式
-        }
-      })
+        };
+      });
     } else {
-      message.error(data.message)
+      message.error(data.message);
     }
   }, (messageText, code, url) => {
-    message.error(messageText)
+    message.error(messageText);
   }, (err) => {
-    message.error(err.message)
-  })
-}
+    message.error(err.message);
+  });
+};
 
 // 购买处理
 const handleBuy = (product) => {
   // 验证购买数量是否为空
   if (!product.selectedAmount) {
-    message.error('请输入购买数量')
-    return
+    message.error('请输入购买数量');
+    return;
   }
 
   // 验证购买数量是否在合理范围内
   if (product.selectedAmount < 1 || product.selectedAmount > 200) {
-    message.error('购买数量必须在1到200之间')
-    return
+    message.error('购买数量必须在1到200之间');
+    return;
   }
 
   // 根据支付方式显示提示信息
   if (product.isPoint) {
-    message.info(`正在创建积分订单：${product.name}`)
+    message.info(`正在创建积分订单：${product.name}`);
   } else {
-    message.info(`正在创建价格订单：${product.name}`)
+    message.info(`正在创建价格订单：${product.name}`);
   }
 
   // 调用API进行购买
@@ -172,23 +172,23 @@ const handleBuy = (product) => {
     isPoint: product.isPoint,
   }, accessHandle(), (data) => {
     if (data.code === 0) {
-      message.success('购买成功')
+      message.success('购买成功');
       // 可以在这里重置购买数量
-      product.selectedAmount = 1
+      product.selectedAmount = 1;
     } else {
-      message.error(data.message)
+      message.error(data.message);
     }
   }, (messageText, code, url) => {
-    message.error(messageText)
+    message.error(messageText);
   }, (err) => {
-    message.error(err.message)
-  })
-}
+    message.error(err.message);
+  });
+};
 
 // 在组件挂载时获取产品数据
 onMounted(() => {
-  fetchProducts()
-})
+  fetchProducts();
+});
 </script>
 
 <style lang="scss" scoped>
