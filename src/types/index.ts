@@ -1,5 +1,5 @@
 export * from './proxy'
-export * from './user'
+export * from './User'
 
 export interface Window extends globalThis.Window {
     $loadingBar?: {

@@ -37,13 +37,14 @@
                    :class="{ 'selected-node': formValue.nodeId === node.value }" class="node-item">
               <NSpace vertical>
                 <div class="node-header">
-                  <NSpace align="center" justify="space-between">
-                    <NSpace align="center">
+                  <NSpace justify="space-between">
+                    <NSpace>
                       <NSpace :size="4">
                         <NTag type="info" size="small"># {{ node.id }}</NTag>
                         <NTag :type="node.isOnline ? 'success' : 'error'" size="small">
                           {{ node.isOnline ? '在线' : '离线' }}
                         </NTag>
+                        <NTag v-if="node.isDisabled" type="error" size="small">已禁用</NTag>
                       </NSpace>
                       <NText>{{ node.name }}</NText>
                     </NSpace>
@@ -109,7 +110,7 @@
         </NFormItem>
 
         <NFormItem v-else label="远程端口" path="remotePort">
-          <NSpace align="center">
+          <NSpace>
             <NInputNumber v-model:value="formValue.remotePort" :min="selectedNode?.portRange?.min || 1"
                           :max="selectedNode?.portRange?.max || 65535" placeholder="请输入远程端口" :disabled="!canEditConfig" />
             <NButton size="medium" :loading="gettingFreePort" :disabled="!canEditConfig" @click="handleGetFreePort">
@@ -201,7 +202,7 @@ const formValue = ref({
   localAddr: '',
   localPort: null as number | null,
   remotePort: null as number | null,
-  type: null as string | null,
+  type: '',
   domain: '',
   name: '',
   accessKey: '',
@@ -231,6 +232,7 @@ const nodeOptions = ref<{
   hostname: string;
   description: string;
   isOnline: boolean;
+  isDisabled: boolean;
   allowedProtocols: string[];
   allowGroups: { name: string; friendlyName: string }[];
   portRange: {
@@ -312,8 +314,8 @@ const fetchUserGroups = async () => {
       } else {
           message.error(data.message || '获取用户组列表失败')
       }
-  }, (error) => {
-      message.error(error?.response?.data?.message || '获取用户组列表失败')
+  }, (messageText) => {
+      message.error(messageText || '获取用户组列表失败')
   })
 }
 
@@ -339,6 +341,7 @@ const fetchNodes = async () => {
             hostname: node.hostname,
             description: node.description,
             isOnline: node.status,
+            isDisabled: node.isDisabled,
             allowedProtocols,
             allowGroups,
             portRange: {
@@ -351,7 +354,7 @@ const fetchNodes = async () => {
         message.error(data.message || '获取节点列表失败')
       }
     }, (error) => {
-        message.error(error.message || '获取节点列表失败')
+        message.error(error || '获取节点列表失败')
     })
 }
 const selectedNode = ref<{
@@ -383,7 +386,7 @@ const handleNodeChange = (value: number | null) => {
         portRange: node.portRange
       };
       formValue.value.nodeId = value;
-      formValue.value.type = selectedNode.value?.allowedProtocols[0] || null;
+      formValue.value.type = selectedNode.value?.allowedProtocols[0] || '';
       formValue.value.remotePort = null;
 
       // 在移动端选择节点后自动进入下一步
@@ -470,7 +473,7 @@ const handleCreate = () => {
               },
         );
       } catch (error) {
-        const errorMsg = error.response?.data?.message || '服务器连接异常';
+        const errorMsg = error || '服务器连接异常';
         message.error(`创建失败: ${errorMsg}`);
       } finally {
         loading.value = false;

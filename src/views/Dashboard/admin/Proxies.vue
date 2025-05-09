@@ -278,21 +278,21 @@ const handleDomainsUpdate = (tags: string[]) => {
 
 const handleEdit = (proxy: Proxy) => {
   editForm.value = {
-    proxyId: proxy.ProxyId,
-    nodeId: proxy.node,
-    proxyName: proxy.proxy_name,
-    localIp: proxy.local_ip,
-    localPort: proxy.local_port,
-    remotePort: proxy.remote_port,
-    proxyType: proxy.proxy_type,
+    proxyId: proxy.proxyId,
+    nodeId: proxy.nodeId,
+    proxyName: proxy.proxyName,
+    localIp: proxy.localIp,
+    localPort: proxy.localPort,
+    remotePort: proxy.remotePort,
+    proxyType: proxy.proxyType,
     domain: proxy.domain || '',
     location: proxy.location || '',
     accessKey: '',
     hostHeaderRewrite: proxy.hostHeaderRewrite || '',
     headerXFromWhere: proxy.headerXFromWhere || '',
-    use_encryption: proxy.use_encryption || false,
-    use_compression: proxy.use_compression || false,
-    proxy_protocol_version: proxy.proxy_protocol_version || '',
+    use_encryption: proxy.useEncryption || false,
+    use_compression: proxy.useCompression || false,
+    proxy_protocol_version: proxy.proxyProtocolVersion || '',
     username: proxy.username || ''
   }
   
@@ -387,15 +387,15 @@ const renderStatus = (row: Proxy) => {
   tags.push(h(
     NTag,
     {
-      type: row.is_online ? 'success' : 'warning',
+      type: row.isOnline ? 'success' : 'warning',
       size: 'small',
       style: 'margin-right: 4px'
     },
-    { default: () => row.is_online ? '在线' : '离线' }
+    { default: () => row.isOnline ? '在线' : '离线' }
   ))
 
   // 封禁状态标签
-  if (row.is_banned) {
+  if (row.isBanned) {
     tags.push(h(
       NTag,
       {
@@ -408,7 +408,7 @@ const renderStatus = (row: Proxy) => {
   }
 
   // 禁用状态标签
-  if (row.is_disabled) {
+  if (row.isDisabled) {
     tags.push(h(
       NTag,
       {
@@ -425,25 +425,25 @@ const renderStatus = (row: Proxy) => {
 const handleToggleProxy = async (proxy: Proxy | null) => {
   if (!proxy) return
   try {
-    userApi.post(`/admin/proxy/toggle/${proxy.ProxyId}`, {
-      isDisabled: !proxy.is_disabled
+    userApi.post(`/admin/proxy/toggle/${proxy.proxyId}`, {
+      isDisabled: !proxy.isDisabled
     }, accessHandle(), (data) => {
       if (data.code === 0) {
-        proxy.isDisabled = !proxy.is_disabled
+        proxy.isDisabled = !proxy.isDisabled
       } else {
         message.error(data.message || '操作失败')
       }
     }, (error) => {
-      message.error(error.message || '操作失败')
+      message.error(error || '操作失败')
     })
-    message.success(proxy.is_disabled ? '启用隧道成功' : '禁用隧道成功')
+    message.success(proxy.isDisabled ? '启用隧道成功' : '禁用隧道成功')
     showToggleModal.value = false
     // 定时器
     setTimeout(() => {
       loadData()
     }, 1000)
   } catch (error: any) {
-    message.error(error?.response?.data?.message || '操作失败')
+    message.error(error || '操作失败')
   }
 }
 
@@ -456,10 +456,10 @@ const dropdownOptions = (row: Proxy): DropdownMixedOption[] => [
     icon: () => h(NIcon, null, { default: () => h(CreateOutline) })
   },
   {
-    label: row.is_disabled ? '启用' : '禁用',
+    label: row.isDisabled ? '启用' : '禁用',
     key: 'toggle',
     disabled: false,
-    type: row.is_disabled ? 'success' : 'warning',
+    type: row.isDisabled ? 'success' : 'warning',
     icon: () => h(NIcon, null, { default: () => h(PowerOutline) })
   },
   {
@@ -470,10 +470,10 @@ const dropdownOptions = (row: Proxy): DropdownMixedOption[] => [
     icon: () => h(NIcon, null, { default: () => h(LogOutOutline) })
   },
   {
-    label: row.is_banned ? '解封' : '封禁',
+    label: row.isBanned ? '解封' : '封禁',
     key: 'ban',
     disabled: false,
-    type: row.is_banned ? 'success' : 'warning',
+    type: row.isBanned ? 'success' : 'warning',
     icon: () => h(NIcon, null, { default: () => h(BanOutline) })
   },
   {
@@ -511,7 +511,7 @@ const columns: DataTableColumns<Proxy> = [
     title: 'ID',
     key: 'proxy_id',
     render(row) {
-      return h('div', { style: 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' }, row.proxy_id)
+      return h('div', { style: 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' }, row.proxyId)
     }
   },
   {
@@ -525,17 +525,17 @@ const columns: DataTableColumns<Proxy> = [
     title: '隧道名',
     key: 'proxyName',
     render(row) {
-      return h('div', { style: 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' }, row.proxy_name)
+      return h('div', { style: 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' }, row.proxyName)
     }
   },
   {
     title: '节点',
     key: 'nodeId',
     render(row: Proxy) {
-      const node = nodeOptions.value.find(opt => opt.ID === row.nodeId)
+      const node = nodeOptions.value.find(opt => opt.id === row.nodeId)
       return h('div', { style: 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' }, {
         default: () => [
-          h(NTag, { type: 'info', style: 'margin-right: 4px' }, { default: () => `#${row.node}` }),
+          h(NTag, { type: 'info', style: 'margin-right: 4px' }, { default: () => `#${row.nodeId}` }),
           node?.name || '未知节点'
         ]
       })
@@ -546,9 +546,9 @@ const columns: DataTableColumns<Proxy> = [
     key: 'localIp',
     render(row) {
       return h('div', { style: 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' }, [
-        h('span', null, row.local_ip),
+        h('span', null, row.localIp),
         h('span', null, ':'),
-        h('span', { class: 'n-text', style: 'color: var(--n-primary-color); font-weight: bold;' }, row.local_port)
+        h('span', { class: 'n-text', style: 'color: var(--n-primary-color); font-weight: bold;' }, row.localPort)
       ])
     }
   },
@@ -556,7 +556,7 @@ const columns: DataTableColumns<Proxy> = [
     title: '远程端口/域名',
     key: ' remotePort',
     render(row) {
-      if (['http', 'https'].includes(row.proxy_type)) {
+      if (['http', 'https'].includes(row.proxyType)) {
         const domains = (row.domain || '-')
           .replace(/[\[\]"]/g, '')
           .split(',')
@@ -568,36 +568,36 @@ const columns: DataTableColumns<Proxy> = [
               type: 'info',
               style: 'max-width: 100%; word-break: break-all; cursor: pointer',
               onClick: () => {
-                window.open(`${row.proxy_type}://${domain}`, '_blank')
+                window.open(`${row.proxyType}://${domain}`, '_blank')
               }
             }, { default: () => domain })
           )
         })
       }
-      const node = nodeOptions.value.find(opt => opt.id === row.node)
+      const node = nodeOptions.value.find(opt => opt.id === row.nodeId)
       return h(NTag, {
         type: 'info',
         style: 'max-width: 100%; cursor: pointer',
         onClick: () => {
-          const text = `${node?.hostname}:${row.remote_port}`
+          const text = `${node?.hostname}:${row.remotePort}`
           navigator.clipboard.writeText(text)
           message.success('已复制到剪贴板：' + text)
         }
-      }, { default: () => `${node?.hostname}:${row.remote_port}` })
+      }, { default: () => `${node?.hostname}:${row.remotePort}` })
     }
   },
   {
     title: '协议',
     key: 'proxyType',
     render(row) {
-      const option = proxyTypeOptions.find(opt => opt.value === row.proxy_type)
+      const option = proxyTypeOptions.find(opt => opt.value === row.proxyType)
       return h(
         NTag,
         {
           type: 'success',
           size: 'small'
         },
-        { default: () => option ? option.label : row.proxy_type }
+        { default: () => option ? option.label : row.proxyType }
       )
     }
   },
@@ -654,8 +654,8 @@ const handleFilterChange = () => {
 const handleToggleBan = async (proxy: Proxy | null) => {
   if (!proxy) return
   try {
-    if (proxy.is_banned) {
-      userApi.post(`/admin/proxy/ban/${proxy.ProxyId}`, {
+    if (proxy.isBanned) {
+      userApi.post(`/admin/proxy/ban/${proxy.proxyId}`, {
           isBanned: false
         }, accessHandle(), (data) => {
           if (data.code === 0) {
@@ -665,7 +665,7 @@ const handleToggleBan = async (proxy: Proxy | null) => {
           }
         })
     } else {
-      userApi.post(`/admin/proxy/ban/${proxy.ProxyId}`, {
+      userApi.post(`/admin/proxy/ban/${proxy.proxyId}`, {
           isBanned: true
         }, accessHandle(), (data) => {
           if (data.code === 0) {
@@ -691,7 +691,7 @@ const handleKickProxy = async (proxy: Proxy | null) => {
 const handleDelete = async (proxy: Proxy | null) => {
   if (!proxy) return
   try {
-    userApi.post(`/admin/proxy/delete/${proxy.ProxyId}`, {}, accessHandle(), (data) => {
+    userApi.post(`/admin/proxy/delete/${proxy.proxyId}`, {}, accessHandle(), (data) => {
       if (data.code === 0) {
         message.success('删除隧道成功')
       } else {

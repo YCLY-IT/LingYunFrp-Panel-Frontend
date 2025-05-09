@@ -1,5 +1,5 @@
 export interface UserInfo {
-    userId: number
+    id: number
     username: string
     isRealname: boolean
     group: string
@@ -22,8 +22,21 @@ export interface FilterUsersArgs {
     status?: number;
     keyword?: string;
 }
-export interface UpdateNodeArgs extends AddNodeArgs {
-    nodeId: number;
+
+export interface UpdateNodeArgs {
+    id: number;
+    name: string;
+    hostname: string;
+    ip: string;
+    description: string;
+    token: string;
+    port: number;
+    adminPort: number;
+    adminPass: string;
+    group: string;
+    allowPort: string;
+    allowType: string;
+    need_realname: boolean;
 }
 
 export interface GetNodesArgs {
@@ -35,6 +48,7 @@ export interface GetNodesArgs {
 }
 
 export interface Node {
+    port: number
     nodeId: number;
     name: string;
     hostname: string;
@@ -47,21 +61,42 @@ export interface Node {
     allowPort: string;
     allowType: string;
     isDisabled: boolean;
+    isOnline: boolean;
     ip: string;
     need_realname: boolean;
+    id: number;
 }
 export interface Group {
+    id: number
     name: string
     friendlyName: string
+    point: number
     proxies: number
     traffic: number
     out_limit: number
     in_limit: number
 }
 
-export interface DownloadSource {
-    id: string
-    path: string
+export interface Download {
+    id: number
     name: string
+    path: string
+    arch: string
+    version: string
+    os: string  
+    desc: string
 }
 
+export interface Product {
+    id: number
+    name: string
+    isPermanent: boolean
+    type: string
+    pointPrice: number
+    price: number
+    desc: string
+    payMethod: string
+    payMethods: string[]
+    isPoint: boolean
+    selectedAmount: number
+  }

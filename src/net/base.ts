@@ -61,15 +61,6 @@ function removeToken() {
 declare const window: Window
 
 function accessHandle() {
-    //! TODO: what the type of token? string or Object
-    const token = getToken();
-    return token ? {
-        //! TODO:                only can be string
-        'Authorization': `${getToken()}`
-    } : {};
-    
-    // 在请求开始时显示加载条
-    window.$loadingBar?.start()
     
    return {
     'Authorization': `${getToken()}`

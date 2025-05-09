@@ -42,31 +42,31 @@
           <NSwitch v-model:value="editForm.is_realname" :rail-style="switchButtonRailStyle" />
         </NFormItem>
         <NFormItem label="验证码次数" path="remainder">
-          <NSpace align="center">
+          <NSpace>
             <NInputNumber v-model:value="editForm.remainder" placeholder="请输入手机验证码次数" :min="0" />
             <span>次</span>
           </NSpace>
         </NFormItem>
         <NFormItem label="流量限制" path="traffic">
-          <NSpace align="center">
+          <NSpace>
             <NInputNumber v-model:value="editForm.traffic" placeholder="请输入流量限制" :min="0" />
             <span>GB</span>
           </NSpace>
         </NFormItem>
         <NFormItem label="出站带宽" path="out_limit">
-          <NSpace align="center">
+          <NSpace>
             <NInputNumber v-model:value="editForm.out_limit" placeholder="请输入出站带宽" :min="0" />
             <span>Mbps</span>
           </NSpace>
         </NFormItem>
         <NFormItem label="入站带宽" path="in_limit">
-          <NSpace align="center">
+          <NSpace>
             <NInputNumber v-model:value="editForm.in_limit" placeholder="请输入入站带宽" :min="0" />
             <span>Mbps</span>
           </NSpace>
         </NFormItem>
         <NFormItem label="隧道数量" path="proxies">
-          <NSpace align="center">
+          <NSpace>
             <NInputNumber v-model:value="editForm.proxies" placeholder="请输入隧道数量" :min="0" />
             <span>个</span>
           </NSpace>
@@ -101,20 +101,20 @@ const users = ref<UserInfo[]>([])
 const groupNameMap = ref<Record<string, string>>({})
 
 const realnameOptions: SelectOption[] = [
-  { label: '已实名', value: true },
-  { label: '未实名', value: false }
+  { label: '已实名', value: 'true' },
+  { label: '未实名', value: 'false' }
 ]
 
 // 修改filters类型定义
 const filters = ref<{
   search: string;
   group: string | null;
-  isRealname: boolean | null;  // 类型改为boolean|null
+  isRealname: string | null;
   status: number | null;
 }>({
   search: '',
   group: null,
-  isRealname: null,  // 初始值保持null
+  isRealname: null,
   status: null
 })
 
@@ -460,7 +460,7 @@ const loadData = async () => {
 // 修改后的筛选条件处理部分
     if (filters.value.isRealname !== null) {
       // 直接使用boolean值
-      params.isRealname = filters.value.isRealname
+      params.isRealname = filters.value.isRealname === 'true'
     }
 
 

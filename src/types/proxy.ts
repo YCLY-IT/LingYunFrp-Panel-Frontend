@@ -25,7 +25,7 @@ export interface Proxy {
     /** 隧道是否在线 */
     isOnline: boolean;
     /** 隧道是否被封禁（管理员手动封禁） */
-    is_banned: boolean;
+    isBanned: boolean;
     /** 隧道所属用户名 */
     username?: string;
     /** 隧道是否被禁用 */

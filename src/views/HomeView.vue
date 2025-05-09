@@ -184,7 +184,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
 import {
   ZapIcon,
   ShieldIcon,
@@ -199,11 +198,7 @@ import {
 import router from "@/router";
 
 // 主题设置
-const isDarkTheme = ref(false)
 
-const toggleTheme = () => {
-  isDarkTheme.value = !isDarkTheme.value
-}
 
 // 特性数据
 const features = [

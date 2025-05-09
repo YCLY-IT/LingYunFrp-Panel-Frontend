@@ -48,7 +48,7 @@
                 <div class="select-row">
                   <div class="select-label">系统</div>
                   <NSelect
-                      :key="currentProduct.productId"
+                      :key="currentProduct.id"
                       v-model:value="currentProduct.selectedSystem"
                       :options="getSystemOptions(currentProduct.system)"
                       @update:value="handleSystemChange"
@@ -58,7 +58,7 @@
                 <div class="select-row" style="margin-top: 8px;">
                   <div class="select-label">架构</div>
                   <NSelect
-                      :key="currentProduct.productId"
+                      :key="currentProduct.id"
                       v-model:value="currentProduct.selectedArch"
                       :options="getArchOptions(currentProduct.arch, currentProduct.selectedSystem)"
                       :disabled="!currentProduct.selectedSystem"
@@ -120,28 +120,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { NCode, NCard, NButton, NDivider, NText, NPopselect, NSelect, NIcon, NTag, NAlert, useMessage } from 'naive-ui'
 import { ChevronDownOutline, DownloadOutline, CopyOutline, InformationCircleOutline } from '@vicons/ionicons5'
 import type { SelectOption } from 'naive-ui'
 import { marked } from 'marked'
 import {accessHandle} from "@/net/base.ts";
 import {userApi} from "@/net";
+import { Download } from '@/types'
 
 const message = useMessage()
-
-// 新的数据结构
-interface Product {
-  id: number
-  name: string
-  url: string
-  arch: string
-  os: string
-  desc: string
-  version: string
-  created_at: string
-  updated_at: string
-}
 
 interface DownloadSource {
   id: string
@@ -149,7 +137,7 @@ interface DownloadSource {
   path: string
 }
 
-const products = ref<(Product & {
+const products = ref<(Download & {
   selectedSystem?: string
   selectedArch?: string
   system: string
@@ -205,12 +193,12 @@ const handleSystemChange = () => {
 // 复制Docker命令
 const copyDockerCommand = () => {
   if (!currentProduct.value) return
-  const command = `docker pull ${currentProduct.value.url}:${currentProduct.value.version}`
+  const command = `docker pull ${currentProduct.value.path}:${currentProduct.value.version}`
   navigator.clipboard.writeText(command)
   message.success('复制 Docker 拉取命令成功')
 }
 
-const getDownloadUrl = async (product: Product & {
+const getDownloadUrl = async (product: Download & {
   selectedSystem?: string
   selectedArch?: string
 }): Promise<string> => {
@@ -218,7 +206,7 @@ const getDownloadUrl = async (product: Product & {
 
   try {
     // 直接使用 product.url 作为下载链接
-    return product.url
+    return product.path
   } catch (error: any) {
     message.error(error.message || '获取下载链接失败')
     return '#'

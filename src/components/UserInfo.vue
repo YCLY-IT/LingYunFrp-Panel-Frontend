@@ -68,7 +68,7 @@
         </div>
       </template>
     </div>
-
+  
     <div class="sign-section" v-if="!loading">
       <NSpace vertical :size="4">
         <NButton text type="primary" :loading="signLoading" :disabled="!isSignAvailable" @click="handleSign">
@@ -105,7 +105,7 @@ const userInfo = ref({
   friendlyGroup: '',
   usedProxies: 0,
   maxProxies: 0,
-  regTime: 0,
+  regTime: '',
   traffic: 0,
   outlimit: 0,
   inlimit: 0,
@@ -148,7 +148,7 @@ const handleSign = async () => {
   signLoading.value = true
   userApi.post('/user/sign', {}, accessHandle(), (data) => {
     if (data.code === 0) {
-      message.success(`签到成功, 获得 ${data.data.point} 积分 和 ${data.data.traffic / 1024}GB 流量`)
+      message.success(`签到成功, 获得 ${data.data.point} 积分 和 ${data.data.traffic}GB 流量`)
       isSignAvailable.value = false
       // 刷新用户信息以更新流量显示
       fetchUserInfo()

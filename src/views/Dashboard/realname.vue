@@ -56,8 +56,7 @@ import {
   type FormRules,
   useMessage,
   type FormInst,
-  NAlert, NCard
-} from 'naive-ui'
+  NAlert} from 'naive-ui'
 import {userApi} from "@/net";
 import {accessHandle} from "@/net/base.ts";
 
@@ -91,7 +90,7 @@ const handleRealname = () => {
       message.error(data.message || '获取用户信息失败')
     }
   }, (error) => {
-    message.error(error.message)
+    message.error(error)
   })
 }
 handleRealname()
@@ -189,7 +188,7 @@ const handleSubmit = async () => {
         }
       },
       (error) => {
-        message.error(error.message)
+        message.error(error)
         isSubmitting.value = false
       },
   )

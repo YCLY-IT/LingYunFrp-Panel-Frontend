@@ -178,7 +178,7 @@ import { ref, h } from 'vue'
 import { NCard, NSpace, NDataTable, NButton, NModal, NForm, NFormItem, NInput, NInputNumber, useMessage, NButtonGroup, NSelect, NTag, NDropdown, NIcon } from 'naive-ui'
 import { EllipsisHorizontalCircleOutline, CreateOutline, PowerOutline, TrashOutline } from '@vicons/ionicons5'
 import type { DataTableColumns, FormRules, FormInst, SelectOption, DropdownOption } from 'naive-ui'
-import type { Node, UpdateNodeArgs, GetNodesArgs } from '@/types/User'
+import type { Node, UpdateNodeArgs, GetNodesArgs } from '@/types'
 import {userApi} from "@/net";
 import {accessHandle} from "@/net/base.ts";
 
@@ -203,6 +203,7 @@ const protocolOptions = [
 ]
 
 const formModel = ref({
+  id: 0,
   name: '',
   hostname: '',
   ip: '',
@@ -360,7 +361,7 @@ const pagination = ref({
   }
 })
 
-const columns: DataTableColumns = [
+const columns: DataTableColumns<Node>  = [
   {
     title: 'ID',
     key: 'id',
@@ -410,7 +411,7 @@ const columns: DataTableColumns = [
     title: '管理端口',
     key: 'adminPort',
     render(row) {
-      return h('div', { style: 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' }, row.admin_port)
+      return h('div', { style: 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' }, row.adminPort)
     }
   },
   {
@@ -456,7 +457,7 @@ const columns: DataTableColumns = [
     title: '端口',
     key: 'allowPort',
     render(row) {
-      return h('div', { style: 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' }, row.allow_port)
+      return h('div', { style: 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' }, row.allowPort)
     }
   },
   {
@@ -532,16 +533,17 @@ const editingNode = ref<Node | null>(null)
 const handleEdit = (row: Node) => {
   editingNode.value = row
   formModel.value = {
+    id: row.id,
     name: row.name,
     hostname: row.hostname,
     ip: row.ip,
     description: row.description,
     token: row.token,
     servicePort: row.port,
-    adminPort: row.admin_port,
-    adminPass: row.admin_pass,
+    adminPort: row.adminPort,
+    adminPass: row.adminPass,
     allowGroup: row.allowGroup.split(';'),
-    allowPort: row.allow_port,
+    allowPort: row.allowPort,
     allowType: row.allowType.split(';'),
     need_realname: row.need_realname
   }
@@ -560,7 +562,7 @@ const handleEditSubmit = () => {
       submitting.value = true
       try {
         const config: UpdateNodeArgs = {
-          ID: editingNode.value.id,
+          id: editingNode.value!.id,
           name: formModel.value.name,
           hostname: formModel.value.hostname,
           ip: formModel.value.ip,
@@ -574,7 +576,7 @@ const handleEditSubmit = () => {
           allowType: formModel.value.allowType.join(';'),
           need_realname: formModel.value.need_realname
         }
-        userApi.post(`/admin/node/set/${editingNode.value.id}`, config, accessHandle(), (data) => {
+        userApi.post(`/admin/node/set/${editingNode.value!.id}`, config, accessHandle(), (data) => {
           if (data.code === 0) {
             message.success('更新节点成功')
             showEditModal.value = false
@@ -784,7 +786,7 @@ const fetchNodes = async () => {
         nodes.value = (data.data?.nodes || []).map(node => ({
           ...node,
           allowGroup: node.group || '',
-          allowType: node.allow_type || ''
+          allowType: node.allowType || ''
         }))
         pagination.value.itemCount = data.data?.total || 0
         pagination.value.pageCount = Math.ceil((data.data?.total || 0) / pagination.value.pageSize)
@@ -796,7 +798,7 @@ const fetchNodes = async () => {
       }
     })
   } catch (error: any) {
-    message.error(messageText || '获取节点列表失败')
+    message.error(error || '获取节点列表失败')
     nodes.value = []
   } finally {
     loading.value = false
@@ -819,7 +821,7 @@ const fetchUserGroups = async () => {
       }
     });
   } catch (error: any) {
-    message.error(error?.response?.data?.message || '获取用户组列表失败');
+    message.error(error || '获取用户组列表失败');
   }
 };
 

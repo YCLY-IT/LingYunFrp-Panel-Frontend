@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import Realname from "@/views/Dashboard/realname.vue";
+import Realname from "../Dashboard/realname.vue";
 import UserInfo from "@/components/UserInfo.vue";
 </script>
 

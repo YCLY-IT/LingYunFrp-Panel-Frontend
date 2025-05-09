@@ -153,7 +153,7 @@ const handleSendEmailCode = async () => {
         isEmailCodeSending.value = false // 确保发送成功后将状态设置为false
       },
       (error) => {
-        message.error(error.message)
+        message.error(error)
         isEmailCodeSending.value = false // 发送失败后也需要将状态设置为false
       },
   )
@@ -164,18 +164,17 @@ const handleSubmit = async () => {
   await formRef.value?.validate()
   isSubmitting.value = true
   userApi.forget(
-      formValue.value.username,
       formValue.value.password,
       formValue.value.email,
       formValue.value.emailCode,
       (data) => {
-        message.success(data.message)
+        message.success(data)
         setTimeout(() => {
           router.push('/login');
         }, 1200);
       },
-      (message) => {
-        message.error(message);
+      (messageText) => {
+        message.error(messageText);
       }
   )
 }

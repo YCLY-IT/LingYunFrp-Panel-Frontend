@@ -163,7 +163,7 @@ const handleSendEmailCode = async () => {
         isEmailCodeSending.value = false // 确保发送成功后将状态设置为false
       },
       (error) => {
-        message.error(error.message)
+        message.error(error)
         isEmailCodeSending.value = false // 发送失败后也需要将状态设置为false
       },
   )
@@ -190,7 +190,7 @@ const handleSubmit = async () => {
         }
         isSubmitting.value = false
       },
-      (messageText, code, url) => {
+      (messageText) => {
         message.error(messageText);
         isSubmitting.value = false
       },

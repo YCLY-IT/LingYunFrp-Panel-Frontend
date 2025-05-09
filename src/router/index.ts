@@ -97,7 +97,7 @@ const router = createRouter({
         {
           path: 'cash',
           name: 'cash',
-          component: () => import('../views/Dashboard/cash.vue'),
+          component: () => import('../views/Dashboard/Cash.vue'),
           meta: {
             title: '增值服务',
           }
@@ -110,7 +110,7 @@ const router = createRouter({
             {
               path: 'users',
               name: 'admin-users',
-              component: () => import('@/views/dashboard/admin/Users.vue'),
+              component: () => import('../views/Dashboard/admin/Users.vue'),
               meta: {
                 title: '用户管理',
                 requiresAdmin: true
@@ -119,7 +119,7 @@ const router = createRouter({
             {
               path: 'nodes',
               name: 'admin-nodes',
-              component: () => import('@/views/dashboard/admin/Nodes.vue'),
+              component: () => import('../views/Dashboard/admin/Nodes.vue'),
               meta: {
                 title: '节点管理',
                 requiresAdmin: true
@@ -128,7 +128,7 @@ const router = createRouter({
             {
               path: 'proxies',
               name: 'admin-proxies',
-              component: () => import('@/views/dashboard/admin/Proxies.vue'),
+              component: () => import('../views/Dashboard/admin/Proxies.vue'),
               meta: {
                 title: '隧道管理',
                 requiresAdmin: true
@@ -137,7 +137,7 @@ const router = createRouter({
             {
               path: 'system',
               name: 'admin-system',
-              component: () => import('@/views/dashboard/admin/System.vue'),
+              component: () => import('../views/Dashboard/admin/System.vue'),
               meta: {
                 title: '系统管理',
                 requiresAdmin: true
@@ -146,7 +146,7 @@ const router = createRouter({
             {
               path: 'products',
               name: 'admin-products',
-              component: () => import('@/views/dashboard/admin/Products.vue'),
+              component: () => import('@/views/Dashboard/admin/Products.vue'),
               meta: {
                 title: '产品管理',
                 requiresAdmin: true
@@ -159,7 +159,7 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
   // 需要登录的路由校验
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (unauthorized()) {
@@ -182,7 +182,7 @@ router.beforeEach((to, from, next) => {
     next()
   }
 })
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
   // 设置文档标题
   document.title = to.meta.title ?
       `${to.meta.title} - 凌云FRP` : // 自定义标题格式

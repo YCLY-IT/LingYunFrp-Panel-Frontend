@@ -86,7 +86,7 @@
           </NButton>
           <NSpace vertical>
             <NDataTable
-                :columns="downloadSourceColumns"
+                :columns="downloadSourceColumn"
                 :data="downloadSourcesData"
                 :bordered="false"
             />
@@ -122,12 +122,6 @@
           :model="editSourceForm"
           :rules="addSourceRules"
       >
-        <NFormItem label="ID" path="id">
-          <NInput
-              v-model:value="editSourceForm.id"
-              placeholder="请输入下载源 ID"
-          />
-        </NFormItem>
         <NFormItem label="Path" path="path">
           <NInput
               v-model:value="editSourceForm.path"
@@ -182,12 +176,6 @@
           :model="addSourceForm"
           :rules="addSourceRules"
       >
-        <NFormItem label="ID" path="id">
-          <NInput
-              v-model:value="addSourceForm.id"
-              placeholder="请输入下载源 ID"
-          />
-        </NFormItem>
         <NFormItem label="Path" path="path">
           <NInput
               v-model:value="addSourceForm.path"
@@ -274,7 +262,7 @@
           />
         </NFormItem>
         <NFormItem label="出站带宽" path="out_limit">
-          <NSpace align="center">
+          <NSpace>
             <NInputNumber
                 v-model:value="groupForm.out_limit"
                 :min="0"
@@ -283,7 +271,7 @@
           </NSpace>
         </NFormItem>
         <NFormItem label="入站带宽" path="in_limit">
-          <NSpace align="center">
+          <NSpace>
             <NInputNumber
                 v-model:value="groupForm.in_limit"
                 :min="0"
@@ -341,7 +329,7 @@
           />
         </NFormItem>
         <NFormItem label="出站带宽" path="out_limit">
-          <NSpace align="center">
+          <NSpace>
             <NInputNumber
                 v-model:value="editGroupForm.out_limit"
                 :min="0"
@@ -350,7 +338,7 @@
           </NSpace>
         </NFormItem>
         <NFormItem label="入站带宽" path="in_limit">
-          <NSpace align="center">
+          <NSpace>
             <NInputNumber
                 v-model:value="editGroupForm.in_limit"
                 :min="0"
@@ -368,7 +356,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, h } from 'vue'
 import {
   NCard, NTabs, NTabPane, NForm, NFormItem,
   NInput, NInputNumber, NSwitch, NSpace, NButton,
@@ -377,7 +365,7 @@ import {
 } from 'naive-ui'
 import type { FormRules, FormInst, DataTableColumns } from 'naive-ui'
 import { switchButtonRailStyle } from '@/constants/theme.ts'
-import type { DownloadSource, Group } from '@/types'
+import type { Download, Group } from '@/types'
 import { userApi } from '@/net'
 import { accessHandle } from '@/net/base.ts'
 
@@ -405,7 +393,7 @@ const securityForm = ref({
   allowSms: true,
 })
 
-const downloadSourcesData = ref<DownloadSource[]>([])
+const downloadSourcesData = ref<Download[]>([])
 const groupsData = ref<Group[]>([])
 
 // 模态框状态
@@ -415,8 +403,8 @@ const showAddGroupModal = ref(false)
 const showEditGroupModal = ref(false)
 
 // 表单数据
-const addSourceForm = ref<DownloadSource>({
-  id: '',
+const addSourceForm = ref<Download>({
+  id: 0,
   name: '',
   path: '',
   arch: '',
@@ -425,9 +413,8 @@ const addSourceForm = ref<DownloadSource>({
   desc: ''
 })
 
-const editSourceForm = ref<DownloadSource>({
-  originalId: '',
-  id: '',
+const editSourceForm = ref<Download>({
+  id: 0,
   name: '',
   path: '',
   arch: '',
@@ -437,6 +424,7 @@ const editSourceForm = ref<DownloadSource>({
 })
 
 const groupForm = ref<Group>({
+  id: 0,
   name: '',
   friendlyName: '',
   point: 0,
@@ -447,6 +435,7 @@ const groupForm = ref<Group>({
 })
 
 const editGroupForm = ref<Group>({
+  id: 0,
   name: '',
   friendlyName: '',
   point: 0,
@@ -530,7 +519,7 @@ const groupRules: FormRules = {
 }
 
 // 表格列定义
-const downloadSourceColumns: DataTableColumns<DownloadSource> = [
+const downloadSourceColumn: DataTableColumns<Download> = [
   {
     title: 'ID',
     key: 'id'
@@ -572,9 +561,12 @@ const downloadSourceColumns: DataTableColumns<DownloadSource> = [
                 size: 'small',
                 type: 'primary',
                 onClick: () => {
-                  editSourceForm.value.originalId = row.ID.toString()
-                  editSourceForm.value.id = row.ID.toString()
-                  editSourceForm.value.path = row.url
+                  editSourceForm.value.id = row.id
+                  editSourceForm.value.arch = row.arch
+                  editSourceForm.value.os = row.os
+                  editSourceForm.value.version = row.version
+                  editSourceForm.value.desc = row.desc
+                  editSourceForm.value.path = row.path
                   editSourceForm.value.name = row.name
                   showEditModal.value = true
                 }
@@ -586,7 +578,7 @@ const downloadSourceColumns: DataTableColumns<DownloadSource> = [
               {
                 size: 'small',
                 type: 'error',
-                onClick: () => handleRemoveDownloadSource(row.ID)
+                onClick: () => handleRemoveDownloadSource(row.id)
               },
               { default: () => '删除' }
           )
@@ -802,14 +794,13 @@ const fetchGroups = async () => {
 
 // 添加下载源
 const handleAddDownloadSource = async () => {
-  if (!addSourceForm.value.id || !addSourceForm.value.name || !addSourceForm.value.path || !addSourceForm.value.arch || !addSourceForm.value.os) {
+  if (!addSourceForm.value.name || !addSourceForm.value.path || !addSourceForm.value.arch || !addSourceForm.value.os) {
     message.error('请填写完整信息')
     return
   }
 
   try {
     userApi.post("/admin/setting/download/create", {
-      id: addSourceForm.value.id,
       path: addSourceForm.value.path,
       name: addSourceForm.value.name,
       arch: addSourceForm.value.arch,
@@ -819,7 +810,6 @@ const handleAddDownloadSource = async () => {
     }, accessHandle(), (data) => {
       if (data.code === 0) {
         message.success('添加成功')
-        addSourceForm.value.id = ''
         addSourceForm.value.name = ''
         addSourceForm.value.path = ''
         showAddSourceModal.value = false
@@ -837,24 +827,26 @@ const handleAddDownloadSource = async () => {
 
 // 编辑下载源
 const handleEditSource = async () => {
-  if (!editSourceForm.value.id || !editSourceForm.value.name) {
+  if (!editSourceForm.value.name || !editSourceForm.value.path || !editSourceForm.value.arch || !editSourceForm.value.os) {
     message.error('请填写完整信息')
     return
   }
 
   try {
     userApi.post(
-        `/admin/setting/download/update/${editSourceForm.value.originalId}`,
+        `/admin/setting/download/update/${editSourceForm.value.id}`,
         {
-          id: editSourceForm.value.id,
-          path: editSourceForm.value.path,
-          name: editSourceForm.value.name
+            path: editSourceForm.value.path,
+            name: editSourceForm.value.name,
+            arch: editSourceForm.value.arch,
+            os: editSourceForm.value.os,
+            desc: editSourceForm.value.desc,
+            version: editSourceForm.value.version
         },
         accessHandle(), (data) => {
           if (data.code === 0) {
             message.success('修改成功')
             showEditModal.value = false
-            editSourceForm.value.id = ''
             editSourceForm.value.name = ''
             editSourceForm.value.path = ''
           } else {
@@ -866,12 +858,12 @@ const handleEditSource = async () => {
         }
     )
   } catch (error: any) {
-    message.error(error?.response?.data?.message || '修改失败')
+    message.error(error || '修改失败')
   }
 }
 
 // 删除下载源
-const handleRemoveDownloadSource = async (id: string) => {
+const handleRemoveDownloadSource = async (id: number) => {
   try {
     userApi.post(`/admin/setting/download/delete/${id}`, {
       id: id,
@@ -901,6 +893,7 @@ const handleAddGroup = async () => {
         message.success('添加用户组成功')
         showAddGroupModal.value = false
         groupForm.value = {
+          id: 0,
           name: '',
           friendlyName: '',
           point: 0,
@@ -945,7 +938,7 @@ const handleEditGroup = async () => {
 }
 
 // 删除用户组
-const handleRemoveGroup = async (id: string) => {
+const handleRemoveGroup = async (id: number) => {
   try {
     userApi.post(`/admin/setting/groups/delete/${id}`, {}, accessHandle(), (data) => {
       if (data.code === 0) {

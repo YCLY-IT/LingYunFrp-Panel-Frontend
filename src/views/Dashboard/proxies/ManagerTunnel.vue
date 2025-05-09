@@ -54,7 +54,7 @@
                 <NTag :type="proxy.isOnline ? 'success' : 'error'" size="small">
                   {{ proxy.isOnline ? '在线' : '离线' }}
                 </NTag>
-                <NTag v-if="proxy.is_banned" type="error" size="small" style="margin-left: 4px">
+                <NTag v-if="proxy.isBanned" type="error" size="small" style="margin-left: 4px">
                   已封禁
                 </NTag>
                 <NTag v-if="proxy.isDisabled" type="warning" size="small" style="margin-left: 4px">
@@ -190,7 +190,7 @@
               <span class="label">绑定域名：</span>
               <span class="value">
                 <NTag size="small" v-for="domain in JSON.parse(selectedProxy.domain || '[]')" :key="domain" type="info"
-                      style="cursor: pointer; margin-right: 8px" @click="() => openUrl(selectedProxy.proxyType, domain)">
+                      style="cursor: pointer; margin-right: 8px" @click="() => openUrl(selectedProxy?.proxyType ?? 'http', domain ?? '')">
                   {{ domain }}
                 </NTag>
               </span>
@@ -239,11 +239,11 @@
                     </td>
                     <td style="word-break: break-all; overflow-wrap: break-word;">{{ splitDomain(domain).host }}</td>
                     <td style="word-break: break-all; overflow-wrap: break-word;">
-                      {{isIPAddress(nodeOptions.find(n => n.value === selectedProxy.nodeId)?.hostname || '') ? 'A' :
+                      {{isIPAddress(nodeOptions.find(n => n.value === selectedProxy?.nodeId)?.hostname || '') ? 'A' :
                         'CNAME' }}
                     </td>
                     <td style="word-break: break-all; overflow-wrap: break-word;">
-                      <NText type="primary">{{nodeOptions.find(n => n.value === selectedProxy.nodeId)?.hostname}}
+                      <NText type="primary">{{nodeOptions.find(n => n.value === selectedProxy?.nodeId)?.hostname}}
                       </NText>
                     </td>
                   </tr>
@@ -518,18 +518,6 @@ const runArgs = ref('')
 const token = ref('')
 const domainTags = ref<string[]>([])
 
-const formatTime = (timestamp: number) => {
-  return new Date(timestamp * 1000).toLocaleString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false
-  })
-}
-
 const rules: FormRules = {
   proxyName: {
     required: true,
@@ -601,7 +589,7 @@ const handleRefresh = async () => {
         message.error(data.message || '获取隧道列表失败')
       }
     }, (error) => {
-      message.error(error.message || '获取隧道列表失败')
+      message.error(error || '获取隧道列表失败')
     }, (error) => {
       message.error(error.message || '获取隧道列表失败')
       loading.value = false
@@ -653,19 +641,19 @@ const proxyToOperate = ref<Proxy | null>(null)
 
 const toggleModalTitle = computed(() => {
   if (!proxyToOperate.value) return ''
-  return proxyToOperate.value.is_disabled ? '启用确认' : '禁用确认'
+  return proxyToOperate.value.isDisabled ? '启用确认' : '禁用确认'
 })
 
 const toggleModalContent = computed(() => {
   if (!proxyToOperate.value) return ''
-  return proxyToOperate.value.is_disabled ? '确认要启用此隧道吗？' : '确认要禁用此隧道吗？'
+  return proxyToOperate.value.isDisabled ? '确认要启用此隧道吗？' : '确认要禁用此隧道吗？'
 })
 
 const handleToken = async () => {
   try {
     userApi.get("/user/info/token", accessHandle(), (data) => {
       if (data.code === 0) {
-        token.value = data.data.token
+        token.value = data.data.token.token
       } else {
         message.error(data.message || '获取Token失败')
       }
@@ -681,7 +669,7 @@ handleToken()
 const handleGenConfig = async (proxy: Proxy) => {
   selectedProxy.value = proxy
   showConfigModal.value = true
-  runArgs.value = `./lyfrpc -t ${token.value.token} -p ${proxy.proxyId}`
+  runArgs.value = `./lyfrpc -t ${token.value} -p ${proxy.proxyId}`
 
   try {
     loading.value = true
@@ -708,7 +696,7 @@ const handleGenConfig = async (proxy: Proxy) => {
         message.error(data.message || '获取配置失败')
       }
     }, (error) => {
-      message.error(error.message || '获取配置失败')
+      message.error(error || '获取配置失败')
     }, () => {
       loading.value = false
 })

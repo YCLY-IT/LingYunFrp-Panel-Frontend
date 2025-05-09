@@ -57,7 +57,7 @@
                   accept="image/*"
                   list-type="image-card"
                   :max="1"
-                  @before-upload="handleBeforeUpload"
+                  @OnBeforeUpload="handleBeforeUpload"
               />
             </NFormItem>
             <div class="form-actions">
@@ -294,8 +294,15 @@ const handleAvatarSubmit = async () => {
     message.error('请上传头像')
     return
   }
+
+  const avatarFile = avatarFiles.value[0].file as File | undefined
+  if (!avatarFile) {
+    message.error('文件上传异常，请重新选择')
+    return
+  }
+
   const formData = new FormData()
-  formData.append('avatar', avatarFiles.value[0].file)
+  formData.append('avatar', avatarFile)
   userApi.post('/user/update/avatar', formData, accessHandle(), (data) => {
     if (data.code === 0) {
       localStorage.setItem('avatar', data.path)
