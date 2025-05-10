@@ -9,6 +9,8 @@
 .user-info-item {
     display: flex;
     flex-direction: column;
+    position: relative;
+    padding: 1px;
     gap: 8px;
 }
 
@@ -28,7 +30,13 @@
 
 .sign-section {
     user-select: none;
-    margin-top: 16px;
+    margin-top: 10px;
     display: flex;
     justify-content: flex-start;
+}
+.token-section {
+    justify-self: start;
+    display: flex;
+    position: relative;
+    margin-top: 3px;
 }

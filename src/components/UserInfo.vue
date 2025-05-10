@@ -66,10 +66,19 @@
           <div class="user-info-label">出站带宽</div>
           <div class="user-info-value">{{ userInfo.outlimit / 128 }} Mbps</div>
         </div>
+        <div class="user-info-item">
+          <div class="user-info-value">
+            <NSpace class="token-section">
+              <NButton text type="primary" size="small" @click="handleCopyToken">
+                <template #icon>
+                  <CopyPlusIcon />
+                </template>
+                <div style="font-size: 14px;">复制令牌</div>
+              </NButton>
+            </NSpace>
+          </div>
+        </div>
       </template>
-    </div>
-  
-    <div class="sign-section" v-if="!loading">
       <NSpace vertical :size="4">
         <NButton text type="primary" :loading="signLoading" :disabled="!isSignAvailable" @click="handleSign">
           <template #icon>
@@ -79,7 +88,7 @@
           </template>
           {{ signButtonText }}
         </NButton>
-        <NText depth="3" style="font-size: 13px;">签到一次可以获得 100-500 积分 和 1-5GB 流量 </NText>
+        <NText depth="3" style="font-size: 13px;">签到可以获得 100-500 积分 和 1-5GB 流量 </NText>
       </NSpace>
     </div>
   </div>
@@ -91,6 +100,7 @@ import { NTag, useMessage, NSkeleton, NButton, NIcon, NSpace, NText } from 'naiv
 import { CalendarOutline } from '@vicons/ionicons5'
 import {userApi} from "@/net";
 import {accessHandle} from "@/net/base.ts";
+import { CopyPlusIcon } from 'lucide-vue-next';
 const message = useMessage()
 const loading = ref(true)
 const signLoading = ref(false)
@@ -112,7 +122,8 @@ const userInfo = ref({
   email: '',
   point: 0,
   status: 0,
-  todaySigned: false
+  todaySigned: false,
+  token: ''
 })
 
 const formatTime = (isoString: string) => {
@@ -162,6 +173,15 @@ const handleSign = async () => {
 })
 }
 
+const handleCopyToken = async () => {
+  try {
+    await window.navigator.clipboard.writeText(userInfo.value.token);
+    message.success('Token 已复制到剪贴板');
+  } catch (err) {
+    message.error('复制失败，请手动复制');
+  }
+};
+
 const fetchUserInfo = async () => {
     loading.value = true
 
@@ -169,6 +189,7 @@ const fetchUserInfo = async () => {
     if (data.code === 0) {
       userInfo.value = data.data
       localStorage.setItem('group', userInfo.value.group)
+      localStorage.setItem('token', userInfo.value.token)
       isSignAvailable.value = !data.data.sign
     } else {
       message.error(data.message || '获取用户信息失败')

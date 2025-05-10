@@ -13,68 +13,54 @@
         <NButton size="small" type="primary" @click="goToRealname">立即前往</NButton>
       </template>
     </NModal>
-    <!-- 修改步骤指示器区域 -->
-    <div class="steps-container" v-if="isMobile" style="user-select: none">
-      <NButton secondary round v-if="currentStep === 2" @click="currentStep = 1" size="medium">
-        返回
-        <template #icon>
-          <NIcon>
-            <ArrowBackOutline />
-          </NIcon>
-        </template>
-      </NButton>
-      <NSteps :current="currentStep" class="mobile-steps">
-        <NStep title="选择节点" />
-        <NStep title="隧道配置" />
-      </NSteps>
-    </div>
-    <!-- 修改节点卡片的显示逻辑 -->
-    <NCard v-if="!isMobile || currentStep === 1" title="选择节点" class="node-card">
+    
+    <!-- 节点选择卡片 - 修改为每行三个节点 -->
+    <NCard title="选择节点" class="node-card">
       <NSpace vertical>
-        <NGrid x-gap="12" y-gap="12" cols="1" style="padding-top: 14px;">
+        <!-- 修改这里的cols属性从1改为3 -->
+        <NGrid x-gap="16" y-gap="16" cols="3" responsive="screen" style="padding-top: 14px;">
           <NGridItem v-for="node in nodeOptions" :key="node.value">
-            <NCard hoverable @click="handleNodeChange(node.value)"
-                   :class="{ 'selected-node': formValue.nodeId === node.value }" class="node-item">
-              <NSpace vertical>
-                <div class="node-header">
-                  <NSpace justify="space-between">
-                    <NSpace>
-                      <NSpace :size="4">
-                        <NTag type="info" size="small"># {{ node.id }}</NTag>
-                        <NTag :type="node.isOnline ? 'success' : 'error'" size="small">
-                          {{ node.isOnline ? '在线' : '离线' }}
-                        </NTag>
-                        <NTag v-if="node.isDisabled" type="error" size="small">已禁用</NTag>
-                      </NSpace>
-                      <NText>{{ node.name }}</NText>
-                    </NSpace>
+            <NCard hoverable @click="handleNodeSelect(node)"
+                   :class="{ 'selected-node': selectedNodeId === node.value }" class="node-item">
+              <div class="node-header">
+                <div class="node-title">
+                  <NTag type="info" size="small"># {{ node.id }}</NTag>
+                  <NText>{{ node.name }}</NText>
+                </div>
+                <div class="node-tags">
+                  <!-- 显示在线/离线状态标签 -->
+                  <NTag :type="node.isOnline ? 'success' : 'error'" size="small">
+                    {{ node.isOnline ? '在线' : '离线' }}
+                  </NTag>
+                  
+                  <!-- 显示协议标签 -->
+                  <NTag v-if="supportsUdp(node)" type="success" size="small">UDP</NTag>
+                  <NTag v-if="supportsHttp(node)" type="success" size="small">
+                    {{ supportsHttps(node) ? 'HTTP(S)' : 'HTTP' }}
+                  </NTag>
+                </div>
+              </div>
+              
+              <NText depth="3" style="font-size: 13px; margin: 8px 0;">{{ node.description }}</NText>
+              
+              <NSpace vertical size="small">
+                <div class="info-item">
+                  <NSpace wrap>
+                    <NTag v-for="group in node.allowGroups" :key="group.name" size="small" type="info">
+                      {{ group.friendlyName }}
+                    </NTag>
                   </NSpace>
                 </div>
-                <NText depth="3" style="font-size: 13px;">{{ node.description }}</NText>
-                <NSpace vertical size="small">
-                  <div class="info-item">
-                    <span class="label">用户组:</span>
-                    <NSpace>
-                      <NTag v-for="group in node.allowGroups" :key="group.name" size="small" type="info">
-                        {{ group.friendlyName }}
-                      </NTag>
-                    </NSpace>
-                  </div>
-                  <div class="info-item">
-                    <span class="label">支持协议:</span>
-                    <NSpace>
-                      <NTag v-for="protocol in node.allowedProtocols" :key="protocol" size="small" type="success">
-                        {{ protocol.toUpperCase() }}
-                      </NTag>
-                    </NSpace>
-                  </div>
-                  <div class="info-item">
-                    <span class="label">端口范围:</span>
+                <div class="info-item">
+                  <NSpace wrap>
                     <NTag type="warning" size="small">
                       {{ node.portRange.min }} - {{ node.portRange.max }}
                     </NTag>
-                  </div>
-                </NSpace>
+                    <NTag type="info" size="small">
+                      {{ node.bandWidth }} Mbps
+                    </NTag>
+                  </NSpace>
+                </div>
               </NSpace>
             </NCard>
           </NGridItem>
@@ -82,38 +68,38 @@
       </NSpace>
     </NCard>
 
-    <!-- 修改配置卡片的显示逻辑 -->
-    <NCard v-if="!isMobile || currentStep === 2" title="隧道配置" class="config-card">
-      <!-- 基础配置 -->
+    <!-- 隧道配置弹窗 -->
+    <NModal v-model:show="showConfigModal" preset="card" title="隧道配置" style="width: 650px;" :bordered="false" :segmented="{
+      content: true,
+      footer: 'soft'
+    }">
       <NForm ref="formRef" :model="formValue" :rules="rules" label-placement="left" label-width="120"
              require-mark-placement="right-hanging">
         <NFormItem label="隧道名称" path="name">
-          <NInput v-model:value="formValue.name" placeholder="请输入隧道名称" :disabled="!canEditConfig" />
+          <NInput v-model:value="formValue.name" placeholder="请输入隧道名称" />
         </NFormItem>
 
         <NFormItem label="本地地址" path="localAddr">
-          <NInput v-model:value="formValue.localAddr" placeholder="请输入本地地址" :disabled="!canEditConfig" />
+          <NInput v-model:value="formValue.localAddr" placeholder="请输入本地地址" />
         </NFormItem>
 
         <NFormItem label="本地端口" path="localPort">
-          <NInputNumber v-model:value="formValue.localPort" :min="1" :max="65535" placeholder="请输入本地端口"
-                        :disabled="!canEditConfig" />
+          <NInputNumber v-model:value="formValue.localPort" :min="1" :max="65535" placeholder="请输入本地端口" />
         </NFormItem>
 
         <NFormItem label="协议类型" path="type">
-          <NSelect v-model:value="formValue.type" :options="allowedProxyTypeOptions" placeholder="请选择协议类型"
-                   :disabled="!canEditConfig" />
+          <NSelect v-model:value="formValue.type" :options="allowedProxyTypeOptions" placeholder="请选择协议类型" />
         </NFormItem>
 
         <NFormItem v-if="formValue.type === 'http' || formValue.type === 'https'" label="绑定域名" path="domain">
-          <NDynamicTags v-model:value="domainTags" :render-tag="renderDomainTag" :disabled="!canEditConfig" />
+          <NDynamicTags v-model:value="domainTags" :render-tag="renderDomainTag" />
         </NFormItem>
 
         <NFormItem v-else label="远程端口" path="remotePort">
           <NSpace>
             <NInputNumber v-model:value="formValue.remotePort" :min="selectedNode?.portRange?.min || 1"
-                          :max="selectedNode?.portRange?.max || 65535" placeholder="请输入远程端口" :disabled="!canEditConfig" />
-            <NButton size="medium" :loading="gettingFreePort" :disabled="!canEditConfig" @click="handleGetFreePort">
+                          :max="selectedNode?.portRange?.max || 65535" placeholder="请输入远程端口" />
+            <NButton size="medium" :loading="gettingFreePort" @click="handleGetFreePort">
               获取随机端口
             </NButton>
           </NSpace>
@@ -125,17 +111,15 @@
         </NText>
 
         <NFormItem label="访问密钥" path="accessKey">
-          <NInput v-model:value="formValue.accessKey" placeholder="请输入访问密钥" :disabled="!canEditConfig" />
+          <NInput v-model:value="formValue.accessKey" placeholder="请输入访问密钥" />
         </NFormItem>
 
         <NFormItem label="Host Header Rewrite" path="hostHeaderRewrite">
-          <NInput v-model:value="formValue.hostHeaderRewrite" placeholder="请输入 Host 请求头重写值"
-                  :disabled="!canEditConfig" />
+          <NInput v-model:value="formValue.hostHeaderRewrite" placeholder="请输入 Host 请求头重写值" />
         </NFormItem>
 
         <NFormItem label="X-From-Where" path="headerXFromWhere">
-          <NInput v-model:value="formValue.headerXFromWhere" placeholder="请输入 X-From-Where 请求头值"
-                  :disabled="!canEditConfig" />
+          <NInput v-model:value="formValue.headerXFromWhere" placeholder="请输入 X-From-Where 请求头值" />
         </NFormItem>
 
         <NFormItem label="Proxy Protocol" path="proxyProtocolVersion">
@@ -143,32 +127,26 @@
             { label: '不启用', value: '' },
             { label: 'v1', value: 'v1' },
             { label: 'v2', value: 'v2' }
-          ]" placeholder="Proxy Protocol Version" :disabled="!canEditConfig" />
+          ]" placeholder="Proxy Protocol Version" />
         </NFormItem>
 
         <NFormItem label="其他选项">
           <div style="display: flex; gap: 16px;">
-            <NSwitch v-model:value="formValue.useEncryption" :rail-style="switchButtonRailStyle" :disabled="!canEditConfig">
+            <NSwitch v-model:value="formValue.useEncryption" :rail-style="switchButtonRailStyle">
               <template #checked>启用加密</template>
               <template #unchecked>禁用加密</template>
             </NSwitch>
-            <NSwitch v-model:value="formValue.useCompression" :rail-style="switchButtonRailStyle" :disabled="!canEditConfig">
+            <NSwitch v-model:value="formValue.useCompression" :rail-style="switchButtonRailStyle">
               <template #checked>启用压缩</template>
               <template #unchecked>禁用压缩</template>
             </NSwitch>
           </div>
         </NFormItem>
       </NForm>
-
-      <!-- 修改提交按钮区域 -->
-      <div class="submit-section">
-        <NSpace justify="end">
-          <NButton v-if="isMobile && currentStep === 1" type="primary" :disabled="!formValue.nodeId"
-                   @click="currentStep = 2">
-            下一步
-          </NButton>
-          <NButton v-if="!isMobile || currentStep === 2" type="primary" :loading="loading" @click="handleCreate"
-                   :disabled="!canEditConfig">
+      <template #footer>
+        <div style="display: flex; justify-content: flex-end">
+          <NButton @click="showConfigModal = false">取消</NButton>
+          <NButton type="primary" :loading="loading" @click="showCreateModal" style="margin-left: 12px">
             <template #icon>
               <NIcon>
                 <CloudUploadOutline />
@@ -176,26 +154,69 @@
             </template>
             创建隧道
           </NButton>
-        </NSpace>
+        </div>
+      </template>
+    </NModal>
+    
+    <!-- 创建隧道确认弹窗 -->
+    <NModal v-model:show="showCreateConfirmModal" preset="dialog" title="确认创建隧道" :show-icon="false" style="width: 500px;">
+      <div>
+        <p>您即将创建以下隧道配置：</p>
+        <div class="tunnel-confirm-details">
+          <div class="confirm-item">
+            <span class="confirm-label">节点：</span>
+            <span>{{ selectedNode?.name || '未选择' }}</span>
+          </div>
+          <div class="confirm-item">
+            <span class="confirm-label">隧道名称：</span>
+            <span>{{ formValue.name }}</span>
+          </div>
+          <div class="confirm-item">
+            <span class="confirm-label">本地地址：</span>
+            <span>{{ formValue.localAddr }}:{{ formValue.localPort }}</span>
+          </div>
+          <div class="confirm-item">
+            <span class="confirm-label">协议类型：</span>
+            <span>{{ formValue.type.toUpperCase() }}</span>
+          </div>
+          <div v-if="formValue.type === 'http' || formValue.type === 'https'" class="confirm-item">
+            <span class="confirm-label">绑定域名：</span>
+            <span>{{ domainTags.join(', ') }}</span>
+          </div>
+          <div v-else class="confirm-item">
+            <span class="confirm-label">远程端口：</span>
+            <span>{{ formValue.remotePort }}</span>
+          </div>
+        </div>
+        <p class="confirm-warning">请确认以上信息无误，点击确认后将创建隧道。</p>
       </div>
-    </NCard>
+      <template #action>
+        <NButton size="medium" @click="showCreateConfirmModal = false">取消</NButton>
+        <NButton size="medium" type="primary" :loading="loading" @click="handleCreate">确认创建</NButton>
+      </template>
+    </NModal>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, h, computed, onMounted, onUnmounted, watch } from 'vue'
-import { NCard, NForm, NFormItem, NInput, NInputNumber, NSelect, NButton, NIcon, useMessage, type FormRules, type FormInst, NDivider, NSwitch, NTag, NSpace, NText, NGrid, NGridItem, NDynamicTags, NSteps, NStep, NModal } from 'naive-ui'
-import { CloudUploadOutline, ArrowBackOutline } from '@vicons/ionicons5'
+import { NCard, NForm, NFormItem, NInput, NInputNumber, NSelect, NButton, NIcon, useMessage, type FormRules, type FormInst, NDivider, NSwitch, NTag, NSpace, NText, NGrid, NGridItem, NDynamicTags, NModal } from 'naive-ui'
+import { CloudUploadOutline } from '@vicons/ionicons5'
 import { switchButtonRailStyle } from '@/constants/theme.ts'
 import { useRouter } from 'vue-router'
-import {userApi} from "@/net";
-import {accessHandle} from "@/net/base.ts";
+import { userApi } from "@/net"
+import { accessHandle } from "@/net/base.ts"
 
 const router = useRouter()
 const message = useMessage()
 const formRef = ref<FormInst | null>(null)
 const loading = ref(false)
-const userGroup = localStorage.getItem('group')
+const userGroup = ref(localStorage.getItem('group'))
+
+// 新增弹窗状态
+const showConfigModal = ref(false)
+const showCreateConfirmModal = ref(false)
+const selectedNodeId = ref<number | null>(null)
 
 const formValue = ref({
   nodeId: null as number | null,
@@ -213,10 +234,6 @@ const formValue = ref({
   useCompression: false
 })
 
-const goToRealname = () => {
-  router.push('/dashboard/profile')
-}
-
 const proxyTypeOptions = [
   { label: 'TCP', value: 'tcp' },
   { label: 'UDP', value: 'udp' },
@@ -233,6 +250,7 @@ const nodeOptions = ref<{
   description: string;
   isOnline: boolean;
   isDisabled: boolean;
+  bandWidth: number;
   allowedProtocols: string[];
   allowGroups: { name: string; friendlyName: string }[];
   portRange: {
@@ -240,6 +258,19 @@ const nodeOptions = ref<{
     max: number
   }
 }[]>([])
+
+// 添加协议支持检查函数
+const supportsUdp = (node: any) => {
+  return node.allowedProtocols.includes('udp')
+}
+
+const supportsHttp = (node: any) => {
+  return node.allowedProtocols.includes('http')
+}
+
+const supportsHttps = (node: any) => {
+  return node.allowedProtocols.includes('https')
+}
 
 const rules: FormRules = {
   nodeId: {
@@ -274,7 +305,7 @@ const rules: FormRules = {
         return true
       }
       if (typeof value !== 'number' || value < 1 || value > 65535) {
-        return new Error('端口范围必须在 1-65535 之间')
+        return new Error('端口范围必须在 1-65535之间')
       }
       return true
     }
@@ -344,6 +375,7 @@ const fetchNodes = async () => {
             isDisabled: node.isDisabled,
             allowedProtocols,
             allowGroups,
+            bandWidth: node.bandWidth,
             portRange: {
               min: minPort,
               max: maxPort
@@ -357,6 +389,7 @@ const fetchNodes = async () => {
         message.error(error || '获取节点列表失败')
     })
 }
+
 const selectedNode = ref<{
   id: number;
   name: string;
@@ -369,36 +402,36 @@ const selectedNode = ref<{
   };
 } | null>(null)
 
-const handleNodeChange = (value: number | null) => {
-  if (value) {
-    const node = nodeOptions.value.find(opt => opt.value === value);
-    if (node) {
-      if (!node.isOnline) {
-        message.error('该节点当前处于离线状态，无法选择');
-        return; // 阻止选择离线节点
-      }
-      selectedNode.value = {
-        id: node.id,
-        name: node.name,
-        hostname: node.hostname,
-        allowedProtocols: node.allowedProtocols,
-        allowGroups: node.allowGroups,
-        portRange: node.portRange
-      };
-      formValue.value.nodeId = value;
-      formValue.value.type = selectedNode.value?.allowedProtocols[0] || '';
-      formValue.value.remotePort = null;
-
-      // 在移动端选择节点后自动进入下一步
-      if (isMobile.value) {
-        currentStep.value = 2;
-      }
-    }
-  } else {
-    selectedNode.value = null;
-    formValue.value.nodeId = null;
+// 修改为点击节点时打开配置弹窗
+const handleNodeSelect = (node: any) => {
+  if (!node.isOnline) {
+    message.error('该节点当前处于离线状态，无法选择')
+    return
   }
-};
+  
+  if (node.isDisabled) {
+    message.error('该节点已被禁用，无法选择')
+    return
+  }
+  
+  selectedNodeId.value = node.value
+  selectedNode.value = {
+    id: node.id,
+    name: node.name,
+    hostname: node.hostname,
+    allowedProtocols: node.allowedProtocols,
+    allowGroups: node.allowGroups,
+    portRange: node.portRange
+  }
+  
+  // 设置表单默认值
+  formValue.value.nodeId = node.value
+  formValue.value.type = node.allowedProtocols[0] || ''
+  formValue.value.remotePort = null
+  
+  // 打开配置弹窗
+  showConfigModal.value = true
+}
 
 const allowedProxyTypeOptions = computed(() => {
   if (!selectedNode.value) return proxyTypeOptions
@@ -434,63 +467,72 @@ const renderDomainTag = (tag: string) => {
   )
 }
 
-
-const handleCreate = () => {
+// 显示创建确认弹窗
+const showCreateModal = () => {
   formRef.value?.validate(async (errors) => {
     if (!errors) {
-      try {
-        loading.value = true;
-
-        const requestData = {
-          nodeId: formValue.value.nodeId,
-          proxyName: formValue.value.name,
-          localIp: formValue.value.localAddr,
-          localPort: formValue.value.localPort,
-          remotePort: formValue.value.remotePort,
-          domain: ['http', 'https'].includes(formValue.value.type)
-              ? JSON.stringify(domainTags.value)
-              : '',
-          proxyType: formValue.value.type,
-          accessKey: formValue.value.accessKey,
-          hostHeaderRewrite: formValue.value.hostHeaderRewrite,
-          headerXFromWhere: formValue.value.headerXFromWhere,
-          proxyProtocolVersion: formValue.value.proxyProtocolVersion,
-          useEncryption: formValue.value.useEncryption,
-          useCompression: formValue.value.useCompression
-        };
-
-        userApi.post(
-            "/proxy/create",
-              requestData,
-              accessHandle(),
-              (data) => {
-                if (data.code === 0) {
-                  message.success('隧道创建成功');
-                  formRef.value?.restoreValidation();
-                } else {
-                  message.error(data.message || '创建失败');
-                }
-              },
-        );
-      } catch (error) {
-        const errorMsg = error || '服务器连接异常';
-        message.error(`创建失败: ${errorMsg}`);
-      } finally {
-        loading.value = false;
-      }
+      showCreateConfirmModal.value = true
     }
-  });
+  })
 }
 
+const handleCreate = async () => {
+  try {
+    loading.value = true
 
-// 计算是否可以编辑配置
-const canEditConfig = computed(() => {
-  return formValue.value.nodeId && selectedNode.value
-})
+    const requestData = {
+      nodeId: formValue.value.nodeId,
+      proxyName: formValue.value.name,
+      localIp: formValue.value.localAddr,
+      localPort: formValue.value.localPort,
+      remotePort: formValue.value.remotePort,
+      domain: ['http', 'https'].includes(formValue.value.type)
+          ? JSON.stringify(domainTags.value)
+          : '',
+      proxyType: formValue.value.type,
+      accessKey: formValue.value.accessKey,
+      hostHeaderRewrite: formValue.value.hostHeaderRewrite,
+      headerXFromWhere: formValue.value.headerXFromWhere,
+      proxyProtocolVersion: formValue.value.proxyProtocolVersion,
+      useEncryption: formValue.value.useEncryption,
+      useCompression: formValue.value.useCompression
+    }
+
+    userApi.post(
+        "/proxy/create",
+          requestData,
+          accessHandle(),
+          (data) => {
+            if (data.code === 0) {
+              message.success('隧道创建成功')
+              formRef.value?.restoreValidation()
+              // 关闭所有弹窗
+              showCreateConfirmModal.value = false
+              showConfigModal.value = false
+              // 重置选中状态
+              selectedNodeId.value = null
+              // 可以在这里添加创建成功后的跳转逻辑
+              // router.push('/dashboard/tunnels')
+            } else {
+              message.error(data.message || '创建失败')
+            }
+          },
+    )
+  } catch (error) {
+    const errorMsg = error || '服务器连接异常'
+    message.error(`创建失败: ${errorMsg}`)
+  } finally {
+    loading.value = false
+  }
+}
 
 const showRealnameModal = ref(false)
 const countDown = ref(10)
 let timer: number | null = null
+
+const goToRealname = () => {
+  router.push('/dashboard/profile')
+}
 
 const startCountDown = () => {
   countDown.value = 10
@@ -514,44 +556,29 @@ watch(showRealnameModal, (newVal) => {
   }
 })
 
-// 修改初始化顺序
+// 初始化
 const init = async () => {
   await fetchUserGroups()
   await fetchNodes()
-  if (userGroup === 'noRealname') {
+  if (userGroup.value === 'noRealname') {
     showRealnameModal.value = true
     startCountDown()
   }
 }
 
-// 修改初始化调用
-init()
-const isMobile = ref(window.innerWidth <= 768)
-
-const handleResize = () => {
-  isMobile.value = window.innerWidth <= 768
-}
-
 onMounted(() => {
-  window.addEventListener('resize', handleResize)
+  init()
 })
-
-onUnmounted(() => {
-  window.removeEventListener('resize', handleResize)
-  if (timer) {
-    clearInterval(timer)
-    timer = null
-  }
-})
-const currentStep = ref<number>(1)
 
 const gettingFreePort = ref(false)
 
 const handleGetFreePort = async () => {
-  if (!canEditConfig.value) return
+  if (!selectedNode.value) return
 
-  //随机端口
-  formValue.value.remotePort = Math.floor(Math.random() * (65535 - 1024 + 1)) + 1024
+  // 随机端口
+  const min = selectedNode.value.portRange.min || 1024
+  const max = selectedNode.value.portRange.max || 65535
+  formValue.value.remotePort = Math.floor(Math.random() * (max - min + 1)) + min
 }
 </script>
 
@@ -562,20 +589,20 @@ const handleGetFreePort = async () => {
   margin: 16px 0;
 }
 .content-grid {
-  display: grid;
-  grid-template-columns: 1fr 1.75fr;
-  gap: 20px;
-  align-items: start;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
 
   .node-card {
-    width: 410px;
+    width: 100%;
+    max-width: 1200px; /* 增加最大宽度以适应三列布局 */
+    
     :deep(.n-card-header) {
       border-bottom: 1px solid $border-color;
     }
 
     :deep(.n-card__content) {
-      height: 100%;
-      max-height: calc(82vh);
+      max-height: calc(90vh - 100px);
       overflow-y: auto;
 
       &::-webkit-scrollbar {
@@ -600,35 +627,12 @@ const handleGetFreePort = async () => {
     }
   }
 
-  .config-card {
-    overflow-y: auto;
-
-    &::-webkit-scrollbar {
-      width: 5px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      background-color: rgba(255, 255, 255, 0.2);
-      border-radius: 5px;
-      cursor: pointer;
-
-      &:hover {
-        background-color: rgba(255, 255, 255, 0.3);
-      }
-    }
-
-    &::-webkit-scrollbar-track {
-      background-color: transparent;
-    }
-  }
-
   .node-item {
     border: 1px solid $border-color;
     transition: $transition-all;
     cursor: pointer;
     height: 100%;
+    position: relative;
   }
 
   .selected-node {
@@ -641,40 +645,69 @@ const handleGetFreePort = async () => {
     }
   }
 
+  .node-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+    
+    .node-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .node-tags {
+      display: flex;
+      gap: 4px;
+    }
+  }
+
   .info-item {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     margin-bottom: 8px;
-
-    .label {
-      width: 80px;
-      color: $text-color-2;
-    }
   }
+}
 
-  .steps-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 0 5px;
-    margin-top: 5px;
+/* 确认弹窗样式 */
+.tunnel-confirm-details {
+  background-color: rgba($primary-color, 0.05);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 12px 0;
+}
 
-    .mobile-steps {
-      flex: 1;
-    }
+.confirm-item {
+  display: flex;
+  margin-bottom: 8px;
+  
+  &:last-child {
+    margin-bottom: 0;
   }
+  
+  .confirm-label {
+    width: 100px;
+    color: $text-color-2;
+    font-weight: 500;
+  }
+}
 
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
+.confirm-warning {
+  font-size: 14px;
+  margin-top: 12px;
+}
 
-    .node-card, .config-card {
-      :deep(.n-card__content) {
-        height: 100%;
-        overflow-y: auto;
-        max-height: 100%;
-      }
-    }
+/* 添加响应式布局 */
+@media (max-width: 1200px) {
+  .content-grid .node-card {
+    max-width: 900px;
+  }
+}
+
+@media (max-width: 768px) {
+  .content-grid .node-card :deep(.n-grid) {
+    grid-template-columns: repeat(1, 1fr) !important;
   }
 }
 </style>

@@ -145,7 +145,6 @@ const shouldUseSelectedAmount = (product: Product) => {
 // 从API获取产品数据
 const fetchProducts = () => {
   userApi.get("/user/info/product", accessHandle(), (data) => {
-    if (data.code === 0) {
       products.value = data.data.products.map(product => {
         // 解析 pay_method 字段为数组
         const payMethods = product.payMethod.split(';')
@@ -158,11 +157,8 @@ const fetchProducts = () => {
           selectedAmount: 1, // 默认数量为1
         }
       })
-    } else {
-      message.error(data.message)
-    }
   }, (messageText) => {
-    message.error(messageText)
+    message.warning(messageText)
   }, (err) => {
     message.error(err.message)
   })

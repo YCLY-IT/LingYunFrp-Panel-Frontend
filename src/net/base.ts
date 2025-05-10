@@ -30,15 +30,15 @@ function storeToken(Authorization, remember, expires) {
     };
     const tokenStr = JSON.stringify(token);
     if (remember) {
-        localStorage.setItem('token', tokenStr);
+        localStorage.setItem('Authorization', tokenStr);
     } else {
-        sessionStorage.setItem('token', tokenStr);
+        sessionStorage.setItem('Authorization', tokenStr);
     }
 }
 
 //! TODO: Specifies the return value type
 function getToken() {
-    const tokenStr = localStorage.getItem('token') || sessionStorage.getItem('token');
+    const tokenStr = localStorage.getItem('Authorization') || sessionStorage.getItem('Authorization');
     if (tokenStr) {
         const token = JSON.parse(tokenStr);
         if (token.expires && token.expires < new Date().getTime()) {
@@ -53,8 +53,8 @@ function getToken() {
 }
 
 function removeToken() {
-    localStorage.removeItem('token');
-    sessionStorage.removeItem('token');
+    localStorage.removeItem('Authorization');
+    sessionStorage.removeItem('Authorization');
 }
 
 //! TODO: why the return value has two type(string or Object)?

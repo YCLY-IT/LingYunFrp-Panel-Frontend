@@ -13,6 +13,7 @@ export interface UserInfo {
     email: string
     status: number
     todaySigned: boolean
+    token : string
 }
 export interface FilterUsersArgs {
     page: number;
@@ -37,6 +38,7 @@ export interface UpdateNodeArgs {
     allowPort: string;
     allowType: string;
     need_realname: boolean;
+    bandWidth: number;
 }
 
 export interface GetNodesArgs {
@@ -64,6 +66,7 @@ export interface Node {
     isOnline: boolean;
     ip: string;
     need_realname: boolean;
+    bandWidth: number;
     id: number;
 }
 export interface Group {

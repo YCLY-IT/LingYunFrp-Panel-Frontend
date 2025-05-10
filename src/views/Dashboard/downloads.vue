@@ -233,6 +233,10 @@ const handleCopyDownloadUrl = async () => {
 const fetchProducts = async () => {
   try {
     userApi.get('/user/info/download', accessHandle(), (data) => {
+      if (data.data === null) {
+        message.info('没有可用的产品')
+        return
+      }
       products.value = data.data.map(product => ({
         ...product,
         selectedSystem: undefined,

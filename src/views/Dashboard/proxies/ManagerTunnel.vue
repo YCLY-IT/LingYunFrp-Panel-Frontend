@@ -651,15 +651,11 @@ const toggleModalContent = computed(() => {
 
 const handleToken = async () => {
   try {
-    userApi.get("/user/info/token", accessHandle(), (data) => {
-      if (data.code === 0) {
-        token.value = data.data.token.token
-      } else {
-        message.error(data.message || '获取Token失败')
-      }
-    }, () => {
-      message.error('获取Token失败')
-    })
+    token.value = localStorage.getItem('token') || ''
+    if (!token.value) {
+      message.error('未获取到Token')
+      return
+    }
   } catch (error: any) {
     message.error('获取Token失败')
   }
@@ -825,7 +821,7 @@ const handleEditSubmit = () => {
           loading.value = false
         })
       } catch (error: any) {
-        message.error(error?.response?.data?.message || '更新隧道失败')
+        message.error(error|| '更新隧道失败')
       } finally {
         loading.value = false
       }

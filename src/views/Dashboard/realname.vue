@@ -67,7 +67,7 @@ const formRef = ref<FormInst | null>(null)
 const isSubmitting = ref(false)
 const isPhoneCodeSending = ref(false)
 const showRealnameModal = ref(false)
-const IsRealname = ref(false)
+const IsRealname = ref(true)
 const emailCodeCountdown = ref(0)
 
 const formValue = ref({

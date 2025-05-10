@@ -54,6 +54,9 @@
             <NInput v-model:value="formModel.adminPass" type="password" show-password-on="click"
               placeholder="请输入管理密码" />
           </NFormItem>
+          <NFormItem label="带宽(Mbps)" path="bandWidth">
+            <NInputNumber v-model:value="formModel.bandWidth" placeholder="请输入带宽" />
+          </NFormItem>
           <NFormItem label="是否需要实名" path="need_realname">
             <NSwitch v-model:value="formModel.need_realname" />
           </NFormItem>
@@ -114,6 +117,9 @@
           <NFormItem label="管理密码" path="adminPass">
             <NInput v-model:value="formModel.adminPass" type="password" show-password-on="click"
               placeholder="请输入管理密码" />
+          </NFormItem>
+          <NFormItem label="带宽(Mbps)" path="bandWidth">
+            <NInputNumber v-model:value="formModel.bandWidth" placeholder="请输入带宽" />
           </NFormItem>
           <NFormItem label="是否需要实名" path="need_realname">
             <NSwitch v-model:value="formModel.need_realname" />
@@ -216,6 +222,7 @@ const formModel = ref({
   allowPort: '',
   allowType: [] as string[],
   need_realname: true,
+  bandWidth: 0,
 })
 
 const toggleGroup = (value: string) => {
@@ -545,7 +552,8 @@ const handleEdit = (row: Node) => {
     allowGroup: row.allowGroup.split(';'),
     allowPort: row.allowPort,
     allowType: row.allowType.split(';'),
-    need_realname: row.need_realname
+    need_realname: row.need_realname,
+    bandWidth: row.bandWidth
   }
   showEditModal.value = true
 }
@@ -574,7 +582,8 @@ const handleEditSubmit = () => {
           group: formModel.value.allowGroup.join(';'),
           allowPort: formModel.value.allowPort,
           allowType: formModel.value.allowType.join(';'),
-          need_realname: formModel.value.need_realname
+          need_realname: formModel.value.need_realname,
+          bandWidth: formModel.value.bandWidth,
         }
         userApi.post(`/admin/node/set/${editingNode.value!.id}`, config, accessHandle(), (data) => {
           if (data.code === 0) {
@@ -594,7 +603,8 @@ const handleEditSubmit = () => {
               allowGroup: [],
               allowPort: '',
               allowType: [],
-              need_realname: false
+              need_realname: false,
+              bandWidth: 0
             })
             fetchNodes()
           }else{
@@ -641,7 +651,8 @@ const handleAddNode = () => {
               allowGroup: [],
               allowPort: '',
               allowType: [],
-              need_realname: true
+              need_realname: true,
+              bandWidth: 0
             })
             fetchNodes()
           } else {
@@ -649,7 +660,7 @@ const handleAddNode = () => {
           }
         })
       } catch (error: any) {
-        message.error(error?.response?.data?.message || '添加节点失败')
+        message.error(error || '添加节点失败')
       } finally {
         submitting.value = false
       }
@@ -695,7 +706,7 @@ const handleToggleNode = async (node: Node) => {
       }
     })
   } catch (error: any) {
-    message.error(error?.response?.data?.message || '操作失败')
+    message.error(error || '操作失败')
   } finally {
     submitting.value = false
   }
@@ -717,7 +728,7 @@ const handleDeleteNode = async (node: Node) => {
     showDeleteModal.value = false
     loadData()
   } catch (error: any) {
-    message.error(error?.response?.data?.message || '操作失败')
+    message.error(error || '操作失败')
   } finally {
     submitting.value = false
   }

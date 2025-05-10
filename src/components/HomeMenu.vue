@@ -4,7 +4,7 @@
     <div class="navbar-content">
       <div class="logo">
         <RouterLink to="/" class="logo-link">
-          <h2>LingYunFRP</h2>
+          <h2 style="background: transparent; -webkit-background-clip: text; color: transparent; background-image: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);">LingYunFRP</h2>
         </RouterLink>
       </div>
 
@@ -44,7 +44,7 @@
       </NPopover>
       <div class="logo">
         <RouterLink to="/" class="logo-link">
-          <h2>LingYunFRP</h2>
+          <h2 style="background: transparent; -webkit-background-clip: text; color: transparent; background-image: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);">LingYunFRP</h2>
         </RouterLink>
       </div>
     </div>
