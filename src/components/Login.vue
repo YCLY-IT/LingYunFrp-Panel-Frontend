@@ -64,6 +64,7 @@ const rules: FormRules = {
 }
 
 const handleSubmit = async () => {
+  message.loading('登录中...')
   userApi.login(
       formValue.value.username,
       formValue.value.password,

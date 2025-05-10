@@ -305,7 +305,7 @@ const handleAvatarSubmit = async () => {
   formData.append('avatar', avatarFile)
   userApi.post('/user/update/avatar', formData, accessHandle(), (data) => {
     if (data.code === 0) {
-      localStorage.setItem('avatar', data.path)
+      localStorage.setItem('avatar', data.data)
       message.success('头像更新成功')
       setTimeout(() => {
         window.location.reload()

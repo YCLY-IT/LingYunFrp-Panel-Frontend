@@ -2,14 +2,14 @@ import axios from 'axios';
 import { Window } from '@/types'
 
 const api = axios.create({
-    baseURL: 'http://localhost:8081/',
+    baseURL: '/api',
     headers: {
         //* NOTE: defalut content-type is set
         'Content-Type': 'application/x-www-form-urlencoded'
     }
 });
 
-const defaultFailure = (messageText: string, code: number, url: string) => {
+const defaultFailure = (messageText: string) => {
     //! TODO: only console warning, don't show message here
     window.$message?.warning(`${messageText}`);
 };
@@ -18,7 +18,7 @@ const defaultFailure = (messageText: string, code: number, url: string) => {
 const defaultError = (err: Error) => {
     //! TODO: only console error, don't show message here
     console.error(err);
-    window.$message?.error(`发生了一些小问题,要不试试刷新一下（＾ω＾）`);
+    window.$message?.error(`${err.message}`);
 };
 
 //! TODO: Specifies the params and return value type
@@ -76,7 +76,7 @@ function post(url: string, data: any, headers: Record<string, string | number>, 
         if (data.code === 0) {
             success(data);
         } else {
-            failure(data.message, data.code, data.url);
+            failure(data.message);
         }
     }).catch(err => error(err));
 }
@@ -89,8 +89,8 @@ function get(url: string, headers: Record<string, string>, success: Function, fa
         if (data.code === 0) {
             success(data);
             window.$loadingBar?.finish()
-        } else {
-            failure(data.message, data.code, data.url);
+        }else {
+            failure(data.message);
             window.$loadingBar?.error()
         }
     }).catch(err => error(err));

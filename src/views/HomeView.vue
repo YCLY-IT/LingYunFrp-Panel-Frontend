@@ -11,7 +11,7 @@
                 快速可靠的内网穿透解决方案
               </h1>
               <p class="hero-description">
-                LingYunFRP 是一个专注于内网穿透的高性能的反向代理应用，支持 TCP、UDP、HTTP、HTTPS 等多种协议，让您轻松实现内网服务的外网访问。
+                LingYunFRP 是一个专注于内网穿透的高性能的反向代理应用，支持 TCP、UDP、HTTP、HTTPS 多种协议，让您轻松实现内网服务的外网访问。
               </p>
               <div class="hero-actions">
                 <n-space>
@@ -170,10 +170,10 @@
             </div>
             <div class="footer-social">
               <a href="https://github.com/LingYuByte-Network/" class="social-link">
-                <n-icon><GithubIcon /></n-icon>
+                <n-icon :size="25"><GithubIcon /></n-icon>
               </a>
               <a href="https://www.lybyte.cn/" class="social-link">
-                <n-icon><BoxIcon /></n-icon>
+                <n-icon :size="25"><BoxIcon /></n-icon>
               </a>
             </div>
           </div>
@@ -317,7 +317,7 @@ const faqItems = [
   },
   {
     question: '如何获取技术支持？',
-    answer: '您可以通过控制面板中的"支持"页面提交工单，或者发送邮件至 <EMAIL> 获取技术支持。专业版和企业版用户可以获得优先响应。'
+    answer: '您可以通过控制面板中的"支持"页面提交工单，或者加入QQ群获取技术支持。专业版和企业版用户可以获得优先响应。'
   }
 ]
 

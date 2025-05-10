@@ -122,6 +122,7 @@ const userInfo = ref({
   email: '',
   point: 0,
   status: 0,
+  avatar: '',
   todaySigned: false,
   token: ''
 })
@@ -190,6 +191,7 @@ const fetchUserInfo = async () => {
       userInfo.value = data.data
       localStorage.setItem('group', userInfo.value.group)
       localStorage.setItem('token', userInfo.value.token)
+      localStorage.setItem('avatar', userInfo.value.avatar)
       isSignAvailable.value = !data.data.sign
     } else {
       message.error(data.message || '获取用户信息失败')

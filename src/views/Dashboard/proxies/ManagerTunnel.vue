@@ -583,13 +583,9 @@ const handleRefresh = async () => {
   loading.value = true
   try {
     userApi.get("/proxy/list", accessHandle(), (data) => {
-      if (data.code === 0) {
         proxies.value = data.data
-      } else {
-        message.error(data.message || '获取隧道列表失败')
-      }
     }, (error) => {
-      message.error(error || '获取隧道列表失败')
+      message.warning(error || '获取隧道列表失败')
     }, (error) => {
       message.error(error.message || '获取隧道列表失败')
       loading.value = false
