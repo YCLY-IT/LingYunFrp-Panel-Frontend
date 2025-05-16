@@ -53,7 +53,7 @@ const formValue = ref({
 const rules: FormRules = {
   username: {
     required: true,
-    message: '请输入用户名',
+    message: '请输入用户名/邮箱',
     trigger: 'blur'
   },
   password: {
