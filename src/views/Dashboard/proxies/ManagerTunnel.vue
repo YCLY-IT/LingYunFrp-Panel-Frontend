@@ -1,6 +1,6 @@
 <template>
-  <div class="proxies">
-    <NCard title="隧道管理">
+  <div class="tunnel-manager">
+    <NCard class="header-card" title="管理隧道">
       <div class="toolbar">
         <div class="search-box">
           <NInput v-model:value="searchText" placeholder="搜索隧道..." clearable>
@@ -14,7 +14,11 @@
 
         <div class="toolbar-right">
           <NButtonGroup>
-            <NButton :type="viewMode === 'grid' ? 'primary' : 'default'" @click="viewMode = 'grid'">
+            <NButton 
+              :type="viewMode === 'grid' ? 'primary' : 'default'" 
+              @click="viewMode = 'grid'"
+              class="view-btn"
+            >
               <template #icon>
                 <NIcon>
                   <GridOutline />
@@ -22,7 +26,11 @@
               </template>
               <span class="view-text">网格</span><span class="view-suffix">视图</span>
             </NButton>
-            <NButton :type="viewMode === 'list' ? 'primary' : 'default'" @click="viewMode = 'list'">
+            <NButton 
+              :type="viewMode === 'list' ? 'primary' : 'default'" 
+              @click="viewMode = 'list'"
+              class="view-btn"
+            >
               <template #icon>
                 <NIcon>
                   <ListOutline />
@@ -32,228 +40,312 @@
             </NButton>
           </NButtonGroup>
 
-          <NButton secondary @click="handleRefresh">
+          <NButton type="info" @click="handleRefresh" class="refresh-btn">
             <template #icon>
               <NIcon>
                 <RefreshOutline />
               </NIcon>
-            </template>刷新
+            </template>
+            刷新
+          </NButton>
+          
+          <NButton type="primary" @click="createTunnel" class="create-btn">
+            <template #icon>
+              <NIcon>
+                <AddOutline />
+              </NIcon>
+            </template>
+            创建隧道
           </NButton>
         </div>
       </div>
+    </NCard>
 
-      <!-- 网格视图 -->
-      <div v-if="viewMode === 'grid'" class="proxy-grid">
-        <template v-if="filteredProxies.length">
-          <NCard v-for="proxy in filteredProxies" :key="proxy.proxyId" class="proxy-card">
-            <div class="proxy-header">
-              <h3 class="proxy-title">
+    <!-- 网格视图 -->
+    <div v-if="viewMode === 'grid'" class="tunnel-grid">
+      <template v-if="filteredProxies.length">
+        <NCard v-for="proxy in filteredProxies" :key="proxy.proxyId" class="tunnel-card">
+          <div class="tunnel-header">
+            <div class="tunnel-title-area">
+              <h3 class="tunnel-title">
                 {{ proxy.proxyName }}
               </h3>
               <div class="status-tags">
-                <NTag :type="proxy.isOnline ? 'success' : 'error'" size="small">
+                <NTag :type="proxy.isOnline ? 'success' : 'error'" size="small" round>
                   {{ proxy.isOnline ? '在线' : '离线' }}
                 </NTag>
-                <NTag v-if="proxy.isBanned" type="error" size="small" style="margin-left: 4px">
+                <NTag v-if="proxy.isBanned" type="error" size="small" round style="margin-left: 4px">
                   已封禁
                 </NTag>
-                <NTag v-if="proxy.isDisabled" type="warning" size="small" style="margin-left: 4px">
+                <NTag v-if="proxy.isDisabled" type="warning" size="small" round style="margin-left: 4px">
                   已禁用
                 </NTag>
               </div>
             </div>
-            <div class="proxy-info">
+            <div class="tunnel-id">
+              <NTag type="info" size="small"># {{ proxy.proxyId }}</NTag>
+            </div>
+          </div>
+          
+          <div class="tunnel-info">
+            <div class="info-row">
               <div class="info-item">
-                <span class="label">ID:</span>
-                <span class="value">
-                  <NTag type="info" size="small"># {{ proxy.proxyId }}</NTag>
-                </span>
+                <div class="label">协议:</div>
+                <div class="value protocol">{{ proxy.proxyType.toUpperCase() }}</div>
               </div>
-              <div class="info-item">
-                <span class="label">协议:</span>
-                <span class="value">{{ proxy.proxyType.toUpperCase() }}</span>
+              
+              <div class="info-item node-item">
+                <div class="label">节点:</div>
+                <div class="value node-value">{{ getNodeLabel(proxy.nodeId).split(' - ')[1] }}</div>
               </div>
-              <div class="info-item">
-                <span class="label">
-                  {{ proxy.proxyType === 'http' || proxy.proxyType === 'https' ? '绑定域名：' : '远程端口：' }}
-                </span>
-                <span class="value">
-                  <div v-if="proxy.proxyType === 'http' || proxy.proxyType === 'https'" class="remote-port">
-                    <div v-for="domain in JSON.parse(proxy.domain || '[]')" :key="domain" class="domain">
-                      <NTag type="info" size="small" style="cursor: pointer"
-                            @click="() => openUrl(proxy.proxyType, domain)">
-                        {{ domain }}
-                      </NTag>
-                    </div>
+            </div>
+            
+            <div class="info-item domain-item">
+              <div class="label">
+                {{ proxy.proxyType === 'http' || proxy.proxyType === 'https' ? '绑定域名：' : '远程端口：' }}
+              </div>
+              <div class="value">
+                <div v-if="proxy.proxyType === 'http' || proxy.proxyType === 'https'" class="domain-list">
+                  <div v-for="domain in JSON.parse(proxy.domain || '[]')" :key="domain" class="domain">
+                    <NTag type="info" size="small" style="cursor: pointer" @click="() => openUrl(proxy.proxyType, domain)">
+                      {{ domain }}
+                    </NTag>
                   </div>
-                  <template v-else>{{ proxy.remotePort }}</template>
-                </span>
-              </div>
-              <div class="info-item" style="display: flex; align-items: flex-start">
-                <span class="label">节点：</span>
-                <span class="value" style="flex: 1; word-break: break-all;">{{ getNodeLabel(proxy.nodeId) }}</span>
+                </div>
+                <template v-else>{{ proxy.remotePort }}</template>
               </div>
             </div>
-            <div class="proxy-actions">
-              <NDropdown :options="dropdownOptions(proxy)" @select="key => handleSelect(key, proxy)" trigger="click">
-                <NButton secondary size="small">
-                  <template #icon>
-                    <NIcon>
-                      <BuildOutline />
-                    </NIcon>
-                  </template>
-                  更多
-                </NButton>
-              </NDropdown>
-            </div>
-          </NCard>
-        </template>
-        <NEmpty v-else description="暂无隧道" class="no-data">
-          <template #extra>
-            <NButton secondary @click="() => router.push('/dashboard/proxy/create')">
+          </div>
+          
+          <div class="tunnel-actions">
+            <NButton quaternary size="small" @click="() => handleSelect('view', proxy)" class="action-btn">
               <template #icon>
                 <NIcon>
-                  <AddOutline />
+                  <InformationCircleOutline />
                 </NIcon>
               </template>
-              创建
+              详情
             </NButton>
-          </template>
-        </NEmpty>
-      </div>
-
-      <!-- 列表视图 -->
-      <template v-else>
-        <NDataTable v-if="filteredProxies.length" :columns="columns" :data="filteredProxies" :style="{
-          '.n-data-table-td': {
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            maxWidth: '200px'
-          }
-        }" />
-        <NEmpty v-else description="暂无隧道" class="no-data">
-          <template #extra>
-            <NButton secondary @click="() => router.push('/proxy/create')">
+            
+            <NButton quaternary size="small" @click="() => handleSelect('genConfig', proxy)" class="action-btn">
               <template #icon>
                 <NIcon>
-                  <AddOutline />
+                  <DocumentOutline />
                 </NIcon>
               </template>
-              创建
+              配置
             </NButton>
-          </template>
-        </NEmpty>
+            
+            <NButton quaternary size="small" @click="() => handleSelect('edit', proxy)" class="action-btn">
+              <template #icon>
+                <NIcon>
+                  <CreateOutline />
+                </NIcon>
+              </template>
+              编辑
+            </NButton>
+            
+            <NButton 
+              quaternary 
+              size="small" 
+              :type="proxy.isDisabled ? 'success' : 'warning'"
+              @click="() => handleSelect('toggle', proxy)" 
+              class="action-btn"
+            >
+              <template #icon>
+                <NIcon>
+                  <PowerOutline />
+                </NIcon>
+              </template>
+              {{ proxy.isDisabled ? '启用' : '禁用' }}
+            </NButton>
+            
+            <NButton quaternary size="small" type="error" @click="() => handleSelect('delete', proxy)" class="action-btn">
+              <template #icon>
+                <NIcon>
+                  <TrashOutline />
+                </NIcon>
+              </template>
+              删除
+            </NButton>
+          </div>
+        </NCard>
       </template>
-    </NCard>
+      <NEmpty v-else description="暂无隧道" class="no-data">
+        <template #extra>
+          <NButton type="primary" @click="createTunnel">
+            <template #icon>
+              <NIcon>
+                <AddOutline />
+              </NIcon>
+            </template>
+            创建隧道
+          </NButton>
+        </template>
+      </NEmpty>
+    </div>
+
+    <!-- 列表视图 -->
+    <div v-else class="tunnel-list">
+      <NDataTable 
+        v-if="filteredProxies.length" 
+        :columns="columns" 
+        :data="filteredProxies" 
+        :pagination="{ pageSize: 10 }"
+        :bordered="false"
+        class="data-table"
+      />
+      <NEmpty v-else description="暂无隧道" class="no-data">
+        <template #extra>
+          <NButton type="primary" @click="createTunnel">
+            <template #icon>
+              <NIcon>
+                <AddOutline />
+              </NIcon>
+            </template>
+            创建隧道
+          </NButton>
+        </template>
+      </NEmpty>
+    </div>
 
     <!-- 远程地址信息弹窗 -->
-    <NModal v-model:show="showModal" preset="dialog" title="隧道详细信息" style="width: 800px; max-width: 90vw">
+    <NModal v-model:show="showModal" preset="card" title="隧道详细信息" style="width: 800px; max-width: 90vw" class="detail-modal">
       <template #header>
-        <div>隧道详细信息</div>
+        <div class="modal-header">
+          <h2>隧道详细信息</h2>
+          <div v-if="selectedProxy" class="modal-status">
+            <NTag :type="selectedProxy.isOnline ? 'success' : 'error'" size="small" round>
+              {{ selectedProxy.isOnline ? '在线' : '离线' }}
+            </NTag>
+            <NTag v-if="selectedProxy.isBanned" type="error" size="small" round style="margin-left: 8px">
+              已封禁
+            </NTag>
+            <NTag v-if="selectedProxy.isDisabled" type="warning" size="small" round style="margin-left: 8px">
+              已禁用
+            </NTag>
+          </div>
+        </div>
       </template>
-      <div v-if="selectedProxy" style="padding: 16px 0" :class="{
+      
+      <div v-if="selectedProxy" class="modal-content" :class="{
         'proxy-detail-container': selectedProxy.proxyType === 'http' || selectedProxy.proxyType === 'https'
       }">
         <div class="proxy-detail-left">
-          <div class="modal-info-item">
-            <span class="label">状态：</span>
-            <NTag :type="selectedProxy.isOnline ? 'success' : 'error'" size="small">
-              {{ selectedProxy.isOnline ? '在线' : '离线' }}
-            </NTag>
-            <NTag v-if="selectedProxy.isBanned" type="error" size="small" style="margin-left: 8px">
-              已封禁
-            </NTag>
+          <div class="detail-section">
+            <h3 class="section-title">基本信息</h3>
+            <div class="detail-grid">
+              <div class="modal-info-item">
+                <span class="label">隧道名称：</span>
+                <span class="value">{{ selectedProxy.proxyName }}</span>
+              </div>
+              <div class="modal-info-item">
+                <span class="label">协议类型：</span>
+                <span class="value">{{ selectedProxy.proxyType.toUpperCase() }}</span>
+              </div>
+              <div class="modal-info-item">
+                <span class="label">本地端口：</span>
+                <span class="value">{{ selectedProxy.localPort }}</span>
+              </div>
+              <div class="modal-info-item">
+                <span class="label">本地地址：</span>
+                <span class="value">{{ selectedProxy.localIp }}</span>
+              </div>
+              <div class="modal-info-item">
+                <span class="label">节点名称：</span>
+                <span class="value">{{ getNodeLabel(selectedProxy.nodeId).split(' - ')[1] }}</span>
+              </div>
+            </div>
           </div>
-          <div class="modal-info-item">
-            <span class="label">隧道名称：</span>
-            <span class="value">{{ selectedProxy.proxyName }}</span>
-          </div>
-          <div class="modal-info-item">
-            <span class="label">协议类型：</span>
-            <span class="value">{{ selectedProxy.proxyType.toUpperCase() }}</span>
-          </div>
-          <div class="modal-info-item">
-            <span class="label">本地端口：</span>
-            <span class="value">{{ selectedProxy.localPort }}</span>
-          </div>
-          <div class="modal-info-item">
-            <span class="label">本地地址：</span>
-            <span class="value">{{ selectedProxy.localIp }}</span>
-          </div>
-          <div class="modal-info-item">
-            <span class="label">节点名称：</span>
-            <span class="value">{{ getNodeLabel(selectedProxy.nodeId).split(' - ')[1] }}</span>
-          </div>
+          
           <template v-if="selectedProxy.proxyType === 'http' || selectedProxy.proxyType === 'https'">
-            <div class="modal-info-item">
-              <span class="label">绑定域名：</span>
-              <span class="value">
-                <NTag size="small" v-for="domain in JSON.parse(selectedProxy.domain || '[]')" :key="domain" type="info"
-                      style="cursor: pointer; margin-right: 8px" @click="() => openUrl(selectedProxy?.proxyType ?? 'http', domain ?? '')">
-                  {{ domain }}
-                </NTag>
-              </span>
+            <div class="detail-section">
+              <h3 class="section-title">域名信息</h3>
+              <div class="modal-info-item">
+                <span class="label">绑定域名：</span>
+                <div class="value domain-tags">
+                  <NTag 
+                    size="small" 
+                    v-for="domain in JSON.parse(selectedProxy.domain || '[]')" 
+                    :key="domain" 
+                    type="info"
+                    style="cursor: pointer; margin-right: 8px; margin-bottom: 8px" 
+                    @click="() => openUrl(selectedProxy?.proxyType ?? 'http', domain ?? '')"
+                  >
+                    {{ domain }}
+                  </NTag>
+                </div>
+              </div>
             </div>
           </template>
           <template v-else>
-            <div class="modal-info-item">
-              <span class="label">链接地址：</span>
-              <span class="value">
-                {{nodeOptions.find(node => node.value === selectedProxy?.nodeId)?.hostname}}:{{
-                  selectedProxy.remotePort
-                }}
-              </span>
+            <div class="detail-section">
+              <h3 class="section-title">连接信息</h3>
+              <div class="modal-info-item">
+                <span class="label">链接地址：</span>
+                <span class="value connection-value">
+                  {{nodeOptions.find(node => node.value === selectedProxy?.nodeId)?.hostname}}:{{
+                    selectedProxy.remotePort
+                  }}
+                </span>
+              </div>
             </div>
           </template>
-<!--          <div class="modal-info-item">-->
-<!--            <span class="label">上次启动时间：</span>-->
-<!--            <span class="value">{{ selectedProxy.lastStartTime ? formatTime(selectedProxy.lastStartTime) : '从未启动'-->
-<!--              }}</span>-->
-<!--          </div>-->
-<!--          <div class="modal-info-item">-->
-<!--            <span class="label">上次关闭时间：</span>-->
-<!--            <span class="value">{{ selectedProxy.lastCloseTime ? formatTime(selectedProxy.lastCloseTime) : '从未关闭'-->
-<!--              }}</span>-->
-<!--          </div>-->
         </div>
+        
         <template v-if="selectedProxy.proxyType === 'http' || selectedProxy.proxyType === 'https'">
           <div class="proxy-detail-right">
-            <div class="modal-info-item">
-              <span class="label">域名解析配置</span>
-              <div class="value" style="margin-top: 16px">
-                <NAlert type="info" style="margin-bottom: 16px">添加以下信息至您的域名解析配置后，服务才会生效。</NAlert>
-                <NTable size="small" :single-line="false"
-                        style="width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                  <thead>
-                  <tr>
-                    <th>根域名</th>
-                    <th>主机记录</th>
-                    <th>记录类型</th>
-                    <th>记录值</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  <tr v-for="domain in JSON.parse(selectedProxy.domain || '[]')" :key="domain">
-                    <td style="word-break: break-all; overflow-wrap: break-word;">{{ splitDomain(domain).rootDomain }}
-                    </td>
-                    <td style="word-break: break-all; overflow-wrap: break-word;">{{ splitDomain(domain).host }}</td>
-                    <td style="word-break: break-all; overflow-wrap: break-word;">
-                      {{isIPAddress(nodeOptions.find(n => n.value === selectedProxy?.nodeId)?.hostname || '') ? 'A' :
-                        'CNAME' }}
-                    </td>
-                    <td style="word-break: break-all; overflow-wrap: break-word;">
-                      <NText type="primary">{{nodeOptions.find(n => n.value === selectedProxy?.nodeId)?.hostname}}
-                      </NText>
-                    </td>
-                  </tr>
-                  </tbody>
-                </NTable>
-              </div>
+            <div class="detail-section">
+              <h3 class="section-title">域名解析配置</h3>
+              <NAlert type="info" style="margin-bottom: 16px">添加以下信息至您的域名解析配置后，服务才会生效。</NAlert>
+              <NTable size="small" :single-line="false" class="dns-table">
+                <thead>
+                <tr>
+                  <th>根域名</th>
+                  <th>主机记录</th>
+                  <th>记录类型</th>
+                  <th>记录值</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="domain in JSON.parse(selectedProxy.domain || '[]')" :key="domain">
+                  <td>{{ splitDomain(domain).rootDomain }}</td>
+                  <td>{{ splitDomain(domain).host }}</td>
+                  <td>
+                    {{isIPAddress(nodeOptions.find(n => n.value === selectedProxy?.nodeId)?.hostname || '') ? 'A' : 'CNAME' }}
+                  </td>
+                  <td>
+                    <NText type="primary">{{nodeOptions.find(n => n.value === selectedProxy?.nodeId)?.hostname}}</NText>
+                  </td>
+                </tr>
+                </tbody>
+              </NTable>
             </div>
           </div>
         </template>
       </div>
+      
+      <template #footer>
+        <div class="modal-footer">
+          <NButton @click="showModal = false">
+            <template #icon>
+              <RefreshOutline />
+            </template>
+            关闭</NButton>
+          <NButton 
+            v-if="selectedProxy" 
+            type="info" 
+            @click="() => selectedProxy && handleSelect('genConfig', selectedProxy)"
+          >
+            <template #icon>
+              <NIcon>
+                <DocumentOutline />
+              </NIcon>
+            </template>
+            生成配置
+          </NButton>
+        </div>
+      </template>
     </NModal>
 
     <!-- 删除确认弹窗 -->
@@ -261,7 +353,12 @@
       <template #header>
         <div>删除确认</div>
       </template>
-      <p>确定要删除此隧道吗？此操作不可恢复。</p>
+      <div class="delete-warning">
+        <NIcon size="48" color="#f56c6c">
+          <TrashOutline />
+        </NIcon>
+        <p>确定要删除此隧道吗？此操作不可恢复。</p>
+      </div>
       <template #action>
         <NButton size="small" @click="showDeleteModal = false">取消</NButton>
         <NButton size="small" type="error" :loading="loading" @click="handleDeleteConfirm">删除</NButton>
@@ -269,66 +366,87 @@
     </NModal>
 
     <!-- 编辑隧道弹窗 -->
-    <NModal v-model:show="showEditModal" preset="dialog" title="编辑隧道" style="width: 800px; max-width: 90vw">
-      <NForm ref="editFormRef" :model="editForm" :rules="rules" label-placement="left" label-width="120"
-             require-mark-placement="right-hanging" size="medium" style="padding-top: 12px;">
-        <NFormItem label="隧道名称" path="proxyName">
-          <NInput v-model:value="editForm.proxyName" placeholder="请输入隧道名称" />
-        </NFormItem>
-        <NFormItem label="本地地址" path="localIp">
-          <NInput v-model:value="editForm.localIp" placeholder="请输入本地地址" />
-        </NFormItem>
-        <NFormItem label="本地端口" path="localPort">
-          <NInputNumber v-model:value="editForm.localPort" :min="1" :max="65535" placeholder="请输入本地端口" />
-        </NFormItem>
-        <NFormItem v-if="editForm.proxyType !== 'http' && editForm.proxyType !== 'https'" label="远程端口"
-                   path="remotePort">
-          <NInputNumber v-model:value="editForm.remotePort" :min="1" :max="65535" placeholder="请输入远程端口" />
-          <NButton size="medium" :loading="gettingFreePort" @click="handleGetFreePortForEdit">
-            获取空闲端口
-          </NButton>
-        </NFormItem>
-        <NFormItem v-if="editForm.proxyType === 'http' || editForm.proxyType === 'https'" label="绑定域名" path="domain">
-          <NDynamicTags v-model:value="domainTags" :render-tag="renderDomainTag" @update:value="handleDomainsUpdate" />
-        </NFormItem>
+    <NModal v-model:show="showEditModal" preset="card" title="编辑隧道" style="width: 800px; max-width: 90vw">
+      <template #header>
+        <div class="modal-header">
+          <h2>编辑隧道</h2>
+        </div>
+      </template>
+      
+      <NForm 
+        ref="editFormRef" 
+        :model="editForm" 
+        :rules="rules" 
+        label-placement="left" 
+        label-width="120"
+        require-mark-placement="right-hanging" 
+        size="medium" 
+        class="edit-form"
+      >
+        <div class="form-section">
+          <h3 class="section-title">基本设置</h3>
+          <NFormItem label="隧道名称" path="proxyName">
+            <NInput v-model:value="editForm.proxyName" placeholder="请输入隧道名称" />
+          </NFormItem>
+          <NFormItem label="本地地址" path="localIp">
+            <NInput v-model:value="editForm.localIp" placeholder="请输入本地地址" />
+          </NFormItem>
+          <NFormItem label="本地端口" path="localPort">
+            <NInputNumber v-model:value="editForm.localPort" :min="1" :max="65535" placeholder="请输入本地端口" />
+          </NFormItem>
+          <NFormItem v-if="editForm.proxyType !== 'http' && editForm.proxyType !== 'https'" label="远程端口" path="remotePort">
+              <NInputNumber v-model:value="editForm.remotePort" :min="1" :max="65535" placeholder="请输入远程端口" />
+              <NButton style="margin-left: 8px" :loading="gettingFreePort" @click="handleGetFreePortForEdit">
+                获取空闲端口
+              </NButton>
+          </NFormItem>
+          <NFormItem v-if="editForm.proxyType === 'http' || editForm.proxyType === 'https'" label="绑定域名" path="domain">
+            <NDynamicTags v-model:value="domainTags" :render-tag="renderDomainTag" @update:value="handleDomainsUpdate" />
+          </NFormItem>
+        </div>
 
-        <NDivider>高级配置</NDivider>
-        <NText depth="3" style="padding-bottom: 15px; display: block;">
-          提示：仅推荐技术用户使用, 一般用户请勿随意填写。请确保您的配置正确, 否则隧道可能无法启动。
-        </NText>
+        <div class="form-section">
+          <h3 class="section-title">高级配置</h3>
+          <NText depth="3" class="advanced-notice">
+            提示：仅推荐技术用户使用, 一般用户请勿随意填写。请确保您的配置正确, 否则隧道可能无法启动。
+          </NText>
 
-        <NFormItem label="访问密钥" path="accessKey">
-          <NInput v-model:value="editForm.accessKey" placeholder="访问密钥已不再支持" :disabled="true"/>
-        </NFormItem>
-        <NFormItem label="Host Header Rewrite" path="hostHeaderRewrite">
-          <NInput v-model:value="editForm.hostHeaderRewrite" placeholder="请输入 Host 请求头重写值" />
-        </NFormItem>
-        <NFormItem label="X-From-Where" path="headerXFromWhere">
-          <NInput v-model:value="editForm.headerXFromWhere" placeholder="请输入 X-From-Where 请求头值" />
-        </NFormItem>
-        <NFormItem label="Proxy Protocol" path="proxyProtocolVersion">
-          <NSelect v-model:value="editForm.proxy_protocol_version" :options="[
-            { label: '不启用', value: '' },
-            { label: 'v1', value: 'v1' },
-            { label: 'v2', value: 'v2' }
-          ]" placeholder="Proxy Protocol Version" />
-        </NFormItem>
-        <NFormItem label="其他选项">
-          <div style="display: flex; gap: 16px;">
-            <NSwitch v-model:value="editForm.use_encryption" :rail-style="switchButtonRailStyle">
-              <template #checked>启用加密</template>
-              <template #unchecked>禁用加密</template>
-            </NSwitch>
-            <NSwitch v-model:value="editForm.use_compression" :rail-style="switchButtonRailStyle">
-              <template #checked>启用压缩</template>
-              <template #unchecked>禁用压缩</template>
-            </NSwitch>
-          </div>
-        </NFormItem>
+          <NFormItem label="访问密钥" path="accessKey">
+            <NInput v-model:value="editForm.accessKey" placeholder="访问密钥已不再支持" :disabled="true"/>
+          </NFormItem>
+          <NFormItem label="Host Header Rewrite" path="hostHeaderRewrite">
+            <NInput v-model:value="editForm.hostHeaderRewrite" placeholder="请输入 Host 请求头重写值" />
+          </NFormItem>
+          <NFormItem label="X-From-Where" path="headerXFromWhere">
+            <NInput v-model:value="editForm.headerXFromWhere" placeholder="请输入 X-From-Where 请求头值" />
+          </NFormItem>
+          <NFormItem label="Proxy Protocol" path="proxyProtocolVersion">
+            <NSelect v-model:value="editForm.proxy_protocol_version" :options="[
+              { label: '不启用', value: '' },
+              { label: 'v1', value: 'v1' },
+              { label: 'v2', value: 'v2' }
+            ]" placeholder="Proxy Protocol Version" />
+          </NFormItem>
+          <NFormItem label="其他选项">
+            <div class="switch-group">
+              <NSwitch v-model:value="editForm.use_encryption" :rail-style="switchButtonRailStyle">
+                <template #checked>启用加密</template>
+                <template #unchecked>禁用加密</template>
+              </NSwitch>
+              <NSwitch v-model:value="editForm.use_compression" :rail-style="switchButtonRailStyle">
+                <template #checked>启用压缩</template>
+                <template #unchecked>禁用压缩</template>
+              </NSwitch>
+            </div>
+          </NFormItem>
+        </div>
       </NForm>
-      <template #action>
-        <NButton size="small" @click="showEditModal = false">取消</NButton>
-        <NButton size="small" type="primary" :loading="loading" @click="handleEditSubmit">确定</NButton>
+      
+      <template #footer>
+        <div class="modal-footer">
+          <NButton @click="showEditModal = false">取消</NButton>
+          <NButton style="margin-left: 8px;" type="primary" :loading="loading" @click="handleEditSubmit">保存更改</NButton>
+        </div>
       </template>
     </NModal>
 
@@ -337,96 +455,142 @@
       <template #header>
         <div>{{ toggleModalTitle }}</div>
       </template>
-      <div>{{ toggleModalContent }}</div>
+      <div class="toggle-content">
+        <NIcon size="48" :color="proxyToOperate?.isDisabled ? '#18a058' : '#f0a020'">
+          <PowerOutline />
+        </NIcon>
+        <p>{{ toggleModalContent }}</p>
+      </div>
       <template #action>
         <NButton size="small" @click="showToggleModal = false">取消</NButton>
-        <NButton size="small" type="primary" :loading="loading" @click="handleToggleConfirm">确定</NButton>
+        <NButton 
+          size="small" 
+          :type="proxyToOperate?.isDisabled ? 'success' : 'warning'" 
+          :loading="loading" 
+          @click="handleToggleConfirm"
+        >
+          确定
+        </NButton>
       </template>
     </NModal>
 
     <!-- 启动参数和配置文件 Modal -->
-    <NModal v-model:show="showConfigModal" preset="dialog" style="width: 800px; max-width: 90vw" class="config-dialog">
+    <NModal v-model:show="showConfigModal" preset="card" style="width: 800px; max-width: 90vw" class="config-dialog" title="启动参数和配置文件">
       <template #header>
-        <div>生成启动配置</div>
+        <div class="modal-header">
+          <div v-if="selectedProxy" class="config-info">
+            <NTag type="info" size="small">{{ selectedProxy.proxyType.toUpperCase() }}</NTag>
+            <NTag type="default" size="small">ID: {{ selectedProxy.proxyId }}</NTag>
+          </div>
+        </div>
       </template>
-      <div style="margin: 16px 0" class="config-modal-container">
+      
+      <div class="config-modal-container">
         <NCollapse v-model:expanded-names="expandedNames" :on-update:expanded-names="handleUpdateExpanded">
           <NCollapseItem title="启动参数" name="args" v-if="selectedProxy?.proxyType !== 'https'">
-            <NScrollbar style="max-height: 200px; overflow: auto">
-              <NCode :code="runArgs" language="yaml" :hljs="hljs" />
-            </NScrollbar>
-            <div style="margin-top: 8px;">Windows 用户如果启动失败，请尝试把 <NCode>lyfrpc</NCode> 换成 <NCode>.\lyfrpc.exe</NCode>。</div>
+            <div class="code-container">
+              <NScrollbar style="max-height: 200px; overflow: auto">
+                <NCode :code="runArgs" language="yaml" :hljs="hljs" />
+              </NScrollbar>
+            </div>
+            <div class="code-note">Windows 用户如果启动失败，请尝试把 <NCode>lyfrpc</NCode> 换成 <NCode>.\lyfrpc.exe</NCode>。</div>
           </NCollapseItem>
+          
           <NCollapseItem title="配置文件" name="config">
-            <NAlert type="error" style="margin-bottom: 16px" title="友情提示">
+            <NAlert type="error" class="config-alert" title="友情提示">
               此处是为专业用户准备的配置文件, 请不要在没有判断能力的情况下随意修改, 否则隧道可能无法正常启动。<br>
-              请使用 "
-              <NCode>./lyfrpc -c </NCode>配置文件 " 进行启动。
+              请使用 "<NCode>./lyfrpc -c </NCode>配置文件 " 进行启动。
             </NAlert>
-            <NAlert type="warning" style="margin-bottom: 16px" title="HTTPS 隧道配置修改提示" v-if="selectedProxy?.proxyType == 'https'">
+            
+            <NAlert type="warning" class="config-alert" title="HTTPS 隧道配置修改提示" v-if="selectedProxy?.proxyType == 'https'">
               请修改相关 SSL 配置, 否则隧道无法正常启动。
             </NAlert>
 
             <NTabs
-                v-model:value="configFormat"
-                type="line"
-                placement="left"
-                style="margin-top: 20px"
+              v-model:value="configFormat"
+              type="line"
+              class="config-tabs"
             >
               <NTabPane name="toml" tab="Toml">
                 <NSpin :show="loading && configFormat === 'toml'">
-                  <NScrollbar style="max-height: 500px; overflow: auto">
-                    <NCode :code="tomlContent" language="toml" :hljs="hljs" />
-                  </NScrollbar>
+                  <div class="code-container">
+                    <NScrollbar style="max-height: 500px; overflow: auto">
+                      <NCode :code="tomlContent" language="toml" :hljs="hljs" />
+                    </NScrollbar>
+                  </div>
                 </NSpin>
               </NTabPane>
 
               <NTabPane name="json" tab="Json">
                 <NSpin :show="loading && configFormat === 'json'">
-                  <NScrollbar style="max-height: 500px; overflow: auto">
-                    <NCode :code="jsonContent" language="json" :hljs="hljs" />
-                  </NScrollbar>
+                  <div class="code-container">
+                    <NScrollbar style="max-height: 500px; overflow: auto">
+                      <NCode :code="jsonContent" language="json" :hljs="hljs" />
+                    </NScrollbar>
+                  </div>
                 </NSpin>
               </NTabPane>
 
               <NTabPane name="yml" tab="Yaml">
                 <NSpin :show="loading && configFormat === 'yml'">
-                  <NScrollbar style="max-height: 500px; overflow: auto">
-                    <NCode :code="ymlContent" language="yaml" :hljs="hljs" />
-                  </NScrollbar>
+                  <div class="code-container">
+                    <NScrollbar style="max-height: 500px; overflow: auto">
+                      <NCode :code="ymlContent" language="yaml" :hljs="hljs" />
+                    </NScrollbar>
+                  </div>
                 </NSpin>
               </NTabPane>
 
               <NTabPane name="ini" tab="Ini">
                 <NSpin :show="loading && configFormat === 'ini'">
-                  <NScrollbar style="max-height: 500px; overflow: auto">
-                    <NCode :code="iniContent" language="ini" :hljs="hljs" />
-                  </NScrollbar>
+                  <div class="code-container">
+                    <NScrollbar style="max-height: 500px; overflow: auto">
+                      <NCode :code="iniContent" language="ini" :hljs="hljs" />
+                    </NScrollbar>
+                  </div>
                 </NSpin>
               </NTabPane>
             </NTabs>
           </NCollapseItem>
         </NCollapse>
       </div>
-      <template #action>
-        <NButton size="small" @click="showConfigModal = false">关闭</NButton>
-        <NButton v-if="expandedNames.includes('config')" size="small" secondary type="info"
-                 @click="handleDownloadConfig">
-          <template #icon>
-            <NIcon>
-              <DownloadOutline />
-            </NIcon>
-          </template>
-          下载配置
-        </NButton>
-        <NButton size="small" type="primary" @click="handleCopyConfig" :disabled="expandedNames.length === 0">
-          <template #icon>
-            <NIcon>
-              <CopyOutline />
-            </NIcon>
-          </template>
-          复制
-        </NButton>
+      
+      <template #footer>
+        <div class="modal-footer">
+          <NButton @click="showConfigModal = false">
+            <template #icon>
+              <NIcon>
+                <RefreshOutline />
+              </NIcon>
+            </template>
+            关闭</NButton>
+          <NButton 
+            v-if="expandedNames.includes('config')" 
+            secondary 
+            type="info"
+            @click="handleDownloadConfig"
+          >
+            <template #icon>
+              <NIcon>
+                <DownloadOutline />
+              </NIcon>
+            </template>
+            下载配置
+          </NButton>
+          
+          <NButton 
+            type="primary" 
+            @click="handleCopyConfig" 
+            :disabled="expandedNames.length === 0"
+          >
+            <template #icon>
+              <NIcon>
+                <CopyOutline />
+              </NIcon>
+            </template>
+            复制
+          </NButton>
+        </div>
       </template>
     </NModal>
   </div>
@@ -441,7 +605,12 @@ import {
   NEmpty, NCode, NCollapse, NCollapseItem, NAlert, NDynamicTags, NSpin,
   NTabs, NTabPane, NScrollbar
 } from 'naive-ui'
-import { GridOutline, ListOutline, BuildOutline, RefreshOutline, SearchOutline, InformationCircleOutline, CreateOutline, TrashOutline, PowerOutline, AddOutline, CopyOutline, DocumentOutline, EllipsisHorizontalCircleOutline, DownloadOutline } from '@vicons/ionicons5'
+import { 
+  GridOutline, ListOutline, BuildOutline, RefreshOutline, SearchOutline, 
+  InformationCircleOutline, CreateOutline, TrashOutline, PowerOutline, 
+  AddOutline, CopyOutline, DocumentOutline, 
+  DownloadOutline 
+} from '@vicons/ionicons5'
 import hljs from 'highlight.js/lib/core'
 import javascript from 'highlight.js/lib/languages/javascript'
 import ini from 'highlight.js/lib/languages/ini'
@@ -597,6 +766,9 @@ const handleRefresh = async () => {
   }
 }
 
+const createTunnel = () => {
+  router.push('/dashboard/proxy/create')
+}
 
 // 获取节点列表
 const fetchNodes = async () => {
@@ -627,9 +799,6 @@ const getNodeLabel = (nodeId: number) => {
 fetchNodes()
 handleRefresh()
 
-function renderIcon(icon: any) {
-  return () => h(NIcon, null, { default: () => h(icon) })
-}
 
 const showToggleModal = ref(false)
 const showKickModal = ref(false)
@@ -698,42 +867,6 @@ const handleGenConfig = async (proxy: Proxy) => {
     loading.value = false
   }
 }
-
-const dropdownOptions = (proxy: Proxy) => [
-  {
-    label: '查看详情',
-    key: 'view',
-    icon: renderIcon(InformationCircleOutline)
-  },
-  {
-    label: '生成启动配置',
-    key: 'genConfig',
-    icon: renderIcon(DocumentOutline)
-  },
-  {
-    type: 'divider',
-    key: 'd1'
-  },
-  {
-    label: '编辑',
-    key: 'edit',
-    icon: renderIcon(CreateOutline)
-  },
-  {
-    type: 'divider',
-    key: 'd2'
-  },
-  {
-    label: proxy.isDisabled ? '启用' : '禁用',
-    key: 'toggle',
-    icon: renderIcon(PowerOutline)
-  },
-  {
-    label: '删除',
-    key: 'delete',
-    icon: renderIcon(TrashOutline)
-  }
-]
 
 const handleToggleClick = (proxy: Proxy) => {
   proxyToOperate.value = proxy
@@ -1102,15 +1235,18 @@ const columns = [
         default: () => [
           h(NTag, {
             type: row.isOnline ? 'success' : 'error',
-            size: 'small'
+            size: 'small',
+            round: true
           }, { default: () => row.isOnline ? '在线' : '离线' }),
           row.isBanned && h(NTag, {
             type: 'error',
-            size: 'small'
+            size: 'small',
+            round: true
           }, { default: () => '已封禁' }),
           row.isDisabled && h(NTag, {
             type: 'warning',
-            size: 'small'
+            size: 'small',
+            round: true
           }, { default: () => '已禁用' })
         ].filter(Boolean)
       })
@@ -1120,20 +1256,25 @@ const columns = [
     title: '操作',
     key: 'actions',
     render(row) {
-      return h(NDropdown, {
-        trigger: 'click',
-        options: dropdownOptions(row),
-        onSelect: (key: string) => handleSelect(key, row),
-        placement: 'bottom'
-      }, {
-        default: () => h(NButton, {
-          text: true,
-          style: 'display: flex; align-items: center;'
-        }, {
-          icon: () => h(NIcon, null, {
-            default: () => h(EllipsisHorizontalCircleOutline)
-          })
-        })
+      return h(NSpace, { size: 'small' }, {
+        default: () => [
+          h(NButton, {
+            quaternary: true,
+            size: 'small',
+            onClick: () => handleSelect('view', row)
+          }, { default: () => '详情' }),
+          h(NButton, {
+            quaternary: true,
+            size: 'small',
+            onClick: () => handleSelect('edit', row)
+          }, { default: () => '编辑' }),
+          h(NButton, {
+            quaternary: true,
+            size: 'small',
+            type: row.isDisabled ? 'success' : 'warning',
+            onClick: () => handleSelect('toggle', row)
+          }, { default: () => row.isDisabled ? '启用' : '禁用' })
+        ]
       })
     }
   }
@@ -1191,5 +1332,361 @@ const handleDownloadConfig = () => {
 </script>
 
 <style lang="scss" scoped>
-@use "../../../assets/styles/manageTunnel.scss";
+.tunnel-manager {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  
+  .header-card {
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    margin-bottom: 24px;
+    
+    
+    .toolbar {
+      padding: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+      
+      .search-box {
+        flex: 1;
+        min-width: 200px;
+      }
+      
+      .toolbar-right {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+        
+        .view-btn {
+          min-width: 80px;
+        }
+        
+        .refresh-btn, .create-btn {
+          white-space: nowrap;
+        }
+      }
+    }
+  }
+  
+  .tunnel-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+    margin-bottom: 24px;
+    
+    .tunnel-card {
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      padding: 1px;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+      }
+      
+      .tunnel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 16px;
+        
+        .tunnel-title-area {
+          flex: 1;
+          
+          .tunnel-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0 0 8px 0;
+            color: #00ffd5;
+          }
+          
+          .status-tags {
+            display: flex;
+            gap: 8px;
+          }
+        }
+        
+        .tunnel-id {
+          margin-left: 12px;
+        }
+      }
+      
+      .tunnel-info {
+        margin-bottom: 20px;
+        
+        .info-row {
+          display: flex;
+          gap: 16px;
+          margin-bottom: 12px;
+        }
+        
+        .info-item {
+          margin-bottom: 12px;
+          
+          &.node-item {
+            flex: 1;
+          }
+          
+          .label {
+            font-size: 14px;
+            margin-bottom: 4px;
+          }
+          
+          .value {
+            font-size: 14px;
+            color: gold;
+            
+            &.protocol {
+              font-weight: 500;
+              color: #1890ff;
+            }
+            
+            &.node-value {
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+          }
+        }
+        
+        .domain-item {
+          .domain-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 4px;
+          }
+        }
+      }
+      
+      .tunnel-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        
+        .action-btn {
+          flex: 1;
+          min-width: 80px;
+          justify-content: center;
+        }
+      }
+    }
+  }
+
+  .no-data {
+    padding: 40px 0;
+    text-align: center;
+  }
+  
+  // Modal styles
+  .detail-modal {
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      
+      h2 {
+        margin: 0;
+        font-size: 20px;
+      }
+      
+      .modal-status {
+        display: flex;
+        gap: 8px;
+      }
+    }
+    
+    .modal-content {
+      padding: 16px 0;
+      
+      .detail-section {
+        margin-bottom: 24px;
+        
+        .section-title {
+          font-size: 16px;
+          font-weight: 600;
+          margin: 0 0 16px 0;
+          color: #333;
+          padding-bottom: 8px;
+          border-bottom: 1px solid #eee;
+        }
+        
+        .detail-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+          gap: 16px;
+        }
+      }
+      
+      .modal-info-item {
+        margin-bottom: 12px;
+        
+        .label {
+          font-size: 14px;
+          color: #666;
+          margin-right: 8px;
+        }
+        
+        .value {
+          font-size: 14px;
+          color: #333;
+          
+          &.connection-value {
+            font-family: monospace;
+            padding: 2px 6px;
+            border-radius: 4px;
+          }
+        }
+        
+        .domain-tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          margin-top: 8px;
+        }
+      }
+      
+      .dns-table {
+        :deep(th) {
+          background-color: #f5f7fa;
+          font-weight: 600;
+        }
+        
+        :deep(td) {
+          word-break: break-all;
+          overflow-wrap: break-word;
+        }
+      }
+    }
+    
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+  }
+  
+  .delete-warning, .toggle-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 0;
+    
+    p {
+      text-align: center;
+      margin: 0;
+    }
+  }
+  
+  .edit-form {
+    .form-section {
+      margin-bottom: 24px;
+      
+      .section-title {
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0 0 16px 0;
+        color: #333;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #eee;
+      }
+      
+      .advanced-notice {
+        display: block;
+        margin-bottom: 16px;
+      }
+    }
+    
+    .port-input-group {
+      display: flex;
+      gap: 12px;
+    }
+    
+    .switch-group {
+      display: flex;
+      gap: 24px;
+    }
+  }
+  
+  .config-dialog {
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      
+      h2 {
+        margin: 0;
+        font-size: 20px;
+      }
+      
+      .config-info {
+        display: flex;
+        gap: 8px;
+      }
+    }
+    
+    .config-modal-container {
+      margin: 16px 0;
+      
+      .code-container {
+        border: 1px solid #eee;
+        border-radius: 6px;
+        margin-bottom: 12px;
+      }
+      
+      .code-note {
+        font-size: 14px;
+        color: #666;
+        margin-top: 8px;
+      }
+      
+      .config-alert {
+        margin-bottom: 16px;
+      }
+      
+      .config-tabs {
+        margin-top: 20px;
+      }
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .header-card {
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        
+        .toolbar-right {
+          justify-content: space-between;
+        }
+      }
+    }
+    
+    .tunnel-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .proxy-detail-container {
+      flex-direction: column;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .view-suffix {
+      display: none;
+    }
+    
+    .tunnel-actions {
+      flex-direction: column;
+      
+      .action-btn {
+        width: 100%;
+      }
+    }
+  }
+}
 </style>

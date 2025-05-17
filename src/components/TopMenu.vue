@@ -17,7 +17,7 @@
             </NScrollbar>
           </div>
         </NPopover>
-        <h2 class="logo" style="background: transparent; -webkit-background-clip: text; color: transparent; background: linear-gradient(215deg, #3EC6C7, #DBB823, #2D9D8E);">LingYunFRP</h2>
+        <h2 class="logo" style="background: transparent; -webkit-background-clip: text; color: transparent; background-image: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);">LingYunFRP</h2>
       </div>
       <div class="right">
         <NDropdown :options="options" @select="handleUserMenuSelect" trigger="hover">

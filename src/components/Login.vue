@@ -22,7 +22,7 @@
           <NCheckbox v-model:checked="formValue.remember">记住密码</NCheckbox>
           <router-link to="/forget" class="forgot-link">忘记密码？</router-link>
         </div>
-        <NButton type="primary" block secondary strong @click="handleSubmit">
+        <NButton :loading="loading" type="primary" block secondary strong @click="handleSubmit">
           登录
         </NButton>
         <div class="form-footer register-link">
@@ -44,6 +44,7 @@ import { userApi } from '@/net'
 const router = useRouter()
 const message = useMessage()
 const formRef = ref<FormInst | null>(null)
+const loading = ref(false)
 const formValue = ref({
   username: '',
   password: '',
@@ -64,7 +65,7 @@ const rules: FormRules = {
 }
 
 const handleSubmit = async () => {
-  message.loading('登录中...')
+  loading.value = true
   userApi.login(
       formValue.value.username,
       formValue.value.password,
@@ -74,12 +75,14 @@ const handleSubmit = async () => {
         localStorage.setItem('nickname', data.data.nickname)
         localStorage.setItem('avatar', data.data.avatar)
         message.success(data.message)
+        loading.value = false
         setTimeout(() => {
           router.push('/dashboard');
         }, 1200)
       },
       (data)=> {
         message.error(data)
+        loading.value = false
       },
   )
 }

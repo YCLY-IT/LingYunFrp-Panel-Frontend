@@ -1,5 +1,5 @@
 import { h, Component, ref } from 'vue'
-import { HomeOutline, AddCircleOutline, AppsOutline, DownloadOutline, IdCardOutline, StatsChartOutline, PeopleOutline, CloudyOutline, ConstructOutline, WalletOutline, BuildOutline, PricetagsOutline, SettingsOutline } from '@vicons/ionicons5'
+import { HomeOutline, AddCircleOutline, AppsOutline, DownloadOutline, IdCardOutline, StatsChartOutline, PeopleOutline, CloudyOutline, ConstructOutline, WalletOutline, BuildOutline, SettingsOutline, ListOutline } from '@vicons/ionicons5'
 import { NIcon, type MenuOption } from 'naive-ui'
 
 const baseMenuOptions: MenuOption[] = [
@@ -10,19 +10,26 @@ const baseMenuOptions: MenuOption[] = [
     link: '/dashboard/home',
   },
   {
-    label: '创建隧道',
-    icon: renderIcon(AddCircleOutline),
-    key: 'create-tunnel',
-    link: '/dashboard/proxy/create',
-  },
-  {
     label: '隧道管理',
     icon: renderIcon(AppsOutline),
-    key: 'proxy-list',
-    link: '/dashboard/proxy/list',
+    key: 'tunnel-section',
+    children: [
+        {
+          label: '创建隧道',
+          icon: renderIcon(AddCircleOutline),
+          key: 'create-tunnel',
+          link: '/dashboard/proxy/create',
+        },
+        {
+          label: '隧道列表',
+          icon: renderIcon(ListOutline),
+          key: 'proxy-list',
+          link: '/dashboard/proxy/list',
+        }
+    ]
   },
   {
-    label: '节点监控',
+    label: '节点状态',
     icon: renderIcon(StatsChartOutline),
     key: 'node-status',
     link: '/dashboard/node/status',
@@ -108,7 +115,6 @@ export function getMenuOptions(): MenuOption[] {
 
   if (userGroup === 'admin') {
     options.push(adminMenuOptions)
-    defaultExpandedKeys.value.push('admin')
   }
   return options
 }

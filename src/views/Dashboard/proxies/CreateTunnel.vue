@@ -43,7 +43,7 @@
               
               <NText depth="3" style="font-size: 13px; margin: 8px 0;">{{ node.description }}</NText>
               
-              <NSpace vertical size="small">
+              <NSpace vertical size="small" style="margin-top: 8px;">
                 <div class="info-item">
                   <NSpace wrap>
                     <NTag v-for="group in node.allowGroups" :key="group.name" size="small" type="info">
@@ -58,6 +58,9 @@
                     </NTag>
                     <NTag type="info" size="small">
                       {{ node.bandWidth }} Mbps
+                    </NTag>
+                    <NTag v-if="node.needRealname" type="info" size="small">
+                      实名
                     </NTag>
                   </NSpace>
                 </div>
@@ -200,7 +203,7 @@
 
 <script setup lang="ts">
 import { ref, h, computed, onMounted, onUnmounted, watch } from 'vue'
-import { NCard, NForm, NFormItem, NInput, NInputNumber, NSelect, NButton, NIcon, useMessage, type FormRules, type FormInst, NDivider, NSwitch, NTag, NSpace, NText, NGrid, NGridItem, NDynamicTags, NModal } from 'naive-ui'
+import { NCard, NForm, NFormItem, NInput, NInputNumber, NSelect, NButton, NIcon, useMessage, type FormRules, type FormInst, NDivider, NSwitch, NTag, NSpace, NText, NGrid, NGridItem, NDynamicTags, NModal, NElement } from 'naive-ui'
 import { CloudUploadOutline } from '@vicons/ionicons5'
 import { switchButtonRailStyle } from '@/constants/theme.ts'
 import { useRouter } from 'vue-router'
@@ -253,6 +256,7 @@ const nodeOptions = ref<{
   bandWidth: number;
   allowedProtocols: string[];
   allowGroups: { name: string; friendlyName: string }[];
+  needRealname: boolean;
   portRange: {
     min: number;
     max: number
@@ -375,6 +379,7 @@ const fetchNodes = async () => {
             isDisabled: node.isDisabled,
             allowedProtocols,
             allowGroups,
+            needRealname: node.needRealname,
             bandWidth: node.bandWidth,
             portRange: {
               min: minPort,
@@ -534,20 +539,6 @@ const goToRealname = () => {
   router.push('/dashboard/profile')
 }
 
-const startCountDown = () => {
-  countDown.value = 10
-  timer = window.setInterval(() => {
-    if (countDown.value > 0) {
-      countDown.value--
-    } else {
-      showRealnameModal.value = false
-      if (timer) {
-        clearInterval(timer)
-        timer = null
-      }
-    }
-  }, 1000)
-}
 
 watch(showRealnameModal, (newVal) => {
   if (!newVal && timer) {
@@ -559,11 +550,9 @@ watch(showRealnameModal, (newVal) => {
 // 初始化
 const init = async () => {
   await fetchUserGroups()
-  await fetchNodes()
-  if (userGroup.value === 'noRealname') {
-    showRealnameModal.value = true
-    startCountDown()
-  }
+  setTimeout(() => {
+    fetchNodes()
+  }, 10)
 }
 
 onMounted(() => {

@@ -49,7 +49,7 @@ const router = createRouter({
         {
           path: 'home',
           name: 'dashboardIndex',
-          component: () => import('../views/Dashboard/index.vue'),
+          component: () => import('../views/Dashboard/Index.vue'),
           meta: {
             title: '首页',
           }
@@ -89,9 +89,17 @@ const router = createRouter({
         {
           path: 'downloads',
           name: 'downloads',
-          component: () => import('../views/Dashboard/downloads.vue'),
+          component: () => import('../views/Dashboard/Downloads.vue'),
           meta: {
             title: '下载',
+          }
+        },
+        {
+          path: 'node/status',
+          name: 'node-status',
+          component: () => import('../views/Dashboard/Status.vue'),
+          meta: {
+            title: '节点状态',
           }
         },
         {
