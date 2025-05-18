@@ -16,7 +16,7 @@ const router = createRouter({
     {
       path: '/login',
       name: 'login',
-      component: () => import('@/components/Login.vue'),
+      component: () => import('@/views/Login.vue'),
       meta: {
         title: '登录',
       }
@@ -24,7 +24,7 @@ const router = createRouter({
     {
       path: '/register',
       name: 'register',
-      component: () => import('@/components/Register.vue'),
+      component: () => import('@/views/Register.vue'),
       meta: {
         title: '注册',
       }
@@ -32,7 +32,7 @@ const router = createRouter({
       {
           path: '/forget',
           name: 'ResetPassword',
-          component: () => import('@/components/ResetPassword.vue'),
+          component: () => import('@/views/ResetPassword.vue'),
           meta: {
               title: '重置密码',
           }

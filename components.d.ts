@@ -34,6 +34,8 @@ declare module 'vue' {
     NText: typeof import('naive-ui')['NText']
     NTimeline: typeof import('naive-ui')['NTimeline']
     NTimelineItem: typeof import('naive-ui')['NTimelineItem']
+    NUpload: typeof import('naive-ui')['NUpload']
+    NUploadFile: typeof import('naive-ui')['NUploadFile']
     Register: typeof import('./src/components/Register.vue')['default']
     ResetPassword: typeof import('./src/components/ResetPassword.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']

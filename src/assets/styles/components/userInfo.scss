@@ -10,7 +10,16 @@
     display: flex;
     flex-direction: column;
     position: relative;
-    padding: 1px;
+    padding: 2px;
+    gap: 8px;
+}
+.user-info-item-right {
+    // 右边再往右边移
+    margin-left: 20px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding: 2px;
     gap: 8px;
 }
 
@@ -24,6 +33,8 @@
 }
 
 .user-info-value {
+    // 禁止文本换行
+    white-space: nowrap;
     font-size: 14px;
     color: $text-color;
 }

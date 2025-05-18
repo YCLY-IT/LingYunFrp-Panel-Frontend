@@ -14,7 +14,7 @@
           </div>
         </div>
 
-        <div class="user-info-item">
+        <div class="user-info-item-right">
           <div class="user-info-label">实名认证</div>
           <div class="user-info-value">
             <NTag :type="userInfo.isRealname ? 'success' : 'default'" size="small">
@@ -32,7 +32,7 @@
           </div>
         </div>
 
-        <div class="user-info-item">
+        <div class="user-info-item-right">
           <div class="user-info-label">注册时间</div>
           <div class="user-info-value">{{ formattedRegTime }}</div>
         </div>
@@ -42,17 +42,16 @@
           <div class="user-info-value">{{ userInfo.email }}</div>
         </div>
 
-        <div class="user-info-item">
+        <div class="user-info-item-right">
           <div class="user-info-label">隧道数量</div>
           <div class="user-info-value">{{ userInfo.usedProxies }} / {{ userInfo.maxProxies }}</div>
         </div>
-
         <div class="user-info-item">
           <div class="user-info-label">剩余流量</div>
           <div class="user-info-value">
             {{ formattedTraffic }} </div>
         </div>
-        <div class="user-info-item">
+        <div class="user-info-item-right">
           <div class="user-info-label">剩余积分</div>
           <div class="user-info-value">
             {{ userInfo.point }} 分</div>
@@ -62,7 +61,7 @@
           <div class="user-info-value">{{ userInfo.inlimit / 128 }} Mbps</div>
         </div>
 
-        <div class="user-info-item">
+        <div class="user-info-item-right">
           <div class="user-info-label">出站带宽</div>
           <div class="user-info-value">{{ userInfo.outlimit / 128 }} Mbps</div>
         </div>
@@ -79,7 +78,7 @@
           </div>
         </div>
       </template>
-      <NSpace vertical :size="4">
+      <NSpace class="user-info-item-right" vertical :size="4">
         <NButton text type="primary" :loading="signLoading" :disabled="!isSignAvailable" @click="handleSign">
           <template #icon>
             <NIcon>
@@ -88,15 +87,18 @@
           </template>
           {{ signButtonText }}
         </NButton>
-        <NText depth="3" style="font-size: 13px;">签到可以获得 100-500 积分 和 1-5GB 流量 </NText>
       </NSpace>
     </div>
+    <br>
+    <NAlert class="user-info-item" type="info" show-icon>
+      <NText depth="3" style="font-size: 13px;">签到可以获得 100-500 积分 和 1-5GB 流量 </NText>
+    </NAlert>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { NTag, useMessage, NSkeleton, NButton, NIcon, NSpace, NText } from 'naive-ui'
+import { NTag, useMessage, NSkeleton, NButton, NIcon, NSpace, NText, NAlert } from 'naive-ui'
 import { CalendarOutline } from '@vicons/ionicons5'
 import {userApi} from "@/net";
 import {accessHandle} from "@/net/base.ts";

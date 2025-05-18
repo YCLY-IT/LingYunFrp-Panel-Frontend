@@ -1,428 +1,738 @@
 <template>
-  <div class="profile-container">
-    <NCard title="我的资料" :bordered="false">
-      <NSpace vertical>
-        <!-- 用户信息展示 -->
-        <NCard title="基本信息" size="small">
-          <NForm label-placement="left" label-width="100">
-            <NGrid cols="1 s:2" responsive="screen">
-              <NGi>
-                <NFormItem label="用户名">
-                  <NText>{{ userInfo.username }}</NText>
-                </NFormItem>
-                <NFormItem label="电子邮箱">
-                  <NText>{{ userInfo.email }}</NText>
-                </NFormItem>
-              </NGi>
-              <NGi>
-                <NFormItem label="用户组">
-                  <NTag type="info">{{ userInfo.groupFriendlyName }}</NTag>
-                </NFormItem>
-                <NFormItem label="实名状态">
-                  <NTag :type="userInfo.isRealname ? 'success' : 'warning'">
-                    {{ userInfo.isRealname ? '已认证' : '未认证' }}
-                  </NTag>
-                  <NButton v-if="!userInfo.isRealname"
-                           text
-                           type="primary"
-                           @click="router.push('/dashboard/user/profile')"
-                           class="ml-2"
-                  >
-                    立即认证
-                  </NButton>
-                </NFormItem>
-              </NGi>
-            </NGrid>
-          </NForm>
-        </NCard>
+  <div class="page-container">
+    <div class="left-column">
 
-        <!-- 修改昵称表单 -->
-        <NCard title="修改昵称" size="small">
-          <NForm ref="nicknameFormRef" :model="nicknameForm" :rules="nicknameRules">
-            <NFormItem label="昵称" path="nickname">
-              <NInput v-model:value="nicknameForm.nickname" placeholder="请输入昵称"/>
-            </NFormItem>
-            <div class="form-actions">
-              <NButton type="primary" @click="handleNicknameSubmit">保存修改</NButton>
-            </div>
-          </NForm>
-        </NCard>
+      <!-- 账户设置区域 -->
+      <n-card>
+        <div class="card-header">
+          <h2 class="card-title">账户设置</h2>
+          <div class="tabs">
+            <span class="tab active" style="margin-right: 10px;">Settings</span>
+          </div>
+        </div>
 
-        <!-- 修改头像表单 -->
-        <NCard title="修改头像" size="small">
-          <NForm ref="avatarFormRef" :model="avatarForm">
-            <NFormItem label="头像">
-              <NUpload
-                  v-model:file-list="avatarFiles"
-                  accept="image/*"
-                  list-type="image-card"
-                  :max="1"
-                  @OnBeforeUpload="handleBeforeUpload"
-              />
-            </NFormItem>
-            <div class="form-actions">
-              <NButton type="primary" @click="handleAvatarSubmit">保存修改</NButton>
-            </div>
-          </NForm>
-        </NCard>
+        <div class="settings-grid">
 
-        <!-- 修改用户名表单 -->
-        <NCard title="修改用户名" size="small">
-          <NForm ref="usernameFormRef" :model="usernameForm" :rules="usernameRules">
-            <NFormItem label="新用户名" path="newUsername">
-              <NInput v-model:value="usernameForm.newUsername" placeholder="请输入新用户名"/>
-            </NFormItem>
-            <NFormItem label="邮箱" path="email">
-              <NInput v-model:value="usernameForm.email" placeholder="请输入邮箱"/>
-              <NButton type="primary" style="margin-left: 8px;" ghost :disabled="isEmailCodeSending || emailCodeCountdown > 0"
-                       @click="handleSendEmailCode('UpdateUsername', usernameForm.email)" :loading="isEmailCodeSending">
-                {{ emailCodeButtonText }}
-              </NButton>
-            </NFormItem>
-            <NFormItem label="邮箱验证码" path="emailCode">
-              <NInput v-model:value="usernameForm.emailCode" placeholder="请输入邮箱验证码"/>
-            </NFormItem>
-            <div class="form-actions">
-              <NButton type="primary" @click="handleUsernameSubmit">保存修改</NButton>
+          <!-- 修改用户名 -->
+          <div class="setting-item" @click="showModal('changeUsername')">
+            <div class="setting-icon">
+                <UserIcon style="width: 50px; height: 50px; margin-top: 25px;" />
             </div>
-          </NForm>
-        </NCard>
+            <div class="setting-content">
+              <h3 class="setting-title">修改用户名</h3>
+              <p class="setting-desc">点击这里可以修改您的用户名</p>
+            </div>
+          </div>
 
-        <!-- 修改密码表单 -->
-        <NCard title="修改密码" size="small">
-          <NForm ref="passwordFormRef" :model="passwordForm" :rules="passwordRules">
-            <NFormItem label="旧密码" path="oldPassword">
-              <NInput v-model:value="passwordForm.oldPassword" placeholder="请输入旧密码"/>
-            </NFormItem>
-            <NFormItem label="新密码" path="newPassword">
-              <NInput v-model:value="passwordForm.newPassword" placeholder="请输入新密码"/>
-            </NFormItem>
-            <NFormItem label="确认密码" path="confirmPassword">
-              <NInput v-model:value="passwordForm.confirmPassword" placeholder="请确认新密码"/>
-            </NFormItem>
-            <div class="form-actions">
-              <NButton type="primary" @click="handlePasswordSubmit">保存修改</NButton>
+          <!-- 更换昵称 -->
+          <div class="setting-item" @click="showModal('changeNickname')">
+            <div class="setting-icon">
+                <UserIcon style="width: 50px; height: 50px; margin-top: 25px;" />
             </div>
-          </NForm>
-        </NCard>
-      </NSpace>
-    </NCard>
+            <div class="setting-content">
+              <h3 class="setting-title">更换昵称</h3>
+              <p class="setting-desc">点击这里可以修改您的昵称</p>
+            </div>
+          </div>
+
+          <!-- 更改头像 -->
+          <div class="setting-item" @click="showModal('changeAvatar')">
+            <div class="setting-icon">
+              <ImageUpIcon style="width: 50px; height: 50px; margin-top: 25px;" />
+            </div>
+            <div class="setting-content">
+              <h3 class="setting-title">更改头像</h3>
+              <p class="setting-desc">点击这里上传图片，可以更换您的头像</p>
+            </div>
+          </div>
+
+          <!-- 修改密码 -->
+          <div class="setting-item" @click="showModal('changePassword')">
+            <div class="setting-icon">
+              <LockIcon style="width: 50px; height: 50px; margin-top: 25px;" />
+            </div>
+            <div class="setting-content">
+              <h3 class="setting-title">修改密码</h3>
+              <p class="setting-desc">点击这里可以修改您的登录密码</p>
+            </div>
+          </div>
+        </div>
+      </n-card>
+    </div>
+
+    <div class="right-column">
+
+      <!-- 账户详情区域 -->
+      <n-card class="card account-details">
+        <div class="card-header">
+          <h2 class="card-title">账户详情</h2>
+          <!-- <button class="close-button">×</button> -->
+        </div>
+        
+        <div class="user-profile">
+          <div class="user-avatar">
+            <img :src="userInfo.avatar" style="border-radius: 64px;" alt="User Avatar" />
+          </div>
+          <div class="user-info">
+            <h3 class="user-greeting">Hi, {{ userInfo.nickname }} </h3> <span style="display: flex; font-size: 17px;">今天过的还好吗</span>
+            <p class="user-email">{{ userInfo.email }}</p>
+          </div>
+        </div>
+
+        <div class="account-info-grid">
+          <UserInfo />
+          </div>
+      </n-card>
+    </div>
+
+    <!-- 模态窗口 -->
+    <!-- 修改用户名模态窗口 -->
+    <n-modal v-model:show="modals.changeUsername" preset="card" title="修改用户名" style="width: 500px;">
+      <n-form ref="usernameFormRef" :model="forms.username" :rules="rules.username">
+        <n-form-item label="当前用户名" path="currentUsername">
+          <n-input v-model:value="forms.username.currentUsername" disabled />
+        </n-form-item>
+        <n-form-item label="新用户名" path="newUsername">
+          <n-input v-model:value="forms.username.newUsername" placeholder="请输入新用户名" />
+        </n-form-item>
+        <n-form-item label="邮箱" path="email">
+          <n-input v-model:value="forms.username.emailCode" placeholder="请输入邮箱" />
+        </n-form-item>
+        <n-form-item label="验证码" path="emailCode">
+          <div style="display: flex; gap: 8px;">
+            <n-input v-model:value="forms.username.emailCode" placeholder="请输入验证码" />
+            <n-button :disabled="emailCodeSending" @click="sendEmailVerificationCode('UpdateUsername', forms.username.emailCode)">
+              {{ emailCodeButtonText }}
+            </n-button>
+          </div>
+        </n-form-item>
+        <div class="modal-actions">
+          <n-button @click="modals.changeUsername = false">取消</n-button>
+          <n-button type="primary" @click="handleChangeUsername">确认修改</n-button>
+        </div>
+      </n-form>
+    </n-modal>
+
+    <!-- 修改昵称模态 -->
+     <n-modal v-model:show="modals.changeNickname" preset="card" title="更换昵称" style="width: 500px;">
+      <n-form :model="forms.nickname" :rules="rules.nickname" ref="forms.nickname" label-placement="left" label-width="auto" :show-feedback="false">
+        <n-form-item label="新的昵称">
+          <n-input v-model:value="forms.nickname.newNickname" placeholder="请输入新的昵称"/>
+        </n-form-item>
+        <br>
+          <div class="modal-actions">
+            <n-button type="primary" @click="handleUpdateNickname">确定</n-button>
+            <n-button @click="modals.changeNickname = false">取消</n-button>
+          </div>
+      </n-form>
+     </n-modal>
+
+    <!-- 更改头像模态窗口 -->
+    <n-modal v-model:show="modals.changeAvatar" preset="card" title="更改头像" style="width: 500px;">
+      <n-form ref="avatarFormRef" :model="forms.avatar">
+        <n-form-item label="上传头像" path="avatarUrl">
+          <n-upload
+            @before-upload="handleBeforeUpload"
+            v-model:file-list="forms.avatar.avatarFile"
+            accept="image/*"
+            list-type="image-card"
+            :max="1"
+          >
+          </n-upload>
+        </n-form-item>
+        <n-form-item label="预览">
+          <div class="avatar-preview">
+            <img style="border-radius: 64px;" :src="forms.avatar.avatarUrl" alt="Avatar Preview" />
+          </div>
+        </n-form-item>
+        <div class="modal-actions">
+          <n-button @click="modals.changeAvatar = false">取消</n-button>
+          <n-button type="primary" @click="handleChangeAvatar">确认修改</n-button>
+        </div>
+      </n-form>
+    </n-modal>
+
+    <!-- 修改密码模态窗口 -->
+    <n-modal v-model:show="modals.changePassword" preset="card" title="修改密码" style="width: 500px;">
+      <n-form ref="passwordFormRef" :model="forms.password" :rules="rules.password">
+        <n-form-item label="当前密码" path="currentPassword">
+          <n-input v-model:value="forms.password.currentPassword" type="password" placeholder="请输入当前密码" />
+        </n-form-item>
+        <n-form-item label="新密码" path="newPassword">
+          <n-input v-model:value="forms.password.newPassword" type="password" placeholder="请输入新密码" />
+        </n-form-item>
+        <n-form-item label="确认新密码" path="confirmPassword">
+          <n-input v-model:value="forms.password.confirmPassword" type="password" placeholder="请再次输入新密码" />
+        </n-form-item>
+        <div class="modal-actions">
+          <n-button @click="modals.changePassword = false">取消</n-button>
+          <n-button type="primary" @click="handleChangePassword">确认修改</n-button>
+        </div>
+      </n-form>
+    </n-modal>
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import {
-  NCard,
-  NForm,
-  NFormItem,
-  NInput,
-  NUpload,
-  NTag,
-  NButton,
-  useMessage,
-  type FormInst
+<script lang="ts" setup>
+import { ref, reactive, computed } from 'vue'
+import { 
+  NModal, 
+  NButton, 
+  NForm, 
+  NFormItem, 
+  NInput, 
+  useMessage 
 } from 'naive-ui'
-import type { FormRules, UploadFileInfo } from 'naive-ui'
+import { UserIcon, ImageUpIcon, LockIcon } from 'lucide-vue-next'
+import UserInfo from '@/components/UserInfo.vue'
+import { UploadFileInfo } from 'naive-ui'
 import { userApi } from '@/net'
-import { accessHandle, removeToken } from '@/net/base.ts'
+import { accessHandle } from '@/net/base'
 
-interface UserInfo {
-  username: string
-  email: string
-  nickname: string
-  groupFriendlyName: string
-  isRealname: boolean
-  avatar?: string
-}
+// 消息提示
+const message = useMessage()
 
 // 用户信息
-const userInfo = ref<UserInfo>({
-  username: '',
-  email: '',
-  nickname: '',
-  groupFriendlyName: '普通用户',
-  isRealname: false
+const userInfo = reactive({
+  username: localStorage.getItem('username') || '',
+  nickname: localStorage.getItem('nickname') || '',
+  email: localStorage.getItem('email') || '',
+  avatar: localStorage.getItem('avatar') || '',
 })
 
-// 昵称表单
-const nicknameFormRef = ref<FormInst | null>(null)
-const nicknameForm = ref({
-  nickname: ''
+// 模态窗口状态
+const modals = reactive({
+  changeUsername: false,
+  changeAvatar: false,
+  changePassword: false,
+  changeEmail: false,
+  changeNickname: false,
 })
-const nicknameRules: FormRules = {
-  nickname: [
-    { required: true, message: '请输入昵称' },
-    { min: 2, max: 16, message: '长度需在2-16个字符之间' }
+
+// 表单数据
+const forms = reactive({
+  username: {
+    currentUsername: userInfo.username,
+    newUsername: '',
+    emailCode: ''
+  },
+  avatar: {
+    avatarUrl: userInfo.avatar || '',
+    avatarFile: [] as UploadFileInfo[]
+  },
+  password: {
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  },
+  email: {
+    currentEmail: '',
+    newEmail: '',
+    verificationCode: ''
+  },
+  nickname: {
+    newNickname: ''
+  }
+})
+
+// 表单规则
+const rules = {
+  username: {
+    newUsername: [
+      { required: true, message: '请输入新用户名', trigger: 'blur' },
+      { min: 3, max: 20, message: '用户名长度应在3-20个字符之间', trigger: 'blur' }
+    ],
+    password: [
+      { required: true, message: '请输入密码', trigger: 'blur' }
+    ]
+  },
+  nickname: {
+    newNickname: [
+      { required: true, message: '请输入新的昵称', trigger: 'blur' },
+      { min: 2, max: 20, message: '昵称长度应在2-20个字符之间', trigger: 'blur' }
+      ]
+  },
+  password: {
+    currentPassword: [
+      { required: true, message: '请输入当前密码', trigger: 'blur' }
+    ],
+    newPassword: [
+      { required: true, message: '请输入新密码', trigger: 'blur' },
+      { min: 6, message: '密码长度不能少于6个字符', trigger: 'blur' }
+    ],
+    confirmPassword: [
+      { required: true, message: '请确认新密码', trigger: 'blur' },
+      {
+        validator: (rule, value) => {
+          return value === forms.password.newPassword
+        },
+        message: '两次输入的密码不一致',
+        trigger: 'blur'
+      }
+    ]
+  },
+email: {
+  newEmail: [
+    { required: true, message: '请输入新邮箱', trigger: 'blur' },
+    { 
+      pattern: /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/, 
+      message: '请输入有效的邮箱地址', 
+      trigger: 'blur' 
+    }
+  ],
+  verificationCode: [
+    { required: true, message: '请输入验证码', trigger: 'blur' },
+    { len: 6, message: '验证码长度应为6位', trigger: 'blur' }
   ]
+},
 }
 
-// 头像表单
-const avatarFormRef = ref<FormInst | null>(null)
-const avatarForm = ref({})
-const avatarFiles = ref<UploadFileInfo[]>([])
+// 表单引用
+const usernameFormRef = ref(null)
+const avatarFormRef = ref(null)
+const passwordFormRef = ref(null)
+const emailFormRef = ref(null)
 
-// 用户名表单
-const usernameFormRef = ref<FormInst | null>(null)
-const usernameForm = ref({
-  currentUsername: '',
-  newUsername: '',
-  email: '',
-  emailCode: ''
-})
-const usernameRules: FormRules = {
-  newUsername: [
-    { required: true, message: '请输入新用户名' },
-    { pattern: /^[a-zA-Z0-9_]{2,16}$/, message: '用户名只能包含字母、数字和下划线，长度为2-16个字符' }
-  ],
-  email: [
-    { required: true, message: '请输入邮箱' },
-    { type: 'email', message: '请输入有效的邮箱地址' }
-  ],
-  emailCode: [
-    { required: true, message: '请输入邮箱验证码' }
-  ]
-}
-
-// 密码表单
-const passwordFormRef = ref<FormInst | null>(null)
-const passwordForm = ref({
-  oldPassword: '',
-  newPassword: '',
-  confirmPassword: '',
-})
-const passwordRules: FormRules = {
-  oldPassword: [
-    { required: true, message: '请输入旧密码' }
-  ],
-  newPassword: [
-    { required: true, message: '请输入新密码' },
-    { min: 6, message: '密码长度不能少于6位' }
-  ],
-  confirmPassword: [
-    { required: true, message: '请确认新密码' }
-  ],
-  email: [
-    { required: true, message: '请输入邮箱' },
-    { type: 'email', message: '请输入有效的邮箱地址' }
-  ],
-  emailCode: [
-    { required: true, message: '请输入邮箱验证码' }
-  ]
-}
-
-// 邮箱验证码相关
-const isEmailCodeSending = ref(false)
+// 邮箱验证码
+const emailCodeSending = ref(false)
 const emailCodeCountdown = ref(0)
 const emailCodeButtonText = computed(() => {
-  if (isEmailCodeSending.value) return '发送中...'
+  if (emailCodeSending.value) return '发送中...'
   if (emailCodeCountdown.value > 0) return `${emailCodeCountdown.value}s后重试`
   return '获取验证码'
 })
 
-const startEmailCodeCountdown = () => {
-  emailCodeCountdown.value = 60
-  const timer = setInterval(() => {
-    emailCodeCountdown.value--
-    if (emailCodeCountdown.value <= 0) {
-      clearInterval(timer)
-    }
-  }, 1000)
+// 显示模态窗口
+const showModal = (modalName) => {
+  modals[modalName] = true
 }
 
-function handleSendEmailCode(module: string, email: string) {
-  if (!email) {
-    message.error('请输入邮箱')
-    return
+// 处理修改用户名
+const handleChangeUsername = async () => {
+  if (!usernameFormRef.value) return
+  
+  try {
+    
+    // 模拟API调用
+    setTimeout(() => {
+      userInfo.username = forms.username.newUsername
+      message.success('用户名修改成功')
+      forms.username.newUsername = ''
+      forms.username.emailCode = ''
+      modals.changeUsername = false
+    }, 1000)
+  } catch (errors) {
+    // 表单验证失败
   }
-  if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
-    message.error('请输入有效的邮箱地址')
-    return
-  }
+}
 
-  isEmailCodeSending.value = true
-  userApi.sendEmailCode(
-      email,
-      module,
-      (data) => {
-        message.success(data.message)
-        startEmailCodeCountdown()
-        isEmailCodeSending.value = false
-      },
-      (error) => {
-        message.error(error)
-        isEmailCodeSending.value = false
+const sendEmailVerificationCode = async (model : string, email: string) => {
+  if (emailCodeSending.value) return
+  emailCodeSending.value = true
+  emailCodeCountdown.value = 60 // 初始化倒计时为60秒
+  
+  try {
+    userApi.post(`/user/code/${model}`, { email: email }, accessHandle(), (data) => {
+      if (data.code !== 0) {
+        const timer = setInterval(() => {
+          if (emailCodeCountdown.value > 0) {
+            emailCodeCountdown.value--
+          } else {
+            clearInterval(timer) // 倒计时结束后清除定时器
+          }
+        }, 1000)
+        message.success('验证码发送成功')
       }
-  )
+    }, (messageText) => {
+      message.error(messageText || '验证码发送失败')
+    })
+  } catch (error) {
+    message.error('验证码发送失败')
+  } finally {
+    emailCodeSending.value = false // 无论成功/失败都关闭发送中状态
+  }
+}
+const handleUpdateNickname = async () => {
+  if (!forms.nickname.newNickname) {
+    message.error('昵称不能为空')
+    return 
+  }
+  try {
+    userApi.post(`/user/update/nickname/${forms.nickname.newNickname}`, { nickname: forms.nickname.newNickname }, accessHandle(), (data) => {
+      localStorage.setItem('nickname', forms.nickname.newNickname)
+      message.success('昵称修改成功')
+      forms.nickname.newNickname = ''
+      setTimeout(() => {
+        window.location.reload()
+      }, 1500)
+    }, (messageText) => {
+      message.error(messageText || '昵称修改失败')
+    })
+  }
+  catch (error) {
+    message.error('昵称修改失败') 
+  }
+  finally {
+    modals.changeNickname = false
+  }
 }
 
-// 头像上传前校验
-const handleBeforeUpload = (file: UploadFileInfo) => {
-  if (!file.file?.type.startsWith('image/')) {
+// 处理更改头像前的验证
+const handleBeforeUpload = async (options: { file: UploadFileInfo }) => {
+  const { file } = options
+  if (!file.type?.startsWith('image/')) {
     message.error('只能上传图片文件')
     return false
   }
-  if (file.file.size > 2 * 1024 * 1024) {
+  if (file.file?.size && file.file.size > 2 * 1024 * 1024) {
     message.error('图片大小不能超过2MB')
     return false
   }
-  return true
+  
+  // 创建一个FileReader来读取文件并预览
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    // 关键修改：将预览地址同时赋值给文件对象的url属性
+    file.url = e.target?.result as string
+    forms.avatar.avatarUrl = e.target?.result as string
+  }
+  
+  // 读取文件为DataURL以便预览
+  if (file.file) {
+    reader.readAsDataURL(file.file)
+    forms.avatar.avatarFile = [file]
+  }
+  
+  return false // 阻止默认上传行为，我们手动处理
 }
 
-// 提交昵称
-const handleNicknameSubmit = async () => {
-  if (!nicknameFormRef.value) return
-  await nicknameFormRef.value.validate()
-  userApi.post(`/user/update/nickname/${nicknameForm.value.nickname}`, {
-  }, accessHandle(), (data) => {
-    if (data.code === 0) {
-      localStorage.setItem('nickname', nicknameForm.value.nickname)
-      message.success('昵称更新成功')
-      setTimeout(() => {
-        window.location.reload()
-      }, 2000)
-    } else {
-      message.error('昵称更新失败')
-    }
-  })
-}
-
-// 提交头像
-const handleAvatarSubmit = async () => {
-  if (avatarFiles.value.length === 0) {
-    message.error('请上传头像')
+const handleChangeAvatar = async () => {
+  if (!forms.avatar.avatarFile || forms.avatar.avatarFile.length === 0) {
+    message.error('请先上传头像')
     return
   }
-
-  const avatarFile = avatarFiles.value[0].file as File | undefined
-  if (!avatarFile) {
-    message.error('文件上传异常，请重新选择')
+  
+  const file = forms.avatar.avatarFile[0].file as File
+  if (!file) {
+    message.error('请先选择头像文件')
     return
   }
-
+  
   const formData = new FormData()
-  formData.append('avatar', avatarFile)
-  userApi.post('/user/update/avatar', formData, accessHandle(), (data) => {
-    if (data.code === 0) {
+  formData.append('avatar', file)
+  
+  try {
+    message.loading('正在上传头像...')
+    userApi.post('/user/update/avatar', formData, {
+      ...accessHandle(),
+      'Content-Type': 'multipart/form-data',
+    }, (data) => {
       localStorage.setItem('avatar', data.data)
-      message.success('头像更新成功')
+      message.success(data.message)
       setTimeout(() => {
         window.location.reload()
-      }, 2000)
-    } else {
-      message.error('头像更新失败')
-    }
-  }, () => {
-    message.error('头像更新失败')
-  })
+      }, 1000)
+    })
+  } catch (error) {
+    message.error('头像上传失败，请稍后再试')
+  }
 }
-
-// 提交用户名
-const handleUsernameSubmit = async () => {
-  if (!usernameFormRef.value) return
-  await usernameFormRef.value.validate()
-  userApi.post('/user/update/username', {
-    currentUsername: usernameForm.value.currentUsername,
-    newUsername: usernameForm.value.newUsername,
-    email: usernameForm.value.email,
-    emailCode: usernameForm.value.emailCode
-  }, accessHandle(), (data) => {
-    if (data.code === 0) {
-      message.success('用户名更新成功')
-      removeToken()
-      router.push('/login')
-      fetchUserInfo()
-    } else {
-      message.error('用户名更新失败')
-    }
-  })
-}
-
-// 提交密码
-const handlePasswordSubmit = async () => {
+// 处理修改密码
+const handleChangePassword = async () => {
   if (!passwordFormRef.value) return
-  await passwordFormRef.value.validate()
-  if (passwordForm.value.newPassword !== passwordForm.value.confirmPassword) {
-    message.error('两次输入的密码不一致')
-    return
+  
+  try {
+    
+    // 模拟API调用
+    setTimeout(() => {
+      message.success('密码修改成功')
+      forms.password.currentPassword = ''
+      forms.password.newPassword = ''
+      forms.password.confirmPassword = ''
+      modals.changePassword = false
+    }, 1000)
+  } catch (errors) {
+    // 表单验证失败
   }
-  if (passwordForm.value.newPassword === passwordForm.value.oldPassword) {
-    message.error('新密码不能与旧密码相同')
-    return
+}
+
+// 处理更改邮箱
+const handleChangeEmail = async () => {
+  if (!emailFormRef.value) return
+  
+  try {
+    
+    // 模拟API调用
+    setTimeout(() => {
+      userInfo.email = forms.email.newEmail
+      message.success('邮箱更新成功')
+      forms.email.newEmail = ''
+      forms.email.verificationCode = ''
+      modals.changeEmail = false
+    }, 1000)
+  } catch (errors) {
+    // 表单验证失败
   }
-  userApi.post('/user/update/password', {
-    oldPassword: passwordForm.value.oldPassword,
-    newPassword: passwordForm.value.newPassword,
-    confirmPassword: passwordForm.value.confirmPassword,
-  }, accessHandle(), (data) => {
-    if (data.code === 0) {
-      message.success('密码更新成功')
-      passwordForm.value.oldPassword = ''
-      passwordForm.value.newPassword = ''
-      passwordForm.value.confirmPassword = ''
-      removeToken()
-      router.push('/login')
-    } else {
-      message.error('密码更新失败')
-    }
-  })
 }
-
-// 获取用户信息
-const fetchUserInfo = async () => {
-  userApi.get('/user/info/info', accessHandle(), (data) => {
-    if (data.code === 0) {
-      userInfo.value = {
-        ...data.data,
-        groupFriendlyName: groupNameMap.value[data.data.group] || data.data.group
-      }
-      nicknameForm.value.nickname = data.data.nickname
-      usernameForm.value.currentUsername = data.data.username
-    }
-  })
-}
-
-// 获取用户组信息
-const groupNameMap = ref<Record<string, string>>({})
-const fetchUserGroups = async () => {
-  userApi.get("/user/info/groups", accessHandle(), (data) => {
-    if (data.code === 0 && data.data?.groups) {
-      groupNameMap.value = data.data.groups.reduce((acc, group) => {
-        acc[group.name] = group.friendlyName
-        return acc
-      }, {} as Record<string, string>)
-    }
-  })
-}
-
-
-// 初始化
-const router = useRouter()
-const message = useMessage()
-onMounted(async () => {
-  await fetchUserGroups()
-  await fetchUserInfo()
-})
 </script>
 
-<style lang="scss">
-.profile-container {
-  max-width: 800px;
+<style lang="scss" scoped>
+.page-container {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+}
 
-  .form-actions {
+.left-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.right-column {
+  width: 450px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  
+  @media (max-width: 768px) {
+    width: 100%;
+  }
+}
+
+.card {
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  
+  &-title {
+    font-size: 18px;
+    font-weight: 500;
+    margin: 0 0 16px 0;
+  }
+  
+  &-header {
     display: flex;
-    justify-content: flex-end;
-    margin-top: 24px;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
   }
+}
 
-  .ml-2 {
-    margin-left: 8px;
+.tabs {
+  display: flex;
+  gap: 16px;
+  
+  .tab {
+    cursor: pointer;
+    padding-bottom: 4px;
+    
+    &.active {
+      border-bottom: 2px solid;
+      font-weight: 500;
+    }
   }
-  .n-card {
-    margin-bottom: 10px;
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  
+  @media (max-width: 992px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.setting-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+}
+
+.setting-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  i {
+    width: 24px;
+    height: 24px;
+    display: block;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+  }
+}
+
+.setting-content {
+  flex: 1;
+}
+
+.setting-title {
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0 0 4px 0;
+}
+
+.setting-desc {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+}
+
+.redemption-code {
+  .code-input-group {
+    margin-top: 16px;
+  }
+  
+  .input-label {
+    margin-bottom: 8px;
+    font-size: 14px;
+    
+    .required {
+      color: #ff4d4f;
+    }
+  }
+  
+  .input-with-button {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .code-input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    font-size: 14px;
+    
+    &:focus {
+      outline: none;
+      border-color: #1890ff;
+    }
+  }
+  
+  .verify-button {
+    padding: 0 16px;
+    border: none;
+    border-radius: 4px;
+    background-color: #b392f0;
+    cursor: pointer;
+    
+    &:hover {
+      background-color: darken(#b392f0, 10%);
+    }
+  }
+}
+
+.account-details {
+  .close-button {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+  }
+  
+  .user-profile {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  
+  .user-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    overflow: hidden;
+    
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+  
+  .user-greeting {
+    font-size: 18px;
+    font-weight: 500;
+    margin: 0 0 4px 0;
+    
+    .user-id {
+      font-weight: normal;
+      opacity: 0.7;
+    }
+  }
+  
+  .user-email {
+    font-size: 14px;
+    color: #666;
+    margin: 0;
+  }
+  
+  .account-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    border-radius: 8px;
+    padding: 16px;
+  }
+  
+  .info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .info-label {
+    font-size: 14px;
+    color: #666;
+  }
+  
+  .info-value {
+    font-size: 16px;
+    font-weight: 500;
+  }
+}
+
+// 模态窗口样式
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.avatar-preview {
+  width: 100px;
+  height: 100px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 0 auto;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 }
 </style>

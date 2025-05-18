@@ -15,8 +15,9 @@ export function login(username: string, password: string, remember: boolean, suc
         password: password
     },{}, (data: any) => {
         storeToken(data.data.Authorization, remember, data.expires);
+        localStorage.setItem('email', data.data.email);
         success(data);
-    }, (message, code, url) => {
-        failure(message, code, url);
+    }, (message) => {
+        failure(message);
     });
 }
