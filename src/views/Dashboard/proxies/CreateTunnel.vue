@@ -38,6 +38,9 @@
                   <NTag v-if="supportsHttp(node)" type="success" size="small">
                     {{ supportsHttps(node) ? 'HTTP(S)' : 'HTTP' }}
                   </NTag>
+                  <NTag v-else="supportsHttps(node)" type="success" size="small">
+                    HTTPS
+                  </NTag>
                 </div>
               </div>
               
