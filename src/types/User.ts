@@ -39,6 +39,7 @@ export interface UpdateNodeArgs {
     allowType: string;
     need_realname: boolean;
     bandWidth: number;
+    location: string;
 }
 
 export interface GetNodesArgs {
@@ -67,6 +68,7 @@ export interface Node {
     ip: string;
     need_realname: boolean;
     bandWidth: number;
+    location: string;
     id: number;
 }
 export interface Group {

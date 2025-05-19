@@ -14,23 +14,77 @@
       </template>
     </NModal>
     
+    <!-- 搜索和区域筛选 -->
+    <NCard title="筛选选项" class="filter-card">
+      <NSpace vertical size="medium">
+        <NInput style="margin-top: 20px;" v-model:value="searchQuery" placeholder="搜索节点..." clearable>
+          <template #prefix>
+            <NIcon><SearchOutline /></NIcon>
+          </template>
+        </NInput>
+        
+        <div style="margin-top: 10px;">
+          <NText>区域筛选：</NText>
+          <NSpace style="margin-top: 5px;">
+            <NTag 
+              :type="selectedRegion === 'all' ? 'primary' : 'default'" 
+              checkable 
+              :checked="selectedRegion === 'all'"
+              @click="selectedRegion = 'all'"
+            >
+              全部
+            </NTag>
+            <NTag 
+              :type="selectedRegion === 'cn' ? 'primary' : 'default'" 
+              checkable 
+              :checked="selectedRegion === 'cn'"
+              @click="selectedRegion = 'cn'"
+            >
+              中国大陆
+            </NTag>
+            <NTag 
+              :type="selectedRegion === 'cn-out' ? 'primary' : 'default'" 
+              checkable 
+              :checked="selectedRegion === 'cn-out'"
+              @click="selectedRegion = 'cn-out'"
+            >
+              中国港澳台
+            </NTag>
+            <NTag 
+              :type="selectedRegion === 'out' ? 'primary' : 'default'" 
+              checkable 
+              :checked="selectedRegion === 'out'"
+              @click="selectedRegion = 'out'"
+            >
+              海外地区
+            </NTag>
+          </NSpace>
+        </div>
+      </NSpace>
+    </NCard>
+    
     <!-- 节点选择卡片 - 修改为每行三个节点 -->
     <NCard title="选择节点" class="node-card">
       <NSpace vertical>
         <!-- 修改这里的cols属性从1改为3 -->
         <NGrid x-gap="16" y-gap="16" cols="3" responsive="screen" style="padding-top: 14px;">
-          <NGridItem v-for="node in nodeOptions" :key="node.value">
+          <NGridItem v-for="node in filteredNodes" :key="node.value">
             <NCard hoverable @click="handleNodeSelect(node)"
                    :class="{ 'selected-node': selectedNodeId === node.value }" class="node-item">
               <div class="node-header">
                 <div class="node-title">
                   <NTag type="info" size="small"># {{ node.id }}</NTag>
-                  <NText>{{ node.name }}</NText>
+                  <NText style="white-space: nowrap; margin-right: 8px;">{{ node.name }}</NText>
                 </div>
                 <div class="node-tags">
                   <!-- 显示在线/离线状态标签 -->
                   <NTag :type="node.isOnline ? 'success' : 'error'" size="small">
                     {{ node.isOnline ? '在线' : '离线' }}
+                  </NTag>
+                  
+                  <!-- 显示区域标签 -->
+                  <NTag :type="getRegionTagType(node.location)" size="small">
+                    {{ getRegionName(node.location) }}
                   </NTag>
                   
                   <!-- 显示协议标签 -->
@@ -71,6 +125,11 @@
             </NCard>
           </NGridItem>
         </NGrid>
+        
+        <!-- 无结果提示 -->
+        <div v-if="filteredNodes.length === 0" class="no-results">
+          <NEmpty description="没有找到符合条件的节点" />
+        </div>
       </NSpace>
     </NCard>
 
@@ -206,8 +265,8 @@
 
 <script setup lang="ts">
 import { ref, h, computed, onMounted, onUnmounted, watch } from 'vue'
-import { NCard, NForm, NFormItem, NInput, NInputNumber, NSelect, NButton, NIcon, useMessage, type FormRules, type FormInst, NDivider, NSwitch, NTag, NSpace, NText, NGrid, NGridItem, NDynamicTags, NModal, NElement } from 'naive-ui'
-import { CloudUploadOutline } from '@vicons/ionicons5'
+import { NCard, NForm, NFormItem, NInput, NInputNumber, NSelect, NButton, NIcon, useMessage, type FormRules, type FormInst, NDivider, NSwitch, NTag, NSpace, NText, NGrid, NGridItem, NDynamicTags, NModal, NEmpty } from 'naive-ui'
+import { CloudUploadOutline, SearchOutline } from '@vicons/ionicons5'
 import { switchButtonRailStyle } from '@/constants/theme.ts'
 import { useRouter } from 'vue-router'
 import { userApi } from "@/net"
@@ -218,6 +277,10 @@ const message = useMessage()
 const formRef = ref<FormInst | null>(null)
 const loading = ref(false)
 const userGroup = ref(localStorage.getItem('group'))
+
+// 新增搜索和区域筛选
+const searchQuery = ref('')
+const selectedRegion = ref('all') // 'all', 'cn', 'cn-out', 'out'
 
 // 新增弹窗状态
 const showConfigModal = ref(false)
@@ -257,6 +320,7 @@ const nodeOptions = ref<{
   isOnline: boolean;
   isDisabled: boolean;
   bandWidth: number;
+  location: string;
   allowedProtocols: string[];
   allowGroups: { name: string; friendlyName: string }[];
   needRealname: boolean;
@@ -265,6 +329,56 @@ const nodeOptions = ref<{
     max: number
   }
 }[]>([])
+
+// 添加区域名称获取函数
+const getRegionName = (location: string) => {
+  switch (location) {
+    case 'cn':
+      return '中国大陆'
+    case 'cn-out':
+      return '中国港澳台'
+    case 'out':
+      return '海外'
+    default:
+      return '未知区域'
+  }
+}
+
+// 添加区域标签类型获取函数
+const getRegionTagType = (location: string) => {
+  switch (location) {
+    case 'cn':
+      return 'info'
+    case 'cn-out':
+      return 'warning'
+    case 'out':
+      return 'error'
+    default:
+      return 'default'
+  }
+}
+
+// 添加过滤节点的计算属性
+const filteredNodes = computed(() => {
+  return nodeOptions.value.filter(node => {
+    // 区域筛选
+    if (selectedRegion.value !== 'all' && node.location !== selectedRegion.value) {
+      return false
+    }
+    
+    // 搜索筛选
+    if (searchQuery.value) {
+      const query = searchQuery.value.toLowerCase()
+      return (
+        node.name.toLowerCase().includes(query) ||
+        node.description.toLowerCase().includes(query) ||
+        node.id.toString().includes(query)
+      )
+    }
+    
+    return true
+  })
+})
 
 // 添加协议支持检查函数
 const supportsUdp = (node: any) => {
@@ -384,6 +498,7 @@ const fetchNodes = async () => {
             allowGroups,
             needRealname: node.needRealname,
             bandWidth: node.bandWidth,
+            location: node.location,
             portRange: {
               min: minPort,
               max: maxPort
@@ -542,15 +657,6 @@ const goToRealname = () => {
   router.push('/dashboard/profile')
 }
 
-
-watch(showRealnameModal, (newVal) => {
-  if (!newVal && timer) {
-    clearInterval(timer)
-    timer = null
-  }
-})
-
-// 初始化
 const init = async () => {
   await fetchUserGroups()
   setTimeout(() => {
@@ -572,6 +678,13 @@ const handleGetFreePort = async () => {
   const max = selectedNode.value.portRange.max || 65535
   formValue.value.remotePort = Math.floor(Math.random() * (max - min + 1)) + min
 }
+
+watch(showRealnameModal, (newVal) => {
+  if (!newVal && timer) {
+    clearInterval(timer)
+    timer = null
+  }
+})
 </script>
 
 <style lang="scss" scoped>
@@ -582,12 +695,15 @@ const handleGetFreePort = async () => {
 }
 .content-grid {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   padding: 20px;
+  gap: 20px;
 
-  .node-card {
+  .filter-card, .node-card {
     width: 100%;
     max-width: 1200px; /* 增加最大宽度以适应三列布局 */
+    margin: 0 auto;
     
     :deep(.n-card-header) {
       border-bottom: 1px solid $border-color;
@@ -660,6 +776,11 @@ const handleGetFreePort = async () => {
     align-items: flex-start;
     margin-bottom: 8px;
   }
+  
+  .no-results {
+    padding: 40px 0;
+    text-align: center;
+  }
 }
 
 /* 确认弹窗样式 */
@@ -692,7 +813,7 @@ const handleGetFreePort = async () => {
 
 /* 添加响应式布局 */
 @media (max-width: 1200px) {
-  .content-grid .node-card {
+  .content-grid .node-card, .content-grid .filter-card {
     max-width: 900px;
   }
 }

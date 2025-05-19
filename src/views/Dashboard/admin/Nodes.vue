@@ -2,7 +2,7 @@
   <div class="node-management">
     <n-card title="节点管理" class="main-card">
       <n-space vertical :size="16">
-        <n-space align="center" class="filter-container">
+        <n-space class="filter-container">
           <n-input 
             v-model:value="searchKeyword" 
             placeholder="搜索ID、节点名称或主机名" 
@@ -120,9 +120,21 @@
               </n-grid>
             </n-grid-item>
             
-            <n-form-item-gi label="是否需要实名" path="need_realname">
-              <n-switch v-model:value="formModel.need_realname" />
-            </n-form-item-gi>
+            <n-grid-item :span="1">
+              <n-grid :cols="2" :x-gap="16">
+                <n-form-item-gi label="节点地区" path="location">
+                  <n-select
+                    v-model:value="formModel.location"
+                    :options="locationOptions"
+                    placeholder="请选择节点地区"
+                    clearable
+                  />
+                </n-form-item-gi>
+                <n-form-item-gi label="是否需要实名" path="need_realname">
+                  <n-switch v-model:value="formModel.need_realname" />
+                </n-form-item-gi>
+              </n-grid>
+            </n-grid-item>
             
             <n-form-item-gi label="允许用户组" path="allowGroup">
               <div class="group-buttons">
@@ -234,10 +246,22 @@
                 </n-form-item-gi>
               </n-grid>
             </n-grid-item>
-            
-            <n-form-item-gi label="是否需要实名" path="need_realname">
-              <n-switch v-model:value="formModel.need_realname" />
-            </n-form-item-gi>
+
+            <n-grid-item :span="1">
+              <n-grid :cols="2" :x-gap="16">
+                <n-form-item-gi label="节点地区" path="location">
+                  <n-select
+                    v-model:value="formModel.location"
+                    :options="locationOptions"
+                    placeholder="请选择节点地区"
+                    clearable
+                  />
+                </n-form-item-gi>
+                <n-form-item-gi label="是否需要实名" path="need_realname">
+                  <n-switch v-model:value="formModel.need_realname" />
+                </n-form-item-gi>
+              </n-grid>
+            </n-grid-item>
             
             <n-form-item-gi label="允许用户组" path="allowGroup">
               <div class="group-buttons">
@@ -388,6 +412,12 @@ const protocolOptions = [
   { label: 'HTTPS', value: 'https' }
 ]
 
+const locationOptions = [
+  { label: '中国', value: 'cn' },
+  { label: '中国港澳台', value: 'cn-out' },
+  { label: '海外', value: 'out' },
+]
+
 const formModel = ref({
   id: 0,
   name: '',
@@ -403,6 +433,7 @@ const formModel = ref({
   allowType: [] as string[],
   need_realname: true,
   bandWidth: 0,
+  location: 'cn'
 })
 
 const toggleGroup = (value: string) => {
@@ -471,6 +502,11 @@ const rules: FormRules = {
   adminPass: {
     required: true,
     message: '请输入管理密码',
+    trigger: ['blur', 'input']
+  },
+  location: {
+    required: true,
+    message: '请选择节点地区',
     trigger: ['blur', 'input']
   },
   allowGroup: {
@@ -647,6 +683,23 @@ const columns: DataTableColumns<Node> = [
     }
   },
   {
+    title: '地区',
+    key: 'location',
+    width: 100,
+    render(row) {
+      return h(
+        NTag,
+        {
+          type: 'info',
+          size: 'small',
+          round: true,
+          bordered: false
+        },
+        { default: () => row.location }
+      )
+    }
+  },
+  {
     title: '协议',
     key: 'allowType',
     width: 180,
@@ -732,7 +785,8 @@ const handleEdit = (row: Node) => {
     allowPort: row.allowPort,
     allowType: row.allowType.split(';'),
     need_realname: row.need_realname,
-    bandWidth: row.bandWidth
+    bandWidth: row.bandWidth,
+    location: row.location
   }
   showEditModal.value = true
 }
@@ -763,6 +817,7 @@ const handleEditSubmit = () => {
           allowType: formModel.value.allowType.join(';'),
           need_realname: formModel.value.need_realname,
           bandWidth: formModel.value.bandWidth,
+          location: formModel.value.location
         }
         userApi.post(`/admin/node/set/${editingNode.value!.id}`, config, accessHandle(), (data) => {
           if (data.code === 0) {
@@ -783,7 +838,8 @@ const handleEditSubmit = () => {
               allowPort: '',
               allowType: [],
               need_realname: false,
-              bandWidth: 0
+              bandWidth: 0,
+              location: 'cn'
             })
             fetchNodes()
           } else {
@@ -831,7 +887,8 @@ const handleAddNode = () => {
               allowPort: '',
               allowType: [],
               need_realname: true,
-              bandWidth: 0
+              bandWidth: 0,
+              location: 'cn'
             })
             fetchNodes()
           } else {
@@ -972,7 +1029,8 @@ const fetchNodes = async () => {
       nodes.value = (data.data?.nodes || []).map(node => ({
         ...node,
         allowGroup: node.group || '',
-        allowType: node.allowType || ''
+        allowType: node.allowType || '',
+        location: node.location === 'cn' ? '中国' : node.location === 'cn-out'? '中国港澳台' : '海外'
       }))
       pagination.value.itemCount = data.data?.total || 0
       pagination.value.pageCount = Math.ceil((data.data?.total || 0) / pagination.value.pageSize)
