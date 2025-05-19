@@ -108,7 +108,7 @@
         </n-form-item>
         <div class="modal-actions">
           <n-button @click="modals.changeUsername = false">取消</n-button>
-          <n-button type="primary" @click="handleChangeUsername">确认修改</n-button>
+          <n-button :loading="loading" type="primary" @click="handleChangeUsername">确认修改</n-button>
         </div>
       </n-form>
     </n-modal>
@@ -121,7 +121,7 @@
         </n-form-item>
         <br>
           <div class="modal-actions">
-            <n-button type="primary" @click="handleUpdateNickname">确定</n-button>
+            <n-button :loading="loading" type="primary" @click="handleUpdateNickname">确定</n-button>
             <n-button @click="modals.changeNickname = false">取消</n-button>
           </div>
       </n-form>
@@ -147,7 +147,7 @@
         </n-form-item>
         <div class="modal-actions">
           <n-button @click="modals.changeAvatar = false">取消</n-button>
-          <n-button type="primary" @click="handleChangeAvatar">确认修改</n-button>
+          <n-button :loading="loading" type="primary" @click="handleChangeAvatar">确认修改</n-button>
         </div>
       </n-form>
     </n-modal>
@@ -166,7 +166,7 @@
         </n-form-item>
         <div class="modal-actions">
           <n-button @click="modals.changePassword = false">取消</n-button>
-          <n-button type="primary" @click="handleChangePassword">确认修改</n-button>
+          <n-button :loading="loading" type="primary" @click="handleChangePassword">确认修改</n-button>
         </div>
       </n-form>
     </n-modal>
@@ -187,7 +187,8 @@ import { UserIcon, ImageUpIcon, LockIcon } from 'lucide-vue-next'
 import UserInfo from '@/components/UserInfo.vue'
 import { UploadFileInfo } from 'naive-ui'
 import { userApi } from '@/net'
-import { accessHandle } from '@/net/base'
+import { accessHandle, removeToken } from '@/net/base'
+import router from '@/router'
 
 // 消息提示
 const message = useMessage()
@@ -291,7 +292,7 @@ email: {
 const usernameFormRef = ref(null)
 const avatarFormRef = ref(null)
 const passwordFormRef = ref(null)
-const emailFormRef = ref(null)
+const loading = ref(false)
 
 // 邮箱验证码
 const emailCodeSending = ref(false)
@@ -309,27 +310,45 @@ const showModal = (modalName) => {
 
 // 处理修改用户名
 const handleChangeUsername = async () => {
-  if (!usernameFormRef.value) return
-  
+  if (!forms.username.newUsername) {
+    message.error('请输入新用户名')
+    return
+  }
+  if (!forms.username.emailCode) {
+    message.error('请输入邮箱验证码')
+    return
+  }
+  if (forms.username.newUsername === userInfo.username) {
+    message.error('新用户名与当前用户名相同')
+    return
+  }
+  loading.value = true
   try {
-    
-    // 模拟API调用
-    setTimeout(() => {
+    userApi.post('/user/update/username', { newUsername: forms.username.newUsername, emailCode: forms.username.emailCode }, accessHandle(), (data) => {
       userInfo.username = forms.username.newUsername
       message.success('用户名修改成功')
       forms.username.newUsername = ''
       forms.username.emailCode = ''
       modals.changeUsername = false
-    }, 1000)
+    },(errors) => {
+      message.error(errors || '用户名修改失败')
+    })
   } catch (errors) {
     // 表单验证失败
+    message.error('用户名修改失败')
   }
+  loading.value = false
 }
 
 const sendEmailVerificationCode = async (model : string, email: string) => {
   if (emailCodeSending.value) return
+  if (!email) {
+    message.error('请输入邮箱')
+    return
+  }
   emailCodeSending.value = true
   emailCodeCountdown.value = 60 // 初始化倒计时为60秒
+  loading.value = true
   
   try {
     userApi.post(`/user/code/${model}`, { email: email }, accessHandle(), (data) => {
@@ -350,6 +369,7 @@ const sendEmailVerificationCode = async (model : string, email: string) => {
     message.error('验证码发送失败')
   } finally {
     emailCodeSending.value = false // 无论成功/失败都关闭发送中状态
+    loading.value = false
   }
 }
 const handleUpdateNickname = async () => {
@@ -357,6 +377,7 @@ const handleUpdateNickname = async () => {
     message.error('昵称不能为空')
     return 
   }
+  loading.value = true
   try {
     userApi.post(`/user/update/nickname/${forms.nickname.newNickname}`, { nickname: forms.nickname.newNickname }, accessHandle(), (data) => {
       localStorage.setItem('nickname', forms.nickname.newNickname)
@@ -374,6 +395,7 @@ const handleUpdateNickname = async () => {
   }
   finally {
     modals.changeNickname = false
+    loading.value = false
   }
 }
 
@@ -420,7 +442,7 @@ const handleChangeAvatar = async () => {
   
   const formData = new FormData()
   formData.append('avatar', file)
-  
+  loading.value = true
   try {
     message.loading('正在上传头像...')
     userApi.post('/user/update/avatar', formData, {
@@ -436,42 +458,42 @@ const handleChangeAvatar = async () => {
   } catch (error) {
     message.error('头像上传失败，请稍后再试')
   }
+  finally {
+    loading.value = false 
+  }
 }
 // 处理修改密码
 const handleChangePassword = async () => {
-  if (!passwordFormRef.value) return
+  if (!forms.password.currentPassword) {
+    message.error('请输入当前密码')
+    return
+  }
   
+  if (forms.password.newPassword !== forms.password.confirmPassword) {
+    message.error('两次输入的密码不一致')
+    return
+  }
+    loading.value = true
   try {
-    
-    // 模拟API调用
-    setTimeout(() => {
-      message.success('密码修改成功')
+    userApi.post('/user/update/password', {
+      oldPassword: forms.password.currentPassword,
+      newPassword: forms.password.newPassword,
+      confirmPassword: forms.password.confirmPassword
+    }, accessHandle(), (data) => {
       forms.password.currentPassword = ''
       forms.password.newPassword = ''
       forms.password.confirmPassword = ''
       modals.changePassword = false
-    }, 1000)
+      message.success('密码修改成功，请重新登录')
+      removeToken()
+      setTimeout(() => {
+        window.location.href = '/login'
+      }, 2000)
+    })
   } catch (errors) {
-    // 表单验证失败
-  }
-}
-
-// 处理更改邮箱
-const handleChangeEmail = async () => {
-  if (!emailFormRef.value) return
-  
-  try {
-    
-    // 模拟API调用
-    setTimeout(() => {
-      userInfo.email = forms.email.newEmail
-      message.success('邮箱更新成功')
-      forms.email.newEmail = ''
-      forms.email.verificationCode = ''
-      modals.changeEmail = false
-    }, 1000)
-  } catch (errors) {
-    // 表单验证失败
+      message.error('密码修改失败')
+  } finally{
+    loading.value = false
   }
 }
 </script>
