@@ -66,6 +66,7 @@ const rules: FormRules = {
 
 const handleSubmit = async () => {
   loading.value = true
+  try {
   userApi.login(
       formValue.value.username,
       formValue.value.password,
@@ -85,6 +86,12 @@ const handleSubmit = async () => {
         loading.value = false
       },
   )
+  } catch (error: any) {
+    message.error(error)
+    loading.value = false
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 

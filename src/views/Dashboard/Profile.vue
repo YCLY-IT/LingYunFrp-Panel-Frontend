@@ -56,6 +56,17 @@
               <p class="setting-desc">点击这里可以修改您的登录密码</p>
             </div>
           </div>
+          
+          <!-- 实人认证 -->
+          <div v-if="!UserInfo.isRealname" class="setting-item" @click="showModal('changeRealname')">
+            <div class="setting-icon">
+              <BadgeCheckIcon style="width: 50px; height: 50px; margin-top: 25px;" />
+            </div>
+            <div class="setting-content">
+              <h3 class="setting-title">实人认证</h3>
+              <p class="setting-desc">点击这里可以实人认证哦</p>
+            </div>
+          </div>
         </div>
       </n-card>
     </div>
@@ -71,16 +82,16 @@
         
         <div class="user-profile">
           <div class="user-avatar">
-            <img :src="userInfo.avatar" style="border-radius: 64px;" alt="User Avatar" />
+            <img :src="UserInfo.avatar" style="border-radius: 64px;" alt="User Avatar" />
           </div>
           <div class="user-info">
-            <h3 class="user-greeting">Hi, {{ userInfo.nickname }} </h3> <span style="display: flex; font-size: 17px;">今天过的还好吗</span>
-            <p class="user-email">{{ userInfo.email }}</p>
+            <h3 class="user-greeting">Hi, {{ UserInfo.nickname }} </h3> <span style="display: flex; font-size: 17px;">今天过的还好吗</span>
+            <p class="user-email">{{ UserInfo.email }}</p>
           </div>
         </div>
 
         <div class="account-info-grid">
-          <UserInfo />
+          <userInfo ref="userInfoRef" />
           </div>
       </n-card>
     </div>
@@ -170,6 +181,33 @@
         </div>
       </n-form>
     </n-modal>
+
+    <!-- 实名认证模态窗口 -->
+     <n-modal v-model:show="modals.changeRealname" preset="card" title="实名认证" style="width: 500px;">
+      <n-form ref="realnameFormRef" :model="forms.realname" :rules="rules.realname">
+        <n-form-item label="姓名" path="realname">
+          <n-input v-model:value="forms.realname.realname" placeholder="请输入真实姓名" />
+        </n-form-item>
+        <n-form-item label="身份证号" path="idCard">
+          <n-input v-model:value="forms.realname.idCard" placeholder="请输入身份证号" />
+        </n-form-item>
+        <n-form-item label="手机号" path="phone">
+          <n-input v-model:value="forms.realname.phone" placeholder="请输入手机号" />
+        </n-form-item>
+        <n-form-item label="验证码" path="phoneCode">
+          <div style="display: flex; gap: 8px;">
+            <n-input v-model:value="forms.realname.phoneCode" placeholder="请输入验证码" />
+            <n-button :disabled="emailCodeSending" @click="handleSendPhoneCode">
+              {{ emailCodeButtonText }}
+            </n-button>
+          </div>
+        </n-form-item>
+        <div class="modal-actions">
+          <n-button @click="modals.changeRealname = false">取消</n-button>
+          <n-button :loading="loading" type="primary" @click="handleChangeRealname">提交认证</n-button>
+        </div>
+      </n-form>
+      </n-modal>
   </div>
 </template>
 
@@ -183,24 +221,22 @@ import {
   NInput, 
   useMessage 
 } from 'naive-ui'
-import { UserIcon, ImageUpIcon, LockIcon } from 'lucide-vue-next'
-import UserInfo from '@/components/UserInfo.vue'
+import { UserIcon, ImageUpIcon, LockIcon, BadgeCheckIcon } from 'lucide-vue-next'
+import userInfo from "@/components/UserInfo.vue";
 import { UploadFileInfo } from 'naive-ui'
 import { userApi } from '@/net'
 import { accessHandle, removeToken } from '@/net/base'
-import router from '@/router'
-
+const userInfoRef = ref<InstanceType<typeof userInfo>>();
 // 消息提示
 const message = useMessage()
-
 // 用户信息
-const userInfo = reactive({
+const UserInfo = reactive({
   username: localStorage.getItem('username') || '',
   nickname: localStorage.getItem('nickname') || '',
   email: localStorage.getItem('email') || '',
   avatar: localStorage.getItem('avatar') || '',
+  isRealname: computed(() => userInfoRef.value?.userInfo.isRealname || false),
 })
-
 // 模态窗口状态
 const modals = reactive({
   changeUsername: false,
@@ -208,17 +244,18 @@ const modals = reactive({
   changePassword: false,
   changeEmail: false,
   changeNickname: false,
+  changeRealname: false,
 })
 
 // 表单数据
 const forms = reactive({
   username: {
-    currentUsername: userInfo.username,
+    currentUsername: UserInfo.username,
     newUsername: '',
     emailCode: ''
   },
   avatar: {
-    avatarUrl: userInfo.avatar || '',
+    avatarUrl: UserInfo.avatar || '',
     avatarFile: [] as UploadFileInfo[]
   },
   password: {
@@ -233,6 +270,12 @@ const forms = reactive({
   },
   nickname: {
     newNickname: ''
+  },
+  realname: {
+    realname: '',
+    idCard: '' ,
+    phone: '',
+    phoneCode: '',
   }
 })
 
@@ -284,8 +327,19 @@ email: {
   verificationCode: [
     { required: true, message: '请输入验证码', trigger: 'blur' },
     { len: 6, message: '验证码长度应为6位', trigger: 'blur' }
+  ],
+},
+realname: {
+  realname: [
+    { required: true, message: '请输入真实姓名', trigger: 'blur' },
+    { min: 2, max: 20, message: '真实姓名长度应在2-20个字符之间', trigger: 'blur' }
+  ],
+  idCard: [
+    { required: true, message: '请输入身份证号', trigger: 'blur' },
+    { pattern: /^[1-9]\d{5}(18|19)\d{8}[\dXx]$/, message: '请输入有效的身份证号', trigger: 'blur' }
   ]
 },
+
 }
 
 // 表单引用
@@ -318,14 +372,14 @@ const handleChangeUsername = async () => {
     message.error('请输入邮箱验证码')
     return
   }
-  if (forms.username.newUsername === userInfo.username) {
+  if (forms.username.newUsername === UserInfo.username) {
     message.error('新用户名与当前用户名相同')
     return
   }
   loading.value = true
   try {
     userApi.post('/user/update/username', { newUsername: forms.username.newUsername, emailCode: forms.username.emailCode }, accessHandle(), (data) => {
-      userInfo.username = forms.username.newUsername
+      UserInfo.username = forms.username.newUsername
       message.success('用户名修改成功')
       forms.username.newUsername = ''
       forms.username.emailCode = ''
@@ -496,6 +550,73 @@ const handleChangePassword = async () => {
     loading.value = false
   }
 }
+
+
+const handleChangeRealname = async () => {
+  if (!forms.realname.realname) {
+    message.error('请输入真实姓名')
+    return
+  }
+  if (!forms.realname.idCard) {
+    message.error('请输入身份证号')
+    return 
+  }
+  loading.value = true
+  try {
+  userApi.post(
+      '/user/realname',
+      { name: forms.realname.realname, IDCard: forms.realname.idCard },
+      accessHandle(),
+      (data) => {
+        if (data.code === 0) {
+          message.success(data.message)
+          modals.changeRealname = false
+          UserInfo.isRealname = true
+        }else{
+          message.error(data.message)
+        }
+      },
+      (error) => {
+        message.error(error)
+        loading.value = false
+      },
+  )
+  } catch (error) {
+    message.error('真实姓名认证失败')
+  }
+}
+
+const handleSendPhoneCode = async () => {
+  if (!forms.realname.phone) {
+    message.error('请输入手机号码')
+    return
+  }
+  if (!/^[1][3,4,5,7,8][0-9]{9}$/.test(forms.realname.phone)) {
+    message.error('请输入有效的手机号码')
+    return
+  }
+  loading.value = true
+  try {
+    userApi.sendSmsCode(forms.realname.phone, "realname", (data) => {
+        message.success('验证码已发送')
+        emailCodeSending.value = true
+        emailCodeCountdown.value = 60
+        const timer = setInterval(() => {
+          if (emailCodeCountdown.value > 0) {
+            emailCodeCountdown.value--
+          } else {
+            clearInterval(timer)
+          }
+        }, 1000)
+    })
+  } catch (error) {
+    message.error('验证码发送失败') 
+  } finally {
+    loading.value = false
+    emailCodeSending.value = false
+  }
+}
+
 </script>
 
 <style lang="scss" scoped>

@@ -12,13 +12,15 @@ const api = axios.create({
 const defaultFailure = (messageText: string) => {
     //! TODO: only console warning, don't show message here
     window.$message?.warning(`${messageText}`);
+    window.$loadingBar?.error()
 };
 
 
-const defaultError = (err: Error) => {
+const defaultError = (err: any) => {
     //! TODO: only console error, don't show message here
     console.error(err);
-    window.$message?.error(`${err.message}`);
+    window.$message?.error(`${err.response.data.message}`);
+    window.$loadingBar?.error()
 };
 
 //! TODO: Specifies the params and return value type

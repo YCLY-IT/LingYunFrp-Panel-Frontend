@@ -103,6 +103,9 @@ import { CalendarOutline } from '@vicons/ionicons5'
 import {userApi} from "@/net";
 import {accessHandle} from "@/net/base.ts";
 import { CopyPlusIcon } from 'lucide-vue-next';
+const emit = defineEmits<{
+  (e: 'update'): void
+}>()
 const message = useMessage()
 const loading = ref(true)
 const signLoading = ref(false)
@@ -126,7 +129,9 @@ const userInfo = ref({
   status: 0,
   avatar: '',
   todaySigned: false,
-  token: ''
+  token: '',
+  remainder: 0,
+  signRemainder: 0,
 })
 
 const formatTime = (isoString: string) => {
@@ -165,6 +170,7 @@ const handleSign = async () => {
       message.success(`签到成功, 获得 ${data.data.point} 积分 和 ${data.data.traffic}GB 流量`)
       isSignAvailable.value = false
       // 刷新用户信息以更新流量显示
+      emit('update')
       fetchUserInfo()
     } else {
       message.error(data.message || '签到失败')
@@ -208,7 +214,7 @@ onMounted(async () => {
   await fetchUserInfo()
 })
 defineExpose({
-  userInfo
+  userInfo,
 })
 </script>
 

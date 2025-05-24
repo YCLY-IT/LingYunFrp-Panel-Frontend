@@ -12,8 +12,8 @@ export function sendEmailCode(email: string, module, success: Function, failure 
         //! TODO: why not just use "success" as param? failure is same
         (data) => {
             success(data);
-        }, (message, code, url) => {
-            failure(message, code, url);
+        }, (message) => {
+            failure(message);
         });
 }
 export function sendSmsCode(phone: string, module, success: Function, failure = defaultFailure) {
@@ -25,8 +25,8 @@ export function sendSmsCode(phone: string, module, success: Function, failure = 
         //! TODO: why not just use "success" as param? failure is same
         (data) => {
             success(data);
-        }, (message, code, url) => {
-           failure(message, code, url);
+        }, (message) => {
+           failure(message);
         }
     )
 }

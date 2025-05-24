@@ -105,3 +105,9 @@ export interface Product {
     isPoint: boolean
     selectedAmount: number
   }
+
+  export interface Traffic {
+    todayUsedTraffic: number
+    allUsedTraffic: number
+    allTraffic: number
+  }

@@ -49,19 +49,8 @@ const baseMenuOptions: MenuOption[] = [
   {
     label: '用户中心',
     icon: renderIcon(IdCardOutline),
-    key: 'user-section',
-    children: [
-      {
-        label: '个人中心',
-        key: 'user-profile',
-        link: '/dashboard/user/profile',
-      },
-        {
-          label: '我的资料',
-          key: 'user-my-profile',
-          link: '/dashboard/user/my-profile',
-        },
-    ],
+    key: 'profile',
+    link: '/dashboard/user/my-profile',
   },
   {
     label: '增值服务',
