@@ -55,21 +55,28 @@ const router = createRouter({
           }
         },
         {
-          path: 'proxy/create',
-          name: 'create-tunnel',
-          component: () => import('../views/Dashboard/proxies/CreateTunnel.vue'),
-          meta: {
-            title: '创建隧道',
-          }
-        },
-          {
-              path: 'proxy/list',
+          path: 'proxy',
+          name: 'tunnel-section',
+          redirect: '/dashboard/proxy/list',
+          children: [
+            {
+              path: 'create',
+              name: 'create-tunnel',
+              component: () => import('../views/Dashboard/proxies/CreateTunnel.vue'),
+              meta: {
+                title: '创建隧道',
+              }
+            },
+            {
+              path: 'list',
               name: 'proxy-list',
               component: () => import('../views/Dashboard/proxies/ManagerTunnel.vue'),
               meta: {
-                  title: '隧道列表',
-              }
-          },
+                title: '隧道列表',
+              } 
+            } 
+          ]
+        },
         {
           path: 'user/my-profile',
           name: 'profile',
@@ -101,6 +108,20 @@ const router = createRouter({
           meta: {
             title: '增值服务',
           }
+        },
+        {
+          path: 'more',
+          name: 'mores',
+          children: [
+            {
+              path: 'about',
+              name: 'about',
+              component: () => import('../views/Dashboard/more/About.vue'),
+              meta: {
+                title: '关于面板',
+              }
+            },
+          ]
         },
         {
           path: 'admin',

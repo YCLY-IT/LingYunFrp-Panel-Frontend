@@ -8,15 +8,16 @@
     <meta name="description" content="凌云FRP提供专业的内网穿透服务，支持HTTP/HTTPS/TCP/UDP等多种协议，安全稳定的隧道管理平台">
     <meta name="author" content="云创联跃IT团队">
     <title>凌云FRP</title>
-      <style>
-        body {
-          margin: 0;
-          padding: 0;
-        }
-      </style>
-    </head>
+  </head>
   <body>
     <div id="app"></div>
     <script type="module" src="./src/main.ts"></script>
+    <script>
+      // 检测是否支持ES Module
+      if (!('noModule' in document.createElement('script'))) {
+        alert('您的浏览器不支持ES Module，请升级浏览器版本或使用其他浏览器。');
+        window.location.href = 'https://www.microsoft.com/zh-cn/edge/download';
+      }
+    </script>
   </body>
 </html>

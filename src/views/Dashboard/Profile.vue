@@ -778,10 +778,6 @@ const handleSendPhoneCode = async () => {
     border-radius: 4px;
     background-color: #b392f0;
     cursor: pointer;
-    
-    &:hover {
-      background-color: darken(#b392f0, 10%);
-    }
   }
 }
 

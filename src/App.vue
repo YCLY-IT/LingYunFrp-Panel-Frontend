@@ -74,8 +74,12 @@ input, textarea, select {
 }
 </style>
 
-<style>
+<style lang="scss">
 .n-card {
-  border-radius: 10px; /* 设置全局圆角大小 */
+  border-radius: 10px;
+}
+body {
+  margin: 0;
+  padding: 0;
 }
 </style>

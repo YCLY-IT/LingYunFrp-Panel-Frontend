@@ -23,22 +23,7 @@
 
     <!-- 统计卡片 -->
     <div style="margin-top: 20px;">
-      <n-grid style="margin-top: 15px" cols="1 s:2 m:4" responsive="screen" :x-gap="15" :y-gap="20">
-        <n-gi v-for="(card, index) in cards" :key="index">
-          <n-card :title="card.title" size="small">
-            <n-flex justify="space-between">
-              <n-icon style="margin-top: 5px;" size="32">
-                <component :is="card.icon" />
-              </n-icon>
-              <n-statistic tabular-nums>
-                <template v-if="card.suffix" #suffix>
-                  {{ card.suffix }}
-                </template>
-              </n-statistic>
-            </n-flex>
-          </n-card>
-        </n-gi>
-      </n-grid>
+      <Statistic ref="statisticRef" :sign-remainder="userInfoRef?.userInfo.signRemainder" />
     </div>
 
     <!-- 内容面板 -->
@@ -65,15 +50,15 @@
 
 <script setup lang="ts">
 import { NCard, NAlert, NButton, useMessage } from 'naive-ui'
-import { ref, onMounted, computed, markRaw } from 'vue'
+import { ref, onMounted, computed, markRaw, Ref } from 'vue'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import { useRouter } from 'vue-router'
 import { userApi } from "@/net"
 import { accessHandle } from "@/net/base"
 import UserInfo from "@/components/UserInfo.vue"
-import { Traffic } from '../../types/User'
-import { ArrowDownCircleOutline, ArrowUpCircleOutline, BarChartOutline, CalendarOutline, GlobeOutline } from '@vicons/ionicons5'
+import Statistic from '@/components/Statistic.vue'
+import { Traffic } from '@/types'
 
 const router = useRouter()
 const message = useMessage()
@@ -82,13 +67,15 @@ const nickname = localStorage.getItem('nickname') || ''
 
 // 用户信息引用
 const userInfoRef = ref<{ userInfo: { isRealname: boolean; avatar: string; signRemainder: number; } } | null>(null)
-
+const statisticRef = ref<{ 
+  getUserTraffic: () => Promise<void>;
+  traffic: Ref<Traffic>;
+} | null>()
 // 是否实名认证
 const IsRealname = computed(() => userInfoRef.value?.userInfo.isRealname || false)
 
 // 一言和流量数据
 const textHitokoto = ref('')
-const traffic = ref<Traffic>({} as Traffic)
 const loading = ref(false)
 
 // 现在几点
@@ -106,42 +93,6 @@ const forTime = computed(() => {
   }
 })
 
-// 格式化流量
-const formatTraffic = (traffic: number) => {
-  if (isNaN(traffic)) return traffic
-  if (traffic >= 1024) {
-    return `${(traffic / 1024).toFixed(2)} GB`
-  }
-  return `${traffic.toFixed(2)} MB`
-}
-
-// 卡片数据
-const cards = computed(() => [
-  {
-    title: '总流量',
-    icon: markRaw(GlobeOutline),
-    precision: 2,
-    suffix: formatTraffic(traffic.value.allTraffic || 0),
-  },
-  {
-    title: '总使用',
-    icon: markRaw(ArrowDownCircleOutline),
-    precision: 2,
-    suffix: formatTraffic(traffic.value.allUsedTraffic || 0),
-  },
-  {
-    title: '今日使用',
-    icon: markRaw(BarChartOutline),
-    precision: 2,
-    suffix: formatTraffic(traffic.value.todayUsedTraffic || 0),
-  },
-  {
-    title: '签到次数',
-    icon: markRaw(CalendarOutline),
-    precision: 2,
-    suffix: userInfoRef.value?.userInfo.signRemainder,
-  }
-])
 
 // 配置 marked
 marked.setOptions({
@@ -152,6 +103,11 @@ marked.setOptions({
 // 前往实名认证
 const goToRealname = () => {
   router.push('/dashboard/profile')
+}
+
+const handleUserUpdate = () => {
+  // 当用户信息更新时调用子组件方法
+  statisticRef.value?.getUserTraffic()
 }
 
 // 渲染通知
@@ -165,9 +121,6 @@ const renderedNotice = computed(() => {
   }
 })
 
-const handleUserUpdate = () => {
-  getUserTraffic()
-}
 
 // 获取通知
 const fetchNotice = async (): Promise<void> => {
@@ -191,20 +144,10 @@ const getHitokoto = async (): Promise<void> => {
   })
 }
 
-// 获取用户流量
-const getUserTraffic = async (): Promise<void> => {
-  userApi.get('/user/info/traffic', accessHandle(), (data) => {
-    traffic.value = data.data
-  }, (messageText) => {
-    message.error('获取用户流量失败:' + messageText)
-  })
-}
-
 // 页面挂载后执行
 onMounted(() => {
   fetchNotice()
   getHitokoto()
-  getUserTraffic()
 })
 </script>
 

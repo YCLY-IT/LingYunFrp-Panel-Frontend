@@ -14,9 +14,9 @@
                 LingYunFRP 是一个专注于内网穿透的高性能的反向代理应用，支持 TCP、UDP、HTTP、HTTPS 多种协议，让您轻松实现内网服务的外网访问。
               </p>
               <div class="hero-actions">
-                <n-space>
-                  <n-button type="primary" size="large" @click="handleLogin">立即登录</n-button>
-                  <n-button size="large" @click="scrollToFeatures">了解更多</n-button>
+                <n-space :vertical="isMobile" :size="isMobile ? 12 : 16">
+                  <n-button type="primary" :size="isMobile ? 'medium' : 'large'" block @click="handleLogin">立即登录</n-button>
+                  <n-button :size="isMobile ? 'medium' : 'large'" block @click="scrollToFeatures">了解更多</n-button>
                 </n-space>
               </div>
             </div>
@@ -36,11 +36,11 @@
               我们提供简单易用、安全可靠的内网穿透服务，满足您的各种需求
             </p>
           </div>
-          <n-grid cols="3" responsive="screen" :x-gap="24" :y-gap="24">
+          <n-grid :cols="gridCols" responsive="screen" :x-gap="isMobile ? 16 : 24" :y-gap="isMobile ? 16 : 24">
             <n-grid-item v-for="feature in features" :key="feature.title">
               <n-card class="feature-card">
                 <div class="feature-icon">
-                  <n-icon size="36" :depth="3">
+                  <n-icon :size="isMobile ? 28 : 36" :depth="3">
                     <component :is="feature.icon" />
                   </n-icon>
                 </div>
@@ -84,7 +84,7 @@
               选择最适合您需求的方案，开始使用我们的服务
             </p>
           </div>
-          <n-grid cols="3" responsive="screen" :x-gap="24">
+          <n-grid :cols="pricingCols" responsive="screen" :x-gap="isMobile ? 16 : 24" :y-gap="isMobile ? 16 : 24">
             <n-grid-item v-for="plan in pricingPlans" :key="plan.title">
               <n-card class="pricing-card" :bordered="false" :class="{ 'pricing-card-highlighted': plan.highlighted }">
                 <div class="pricing-header">
@@ -144,7 +144,7 @@
               </p>
             </div>
             <div class="contact-action">
-              <n-button type="primary" @click="handleLogin" size="large">立即登录</n-button>
+              <n-button type="primary" @click="handleLogin" :size="isMobile ? 'medium' : 'large'" :block="isMobile">立即登录</n-button>
             </div>
           </div>
         </div>
@@ -155,7 +155,7 @@
         <div class="container">
           <div class="footer-content">
             <div class="footer-logo">
-              <n-gradient-text type="primary" :size="24">LingYunFRP</n-gradient-text>
+              <n-gradient-text type="primary" :size="isMobile ? 20 : 24">LingYunFRP</n-gradient-text>
               <p class="footer-description">
                 专业的内网穿透服务提供商
               </p>
@@ -170,10 +170,10 @@
             </div>
             <div class="footer-social">
               <a href="https://github.com/LingYuByte-Network/" class="social-link">
-                <n-icon :size="25"><GithubIcon /></n-icon>
+                <n-icon :size="isMobile ? 20 : 25"><GithubIcon /></n-icon>
               </a>
               <a href="https://www.lybyte.cn/" class="social-link">
-                <n-icon :size="25"><BoxIcon /></n-icon>
+                <n-icon :size="isMobile ? 20 : 25"><BoxIcon /></n-icon>
               </a>
             </div>
           </div>
@@ -184,6 +184,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import {
   ZapIcon,
   ShieldIcon,
@@ -197,8 +198,36 @@ import {
 } from 'lucide-vue-next'
 import router from "@/router";
 
-// 主题设置
+// 响应式断点检测
+const windowWidth = ref(window.innerWidth)
 
+const isMobile = computed(() => windowWidth.value < 768)
+const isTablet = computed(() => windowWidth.value >= 768 && windowWidth.value < 1024)
+
+// 网格列数响应式配置
+const gridCols = computed(() => {
+  if (isMobile.value) return 1
+  if (isTablet.value) return 2
+  return 3
+})
+
+const pricingCols = computed(() => {
+  if (isMobile.value) return 1
+  return 3
+})
+
+// 窗口大小监听
+const handleResize = () => {
+  windowWidth.value = window.innerWidth
+}
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+})
 
 // 特性数据
 const features = [
@@ -215,7 +244,7 @@ const features = [
   {
     icon: SettingsIcon,
     title: '简单易用',
-    description: '提供简洁的 Web 管理界面，轻松配置和管理您的内网穿透服务。'
+    description: '提供简洁的界面，轻松配置和管理您的内网穿透服务。'
   },
   {
     icon: MonitorIcon,
@@ -249,7 +278,7 @@ const useCases = [
   {
     type: 'warning',
     title: '智能家居',
-    description: '通过 LingYunFRP 服务，您可以在外出时远程控制和监控家中的智能设备，提升生活便利性。',
+    description: '通过 LingYunFRP 服务，您可以在外网时远程控制和监控家中的智能设备，提升生活便利性。',
   },
   {
     type: 'error',
@@ -324,6 +353,7 @@ const faqItems = [
 const handleLogin = () => {
   router.push('/login')
 }
+
 const scrollToFeatures = () => {
   const featuresSection = document.getElementById('features-section');
   if (featuresSection) {
@@ -332,448 +362,421 @@ const scrollToFeatures = () => {
 }
 </script>
 
-<style scoped>
-.dark-mode {
-  --n-color-modal: #1a1a1a;
-  --n-text-color: rgba(255, 255, 255, 0.9);
-}
-
+<style lang="scss" scoped>
 .landing-page {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   color: var(--n-text-color);
   background-color: var(--n-color);
-}
 
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-
-/* 英雄区域样式 */
-.hero {
-  padding: 130px 0;
-  background-image: url('https://dailybing.com/api/v1');
-}
-
-.hero-content {
-  display: flex;
-  align-items: center;
-  gap: 40px;
-}
-
-.hero-text {
-  flex: 1;
-}
-
-.hero-title {
-  font-size: 48px;
-  font-weight: 800;
-  line-height: 1.2;
-  margin-bottom: 24px;
-  color: var(--n-text-color);
-}
-
-.hero-description {
-  font-size: 18px;
-  line-height: 1.6;
-  margin-bottom: 32px;
-  color: var(--n-text-color-3);
-}
-
-.hero-actions {
-  margin-top: 32px;
-}
-
-.hero-image {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-}
-
-.hero-image img {
-  max-width: 100%;
-  height: auto;
-  border-radius: 8px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-}
-
-/* 特性区域样式 */
-.features {
-  padding: 80px 0;
-  background-color: var(--n-color-modal);
-}
-
-.section-header {
-  text-align: center;
-  margin-bottom: 60px;
-}
-
-.section-title {
-  font-size: 36px;
-  font-weight: 700;
-  margin-bottom: 16px;
-  color: var(--n-text-color);
-}
-
-.section-description {
-  font-size: 18px;
-  color: var(--n-text-color-3);
-  max-width: 700px;
-  margin: 0 auto;
-}
-
-.feature-card {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 32px 24px;
-  transition: transform 0.3s ease;
-}
-
-.feature-card:hover {
-  transform: translateY(-5px);
-}
-
-.feature-icon {
-  margin-bottom: 24px;
-  color: var(--n-primary-color);
-}
-
-.feature-title {
-  font-size: 20px;
-  font-weight: 600;
-  margin-bottom: 16px;
-  color: var(--n-text-color);
-}
-
-.feature-description {
-  color: var(--n-text-color-3);
-  line-height: 1.6;
-}
-
-/* 使用场景样式 */
-.use-cases {
-  padding: 80px 0;
-}
-
-.use-case-content {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
-
-.use-case-text {
-  flex: 1;
-}
-
-.use-case-image {
-  flex-shrink: 0;
-}
-
-.use-case-image img {
-  border-radius: 8px;
-  max-width: 100%;
-  height: auto;
-}
-
-/* 价格方案样式 */
-.pricing {
-  padding: 80px 0;
-  background-color: var(--n-color-modal);
-}
-
-.pricing-card {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.3s ease;
-}
-
-.pricing-card-highlighted {
-  transform: scale(1.05);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  border: 2px solid var(--n-primary-color);
-}
-
-.pricing-card:hover:not(.pricing-card-highlighted) {
-  transform: translateY(-5px);
-}
-
-.pricing-header {
-  text-align: center;
-  padding-bottom: 24px;
-}
-
-.pricing-title {
-  font-size: 24px;
-  font-weight: 600;
-  margin-bottom: 16px;
-  color: var(--n-text-color);
-}
-
-.pricing-price {
-  font-size: 48px;
-  font-weight: 700;
-  color: var(--n-text-color);
-  margin-bottom: 16px;
-}
-
-.price-currency {
-  font-size: 24px;
-  vertical-align: super;
-}
-
-.price-period {
-  font-size: 16px;
-  color: var(--n-text-color-3);
-}
-
-.pricing-description {
-  color: var(--n-text-color-3);
-}
-
-.pricing-features {
-  list-style: none;
-  padding: 0;
-  margin: 24px 0;
-  flex-grow: 1;
-}
-
-.pricing-features li {
-  display: flex;
-  align-items: center;
-  margin-bottom: 12px;
-  color: var(--n-text-color-2);
-}
-
-.feature-check {
-  margin-right: 8px;
-  flex-shrink: 0;
-}
-
-.pricing-action {
-  margin-top: auto;
-}
-
-/* FAQ 样式 */
-.faq {
-  padding: 80px 0;
-}
-
-/* 联系我们样式 */
-.contact {
-  padding: 80px 0;
-  background-color: var(--n-color-modal);
-}
-
-.contact-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 40px;
-}
-
-.contact-text {
-  flex: 1;
-}
-
-/* 页脚样式 */
-.footer {
-  padding: 60px 0 30px;
-  background-color: var(--n-color);
-  border-top: 1px solid var(--n-border-color);
-}
-
-.footer-content {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 40px;
-}
-
-.footer-logo {
-  max-width: 300px;
-}
-
-.footer-description {
-  margin-top: 16px;
-  color: var(--n-text-color-3);
-}
-
-.footer-links {
-  display: flex;
-  gap: 60px;
-}
-
-.footer-links-title {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 16px;
-  color: var(--n-text-color);
-}
-
-.footer-links-group ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.footer-links-group ul li {
-  margin-bottom: 8px;
-}
-
-.footer-links-group ul li a {
-  color: var(--n-text-color-3);
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-.footer-links-group ul li a:hover {
-  color: var(--n-primary-color);
-}
-
-.footer-bottom {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 30px;
-  border-top: 1px solid var(--n-border-color);
-}
-
-.copyright {
-  color: var(--n-text-color-3);
-}
-
-.footer-social {
-  display: flex;
-  gap: 16px;
-}
-
-.social-link {
-  color: var(--n-text-color-3);
-  transition: color 0.2s ease;
-}
-
-.social-link:hover {
-  color: var(--n-primary-color);
-}
-
-/* 响应式调整 */
-@media (max-width: 768px) {
-  .hero-content,
-  .contact-content,
-  .footer-content {
-    flex-direction: column;
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
   }
 
-  .hero-image {
-    margin-top: 40px;
+  // 英雄区域样式
+  .hero {
+    padding: 80px 0;
+    background-image: url('<url id="d0ot4rro7or9en506dig" type="url" status="failed" title="" wc="0">https://dailybing.com/api/v1</url>');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+
+    .hero-content {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+
+      .hero-text {
+        flex: 1;
+
+        .hero-title {
+          font-size: clamp(28px, 5vw, 48px);
+          font-weight: 800;
+          line-height: 1.2;
+          margin-bottom: 24px;
+          color: var(--n-text-color);
+        }
+
+        .hero-description {
+          font-size: clamp(16px, 2.5vw, 18px);
+          line-height: 1.6;
+          margin-bottom: 32px;
+          color: var(--n-text-color-3);
+        }
+
+        .hero-actions {
+          margin-top: 32px;
+        }
+      }
+
+      .hero-image {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+
+        img {
+          max-width: 100%;
+          height: auto;
+          border-radius: 8px;
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+      }
+    }
   }
 
-  .footer-links {
-    flex-direction: column;
-    gap: 30px;
-    margin-top: 40px;
+  // 特性区域样式
+  .features {
+    padding: 60px 0;
+    background-color: var(--n-color-modal);
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 40px;
+
+      .section-title {
+        font-size: clamp(24px, 4vw, 36px);
+        font-weight: 700;
+        margin-bottom: 16px;
+        color: var(--n-text-color);
+      }
+
+      .section-description {
+        font-size: clamp(14px, 2vw, 18px);
+        color: var(--n-text-color-3);
+        max-width: 700px;
+        margin: 0 auto;
+        line-height: 1.6;
+      }
+    }
+
+    .feature-card {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 24px 16px;
+      transition: transform 0.3s ease;
+
+      &:hover {
+        transform: translateY(-5px);
+      }
+
+      .feature-icon {
+        margin-bottom: 20px;
+        color: var(--n-primary-color);
+      }
+
+      .feature-title {
+        font-size: clamp(16px, 2.5vw, 20px);
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: var(--n-text-color);
+      }
+
+      .feature-description {
+        color: var(--n-text-color-3);
+        line-height: 1.6;
+        font-size: clamp(13px, 2vw, 15px);
+      }
+    }
   }
 
-  .use-case-content {
-    flex-direction: column;
+  // 使用场景样式
+  .use-cases {
+    padding: 60px 0;
+
+    .use-case-content {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+
+      .use-case-text {
+        flex: 1;
+      }
+    }
   }
 
-  .hero-title {
-    font-size: 36px;
+  // 价格方案样式
+  .pricing {
+    padding: 60px 0;
+    background-color: var(--n-color-modal);
+
+    .pricing-card {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s ease;
+      margin-bottom: 20px;
+
+      &.pricing-card-highlighted {
+        transform: scale(1.02);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border: 2px solid var(--n-primary-color);
+      }
+
+      &:hover:not(.pricing-card-highlighted) {
+        transform: translateY(-5px);
+      }
+
+      .pricing-header {
+        text-align: center;
+        padding-bottom: 24px;
+
+        .pricing-title {
+          font-size: clamp(18px, 3vw, 24px);
+          font-weight: 600;
+          margin-bottom: 16px;
+          color: var(--n-text-color);
+        }
+
+        .pricing-price {
+          font-size: clamp(32px, 6vw, 48px);
+          font-weight: 700;
+          color: var(--n-text-color);
+          margin-bottom: 16px;
+
+          .price-currency {
+            font-size: clamp(18px, 3vw, 24px);
+            vertical-align: super;
+          }
+
+          .price-period {
+            font-size: clamp(12px, 2vw, 16px);
+            color: var(--n-text-color-3);
+          }
+        }
+
+        .pricing-description {
+          color: var(--n-text-color-3);
+          font-size: clamp(13px, 2vw, 15px);
+        }
+      }
+
+      .pricing-features {
+        list-style: none;
+        padding: 0;
+        margin: 24px 0;
+        flex-grow: 1;
+
+        li {
+          display: flex;
+          align-items: center;
+          margin-bottom: 12px;
+          color: var(--n-text-color-2);
+          font-size: clamp(13px, 2vw, 15px);
+
+          .feature-check {
+            margin-right: 8px;
+            flex-shrink: 0;
+          }
+        }
+      }
+
+      .pricing-action {
+        margin-top: auto;
+      }
+    }
   }
 
-  .section-title {
-    font-size: 30px;
+  // FAQ 样式
+  .faq {
+    padding: 60px 0;
   }
-  /* 基础样式 */
+
+  // 联系我们样式
+  .contact {
+    padding: 60px 0;
+    background-color: var(--n-color-modal);
+
+    .contact-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 40px;
+
+      .contact-text {
+        flex: 1;
+      }
+    }
+  }
+
+  // 页脚样式
+  .footer {
+    padding: 40px 0 20px;
+    background-color: var(--n-color);
+    border-top: 1px solid var(--n-border-color);
+
+    .footer-content {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 30px;
+
+      .footer-logo {
+        max-width: 300px;
+
+        .footer-description {
+          margin-top: 16px;
+          color: var(--n-text-color-3);
+          font-size: clamp(13px, 2vw, 15px);
+        }
+      }
+    }
+
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 20px;
+      border-top: 1px solid var(--n-border-color);
+      flex-wrap: wrap;
+      gap: 16px;
+
+      .footer-copyright {
+        color: var(--n-text-color-3);
+        font-size: clamp(12px, 2vw, 14px);
+        line-height: 1.5;
+      }
+
+      .footer-social {
+        display: flex;
+        gap: 16px;
+
+        .social-link {
+          color: var(--n-text-color-3);
+          transition: color 0.2s ease;
+          text-decoration: none;
+
+          &:hover {
+            color: var(--n-primary-color);
+          }
+        }
+      }
+    }
+  }
+
+  // 响应式样式
+  @media (max-width: 767px) {
+    .container {
+      padding: 0 16px;
+    }
+
+    .hero {
+      padding: 60px 0;
+      background-attachment: scroll;
+
+      .hero-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 30px;
+
+        .hero-image {
+          order: -1;
+          margin-bottom: 20px;
+
+          img {
+            max-width: 200px;
+          }
+        }
+      }
+    }
+
+    .features,
+    .use-cases,
+    .pricing,
+    .faq,
+    .contact {
+      padding: 40px 0;
+    }
+
+    .section-header {
+      margin-bottom: 30px;
+    }
+
+    .feature-card {
+      padding: 20px 16px;
+    }
+
+    .contact-content {
+      flex-direction: column;
+      text-align: center;
+      gap: 24px;
+    }
+
+    .footer-content {
+      flex-direction: column;
+      gap: 20px;
+      text-align: center;
+    }
+
+    .footer-bottom {
+      flex-direction: column;
+      text-align: center;
+      gap: 12px;
+    }
+
+    .pricing-card-highlighted {
+      transform: none;
+    }
+  }
+
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .hero-title {
+      font-size: 40px;
+    }
+
+    .section-title {
+      font-size: 32px;
+    }
+
+    .hero-content {
+      gap: 30px;
+    }
+
+    .features,
+    .use-cases,
+    .pricing,
+    .faq,
+    .contact {
+      padding: 50px 0;
+    }
+  }
+
+  // 链接样式
   a {
-    /* 去除下划线 */
     text-decoration: none;
-    /* 设置颜色 */
     color: #3498db;
-    /* 添加过渡效果，使变化更平滑 */
     transition: all 0.3s ease;
-  }
-
-  /* 鼠标悬停时的样式 */
-  a:hover {
-    /* 颜色变深 */
-    color: #2980b9;
-    /* 添加文字阴影 */
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-  }
-
-  /* 鼠标按下时的样式 */
-  a:active {
-    /* 颜色变化 */
-    color: #1c6ea4;
-  }
-
-  /* 访问过后的样式 */
-  a:visited {
-    /* 设置访问过后颜色 */
-    color: #9b59b6;
-  }
-
-  /* 为超链接添加底部边框动画效果 */
-  a {
     position: relative;
-  }
-  a::after {
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 2px;
-    bottom: -2px;
-    left: 0;
-    background-color: #3498db;
-    transition: width 0.3s ease;
-  }
-  a:hover::after {
-    width: 100%;
-  }
 
-  /* 为超链接添加背景渐变色效果 */
-  .bg-gradient {
-    background: linear-gradient(to right, #3498db, #9b59b6);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
+    &:hover {
+      color: #2980b9;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    }
 
-  /* 为超链接添加按钮样式 */
-  .button-style {
-    display: inline-block;
-    padding: 8px 16px;
-    background-color: #3498db;
-    color: white !important;
-    border-radius: 4px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  }
-  .button-style:hover {
-    background-color: #2980b9;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  }
+    &:active {
+      color: #1c6ea4;
+    }
 
-  /* 为超链接添加圆形样式 */
-  .circle-style {
-    display: inline-block;
-    width: 40px;
-    height: 40px;
-    line-height: 40px;
-    text-align: center;
-    border-radius: 50%;
-    background-color: #3498db;
-    color: white !important;
-  }
-  .circle-style:hover {
-    background-color: #2980b9;
-    transform: scale(1.1);
+    &:visited {
+      color: #9b59b6;
+    }
+
+    &:after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 2px;
+      bottom: -2px;
+      left: 0;
+      background-color: #3498db;
+      transition: width 0.3s ease;
+    }
+
+    &:hover::after {
+      width: 100%;
+    }
   }
 }
 </style>

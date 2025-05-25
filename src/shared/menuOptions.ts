@@ -1,5 +1,19 @@
 import { h, Component, ref } from 'vue'
-import { HomeOutline, AddCircleOutline, AppsOutline, DownloadOutline, IdCardOutline, StatsChartOutline, PeopleOutline, CloudyOutline, ConstructOutline, WalletOutline, BuildOutline, SettingsOutline, ListOutline } from '@vicons/ionicons5'
+import { HomeOutline, 
+  AddCircleOutline, 
+  AppsOutline, 
+  DownloadOutline, 
+  IdCardOutline, 
+  StatsChartOutline, 
+  PeopleOutline,
+  CloudyOutline, 
+  ConstructOutline, 
+  WalletOutline, 
+  BuildOutline, 
+  SettingsOutline, 
+  ListOutline, 
+  CubeOutline
+} from '@vicons/ionicons5'
 import { NIcon, type MenuOption } from 'naive-ui'
 
 const baseMenuOptions: MenuOption[] = [
@@ -58,6 +72,19 @@ const baseMenuOptions: MenuOption[] = [
     icon: renderIcon(WalletOutline),
     link: '/dashboard/cash',
   },
+  {
+    label: '更多',
+    key: 'mores',
+    icon: renderIcon(ListOutline),
+    children: [
+      {
+        label: '关于面板',
+        key: 'about',
+        icon: renderIcon(CubeOutline),
+        link: '/dashboard/more/about',
+      },
+    ]
+  }
 ]
 
 const adminMenuOptions: MenuOption = {

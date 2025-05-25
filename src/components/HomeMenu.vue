@@ -58,12 +58,8 @@ import { NLayoutHeader, NButton, NSpace, NSwitch, NIcon, NPopover, NMenu, MenuOp
 import { MenuOutline, Moon, Sunny } from '@vicons/ionicons5'
 import {
   HomeOutline,
-  DocumentTextOutline,
   LogInOutline,
-  PersonAddOutline,
-  InformationCircleOutline,
-  ShieldCheckmarkOutline,
-  DocumentLockOutline
+  PersonAddOutline
 } from '@vicons/ionicons5'
 import { switchButtonRailStyle } from '../constants/theme'
 
@@ -88,15 +84,6 @@ const menuOptions: MenuOption[] = [
     icon: renderIcon(HomeOutline)
   },
   {
-    label: '文档',
-    key: 'docs',
-    icon: renderIcon(DocumentTextOutline)
-  },
-  {
-    type: 'divider',
-    key: 'd1'
-  },
-  {
     label: '登录',
     key: 'login',
     icon: renderIcon(LogInOutline)
@@ -110,21 +97,6 @@ const menuOptions: MenuOption[] = [
     type: 'divider',
     key: 'd2'
   },
-  {
-    label: '隐私政策',
-    key: 'privacy',
-    icon: renderIcon(ShieldCheckmarkOutline)
-  },
-  {
-    label: '内容策略',
-    key: 'content',
-    icon: renderIcon(DocumentLockOutline)
-  },
-  {
-    label: '服务条款',
-    key: 'terms',
-    icon: renderIcon(InformationCircleOutline)
-  },
 ]
 
 function handleMenuSelect(key: string) {
@@ -132,26 +104,11 @@ function handleMenuSelect(key: string) {
     case 'home':
       router.push('/')
       break
-    case 'docs':
-      router.push('/docs')
-      break
     case 'login':
       router.push('/auth/login')
       break
     case 'register':
       router.push('/auth/register')
-      break
-    case 'privacy':
-      router.push('/privacy')
-      break
-    case 'content':
-      router.push('/content')
-      break
-    case 'terms':
-      router.push('/terms')
-      break
-    case 'contact':
-      router.push('/contact')
       break
   }
 }

@@ -1,6 +1,7 @@
 {
   "name": "lingyunfrp-panel-frontend",
   "version": "0.1.0",
+  "lastUpdated": "2025-5-25 12:00:00",
   "private": true,
   "type": "module",
   "scripts": {
@@ -16,7 +17,7 @@
     "dompurify": "^3.2.4",
     "highlight.js": "^11.11.1",
     "js-sha256": "^0.11.0",
-    "lucide-vue-next": "^0.501.0",
+    "lucide-vue-next": "0.511.0",
     "marked": "^15.0.7",
     "moment": "^2.30.1",
     "pinia": "^3.0.1",
