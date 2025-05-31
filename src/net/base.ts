@@ -19,7 +19,7 @@ const defaultFailure = (messageText: string) => {
 const defaultError = (err: any) => {
     //! TODO: only console error, don't show message here
     console.error(err);
-    window.$message?.error(`${err.response.data.message}`);
+    window.$message?.error(`${err.response.data.message}` || '请求失败');
     window.$loadingBar?.error()
 };
 

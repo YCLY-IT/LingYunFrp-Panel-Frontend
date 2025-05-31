@@ -4,7 +4,7 @@
     <div class="navbar-content">
       <div class="logo">
         <RouterLink to="/" class="logo-link">
-          <h2 style="background: transparent; -webkit-background-clip: text; color: transparent; background-image: linear-gradient(-225deg, #7DE2FC 0%, #B9B6E5 100%);">LingYunFRP</h2>
+          <h2 style="background: transparent; -webkit-background-clip: text; color: transparent; background-image: linear-gradient(-225deg, #7DE2FC 0%, #B9B6E5 100%);">{{ packageData.title }}</h2>
         </RouterLink>
       </div>
 
@@ -44,7 +44,7 @@
       </NPopover>
       <div class="logo">
         <RouterLink to="/" class="logo-link">
-          <h2 style="background: transparent; -webkit-background-clip: text; color: transparent; background-image: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);">LingYunFRP</h2>
+          <h2 style="background: transparent; -webkit-background-clip: text; color: transparent; background-image: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);">{{ packageData.title }}</h2>
         </RouterLink>
       </div>
     </div>
@@ -52,6 +52,7 @@
 </template>
 
 <script setup lang="ts">
+import packageData from '../../package.json'
 import { h, inject, Ref, ref } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import { NLayoutHeader, NButton, NSpace, NSwitch, NIcon, NPopover, NMenu, MenuOption } from 'naive-ui'

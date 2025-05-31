@@ -177,14 +177,14 @@
                     <n-icon size="24" color="#f0a020"><Globe /></n-icon>
                   </template>
                   <template #header>官方网站</template>
-                  <template #description>https://www.lybyte.cn</template>
+                  <template #description>{{ packageData.ycly }}</template>
                 </n-thing>
                 <n-thing style="margin-top: 16px;">
                   <template #avatar>
                     <n-icon size="24" color="#2080f0"><Github /></n-icon>
                   </template>
                   <template #header>GitHub</template>
-                  <template #description>https://github.com/LingYuByte-Network</template>
+                  <template #description>{{ packageData.github }}</template>
                 </n-thing>
               </n-space>
             </n-grid-item>
@@ -329,7 +329,7 @@ const viewLicense = () => {
 
 const downloadSource = () => {
   message.success('正在打开...')
-  window.open('https://github.com/LingYuByte-Network/LingYunFrp-Panel-Frontend')
+  window.open(packageData.github + '/LingYunFrp-Panel-Frontend')
 }
 </script>
 

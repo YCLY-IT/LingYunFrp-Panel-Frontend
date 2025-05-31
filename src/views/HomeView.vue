@@ -11,7 +11,7 @@
                 快速可靠的内网穿透解决方案
               </h1>
               <p class="hero-description">
-                LingYunFRP 是一个专注于内网穿透的高性能的反向代理应用，支持 TCP、UDP、HTTP、HTTPS 多种协议，让您轻松实现内网服务的外网访问。
+                {{ packageData.title }} 是一个专注于内网穿透的高性能的反向代理应用，支持 TCP、UDP、HTTP、HTTPS 多种协议，让您轻松实现内网服务的外网访问。
               </p>
               <div class="hero-actions">
                 <n-space :vertical="isMobile" :size="isMobile ? 12 : 16">
@@ -21,7 +21,7 @@
               </div>
             </div>
             <div class="hero-image">
-              <img src="/favicon.ico" alt="LingYunFRP 示意图" />
+              <img src="/favicon.ico" alt="示意图" />
             </div>
           </div>
         </div>
@@ -58,7 +58,7 @@
           <div class="section-header">
             <h2 class="section-title">适用场景</h2>
             <p class="section-description">
-              LingYunFRP 可以应用于多种场景，满足您的不同需求
+              {{ packageData.title }} 可以应用于多种场景，满足您的不同需求
             </p>
           </div>
           <n-timeline>
@@ -140,7 +140,7 @@
             <div class="contact-text">
               <h2 class="section-title">准备好开始了吗？</h2>
               <p class="section-description">
-                立即注册，开始使用我们的 LingYunFRP 服务，享受高速稳定的内网穿透体验。
+                立即注册，开始使用我们的 {{ packageData.title }} 服务，享受高速稳定的内网穿透体验。
               </p>
             </div>
             <div class="contact-action">
@@ -155,7 +155,7 @@
         <div class="container">
           <div class="footer-content">
             <div class="footer-logo">
-              <n-gradient-text type="primary" :size="isMobile ? 20 : 24">LingYunFRP</n-gradient-text>
+              <n-gradient-text type="primary" :size="isMobile ? 20 : 24">{{ packageData.title }}</n-gradient-text>
               <p class="footer-description">
                 专业的内网穿透服务提供商
               </p>
@@ -165,14 +165,14 @@
           </div>
           <div class="footer-bottom">
             <div class="footer-copyright">
-              © {{ new Date().getFullYear() }} LingYunFRP 服务. 保留所有权利.<br />
-              Powered By  <a class="section-description" href="https://www.lybyte.cn/" target="_blank">LingYuByte Network</a>
+              © {{ new Date().getFullYear() }} {{ packageData.title }} 服务. 保留所有权利.<br />
+              Powered By  <a class="section-description" :href="packageData.ycly" target="_blank">云创联跃IT</a>
             </div>
             <div class="footer-social">
-              <a href="https://github.com/LingYuByte-Network/" class="social-link">
+              <a :href="packageData.github" class="social-link">
                 <n-icon :size="isMobile ? 20 : 25"><GithubIcon /></n-icon>
               </a>
-              <a href="https://www.lybyte.cn/" class="social-link">
+              <a :href="packageData.ycly" class="social-link">
                 <n-icon :size="isMobile ? 20 : 25"><BoxIcon /></n-icon>
               </a>
             </div>
@@ -184,6 +184,7 @@
 </template>
 
 <script setup lang="ts">
+import packageData from '../../package.json'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import {
   ZapIcon,
@@ -268,7 +269,7 @@ const useCases = [
   {
     type: 'success',
     title: '远程办公',
-    description: '通过 LingYunFRP 服务，您可以在任何地方安全地访问公司内网资源，实现远程办公和协作。',
+    description: `通过 ${packageData.title} 服务，您可以在任何地方安全地访问公司内网资源，实现远程办公和协作。`,
   },
   {
     type: 'info',
@@ -278,12 +279,12 @@ const useCases = [
   {
     type: 'warning',
     title: '智能家居',
-    description: '通过 LingYunFRP 服务，您可以在外网时远程控制和监控家中的智能设备，提升生活便利性。',
+    description: `通过 ${packageData.title} 服务，您可以在外网时远程控制和监控家中的智能设备，提升生活便利性。`,
   },
   {
     type: 'error',
     title: '游戏联机',
-    description: '使用 LingYunFRP 服务，您可以轻松搭建游戏服务器，与朋友一起享受游戏乐趣。',
+    description: `使用 ${packageData.title} 服务，您可以轻松搭建游戏服务器，与朋友一起享受游戏乐趣。`,
   }
 ]
 
@@ -333,16 +334,16 @@ const faqItems = [
     answer: 'FRP（Fast Reverse Proxy）是一个可用于内网穿透的高性能的反向代理应用，支持 TCP、UDP、HTTP、HTTPS 等多种协议。通过在具有公网 IP 的节点上部署 frps 服务端，可以轻松地将内网服务穿透到公网，使得外网用户可以访问内网资源。'
   },
   {
-    question: '如何开始使用 LingYunFRP 服务？',
+    question: `如何开始使用 ${packageData.title} 服务？`,
     answer: '注册账号后，您可以在控制面板中创建隧道，选择协议类型和端口，然后下载客户端配置文件，按照指引在您的设备上运行客户端即可完成配置。'
   },
   {
-    question: 'LingYunFRP 服务支持哪些操作系统？',
-    answer: 'LingYunFRP 客户端支持 Windows、Linux、macOS 等主流操作系统，您可以根据自己的需求选择合适的版本。'
+    question: `${packageData.title} 服务支持哪些操作系统？`,
+    answer: `${packageData.title} 客户端支持 Windows、Linux、macOS 等主流操作系统，您可以根据自己的需求选择合适的版本。`
   },
   {
-    question: '使用 LingYunFRP 服务是否安全？',
-    answer: '我们的 LingYunFRP 服务支持 TLS 加密传输，可以有效保护您的数据安全。同时，我们还提供了多种安全配置选项，如认证、访问控制等，进一步增强服务的安全性。'
+    question: `使用 ${packageData.title} 服务是否安全？`,
+    answer: `我们的 ${packageData.title}服务支持 TLS 加密传输，可以有效保护您的数据安全。同时，我们还提供了多种安全配置选项，如认证、访问控制等，进一步增强服务的安全性。`
   },
   {
     question: '如何获取技术支持？',
@@ -376,8 +377,8 @@ const scrollToFeatures = () => {
 
   // 英雄区域样式
   .hero {
-    padding: 80px 0;
-    background-image: url('<url id="d0ot4rro7or9en506dig" type="url" status="failed" title="" wc="0">https://dailybing.com/api/v1</url>');
+    padding: 125px 0;
+    background-image: url('https://dailybing.com/api/v1');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;

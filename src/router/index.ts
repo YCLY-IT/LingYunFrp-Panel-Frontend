@@ -1,6 +1,7 @@
 import {createRouter, createWebHistory} from 'vue-router'
 import { unauthorized} from "@/net/base.js";
 import { Window } from '@/types'
+import packageData from '../../package.json'
 
 // 声明window类型
 declare const window: Window
@@ -206,8 +207,8 @@ router.beforeEach((to, _from, next) => {
 router.beforeEach((to, _from, next) => {
   // 设置文档标题
   document.title = to.meta.title ?
-      `${to.meta.title} - 凌云FRP` : // 自定义标题格式
-      '凌云FRP' // 默认标题
+      `${to.meta.title} - ${packageData.title2}` : // 自定义标题格式
+      `${packageData.title2}` // 默认标题
   next()
 })
 

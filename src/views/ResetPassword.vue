@@ -11,9 +11,6 @@
         <hr>
       </div>
       <NForm ref="formRef" :model="formValue" :rules="rules">
-        <NFormItem path="username" label="用户名">
-          <NInput v-model:value="formValue.username" placeholder="请输入用户名" />
-        </NFormItem>
         <NFormItem path="email" label="邮箱">
           <NInputGroup>
             <NInput v-model:value="formValue.email" placeholder="请输入邮箱" :disabled="emailCodeCountdown > 0"/>
@@ -91,11 +88,6 @@ const emailCodeButtonText = computed(() => {
 })
 
 const rules: FormRules = {
-  username: {
-    required: true,
-    message: '请输入用户名',
-    trigger: 'blur'
-  },
   email: {
     required: true,
     message: '请输入邮箱',

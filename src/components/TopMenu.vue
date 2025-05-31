@@ -19,7 +19,7 @@
         </NPopover>
         <h2 class="logo" style="background: transparent; 
         -webkit-background-clip: text; color: transparent; 
-        background-image: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);">LingYunFRP</h2>
+        background-image: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);">{{ packageData.title }}</h2>
       </div>
       <div class="right">
         <NDropdown :options="options" @select="handleUserMenuSelect" trigger="hover">
@@ -47,6 +47,7 @@
 </template>
 
 <script setup lang="ts">
+import packageData from '../../package.json'
 import { h, ref, inject, computed, Ref, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { NLayoutHeader, NIcon, NButton, NDropdown, useDialog, useMessage, NSwitch, NPopover, NMenu, MenuOption, NDrawer, NDrawerContent, NScrollbar } from 'naive-ui'

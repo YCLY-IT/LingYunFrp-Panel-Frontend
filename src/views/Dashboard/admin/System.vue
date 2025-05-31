@@ -349,9 +349,22 @@
       </NForm>
       <template #action>
         <NButton @click="showEditGroupModal = false">取消</NButton>
-        <NButton type="primary" @click="handleEditGroup">确定</NButton>
+        <!-- <NButton type="primary" @click="handleEditGroup">确定</NButton> -->
+         <n-button type="primary" @click="showSetUserGroupModal = true">确定</n-button>
       </template>
     </NModal>
+
+    <!-- 同步设置用户模态框 -->
+     <n-modal
+        v-model:show="showSetUserGroupModal"
+        preset="dialog"
+        title="是否同步设置用户？"
+    >
+      <template #action>
+        <n-button @click="handleCancelSetUserGroup">取消</n-button>
+        <n-button type="primary" @click="handleSetUserGroup">确定</n-button>
+      </template>
+     </n-modal>
   </div>
 </template>
 
@@ -378,6 +391,7 @@ const editSourceFormRef = ref<FormInst | null>(null)
 const addSourceFormRef = ref<FormInst | null>(null)
 const groupFormRef = ref<FormInst | null>(null)
 const editGroupFormRef = ref<FormInst | null>(null)
+const showSetUserGroupModal = ref(false)
 
 // 表单数据
 const basicForm = ref({
@@ -395,6 +409,7 @@ const securityForm = ref({
 
 const downloadSourcesData = ref<Download[]>([])
 const groupsData = ref<Group[]>([])
+const SetUserGroup = ref(false)
 
 // 模态框状态
 const showEditModal = ref(false)
@@ -681,6 +696,19 @@ const groupColumns: DataTableColumns<Group> = [
   }
 ]
 
+const handleSetUserGroup = async () => {
+  SetUserGroup.value = true
+  handleEditGroup()
+  showSetUserGroupModal.value = false
+}
+
+const handleCancelSetUserGroup = () => {
+  SetUserGroup.value = false
+  showSetUserGroupModal.value = false
+  handleEditGroup()
+}
+
+
 // 保存公告
 const handleSaveBasic = async () => {
   try {
@@ -860,6 +888,8 @@ const handleEditSource = async () => {
   } catch (error: any) {
     message.error(error || '修改失败')
   }
+  showEditModal.value = false
+  showSetUserGroupModal.value = false
 }
 
 // 删除下载源
@@ -920,7 +950,8 @@ const handleEditGroup = async () => {
     userApi.post(`/admin/setting/groups/update/${editGroupForm.value.id}`,
         {
           ...editGroupForm.value,
-          traffic: editGroupForm.value.traffic
+          traffic: editGroupForm.value.traffic,
+          setUserGroup: SetUserGroup.value
         }, accessHandle(), (data) => {
       if (data.code === 0) {
         message.success('更新用户组成功')
