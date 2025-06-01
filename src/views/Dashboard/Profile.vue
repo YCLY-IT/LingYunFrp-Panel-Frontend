@@ -1,4 +1,9 @@
 <template>
+  <div class="container">
+    <!-- 统计卡片 -->
+    <div>
+      <Statistic ref="statisticRef" :sign-remainder="userInfoRef?.userInfo.signRemainder" />
+    </div>
   <div class="page-container">
     <div class="left-column">
 
@@ -174,40 +179,41 @@
         </n-form-item>
         <n-form-item label="确认新密码" path="confirmPassword">
           <n-input v-model:value="forms.password.confirmPassword" type="password" placeholder="请再次输入新密码" />
-        </n-form-item>
-        <div class="modal-actions">
-          <n-button @click="modals.changePassword = false">取消</n-button>
-          <n-button :loading="loading" type="primary" @click="handleChangePassword">确认修改</n-button>
-        </div>
-      </n-form>
-    </n-modal>
-
-    <!-- 实名认证模态窗口 -->
-     <n-modal v-model:show="modals.changeRealname" preset="card" title="实名认证" style="width: 500px;">
-      <n-form ref="realnameFormRef" :model="forms.realname" :rules="rules.realname">
-        <n-form-item label="姓名" path="realname">
-          <n-input v-model:value="forms.realname.realname" placeholder="请输入真实姓名" />
-        </n-form-item>
-        <n-form-item label="身份证号" path="idCard">
-          <n-input v-model:value="forms.realname.idCard" placeholder="请输入身份证号" />
-        </n-form-item>
-        <n-form-item label="手机号" path="phone">
-          <n-input v-model:value="forms.realname.phone" placeholder="请输入手机号" />
-        </n-form-item>
-        <n-form-item label="验证码" path="phoneCode">
-          <div style="display: flex; gap: 8px;">
-            <n-input v-model:value="forms.realname.phoneCode" placeholder="请输入验证码" />
-            <n-button :disabled="emailCodeSending" @click="handleSendPhoneCode">
-              {{ emailCodeButtonText }}
-            </n-button>
+          </n-form-item>
+          <div class="modal-actions">
+            <n-button @click="modals.changePassword = false">取消</n-button>
+            <n-button :loading="loading" type="primary" @click="handleChangePassword">确认修改</n-button>
           </div>
-        </n-form-item>
-        <div class="modal-actions">
-          <n-button @click="modals.changeRealname = false">取消</n-button>
-          <n-button :loading="loading" type="primary" @click="handleChangeRealname">提交认证</n-button>
-        </div>
-      </n-form>
+        </n-form>
       </n-modal>
+
+      <!-- 实名认证模态窗口 -->
+      <n-modal v-model:show="modals.changeRealname" preset="card" title="实名认证" style="width: 500px;">
+        <n-form ref="realnameFormRef" :model="forms.realname" :rules="rules.realname">
+          <n-form-item label="姓名" path="realname">
+            <n-input v-model:value="forms.realname.realname" placeholder="请输入真实姓名" />
+          </n-form-item>
+          <n-form-item label="身份证号" path="idCard">
+            <n-input v-model:value="forms.realname.idCard" placeholder="请输入身份证号" />
+          </n-form-item>
+          <n-form-item label="手机号" path="phone">
+            <n-input v-model:value="forms.realname.phone" placeholder="请输入手机号" />
+          </n-form-item>
+          <n-form-item label="验证码" path="phoneCode">
+            <div style="display: flex; gap: 8px;">
+              <n-input v-model:value="forms.realname.phoneCode" placeholder="请输入验证码" />
+              <n-button :disabled="emailCodeSending" @click="handleSendPhoneCode">
+                {{ emailCodeButtonText }}
+              </n-button>
+            </div>
+          </n-form-item>
+          <div class="modal-actions">
+            <n-button @click="modals.changeRealname = false">取消</n-button>
+            <n-button :loading="loading" type="primary" @click="handleChangeRealname">提交认证</n-button>
+          </div>
+        </n-form>
+        </n-modal>
+    </div>
   </div>
 </template>
 
@@ -623,10 +629,9 @@ const handleSendPhoneCode = async () => {
 .page-container {
   display: flex;
   gap: 16px;
-  padding: 16px;
-  max-width: 1200px;
   margin: 0 auto;
-  
+  margin-top: 20px;
+
   @media (max-width: 768px) {
     flex-direction: column;
   }

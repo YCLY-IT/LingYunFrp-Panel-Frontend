@@ -106,8 +106,15 @@ export interface Product {
     selectedAmount: number
   }
 
-  export interface Traffic {
+  export interface TrafficType {
     todayUsedTraffic: number
     allUsedTraffic: number
     allTraffic: number
   }
+
+export interface TrafficData {
+  date: string;
+  inTraffic: number;
+  outTraffic: number;
+  userId: number;
+}

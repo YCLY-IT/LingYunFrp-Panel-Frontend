@@ -23,7 +23,7 @@
 
     <!-- 统计卡片 -->
     <div style="margin-top: 20px;">
-      <Statistic ref="statisticRef" :sign-remainder="userInfoRef?.userInfo.signRemainder" />
+      <Traffic />
     </div>
 
     <!-- 内容面板 -->
@@ -57,8 +57,8 @@ import { useRouter } from 'vue-router'
 import { userApi } from "@/net"
 import { accessHandle } from "@/net/base"
 import UserInfo from "@/components/UserInfo.vue"
-import Statistic from '@/components/Statistic.vue'
-import { Traffic } from '@/types'
+import Traffic from '@/components/Traffic.vue'
+import { TrafficType } from '@/types'
 
 const router = useRouter()
 const message = useMessage()
@@ -69,7 +69,7 @@ const nickname = localStorage.getItem('nickname') || ''
 const userInfoRef = ref<{ userInfo: { isRealname: boolean; avatar: string; signRemainder: number; } } | null>(null)
 const statisticRef = ref<{ 
   getUserTraffic: () => Promise<void>;
-  traffic: Ref<Traffic>;
+  traffic: Ref<TrafficType>;
 } | null>()
 // 是否实名认证
 const IsRealname = computed(() => userInfoRef.value?.userInfo.isRealname || false)

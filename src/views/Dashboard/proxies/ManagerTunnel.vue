@@ -497,7 +497,7 @@
           </NCollapseItem>
           
           <NCollapseItem title="配置文件" name="config">
-            <NAlert type="error" class="config-alert" title="友情提示">
+            <NAlert type="info" class="config-alert" title="友情提示">
               此处是为专业用户准备的配置文件, 请不要在没有判断能力的情况下随意修改, 否则隧道可能无法正常启动。<br>
               请使用 "<NCode>./lyfrpc -c </NCode>配置文件 " 进行启动。
             </NAlert>

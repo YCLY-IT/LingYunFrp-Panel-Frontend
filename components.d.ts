@@ -41,6 +41,8 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     Statistic: typeof import('./src/components/Statistic.vue')['default']
     TopMenu: typeof import('./src/components/TopMenu.vue')['default']
+    Traffic: typeof import('./src/components/Traffic.vue')['default']
+    Triffic: typeof import('./src/components/Triffic.vue')['default']
     UserInfo: typeof import('./src/components/UserInfo.vue')['default']
   }
 }
