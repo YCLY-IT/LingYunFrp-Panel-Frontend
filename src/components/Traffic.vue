@@ -1,15 +1,13 @@
 <template>
   <div class="traffic-trend-container">
-    <n-card title="流量趋势分析" :bordered="false">
+    <n-card title="流量趋势分析">
       <template #header-extra>
         <n-space>
-          <n-input-number
-            v-model:value="days"
-            :min="1"
-            :max="365"
-            placeholder="天数"
-            style="width: 120px"
-            @update:value="fetchData"
+           <n-select
+            v-model:value="days" 
+            :options="dayOptions" 
+            style="width: 120px" 
+            @update:value="fetchData" 
           />
           <n-button type="primary" @click="fetchData" :loading="loading">
             <template #icon>
@@ -30,6 +28,7 @@
           <n-statistic label="总出站流量" :value="totalOutTraffic" suffix="MB" />
           <n-statistic label="数据点数" :value="chartData.length" />
         </n-space>
+        <p style="color: #999; font-size: 12px;">数据可能会延迟十分钟</p>
       </template>
     </n-card>
   </div>
@@ -45,6 +44,7 @@ import {
   NSpin, 
   NSpace, 
   NStatistic,
+  NSelect,
   useMessage 
 } from 'naive-ui'
 import { Refresh as RefreshIcon } from '@vicons/ionicons5'
@@ -78,6 +78,14 @@ const totalInTraffic = computed(() => {
 const totalOutTraffic = computed(() => {
   return formatTraffic(chartData.value.reduce((sum, item) => sum + item.outTraffic, 0))
 })
+
+// 天数选项
+const dayOptions = ref([
+  { label: '1 天', value: 1 },
+  { label: '7 天', value: 7 },
+  { label: '30 天', value: 30 },
+  { label: '90 天', value: 90 },
+])
 
 // 获取数据的模拟函数
 const fetchData = async () => {

@@ -37,7 +37,7 @@
         "src/**/*.ts",
         "src/**/*.tsx",
         "src/**/*.vue"
-    ],
+, "public/js/gt.js"    ],
     "references": [
         {
             "path": "./tsconfig.node.json"

@@ -4,7 +4,7 @@
       <div class="auth-header">
         <div class="title-with-icon">
           <NIcon size="32" :component="LogInOutline" />
-          <h1>LINGYUNFRP</h1>
+          <h1>{{ packageData.title }}</h1>
           <span>后台管理系统</span>
         </div>
         <br>
@@ -22,7 +22,7 @@
           <NCheckbox v-model:checked="formValue.remember">记住密码</NCheckbox>
           <router-link to="/forget" class="forgot-link">忘记密码？</router-link>
         </div>
-        <NButton :loading="loading" type="primary" block secondary strong @click="handleSubmit">
+        <NButton :loading="loading" type="primary" block secondary strong @click="onLoginButtonClick">
           登录
         </NButton>
         <div class="form-footer register-link">
@@ -35,11 +35,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { NForm, NFormItem, NInput, NButton, NCard, NIcon, type FormRules, useMessage, type FormInst } from 'naive-ui'
 import { LogInOutline } from '@vicons/ionicons5'
 import { userApi } from '@/net'
+import { GeetestService, loadGeetest } from '@/utils/captcha'
+import packageData from '@/../package.json'
 
 const router = useRouter()
 const message = useMessage()
@@ -64,13 +66,26 @@ const rules: FormRules = {
   }
 }
 
-const handleSubmit = async () => {
+const onLoginButtonClick = async () => {
+    loading.value = true
+    const geetestService = new GeetestService(packageData.captcha.Captcha_Id_Login);
+    const result = await geetestService.initAndShowCaptchaForBind();
+    if (result) {
+      handleSubmit(result)
+    }else{
+      loading.value = false
+    }
+}
+
+const handleSubmit = async (geetestResult: GeetestResult) => {
+  await formRef.value?.validate()
   loading.value = true
   try {
   userApi.login(
       formValue.value.username,
       formValue.value.password,
       formValue.value.remember,
+      `?lotNumber=${geetestResult.lot_number}&passToken=${geetestResult.pass_token}&genTime=${geetestResult.gen_time}&captchaOutput=${geetestResult.captcha_output}`,
       (data) => {
         localStorage.setItem('username', data.data.username)
         localStorage.setItem('nickname', data.data.nickname)
@@ -93,6 +108,10 @@ const handleSubmit = async () => {
     loading.value = false
   }
 }
+onMounted(async () => {
+  // 加载极验脚本
+  await loadGeetest()
+})
 </script>
 
 <style lang="scss" scoped>

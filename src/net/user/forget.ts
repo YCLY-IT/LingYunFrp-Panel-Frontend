@@ -1,8 +1,8 @@
 import { defaultFailure, post } from "@/net/base.js";
 
 //! TODO: 
-export function forget(email: string, password: string, code, success: Function, failure = defaultFailure) {
-    post('/user/forget', {
+export function forget(email: string, password: string, code, url: string, success: Function, failure = defaultFailure) {
+    post(`/user/forget${url}`, {
         email: email,
         password: password,
         code: code
@@ -14,7 +14,7 @@ export function forget(email: string, password: string, code, success: Function,
     //! TODO: just success as param
     (data) => {
         success(data);
-    }, (message, code, url) => {
-        failure(message, code, url);
+    }, (message) => {
+        failure(message);
     });
 }

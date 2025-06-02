@@ -4,7 +4,7 @@
       <div class="auth-header">
         <div class="title-with-icon">
           <NIcon size="32" :component="PersonAddOutline" />
-          <h1>LINGYUNFRP</h1>
+          <h1>{{ packageData.title }}</h1>
           <span>后台管理系统</span>
         </div>
         <br>
@@ -56,7 +56,7 @@
             block
             secondary
             strong
-            @click="handleSubmit"
+            @click="onRegisterButtonClick"
             :loading="isSubmitting"
         >
           注册
@@ -71,11 +71,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { NForm, NFormItem, NInput, NButton, NCard, NIcon, NInputGroup, type FormRules, useMessage, type FormInst } from 'naive-ui'
 import {PersonAddOutline} from '@vicons/ionicons5'
 import {userApi} from "@/net";
+import { GeetestService, loadGeetest } from '@/utils/captcha';
+import packageData from "@/../package.json";
 
 const router = useRouter()
 const message = useMessage()
@@ -84,6 +86,8 @@ const formRef = ref<FormInst | null>(null)
 const isSubmitting = ref(false)
 const isEmailCodeSending = ref(false)
 const emailCodeCountdown = ref(0)
+const loading = ref(false)
+
 
 const formValue = ref({
   username: '',
@@ -170,7 +174,7 @@ const handleSendEmailCode = async () => {
 }
 
 
-const handleSubmit = async () => {
+const handleSubmit = async (geetestResult: GeetestResult) => {
     await formRef.value?.validate()
     isSubmitting.value = true
     userApi.register(
@@ -179,6 +183,7 @@ const handleSubmit = async () => {
       formValue.value.password,
       formValue.value.email,
       formValue.value.emailCode,
+      `?lotNumber=${geetestResult.lot_number}&passToken=${geetestResult.pass_token}&genTime=${geetestResult.gen_time}&captchaOutput=${geetestResult.captcha_output}`,
       (data) => {
         if (data.code === 0) {
         message.success(data.message)
@@ -196,6 +201,18 @@ const handleSubmit = async () => {
       },
   )
 }
+
+const onRegisterButtonClick = async () => {
+    const geetestService = new GeetestService(packageData.captcha.Captcha_Id_Login);
+    const result = await geetestService.initAndShowCaptchaForBind();
+    if (result) {
+      handleSubmit(result)
+    }
+}
+onMounted(async () => {
+  // 加载极验脚本
+  await loadGeetest()
+})
 </script>
 
 <style lang="scss" scoped>

@@ -42,5 +42,11 @@
     "unplugin-vue-components": "^28.4.1",
     "vite": "^6.2.1",
     "vite-plugin-vue-devtools": "^7.7.2"
+  },
+  "captcha": {
+    "Captcha_Id_Sign": "3d50aa28e8c6b6cde77ada0b638b9594",
+    "Captcha_Id_Login": "d203eab2adb4430a1f1327ea23af7ae8",
+    "Captcha_Id_Register": "d203eab2adb4430a1f1327ea23af7ae8",
+    "Captcha_Id_Foget": "d203eab2adb4430a1f1327ea23af7ae8"
   }
 }

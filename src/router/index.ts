@@ -224,5 +224,4 @@ router.afterEach(() => {
 router.onError(() => {
   window.$loadingBar?.error()
 })
-
 export default router

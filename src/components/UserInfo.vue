@@ -79,7 +79,7 @@
         </div>
       </template>
       <NSpace class="user-info-item-right" vertical :size="4">
-        <NButton text type="primary" :loading="signLoading" :disabled="!isSignAvailable" @click="handleSign">
+        <NButton text type="primary" :loading="signLoading" :disabled="!isSignAvailable" @click="onSignButtonClick">
           <template #icon>
             <NIcon>
               <CalendarOutline />
@@ -102,7 +102,10 @@ import { NTag, useMessage, NSkeleton, NButton, NIcon, NSpace, NText, NAlert } fr
 import { CalendarOutline } from '@vicons/ionicons5'
 import {userApi} from "@/net";
 import {accessHandle} from "@/net/base.ts";
+import {Window} from '@/types'
+import packageData from '@/../package.json'
 import { CopyPlusIcon } from 'lucide-vue-next';
+import { GeetestService, loadGeetest } from '@/utils/captcha';
 const emit = defineEmits<{
   (e: 'update'): void
 }>()
@@ -133,7 +136,6 @@ const userInfo = ref({
   remainder: 0,
   signRemainder: 0,
 })
-
 const formatTime = (isoString: string) => {
   const date = new Date(isoString);
   return date.toLocaleString('zh-CN', {
@@ -161,25 +163,35 @@ const formattedRegTime = computed(() => formatTime(userInfo.value.regTime))
 const formattedTraffic = computed(() => formatTraffic(userInfo.value.traffic))
 const signButtonText = computed(() => signLoading.value ? '签到中...' : (isSignAvailable.value ? '签到' : '已签到'))
 
-// 执行签到
-const handleSign = async () => {
-  if (!isSignAvailable.value || signLoading.value) return
+const onSignButtonClick = async () => {
   signLoading.value = true
-  userApi.post('/user/sign', {}, accessHandle(), (data) => {
-    if (data.code === 0) {
-      message.success(`签到成功, 获得 ${data.data.point} 积分 和 ${data.data.traffic}GB 流量`)
-      isSignAvailable.value = false
-      // 刷新用户信息以更新流量显示
-      emit('update')
-      fetchUserInfo()
-    } else {
-      message.error(data.message || '签到失败')
+  try{
+    const geetestService = new GeetestService(packageData.captcha.Captcha_Id_Sign);
+    const result = await geetestService.initAndShowCaptchaForBind();
+    if (result) {
+      signIn(result)
+    }else{
+      signLoading.value = false
     }
-    signLoading.value = false
-  }, (error) => {
-    message.error(error || '签到失败')
-    signLoading.value = false
-})
+  }catch (e){
+    message.error('验证码加载失败')
+  }
+}
+const signIn = (geetestResult: GeetestResult) => {
+    userApi.post(`/user/sign?lotNumber=${geetestResult.lot_number}&passToken=${geetestResult.pass_token}&genTime=${geetestResult.gen_time}&captchaOutput=${geetestResult.captcha_output}`, {}, accessHandle(), (data) => {
+        if (data.code === 0) {
+            message.success(`签到成功, 获得 ${data.data.point} 积分 和 ${data.data.traffic}GB 流量`)
+            isSignAvailable.value = false
+            emit('update')
+            fetchUserInfo()
+        } else {
+            message.error(data.message || '签到失败')
+        }
+        signLoading.value = false
+    }, (error) => {
+        message.error(error || '签到失败')
+        signLoading.value = false
+    })
 }
 
 const handleCopyToken = async () => {
@@ -212,10 +224,13 @@ const fetchUserInfo = async () => {
 }
 onMounted(async () => {
   await fetchUserInfo()
+  // 加载极验脚本
+  await loadGeetest()
 })
 defineExpose({
   userInfo,
 })
+
 </script>
 
 <style lang="scss" scoped>

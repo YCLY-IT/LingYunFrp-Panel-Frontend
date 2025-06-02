@@ -44,7 +44,7 @@
             block
             secondary
             strong
-            @click="handleSubmit"
+            @click="onForgetButtonClick"
             :loading="isSubmitting"
         >
           {{ isSubmitting ? '提交中...' : '提交' }}
@@ -64,6 +64,8 @@ import { useRouter } from 'vue-router'
 import { NForm, NFormItem, NInput, NButton, NCard, NIcon, NInputGroup, type FormRules, useMessage, type FormInst } from 'naive-ui'
 import {PersonAddOutline} from '@vicons/ionicons5'
 import {userApi} from "@/net";
+import { GeetestService } from '@/utils/captcha';
+import packageData from "@/../package.json";
 
 const router = useRouter()
 const message = useMessage()
@@ -150,15 +152,22 @@ const handleSendEmailCode = async () => {
       },
   )
 }
+const onForgetButtonClick = async () => {
+    const geetestService = new GeetestService(packageData.captcha.Captcha_Id_Login);
+    const result = await geetestService.initAndShowCaptchaForBind();
+    if (result) {
+      handleSubmit(result)
+    }
+}
 
-
-const handleSubmit = async () => {
+const handleSubmit = async (geetestResult: GeetestResult) => {
   await formRef.value?.validate()
   isSubmitting.value = true
   userApi.forget(
       formValue.value.password,
       formValue.value.email,
       formValue.value.emailCode,
+      `?lotNumber=${geetestResult.lot_number}&passToken=${geetestResult.pass_token}&genTime=${geetestResult.gen_time}&captchaOutput=${geetestResult.captcha_output}`,
       (data) => {
         message.success(data)
         setTimeout(() => {
