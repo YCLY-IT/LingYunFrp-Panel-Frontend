@@ -760,9 +760,6 @@ const scrollToFeatures = () => {
       color: #1c6ea4;
     }
 
-    &:visited {
-      color: #9b59b6;
-    }
 
     &:after {
       content: '';

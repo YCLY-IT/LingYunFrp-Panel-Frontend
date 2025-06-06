@@ -4,8 +4,8 @@
   "title2": "凌云FRP",
   "github": "https://github.com/YCLY-IT",
   "ycly": "https://www.ycly.net",
-  "version": "0.1.0",
-  "lastUpdated": "2025-5-25 12:00:00",
+  "version": "0.1.1",
+  "lastUpdated": "2025-6-6 12:00:00",
   "private": true,
   "type": "module",
   "scripts": {
@@ -27,26 +27,26 @@
     "moment": "^2.30.1",
     "pinia": "^3.0.1",
     "sass-embedded": "^1.86.0",
-    "vue": "^3.5.13",
+    "vue": "3.5.16",
     "vue-axios": "^3.5.2",
     "vue-router": "^4.5.0"
   },
   "devDependencies": {
     "@types/crypto-js": "^4.2.2",
     "@types/node": "^22.13.10",
-    "@vitejs/plugin-vue": "^5.2.1",
+    "@vitejs/plugin-vue": "5.2.4",
     "@vitejs/plugin-vue-jsx": "^4.1.1",
     "naive-ui": "^2.41.0",
-    "typescript": "^5.8.2",
+    "typescript": "5.8.3",
     "unplugin-auto-import": "^19.1.1",
     "unplugin-vue-components": "^28.4.1",
-    "vite": "^6.2.1",
+    "vite": "6.3.5",
     "vite-plugin-vue-devtools": "^7.7.2"
   },
   "captcha": {
     "Captcha_Id_Sign": "3d50aa28e8c6b6cde77ada0b638b9594",
-    "Captcha_Id_Login": "d203eab2adb4430a1f1327ea23af7ae8",
-    "Captcha_Id_Register": "d203eab2adb4430a1f1327ea23af7ae8",
-    "Captcha_Id_Foget": "d203eab2adb4430a1f1327ea23af7ae8"
+    "Captcha_Id_Login": "3d50aa28e8c6b6cde77ada0b638b9594",
+    "Captcha_Id_Register": "3d50aa28e8c6b6cde77ada0b638b9594",
+    "Captcha_Id_Foget": "3d50aa28e8c6b6cde77ada0b638b9594"
   }
 }

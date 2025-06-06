@@ -1,12 +1,6 @@
 <template>
-  <div class="container">
-    <!-- 统计卡片 -->
-    <div>
-      <Statistic ref="statisticRef" :sign-remainder="userInfoRef?.userInfo.signRemainder" />
-    </div>
   <div class="page-container">
     <div class="left-column">
-
       <!-- 账户设置区域 -->
       <n-card>
         <div class="card-header">
@@ -17,7 +11,6 @@
         </div>
 
         <div class="settings-grid">
-
           <!-- 修改用户名 -->
           <div class="setting-item" @click="showModal('changeUsername')">
             <div class="setting-icon">
@@ -77,12 +70,10 @@
     </div>
 
     <div class="right-column">
-
       <!-- 账户详情区域 -->
       <n-card class="card account-details">
         <div class="card-header">
           <h2 class="card-title">账户详情</h2>
-          <!-- <button class="close-button">×</button> -->
         </div>
         
         <div class="user-profile">
@@ -90,14 +81,15 @@
             <img :src="UserInfo.avatar" style="border-radius: 64px;" alt="User Avatar" />
           </div>
           <div class="user-info">
-            <h3 class="user-greeting">Hi, {{ UserInfo.nickname }} </h3> <span style="display: flex; font-size: 17px;">今天过的还好吗</span>
+            <h3 class="user-greeting">Hi, {{ UserInfo.nickname }} </h3> 
+            <span style="display: flex; font-size: 17px;">今天过的还好吗</span>
             <p class="user-email">{{ UserInfo.email }}</p>
           </div>
         </div>
 
         <div class="account-info-grid">
           <userInfo ref="userInfoRef" />
-          </div>
+        </div>
       </n-card>
     </div>
 
@@ -117,7 +109,7 @@
         <n-form-item label="验证码" path="emailCode">
           <div style="display: flex; gap: 8px;">
             <n-input v-model:value="forms.username.emailCode" placeholder="请输入验证码" />
-            <n-button :disabled="emailCodeSending" @click="sendEmailVerificationCode('UpdateUsername', forms.username.emailCode)">
+            <n-button :disabled="emailCodeSending || emailCodeCountdown > 0" @click="sendEmailVerificationCode('UpdateUsername', forms.username.emailCode)">
               {{ emailCodeButtonText }}
             </n-button>
           </div>
@@ -130,18 +122,18 @@
     </n-modal>
 
     <!-- 修改昵称模态 -->
-     <n-modal v-model:show="modals.changeNickname" preset="card" title="更换昵称" style="width: 500px;">
+    <n-modal v-model:show="modals.changeNickname" preset="card" title="更换昵称" style="width: 500px;">
       <n-form :model="forms.nickname" :rules="rules.nickname" ref="forms.nickname" label-placement="left" label-width="auto" :show-feedback="false">
         <n-form-item label="新的昵称">
           <n-input v-model:value="forms.nickname.newNickname" placeholder="请输入新的昵称"/>
         </n-form-item>
         <br>
-          <div class="modal-actions">
-            <n-button :loading="loading" type="primary" @click="handleUpdateNickname">确定</n-button>
-            <n-button @click="modals.changeNickname = false">取消</n-button>
-          </div>
+        <div class="modal-actions">
+          <n-button :loading="loading" type="primary" @click="handleUpdateNickname">确定</n-button>
+          <n-button @click="modals.changeNickname = false">取消</n-button>
+        </div>
       </n-form>
-     </n-modal>
+    </n-modal>
 
     <!-- 更改头像模态窗口 -->
     <n-modal v-model:show="modals.changeAvatar" preset="card" title="更改头像" style="width: 500px;">
@@ -179,41 +171,40 @@
         </n-form-item>
         <n-form-item label="确认新密码" path="confirmPassword">
           <n-input v-model:value="forms.password.confirmPassword" type="password" placeholder="请再次输入新密码" />
-          </n-form-item>
-          <div class="modal-actions">
-            <n-button @click="modals.changePassword = false">取消</n-button>
-            <n-button :loading="loading" type="primary" @click="handleChangePassword">确认修改</n-button>
-          </div>
-        </n-form>
-      </n-modal>
+        </n-form-item>
+        <div class="modal-actions">
+          <n-button @click="modals.changePassword = false">取消</n-button>
+          <n-button :loading="loading" type="primary" @click="handleChangePassword">确认修改</n-button>
+        </div>
+      </n-form>
+    </n-modal>
 
-      <!-- 实名认证模态窗口 -->
-      <n-modal v-model:show="modals.changeRealname" preset="card" title="实名认证" style="width: 500px;">
-        <n-form ref="realnameFormRef" :model="forms.realname" :rules="rules.realname">
-          <n-form-item label="姓名" path="realname">
-            <n-input v-model:value="forms.realname.realname" placeholder="请输入真实姓名" />
-          </n-form-item>
-          <n-form-item label="身份证号" path="idCard">
-            <n-input v-model:value="forms.realname.idCard" placeholder="请输入身份证号" />
-          </n-form-item>
-          <n-form-item label="手机号" path="phone">
-            <n-input v-model:value="forms.realname.phone" placeholder="请输入手机号" />
-          </n-form-item>
-          <n-form-item label="验证码" path="phoneCode">
-            <div style="display: flex; gap: 8px;">
-              <n-input v-model:value="forms.realname.phoneCode" placeholder="请输入验证码" />
-              <n-button :disabled="emailCodeSending" @click="handleSendPhoneCode">
-                {{ emailCodeButtonText }}
-              </n-button>
-            </div>
-          </n-form-item>
-          <div class="modal-actions">
-            <n-button @click="modals.changeRealname = false">取消</n-button>
-            <n-button :loading="loading" type="primary" @click="handleChangeRealname">提交认证</n-button>
+    <!-- 实名认证模态窗口 -->
+    <n-modal v-model:show="modals.changeRealname" preset="card" title="实名认证" style="width: 500px;">
+      <n-form ref="realnameFormRef" :model="forms.realname" :rules="rules.realname">
+        <n-form-item label="姓名" path="realname">
+          <n-input v-model:value="forms.realname.realname" placeholder="请输入真实姓名" />
+        </n-form-item>
+        <n-form-item label="身份证号" path="idCard">
+          <n-input v-model:value="forms.realname.idCard" placeholder="请输入身份证号" />
+        </n-form-item>
+        <n-form-item label="手机号" path="phone">
+          <n-input v-model:value="forms.realname.phone" placeholder="请输入手机号" />
+        </n-form-item>
+        <n-form-item label="验证码" path="phoneCode">
+          <div style="display: flex; gap: 8px;">
+            <n-input v-model:value="forms.realname.phoneCode" placeholder="请输入验证码" />
+            <n-button :disabled="phoneCodeSending || phoneCodeCountdown > 0" @click="handleSendPhoneCode">
+              {{ phoneCodeButtonText }}
+            </n-button>
           </div>
-        </n-form>
-        </n-modal>
-    </div>
+        </n-form-item>
+        <div class="modal-actions">
+          <n-button @click="modals.changeRealname = false">取消</n-button>
+          <n-button :loading="loading" type="primary" @click="handleChangeRealname">提交认证</n-button>
+        </div>
+      </n-form>
+    </n-modal>
   </div>
 </template>
 
@@ -228,13 +219,16 @@ import {
   useMessage 
 } from 'naive-ui'
 import { UserIcon, ImageUpIcon, LockIcon, BadgeCheckIcon } from 'lucide-vue-next'
-import userInfo from "@/components/UserInfo.vue";
+import userInfo from "../../components/UserInfo.vue";
 import { UploadFileInfo } from 'naive-ui'
-import { userApi } from '@/net'
-import { accessHandle, removeToken } from '@/net/base'
+import { userApi } from '../../net'
+import { accessHandle, removeToken } from '../../net/base'
+
 const userInfoRef = ref<InstanceType<typeof userInfo>>();
+
 // 消息提示
 const message = useMessage()
+
 // 用户信息
 const UserInfo = reactive({
   username: localStorage.getItem('username') || '',
@@ -243,6 +237,7 @@ const UserInfo = reactive({
   avatar: localStorage.getItem('avatar') || '',
   isRealname: computed(() => userInfoRef.value?.userInfo.isRealname || false),
 })
+
 // 模态窗口状态
 const modals = reactive({
   changeUsername: false,
@@ -300,7 +295,7 @@ const rules = {
     newNickname: [
       { required: true, message: '请输入新的昵称', trigger: 'blur' },
       { min: 2, max: 20, message: '昵称长度应在2-20个字符之间', trigger: 'blur' }
-      ]
+    ]
   },
   password: {
     currentPassword: [
@@ -321,31 +316,30 @@ const rules = {
       }
     ]
   },
-email: {
-  newEmail: [
-    { required: true, message: '请输入新邮箱', trigger: 'blur' },
-    { 
-      pattern: /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/, 
-      message: '请输入有效的邮箱地址', 
-      trigger: 'blur' 
-    }
-  ],
-  verificationCode: [
-    { required: true, message: '请输入验证码', trigger: 'blur' },
-    { len: 6, message: '验证码长度应为6位', trigger: 'blur' }
-  ],
-},
-realname: {
-  realname: [
-    { required: true, message: '请输入真实姓名', trigger: 'blur' },
-    { min: 2, max: 20, message: '真实姓名长度应在2-20个字符之间', trigger: 'blur' }
-  ],
-  idCard: [
-    { required: true, message: '请输入身份证号', trigger: 'blur' },
-    { pattern: /^[1-9]\d{5}(18|19)\d{8}[\dXx]$/, message: '请输入有效的身份证号', trigger: 'blur' }
-  ]
-},
-
+  email: {
+    newEmail: [
+      { required: true, message: '请输入新邮箱', trigger: 'blur' },
+      { 
+        pattern: /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/, 
+        message: '请输入有效的邮箱地址', 
+        trigger: 'blur' 
+      }
+    ],
+    verificationCode: [
+      { required: true, message: '请输入验证码', trigger: 'blur' },
+      { len: 6, message: '验证码长度应为6位', trigger: 'blur' }
+    ],
+  },
+  realname: {
+    realname: [
+      { required: true, message: '请输入真实姓名', trigger: 'blur' },
+      { min: 2, max: 20, message: '真实姓名长度应在2-20个字符之间', trigger: 'blur' }
+    ],
+    idCard: [
+      { required: true, message: '请输入身份证号', trigger: 'blur' },
+      { pattern: /^[1-9]\d{5}(18|19)\d{8}[\dXx]$/, message: '请输入有效的身份证号', trigger: 'blur' }
+    ]
+  },
 }
 
 // 表单引用
@@ -354,12 +348,21 @@ const avatarFormRef = ref(null)
 const passwordFormRef = ref(null)
 const loading = ref(false)
 
-// 邮箱验证码
+// 邮箱验证码相关状态
 const emailCodeSending = ref(false)
 const emailCodeCountdown = ref(0)
 const emailCodeButtonText = computed(() => {
   if (emailCodeSending.value) return '发送中...'
   if (emailCodeCountdown.value > 0) return `${emailCodeCountdown.value}s后重试`
+  return '获取验证码'
+})
+
+// 手机验证码相关状态 - 新增独立的状态管理
+const phoneCodeSending = ref(false)
+const phoneCodeCountdown = ref(0)
+const phoneCodeButtonText = computed(() => {
+  if (phoneCodeSending.value) return '发送中...'
+  if (phoneCodeCountdown.value > 0) return `${phoneCodeCountdown.value}s后重试`
   return '获取验证码'
 })
 
@@ -394,33 +397,31 @@ const handleChangeUsername = async () => {
       message.error(errors || '用户名修改失败')
     })
   } catch (errors) {
-    // 表单验证失败
     message.error('用户名修改失败')
   }
   loading.value = false
 }
 
 const sendEmailVerificationCode = async (model : string, email: string) => {
-  if (emailCodeSending.value) return
+  if (emailCodeSending.value || emailCodeCountdown.value > 0) return
   if (!email) {
     message.error('请输入邮箱')
     return
   }
+  
   emailCodeSending.value = true
-  emailCodeCountdown.value = 60 // 初始化倒计时为60秒
-  loading.value = true
   
   try {
     userApi.post(`/user/code/${model}`, { email: email }, accessHandle(), (data) => {
       if (data.code !== 0) {
+        message.success('验证码发送成功')
+        emailCodeCountdown.value = 60
         const timer = setInterval(() => {
-          if (emailCodeCountdown.value > 0) {
-            emailCodeCountdown.value--
-          } else {
-            clearInterval(timer) // 倒计时结束后清除定时器
+          emailCodeCountdown.value--
+          if (emailCodeCountdown.value <= 0) {
+            clearInterval(timer)
           }
         }, 1000)
-        message.success('验证码发送成功')
       }
     }, (messageText) => {
       message.error(messageText || '验证码发送失败')
@@ -428,10 +429,10 @@ const sendEmailVerificationCode = async (model : string, email: string) => {
   } catch (error) {
     message.error('验证码发送失败')
   } finally {
-    emailCodeSending.value = false // 无论成功/失败都关闭发送中状态
-    loading.value = false
+    emailCodeSending.value = false
   }
 }
+
 const handleUpdateNickname = async () => {
   if (!forms.nickname.newNickname) {
     message.error('昵称不能为空')
@@ -471,21 +472,18 @@ const handleBeforeUpload = async (options: { file: UploadFileInfo }) => {
     return false
   }
   
-  // 创建一个FileReader来读取文件并预览
   const reader = new FileReader()
   reader.onload = (e) => {
-    // 关键修改：将预览地址同时赋值给文件对象的url属性
     file.url = e.target?.result as string
     forms.avatar.avatarUrl = e.target?.result as string
   }
   
-  // 读取文件为DataURL以便预览
   if (file.file) {
     reader.readAsDataURL(file.file)
     forms.avatar.avatarFile = [file]
   }
   
-  return false // 阻止默认上传行为，我们手动处理
+  return false
 }
 
 const handleChangeAvatar = async () => {
@@ -522,6 +520,7 @@ const handleChangeAvatar = async () => {
     loading.value = false 
   }
 }
+
 // 处理修改密码
 const handleChangePassword = async () => {
   if (!forms.password.currentPassword) {
@@ -533,7 +532,7 @@ const handleChangePassword = async () => {
     message.error('两次输入的密码不一致')
     return
   }
-    loading.value = true
+  loading.value = true
   try {
     userApi.post('/user/update/password', {
       oldPassword: forms.password.currentPassword,
@@ -551,12 +550,11 @@ const handleChangePassword = async () => {
       }, 2000)
     })
   } catch (errors) {
-      message.error('密码修改失败')
+    message.error('密码修改失败')
   } finally{
     loading.value = false
   }
 }
-
 
 const handleChangeRealname = async () => {
   if (!forms.realname.realname) {
@@ -567,32 +565,51 @@ const handleChangeRealname = async () => {
     message.error('请输入身份证号')
     return 
   }
+  if (!forms.realname.phoneCode) {
+    message.error('请输入手机验证码')
+    return
+  }
+  
   loading.value = true
   try {
-  userApi.post(
+    userApi.post(
       '/user/realname',
-      { name: forms.realname.realname, IDCard: forms.realname.idCard },
+      { 
+        name: forms.realname.realname, 
+        IDCard: forms.realname.idCard,
+        phone: forms.realname.phone,
+        phoneCode: forms.realname.phoneCode
+      },
       accessHandle(),
       (data) => {
         if (data.code === 0) {
           message.success(data.message)
           modals.changeRealname = false
           UserInfo.isRealname = true
-        }else{
+          // 清空表单
+          forms.realname.realname = ''
+          forms.realname.idCard = ''
+          forms.realname.phone = ''
+          forms.realname.phoneCode = ''
+        } else {
           message.error(data.message)
         }
       },
       (error) => {
         message.error(error)
-        loading.value = false
       },
-  )
+    )
   } catch (error) {
     message.error('真实姓名认证失败')
+  } finally {
+    loading.value = false
   }
 }
 
+// 修复后的发送手机验证码函数
 const handleSendPhoneCode = async () => {
+  if (phoneCodeSending.value || phoneCodeCountdown.value > 0) return
+  
   if (!forms.realname.phone) {
     message.error('请输入手机号码')
     return
@@ -601,25 +618,24 @@ const handleSendPhoneCode = async () => {
     message.error('请输入有效的手机号码')
     return
   }
-  loading.value = true
+  
+  phoneCodeSending.value = true
+  
   try {
     userApi.sendSmsCode(forms.realname.phone, "realname", (data) => {
-        message.success('验证码已发送')
-        emailCodeSending.value = true
-        emailCodeCountdown.value = 60
-        const timer = setInterval(() => {
-          if (emailCodeCountdown.value > 0) {
-            emailCodeCountdown.value--
-          } else {
-            clearInterval(timer)
-          }
-        }, 1000)
+      message.success('验证码已发送')
+      phoneCodeCountdown.value = 60
+      const timer = setInterval(() => {
+        phoneCodeCountdown.value--
+        if (phoneCodeCountdown.value <= 0) {
+          clearInterval(timer)
+        }
+      }, 1000)
     })
   } catch (error) {
     message.error('验证码发送失败') 
   } finally {
-    loading.value = false
-    emailCodeSending.value = false
+    phoneCodeSending.value = false
   }
 }
 
@@ -629,9 +645,10 @@ const handleSendPhoneCode = async () => {
 .page-container {
   display: flex;
   gap: 16px;
+  padding: 16px;
+  max-width: 1200px;
   margin: 0 auto;
-  margin-top: 20px;
-
+  
   @media (max-width: 768px) {
     flex-direction: column;
   }

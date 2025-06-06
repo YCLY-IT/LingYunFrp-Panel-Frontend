@@ -63,7 +63,9 @@ export default defineConfig({
     }
   },
   server: {
-    allowedHosts: ['localhost', '127.0.0.1','dev.eefenmc.eu.org'],
+    port: 3001,
+    host: '0.0.0.0',
+    allowedHosts: ['localhost', '127.0.0.1','dev.eefenmc.eu.org', '192.168.100.101'],
     proxy: {
       '/api': {
         target: 'http://localhost:8081',

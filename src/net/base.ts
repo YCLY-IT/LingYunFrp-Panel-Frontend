@@ -11,7 +11,7 @@ const api = axios.create({
 
 const defaultFailure = (messageText: string) => {
     //! TODO: only console warning, don't show message here
-    window.$message?.warning(`${messageText}`);
+    window.$message?.warning(messageText);
     window.$loadingBar?.error()
 };
 
@@ -19,7 +19,7 @@ const defaultFailure = (messageText: string) => {
 const defaultError = (err: any) => {
     //! TODO: only console error, don't show message here
     console.error(err);
-    window.$message?.error(`${err.response.data.message}` || '请求失败');
+    window.$message?.error(err.response.data.message || '请求失败，请稍后重试');
     window.$loadingBar?.error()
 };
 
