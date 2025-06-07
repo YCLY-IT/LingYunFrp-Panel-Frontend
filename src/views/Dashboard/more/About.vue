@@ -18,7 +18,7 @@
               <n-tag type="info">v{{ packageData.version }}</n-tag>
             </n-descriptions-item>
             <n-descriptions-item label="最后日期">
-            {{ new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' }) }}
+              {{ formattedDate }}
             </n-descriptions-item>
             <n-descriptions-item label="技术栈" :span="2">
               <n-space>
@@ -34,6 +34,7 @@
                 <n-tag>Docker</n-tag>
                 <n-tag>OpenResty</n-tag>
                 <n-tag>PostgreSQL</n-tag>
+                <n-tag>Redis</n-tag>
               </n-space>
             </n-descriptions-item>
           </n-descriptions>
@@ -84,70 +85,86 @@
           </n-grid>
         </n-card>
 
-        <!-- 系统状态 -->
-        <!-- <n-card title="系统状态" hoverable>
-          <n-space vertical>
-            <n-progress
-              type="line"
-              :percentage="85"
-              :height="24"
-              :border-radius="4"
-              fill-border-radius="4"
-            >
-              CPU 使用率: 85%
-            </n-progress>
-            <n-progress
-              type="line"
-              :percentage="62"
-              :height="24"
-              :border-radius="4"
-              fill-border-radius="4"
-              status="success"
-            >
-              内存使用率: 62%
-            </n-progress>
-            <n-progress
-              type="line"
-              :percentage="45"
-              :height="24"
-              :border-radius="4"
-              fill-border-radius="4"
-              status="info"
-            >
-              磁盘使用率: 45%
-            </n-progress>
-          </n-space>
-        </n-card> -->
-
         <!-- 更新日志 -->
-        <!-- <n-card title="更新日志" hoverable>
-          <n-timeline>
-            <n-timeline-item
-              type="success"
-              title="v2.1.3 发布"
-              content="修复了若干已知问题，优化了用户界面"
-              time="2024-12-15"
+        <n-card title="更新日志" hoverable>
+          <template #header-extra>
+            <n-button 
+              size="small" 
+              type="primary" 
+              ghost 
+              @click="fetchGetGitHubCommits"
+              :loading="loading"
+            >
+              <template #icon>
+                <n-icon><RefreshCw /></n-icon>
+              </template>
+              刷新
+            </n-button>
+          </template>
+          
+          <n-spin :show="loading">
+            <n-timeline v-if="commits.length > 0">
+              <n-timeline-item
+                v-for="(commit, index) in visibleCommits"
+                :key="commit.sha"
+                :type="getCommitType(commit.commit.message)"
+                :title="getCommitTitle(commit.commit.message)"
+                :content="getCommitContent(commit.commit.message)"
+                :time="formatDate(commit.commit.author.date)"
+              >
+                <template #icon>
+                  <n-avatar 
+                    :src="commit.author.avatar_url" 
+                    :alt="commit.author.login"
+                    :style="{ width: 'auto', height: 'auto' }"
+                    style="transform: scale(1.9);"
+                  />
+                </template>
+                <template #footer>
+                  <n-space size="small">
+                    <n-tag size="small" type="info">
+                      {{ commit.author.login }}
+                    </n-tag>
+                    <n-button 
+                      size="tiny" 
+                      text 
+                      type="primary"
+                      @click="openCommit(commit.html_url)"
+                    >
+                      查看详情
+                    </n-button>
+                  </n-space>
+                </template>
+              </n-timeline-item>
+            </n-timeline>
+            
+            <n-empty 
+              v-else-if="!loading" 
+              description="暂无更新记录"
+              style="margin: 40px 0;"
             />
-            <n-timeline-item
-              type="info"
-              title="v2.1.2 发布"
-              content="新增了数据导出功能，提升了系统性能"
-              time="2024-12-01"
-            />
-            <n-timeline-item
-              type="warning"
-              title="v2.1.1 发布"
-              content="修复了安全漏洞，更新了依赖包"
-              time="2024-11-20"
-            />
-            <n-timeline-item
-              type="error"
-              title="v2.1.0 发布"
-              content="重大版本更新，全新的用户界面设计"
-              time="2024-11-01"
-            />
-          </n-timeline>
-        </n-card> -->
+            
+            <div v-if="!loading && commits.length > 0" class="text-center mt-4">
+              <n-space justify="center">
+                <n-button 
+                  v-if="visibleCount > 5" 
+                  @click="showLess" 
+                  type="warning" 
+                  ghost
+                >
+                  收回
+                </n-button>
+                <n-button 
+                  v-if="visibleCount < commits.length" 
+                  @click="showMore" 
+                  type="primary"
+                >
+                  显示更多...
+                </n-button>
+              </n-space>
+            </div>
+          </n-spin>
+        </n-card>
 
         <!-- 联系信息 -->
         <n-card title="联系信息" hoverable>
@@ -166,7 +183,7 @@
                     <n-icon size="24" color="#d03050"><MessageCircle /></n-icon>
                   </template>
                   <template #header>QQ 群</template>
-                  <template #description><n-text @click="handleAddQQGroup"> 882670857</n-text></template>
+                  <template #description><n-text @click="handleAddQQGroup" style="color: aquamarine;">882670857</n-text></template>
                 </n-thing>
               </n-space>
             </n-grid-item>
@@ -213,39 +230,11 @@
         </n-card>
       </n-space>
     </div>
-
-    <!-- 反馈模态框 -->
-    <n-modal v-model:show="showContactModal" preset="dialog" title="联系我们">
-      <template #default>
-        <n-form ref="contactForm" :model="contactData" :rules="contactRules">
-          <n-form-item label="姓名" path="name">
-            <n-input v-model:value="contactData.name" placeholder="请输入您的姓名" />
-          </n-form-item>
-          <n-form-item label="邮箱" path="email">
-            <n-input v-model:value="contactData.email" placeholder="请输入您的邮箱" />
-          </n-form-item>
-          <n-form-item label="消息" path="message">
-            <n-input
-              v-model:value="contactData.message"
-              type="textarea"
-              placeholder="请输入您的消息"
-              :rows="4"
-            />
-          </n-form-item>
-        </n-form>
-      </template>
-      <template #action>
-        <n-space>
-          <n-button @click="showContactModal = false">取消</n-button>
-          <n-button type="primary" @click="submitContact">发送</n-button>
-        </n-space>
-      </template>
-    </n-modal>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import {
   NCard,
   NDescriptions,
@@ -259,10 +248,11 @@ import {
   NGridItem,
   NThing,
   NAlert,
-  NModal,
-  NForm,
-  NFormItem,
-  NInput,
+  NTimeline,
+  NTimelineItem,
+  NSpin,
+  NEmpty,
+  NText,
   useMessage
 } from 'naive-ui'
 import {
@@ -274,52 +264,44 @@ import {
   Mail,
   Globe,
   Github,
-  FileText
+  FileText,
+  RefreshCw
 } from 'lucide-vue-next'
 
 import packageData from '../../../../package.json'
+import { userApi } from '@/net'
+import { accessHandle } from '@/net/base'
 
-const message = useMessage()
-const showContactModal = ref(false)
-
-const contactData = reactive({
-  name: '',
-  email: '',
-  message: ''
-})
-
-const contactRules = {
-  name: {
-    required: true,
-    message: '请输入姓名',
-    trigger: 'blur'
-  },
-  email: {
-    required: true,
-    message: '请输入邮箱',
-    trigger: 'blur'
-  },
-  message: {
-    required: true,
-    message: '请输入消息',
-    trigger: 'blur'
+interface GitHubCommit {
+  sha: string
+  html_url: string
+  author: {
+    login: string
+    avatar_url: string
+  }
+  commit: {
+    author: {
+      name: string
+      email: string
+      date: string
+    }
+    message: string
   }
 }
 
+const message = useMessage()
+const commits = ref<GitHubCommit[]>([])
+const visibleCommits = ref<GitHubCommit[]>([])
+const visibleCount = ref(3)
+const loading = ref(false)
+
+const formattedDate = computed(() => {
+  return new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' })
+})
+
 const handleAddQQGroup = () => {
   message.info('正在跳转 QQ 群...')
-  //window.open('https://jq.qq.com/?_wv=1027&k=5y5555')
-}
-
-const submitContact = () => {
-  message.success('消息发送成功！我们会尽快回复您。')
-  showContactModal.value = false
-  // 重置表单
-  Object.assign(contactData, {
-    name: '',
-    email: '',
-    message: ''
-  })
+  window.open('http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=lKysMDnalZOkdAPhOoar-F6fnMVatr9A&authKey=ahTVSjZZdthWiZZwGJzuy6BwJFaljsB%2FIfxeVyrehz2zr8GlovYdGfU99Tq5tq0m&noverify=0&group_code=882670857')
 }
 
 const viewLicense = () => {
@@ -331,6 +313,92 @@ const downloadSource = () => {
   message.success('正在打开...')
   window.open(packageData.github + '/LingYunFrp-Panel-Frontend')
 }
+
+const openCommit = (url: string) => {
+  window.open(url, '_blank')
+}
+
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString)
+  return date.toLocaleDateString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
+const getCommitType = (message: string) => {
+  if (message.startsWith('feat')) return 'success'
+  if (message.startsWith('fix')) return 'error'
+  if (message.startsWith('docs')) return 'info'
+  if (message.startsWith('style') || message.startsWith('refactor')) return 'warning'
+  return 'default'
+}
+
+const getCommitTitle = (message: string) => {
+  const lines = message.split('\n')
+  const firstLine = lines[0]
+  
+  // 提取类型和描述
+  const match = firstLine.match(/^(\w+)(?:\([^)]*\))?: (.+)$/)
+  if (match) {
+    const [, type, description] = match
+    const typeMap: Record<string, string> = {
+      feat: '✨ 新功能',
+      fix: '🐛 修复',
+      docs: '📝 文档',
+      style: '💄 样式',
+      refactor: '♻️ 重构',
+      perf: '⚡ 性能',
+      test: '✅ 测试',
+      chore: '🔧 构建'
+    }
+    return `${typeMap[type] || '📦 更新'}: ${description}`
+  }
+  
+  return firstLine
+}
+
+const getCommitContent = (message: string) => {
+  const lines = message.split('\n').slice(1).filter(line => line.trim())
+  return lines.length > 0 ? lines.join(' ') : '查看提交详情了解更多信息'
+}
+
+const fetchGetGitHubCommits = async () => {
+  loading.value = true
+  try {
+    userApi.get('/user/info/githubCommits', accessHandle(), (data) => {
+      console.log('GitHub 提交记录:', data.data)
+      commits.value = data.data || []
+      // 初始化显示前五条
+      visibleCommits.value = commits.value.slice(0, visibleCount.value)
+    }, (messageText) => {
+      message.warning(messageText)
+    }, (err) => {
+      message.error('获取 GitHub 提交记录失败: ' + err.message)
+    })
+  } catch (error) {
+    message.error('获取 GitHub 提交记录失败: ' + error)
+  } finally {
+    loading.value = false
+  }
+}
+
+const showMore = () => {
+  visibleCount.value += 5
+  visibleCommits.value = commits.value.slice(0, visibleCount.value)
+}
+
+const showLess = () => {
+  visibleCount.value = 3
+  visibleCommits.value = commits.value.slice(0, visibleCount.value)
+}
+
+onMounted(() => {
+  fetchGetGitHubCommits()
+})
 </script>
 
 <style scoped>

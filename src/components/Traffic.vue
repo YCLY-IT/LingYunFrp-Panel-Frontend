@@ -26,7 +26,7 @@
         <n-space justify="space-between">
           <n-statistic label="总入站流量" :value="totalInTraffic" suffix="MB" />
           <n-statistic label="总出站流量" :value="totalOutTraffic" suffix="MB" />
-          <n-statistic label="数据点数" :value="chartData.length" />
+          <n-statistic label="总流量使用量" :value="totalAllTraffic" suffix="MB" />
         </n-space>
         <p style="color: #999; font-size: 12px;">数据可能会延迟十分钟</p>
       </template>
@@ -77,6 +77,10 @@ const totalInTraffic = computed(() => {
 
 const totalOutTraffic = computed(() => {
   return formatTraffic(chartData.value.reduce((sum, item) => sum + item.outTraffic, 0))
+})
+
+const totalAllTraffic = computed(() => {
+  return formatTraffic(chartData.value.reduce((sum, item) => sum + item.inTraffic + item.outTraffic, 0)) 
 })
 
 // 天数选项

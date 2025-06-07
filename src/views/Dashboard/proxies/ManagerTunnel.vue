@@ -1400,7 +1400,6 @@ const handleDownloadConfig = () => {
             font-size: 18px;
             font-weight: 600;
             margin: 0 0 8px 0;
-            color: #00ffd5;
           }
           
           .status-tags {
@@ -1437,7 +1436,7 @@ const handleDownloadConfig = () => {
           
           .value {
             font-size: 14px;
-            color: gold;
+            color: rgb(0, 255, 42);
             
             &.protocol {
               font-weight: 500;

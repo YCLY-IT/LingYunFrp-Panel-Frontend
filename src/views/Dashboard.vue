@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {  darkTheme } from "naive-ui";
+import { darkTheme } from "naive-ui";
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import LeftMenu from "@/components/LeftMenu.vue";
 import TopMenu from "@/components/TopMenu.vue";

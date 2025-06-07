@@ -173,7 +173,7 @@
                 <n-icon :size="isMobile ? 20 : 25"><GithubIcon /></n-icon>
               </a>
               <a :href="packageData.ycly" class="social-link">
-                <n-icon :size="isMobile ? 20 : 25"><BoxIcon /></n-icon>
+                <n-icon :size="isMobile ? 20 : 25"><CloudIcon /></n-icon>
               </a>
             </div>
           </div>
@@ -195,7 +195,7 @@ import {
   DatabaseIcon,
   CheckIcon,
   GithubIcon,
-  BoxIcon,
+  CloudIcon
 } from 'lucide-vue-next'
 import router from "@/router";
 

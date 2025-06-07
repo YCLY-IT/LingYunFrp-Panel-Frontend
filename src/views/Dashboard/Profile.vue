@@ -1,210 +1,215 @@
 <template>
-  <div class="page-container">
-    <div class="left-column">
-      <!-- 账户设置区域 -->
-      <n-card>
-        <div class="card-header">
-          <h2 class="card-title">账户设置</h2>
-          <div class="tabs">
-            <span class="tab active" style="margin-right: 10px;">Settings</span>
-          </div>
-        </div>
-
-        <div class="settings-grid">
-          <!-- 修改用户名 -->
-          <div class="setting-item" @click="showModal('changeUsername')">
-            <div class="setting-icon">
-                <UserIcon style="width: 50px; height: 50px; margin-top: 25px;" />
-            </div>
-            <div class="setting-content">
-              <h3 class="setting-title">修改用户名</h3>
-              <p class="setting-desc">点击这里可以修改您的用户名</p>
+  <div class="profile">
+    <div class="statistic-container">
+      <Statistic :signRemainder="userInfoRef?.userInfo.signRemainder" ref="statisticRef" />
+    </div>
+    <div class="page-container">
+      <div class="left-column">
+        <!-- 账户设置区域 -->
+        <n-card>
+          <div class="card-header">
+            <h2 class="card-title">账户设置</h2>
+            <div class="tabs">
+              <span class="tab active" style="margin-right: 10px;">Settings</span>
             </div>
           </div>
 
-          <!-- 更换昵称 -->
-          <div class="setting-item" @click="showModal('changeNickname')">
-            <div class="setting-icon">
-                <UserIcon style="width: 50px; height: 50px; margin-top: 25px;" />
+          <div class="settings-grid">
+            <!-- 修改用户名 -->
+            <div class="setting-item" @click="showModal('changeUsername')">
+              <div class="setting-icon">
+                  <UserIcon style="width: 50px; height: 50px; margin-top: 25px;" />
+              </div>
+              <div class="setting-content">
+                <h3 class="setting-title">修改用户名</h3>
+                <p class="setting-desc">点击这里可以修改您的用户名</p>
+              </div>
             </div>
-            <div class="setting-content">
-              <h3 class="setting-title">更换昵称</h3>
-              <p class="setting-desc">点击这里可以修改您的昵称</p>
+
+            <!-- 更换昵称 -->
+            <div class="setting-item" @click="showModal('changeNickname')">
+              <div class="setting-icon">
+                  <UserIcon style="width: 50px; height: 50px; margin-top: 25px;" />
+              </div>
+              <div class="setting-content">
+                <h3 class="setting-title">更换昵称</h3>
+                <p class="setting-desc">点击这里可以修改您的昵称</p>
+              </div>
+            </div>
+
+            <!-- 更改头像 -->
+            <div class="setting-item" @click="showModal('changeAvatar')">
+              <div class="setting-icon">
+                <ImageUpIcon style="width: 50px; height: 50px; margin-top: 25px;" />
+              </div>
+              <div class="setting-content">
+                <h3 class="setting-title">更改头像</h3>
+                <p class="setting-desc">点击这里上传图片，可以更换您的头像</p>
+              </div>
+            </div>
+
+            <!-- 修改密码 -->
+            <div class="setting-item" @click="showModal('changePassword')">
+              <div class="setting-icon">
+                <LockIcon style="width: 50px; height: 50px; margin-top: 25px;" />
+              </div>
+              <div class="setting-content">
+                <h3 class="setting-title">修改密码</h3>
+                <p class="setting-desc">点击这里可以修改您的登录密码</p>
+              </div>
+            </div>
+            
+            <!-- 实人认证 -->
+            <div v-if="!UserInfo.isRealname" class="setting-item" @click="showModal('changeRealname')">
+              <div class="setting-icon">
+                <BadgeCheckIcon style="width: 50px; height: 50px; margin-top: 25px;" />
+              </div>
+              <div class="setting-content">
+                <h3 class="setting-title">实人认证</h3>
+                <p class="setting-desc">点击这里可以实人认证哦</p>
+              </div>
             </div>
           </div>
+        </n-card>
+      </div>
 
-          <!-- 更改头像 -->
-          <div class="setting-item" @click="showModal('changeAvatar')">
-            <div class="setting-icon">
-              <ImageUpIcon style="width: 50px; height: 50px; margin-top: 25px;" />
-            </div>
-            <div class="setting-content">
-              <h3 class="setting-title">更改头像</h3>
-              <p class="setting-desc">点击这里上传图片，可以更换您的头像</p>
-            </div>
-          </div>
-
-          <!-- 修改密码 -->
-          <div class="setting-item" @click="showModal('changePassword')">
-            <div class="setting-icon">
-              <LockIcon style="width: 50px; height: 50px; margin-top: 25px;" />
-            </div>
-            <div class="setting-content">
-              <h3 class="setting-title">修改密码</h3>
-              <p class="setting-desc">点击这里可以修改您的登录密码</p>
-            </div>
+      <div class="right-column">
+        <!-- 账户详情区域 -->
+        <n-card class="card account-details">
+          <div class="card-header">
+            <h2 class="card-title">账户详情</h2>
           </div>
           
-          <!-- 实人认证 -->
-          <div v-if="!UserInfo.isRealname" class="setting-item" @click="showModal('changeRealname')">
-            <div class="setting-icon">
-              <BadgeCheckIcon style="width: 50px; height: 50px; margin-top: 25px;" />
+          <div class="user-profile">
+            <div class="user-avatar">
+              <img :src="UserInfo.avatar" style="border-radius: 64px;" alt="User Avatar" />
             </div>
-            <div class="setting-content">
-              <h3 class="setting-title">实人认证</h3>
-              <p class="setting-desc">点击这里可以实人认证哦</p>
+            <div class="user-info">
+              <h3 class="user-greeting">Hi, {{ UserInfo.nickname }} </h3> 
+              <span style="display: flex; font-size: 17px;">今天过的还好吗</span>
+              <p class="user-email">{{ UserInfo.email }}</p>
             </div>
           </div>
-        </div>
-      </n-card>
+
+          <div class="account-info-grid">
+            <userInfo ref="userInfoRef" />
+          </div>
+        </n-card>
+      </div>
+
+      <!-- 模态窗口 -->
+      <!-- 修改用户名模态窗口 -->
+      <n-modal v-model:show="modals.changeUsername" preset="card" title="修改用户名" style="width: 500px;">
+        <n-form ref="usernameFormRef" :model="forms.username" :rules="rules.username">
+          <n-form-item label="当前用户名" path="currentUsername">
+            <n-input v-model:value="forms.username.currentUsername" disabled />
+          </n-form-item>
+          <n-form-item label="新用户名" path="newUsername">
+            <n-input v-model:value="forms.username.newUsername" placeholder="请输入新用户名" />
+          </n-form-item>
+          <n-form-item label="邮箱" path="email">
+            <n-input v-model:value="forms.username.emailCode" placeholder="请输入邮箱" />
+          </n-form-item>
+          <n-form-item label="验证码" path="emailCode">
+            <div style="display: flex; gap: 8px;">
+              <n-input v-model:value="forms.username.emailCode" placeholder="请输入验证码" />
+              <n-button :disabled="emailCodeSending || emailCodeCountdown > 0" @click="sendEmailVerificationCode('UpdateUsername', forms.username.emailCode)">
+                {{ emailCodeButtonText }}
+              </n-button>
+            </div>
+          </n-form-item>
+          <div class="modal-actions">
+            <n-button @click="modals.changeUsername = false">取消</n-button>
+            <n-button :loading="loading" type="primary" @click="handleChangeUsername">确认修改</n-button>
+          </div>
+        </n-form>
+      </n-modal>
+
+      <!-- 修改昵称模态 -->
+      <n-modal v-model:show="modals.changeNickname" preset="card" title="更换昵称" style="width: 500px;">
+        <n-form :model="forms.nickname" :rules="rules.nickname" ref="forms.nickname" label-placement="left" label-width="auto" :show-feedback="false">
+          <n-form-item label="新的昵称">
+            <n-input v-model:value="forms.nickname.newNickname" placeholder="请输入新的昵称"/>
+          </n-form-item>
+          <br>
+          <div class="modal-actions">
+            <n-button :loading="loading" type="primary" @click="handleUpdateNickname">确定</n-button>
+            <n-button @click="modals.changeNickname = false">取消</n-button>
+          </div>
+        </n-form>
+      </n-modal>
+
+      <!-- 更改头像模态窗口 -->
+      <n-modal v-model:show="modals.changeAvatar" preset="card" title="更改头像" style="width: 500px;">
+        <n-form ref="avatarFormRef" :model="forms.avatar">
+          <n-form-item label="上传头像" path="avatarUrl">
+            <n-upload
+              @before-upload="handleBeforeUpload"
+              v-model:file-list="forms.avatar.avatarFile"
+              accept="image/*"
+              list-type="image-card"
+              :max="1"
+            >
+            </n-upload>
+          </n-form-item>
+          <n-form-item label="预览">
+            <div class="avatar-preview">
+              <img style="border-radius: 64px;" :src="forms.avatar.avatarUrl" alt="Avatar Preview" />
+            </div>
+          </n-form-item>
+          <div class="modal-actions">
+            <n-button @click="modals.changeAvatar = false">取消</n-button>
+            <n-button :loading="loading" type="primary" @click="handleChangeAvatar">确认修改</n-button>
+          </div>
+        </n-form>
+      </n-modal>
+
+      <!-- 修改密码模态窗口 -->
+      <n-modal v-model:show="modals.changePassword" preset="card" title="修改密码" style="width: 500px;">
+        <n-form ref="passwordFormRef" :model="forms.password" :rules="rules.password">
+          <n-form-item label="当前密码" path="currentPassword">
+            <n-input v-model:value="forms.password.currentPassword" type="password" placeholder="请输入当前密码" />
+          </n-form-item>
+          <n-form-item label="新密码" path="newPassword">
+            <n-input v-model:value="forms.password.newPassword" type="password" placeholder="请输入新密码" />
+          </n-form-item>
+          <n-form-item label="确认新密码" path="confirmPassword">
+            <n-input v-model:value="forms.password.confirmPassword" type="password" placeholder="请再次输入新密码" />
+          </n-form-item>
+          <div class="modal-actions">
+            <n-button @click="modals.changePassword = false">取消</n-button>
+            <n-button :loading="loading" type="primary" @click="handleChangePassword">确认修改</n-button>
+          </div>
+        </n-form>
+      </n-modal>
+
+      <!-- 实名认证模态窗口 -->
+      <n-modal v-model:show="modals.changeRealname" preset="card" title="实名认证" style="width: 500px;">
+        <n-form ref="realnameFormRef" :model="forms.realname" :rules="rules.realname">
+          <n-form-item label="姓名" path="realname">
+            <n-input v-model:value="forms.realname.realname" placeholder="请输入真实姓名" />
+          </n-form-item>
+          <n-form-item label="身份证号" path="idCard">
+            <n-input v-model:value="forms.realname.idCard" placeholder="请输入身份证号" />
+          </n-form-item>
+          <n-form-item label="手机号" path="phone">
+            <n-input v-model:value="forms.realname.phone" placeholder="请输入手机号" />
+          </n-form-item>
+          <n-form-item label="验证码" path="phoneCode">
+            <div style="display: flex; gap: 8px;">
+              <n-input v-model:value="forms.realname.phoneCode" placeholder="请输入验证码" />
+              <n-button :disabled="phoneCodeSending || phoneCodeCountdown > 0" @click="handleSendPhoneCode">
+                {{ phoneCodeButtonText }}
+              </n-button>
+            </div>
+          </n-form-item>
+          <div class="modal-actions">
+            <n-button @click="modals.changeRealname = false">取消</n-button>
+            <n-button :loading="loading" type="primary" @click="handleChangeRealname">提交认证</n-button>
+          </div>
+        </n-form>
+      </n-modal>
     </div>
-
-    <div class="right-column">
-      <!-- 账户详情区域 -->
-      <n-card class="card account-details">
-        <div class="card-header">
-          <h2 class="card-title">账户详情</h2>
-        </div>
-        
-        <div class="user-profile">
-          <div class="user-avatar">
-            <img :src="UserInfo.avatar" style="border-radius: 64px;" alt="User Avatar" />
-          </div>
-          <div class="user-info">
-            <h3 class="user-greeting">Hi, {{ UserInfo.nickname }} </h3> 
-            <span style="display: flex; font-size: 17px;">今天过的还好吗</span>
-            <p class="user-email">{{ UserInfo.email }}</p>
-          </div>
-        </div>
-
-        <div class="account-info-grid">
-          <userInfo ref="userInfoRef" />
-        </div>
-      </n-card>
-    </div>
-
-    <!-- 模态窗口 -->
-    <!-- 修改用户名模态窗口 -->
-    <n-modal v-model:show="modals.changeUsername" preset="card" title="修改用户名" style="width: 500px;">
-      <n-form ref="usernameFormRef" :model="forms.username" :rules="rules.username">
-        <n-form-item label="当前用户名" path="currentUsername">
-          <n-input v-model:value="forms.username.currentUsername" disabled />
-        </n-form-item>
-        <n-form-item label="新用户名" path="newUsername">
-          <n-input v-model:value="forms.username.newUsername" placeholder="请输入新用户名" />
-        </n-form-item>
-        <n-form-item label="邮箱" path="email">
-          <n-input v-model:value="forms.username.emailCode" placeholder="请输入邮箱" />
-        </n-form-item>
-        <n-form-item label="验证码" path="emailCode">
-          <div style="display: flex; gap: 8px;">
-            <n-input v-model:value="forms.username.emailCode" placeholder="请输入验证码" />
-            <n-button :disabled="emailCodeSending || emailCodeCountdown > 0" @click="sendEmailVerificationCode('UpdateUsername', forms.username.emailCode)">
-              {{ emailCodeButtonText }}
-            </n-button>
-          </div>
-        </n-form-item>
-        <div class="modal-actions">
-          <n-button @click="modals.changeUsername = false">取消</n-button>
-          <n-button :loading="loading" type="primary" @click="handleChangeUsername">确认修改</n-button>
-        </div>
-      </n-form>
-    </n-modal>
-
-    <!-- 修改昵称模态 -->
-    <n-modal v-model:show="modals.changeNickname" preset="card" title="更换昵称" style="width: 500px;">
-      <n-form :model="forms.nickname" :rules="rules.nickname" ref="forms.nickname" label-placement="left" label-width="auto" :show-feedback="false">
-        <n-form-item label="新的昵称">
-          <n-input v-model:value="forms.nickname.newNickname" placeholder="请输入新的昵称"/>
-        </n-form-item>
-        <br>
-        <div class="modal-actions">
-          <n-button :loading="loading" type="primary" @click="handleUpdateNickname">确定</n-button>
-          <n-button @click="modals.changeNickname = false">取消</n-button>
-        </div>
-      </n-form>
-    </n-modal>
-
-    <!-- 更改头像模态窗口 -->
-    <n-modal v-model:show="modals.changeAvatar" preset="card" title="更改头像" style="width: 500px;">
-      <n-form ref="avatarFormRef" :model="forms.avatar">
-        <n-form-item label="上传头像" path="avatarUrl">
-          <n-upload
-            @before-upload="handleBeforeUpload"
-            v-model:file-list="forms.avatar.avatarFile"
-            accept="image/*"
-            list-type="image-card"
-            :max="1"
-          >
-          </n-upload>
-        </n-form-item>
-        <n-form-item label="预览">
-          <div class="avatar-preview">
-            <img style="border-radius: 64px;" :src="forms.avatar.avatarUrl" alt="Avatar Preview" />
-          </div>
-        </n-form-item>
-        <div class="modal-actions">
-          <n-button @click="modals.changeAvatar = false">取消</n-button>
-          <n-button :loading="loading" type="primary" @click="handleChangeAvatar">确认修改</n-button>
-        </div>
-      </n-form>
-    </n-modal>
-
-    <!-- 修改密码模态窗口 -->
-    <n-modal v-model:show="modals.changePassword" preset="card" title="修改密码" style="width: 500px;">
-      <n-form ref="passwordFormRef" :model="forms.password" :rules="rules.password">
-        <n-form-item label="当前密码" path="currentPassword">
-          <n-input v-model:value="forms.password.currentPassword" type="password" placeholder="请输入当前密码" />
-        </n-form-item>
-        <n-form-item label="新密码" path="newPassword">
-          <n-input v-model:value="forms.password.newPassword" type="password" placeholder="请输入新密码" />
-        </n-form-item>
-        <n-form-item label="确认新密码" path="confirmPassword">
-          <n-input v-model:value="forms.password.confirmPassword" type="password" placeholder="请再次输入新密码" />
-        </n-form-item>
-        <div class="modal-actions">
-          <n-button @click="modals.changePassword = false">取消</n-button>
-          <n-button :loading="loading" type="primary" @click="handleChangePassword">确认修改</n-button>
-        </div>
-      </n-form>
-    </n-modal>
-
-    <!-- 实名认证模态窗口 -->
-    <n-modal v-model:show="modals.changeRealname" preset="card" title="实名认证" style="width: 500px;">
-      <n-form ref="realnameFormRef" :model="forms.realname" :rules="rules.realname">
-        <n-form-item label="姓名" path="realname">
-          <n-input v-model:value="forms.realname.realname" placeholder="请输入真实姓名" />
-        </n-form-item>
-        <n-form-item label="身份证号" path="idCard">
-          <n-input v-model:value="forms.realname.idCard" placeholder="请输入身份证号" />
-        </n-form-item>
-        <n-form-item label="手机号" path="phone">
-          <n-input v-model:value="forms.realname.phone" placeholder="请输入手机号" />
-        </n-form-item>
-        <n-form-item label="验证码" path="phoneCode">
-          <div style="display: flex; gap: 8px;">
-            <n-input v-model:value="forms.realname.phoneCode" placeholder="请输入验证码" />
-            <n-button :disabled="phoneCodeSending || phoneCodeCountdown > 0" @click="handleSendPhoneCode">
-              {{ phoneCodeButtonText }}
-            </n-button>
-          </div>
-        </n-form-item>
-        <div class="modal-actions">
-          <n-button @click="modals.changeRealname = false">取消</n-button>
-          <n-button :loading="loading" type="primary" @click="handleChangeRealname">提交认证</n-button>
-        </div>
-      </n-form>
-    </n-modal>
   </div>
 </template>
 
@@ -223,6 +228,7 @@ import userInfo from "../../components/UserInfo.vue";
 import { UploadFileInfo } from 'naive-ui'
 import { userApi } from '../../net'
 import { accessHandle, removeToken } from '../../net/base'
+import Statistic from '@/components/Statistic.vue';
 
 const userInfoRef = ref<InstanceType<typeof userInfo>>();
 
@@ -642,6 +648,10 @@ const handleSendPhoneCode = async () => {
 </script>
 
 <style lang="scss" scoped>
+.statistic-container {
+  padding: 15px;
+  
+}
 .page-container {
   display: flex;
   gap: 16px;

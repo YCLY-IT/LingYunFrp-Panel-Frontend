@@ -1,7 +1,6 @@
 import {createRouter, createWebHistory} from 'vue-router'
 import { unauthorized} from "@/net/base.js";
 import { Window } from '@/types'
-import packageData from '../../package.json'
 
 // 声明window类型
 declare const window: Window
@@ -30,14 +29,30 @@ const router = createRouter({
         title: '注册',
       }
     },
-      {
+    {
           path: '/forget',
           name: 'ResetPassword',
           component: () => import('@/views/ResetPassword.vue'),
           meta: {
               title: '重置密码',
           }
-      },
+    },
+    {
+      path: '/terms',
+      name: 'terms',
+      component: () => import('@/views/Terms.vue'),
+      meta: {
+        title: '服务条款',
+      }
+    },
+    {
+      path: '/privacy',
+      name: 'privacy',
+      component: () => import('@/views/Privacy.vue'),
+      meta: {
+        title: '隐私政策',
+      }
+    },
     {
       path: '/dashboard',
       name: 'dashboard',
@@ -203,13 +218,6 @@ router.beforeEach((to, _from, next) => {
   }else {
     next()
   }
-})
-router.beforeEach((to, _from, next) => {
-  // 设置文档标题
-  document.title = to.meta.title ?
-      `${to.meta.title} - ${packageData.title2}` : // 自定义标题格式
-      `${packageData.title2}` // 默认标题
-  next()
 })
 
 // 添加路由导航守卫

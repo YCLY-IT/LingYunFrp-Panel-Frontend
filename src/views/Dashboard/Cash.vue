@@ -1,132 +1,134 @@
 <template>
   <div class="cash">
-    <div class="content-grid">
-      <NCard title="增值服务">
-        <div class="service-cards">
-          <!-- 动态渲染产品卡片 -->
-          <NCard
-              v-for="product in products"
-              :key="product.id"
-              class="service-card"
-              :title="product.name"
-          >
-            <!-- 永久标签 -->
-            <div v-if="product.isPermanent" class="permanent-badge">
-              <NIcon><InfiniteOutline /></NIcon>
-              <span>永久</span>
-            </div>
-            
-            <!-- 根据是否永久和产品类型显示不同的价格单位 -->
-            <div v-if="product.isPermanent && product.type !== 'traffic' && product.type !== 'proxies'" class="price">
-              ¥{{ product.price }} <span class="unit">/ 永久</span>
-            </div>
-            <div v-else-if="product.type === 'traffic'" class="price">
-              ¥{{ product.price }} <span class="unit">/ GB</span>
-            </div>
-            <div v-else-if="product.type === 'proxies'" class="price">
-              ¥{{ product.price }} <span class="unit">/ 个</span>
-            </div>
-            <div v-else class="price">
-              ¥{{ product.price }} <span class="unit">/ 月</span>
-            </div>
+    <NSpin :show="loading" description="正在加载产品...">
+      <div class="content-grid">
+        <NCard title="增值服务">
+          <div class="service-cards">
+            <!-- 动态渲染产品卡片 -->
+            <NCard
+                v-for="product in products"
+                :key="product.id"
+                class="service-card"
+                :title="product.name"
+            >
+              <!-- 永久标签 -->
+              <div v-if="product.isPermanent" class="permanent-badge">
+                <NIcon><InfiniteOutline /></NIcon>
+                <span>永久</span>
+              </div>
+              
+              <!-- 根据是否永久和产品类型显示不同的价格单位 -->
+              <div v-if="product.isPermanent && product.type !== 'traffic' && product.type !== 'proxies'" class="price">
+                ¥{{ product.price }} <span class="unit">/ 永久</span>
+              </div>
+              <div v-else-if="product.type === 'traffic'" class="price">
+                ¥{{ product.price }} <span class="unit">/ GB</span>
+              </div>
+              <div v-else-if="product.type === 'proxies'" class="price">
+                ¥{{ product.price }} <span class="unit">/ 个</span>
+              </div>
+              <div v-else class="price">
+                ¥{{ product.price }} <span class="unit">/ 月</span>
+              </div>
 
-            <!-- 使用 v-for 循环处理描述中的换行 -->
-            <div class="features">
-              <div v-for="(line, index) in (product.desc || '').split('<br>')" :key="index" class="feature-line">
-                <NIcon class="feature-icon"><CheckmarkCircle /></NIcon>
-                <span>{{ line }}</span>
+              <!-- 使用 v-for 循环处理描述中的换行 -->
+              <div class="features">
+                <div v-for="(line, index) in (product.desc || '').split('<br>')" :key="index" class="feature-line">
+                  <NIcon class="feature-icon"><CheckmarkCircle /></NIcon>
+                  <span>{{ line }}</span>
+                </div>
               </div>
-            </div>
 
-            <!-- 流量和隧道类型始终显示输入框，其他永久产品不显示 -->
-            <div v-if="product.type === 'traffic' || product.type === 'proxies' || !product.isPermanent">
-              <div v-if="product.type === 'traffic'">
-                <NInputNumber
-                    v-model:value="product.selectedAmount"
-                    :min="1"
-                    :max="200"
-                    placeholder="输入购买数量(GB)"
-                    style="margin-bottom: 12px"
-                />
+              <!-- 流量和隧道类型始终显示输入框，其他永久产品不显示 -->
+              <div v-if="product.type === 'traffic' || product.type === 'proxies' || !product.isPermanent">
+                <div v-if="product.type === 'traffic'">
+                  <NInputNumber
+                      v-model:value="product.selectedAmount"
+                      :min="1"
+                      :max="200"
+                      placeholder="输入购买数量(GB)"
+                      style="margin-bottom: 12px"
+                  />
+                </div>
+                <div v-else-if="product.type === 'proxies'">
+                  <NInputNumber
+                      v-model:value="product.selectedAmount"
+                      :min="1"
+                      :max="200"
+                      placeholder="输入购买数量(个)"
+                      style="margin-bottom: 12px"
+                  />
+                </div>
+                <div v-else>
+                  <NInputNumber
+                      v-model:value="product.selectedAmount"
+                      :min="1"
+                      :max="200"
+                      placeholder="输入购买数量"
+                      style="margin-bottom: 12px"
+                  />
+                </div>
               </div>
-              <div v-else-if="product.type === 'proxies'">
-                <NInputNumber
-                    v-model:value="product.selectedAmount"
-                    :min="1"
-                    :max="200"
-                    placeholder="输入购买数量(个)"
-                    style="margin-bottom: 12px"
-                />
+              <!-- 其他永久产品固定数量为1 -->
+              <div v-else class="permanent-note">
+                <NIcon><InformationCircle /></NIcon>
+                <span>一次性永久购买</span>
               </div>
-              <div v-else>
-                <NInputNumber
-                    v-model:value="product.selectedAmount"
-                    :min="1"
-                    :max="200"
-                    placeholder="输入购买数量"
-                    style="margin-bottom: 12px"
-                />
-              </div>
-            </div>
-            <!-- 其他永久产品固定数量为1 -->
-            <div v-else class="permanent-note">
-              <NIcon><InformationCircle /></NIcon>
-              <span>一次性永久购买</span>
-            </div>
 
-            <!-- 支付方式选择 -->
-            <div class="payment-options">
-              <div class="option-label">支付方式:</div>
-              <div class="option-buttons">
-                <!-- 动态显示积分支付按钮 -->
-                <NButton
-                    v-if="product.payMethods.includes('points')"
-                    type="default"
-                    :class="{ active: product.isPoint }"
-                    @click="product.isPoint = true"
-                    style="margin-right: 8px"
-                >
-                  积分支付
-                </NButton>
-                <!-- 动态显示价格支付按钮 -->
-                <NButton
-                    v-if="product.payMethods.includes('money')"
-                    type="default"
-                    :class="{ active: !product.isPoint }"
-                    @click="product.isPoint = false"
-                >
-                  价格支付
-                </NButton>
+              <!-- 支付方式选择 -->
+              <div class="payment-options">
+                <div class="option-label">支付方式:</div>
+                <div class="option-buttons">
+                  <!-- 动态显示积分支付按钮 -->
+                  <NButton
+                      v-if="product.payMethods.includes('points')"
+                      type="default"
+                      :class="{ active: product.isPoint }"
+                      @click="product.isPoint = true"
+                      style="margin-right: 8px"
+                  >
+                    积分支付
+                  </NButton>
+                  <!-- 动态显示价格支付按钮 -->
+                  <NButton
+                      v-if="product.payMethods.includes('money')"
+                      type="default"
+                      :class="{ active: !product.isPoint }"
+                      @click="product.isPoint = false"
+                  >
+                    价格支付
+                  </NButton>
+                </div>
               </div>
-            </div>
 
-            <!-- 新增：支付方式提示 -->
-            <div class="payment-note" v-if="!product.isPoint">
-              注意：目前金钱支付只支持支付宝
-            </div>
-
-            <!-- 总价显示 -->
-            <div class="price-display">
-              <div v-if="product.isPoint">
-                所需积分: {{ product.pointPrice * (shouldUseSelectedAmount(product) ? (product.selectedAmount || 1) : 1) }} 积分
+              <!-- 新增：支付方式提示 -->
+              <div class="payment-note" v-if="!product.isPoint">
+                注意：目前金钱支付只支持支付宝
               </div>
-              <div v-else>
-                总价: ¥{{ product.price * (shouldUseSelectedAmount(product) ? (product.selectedAmount || 1) : 1) }}
-              </div>
-            </div>
 
-            <NButton type="primary" block @click="handleBuy(product)">
-              立即购买
-            </NButton>
-          </NCard>
-        </div>
-      </NCard>
-    </div>
+              <!-- 总价显示 -->
+              <div class="price-display">
+                <div v-if="product.isPoint">
+                  所需积分: {{ product.pointPrice * (shouldUseSelectedAmount(product) ? (product.selectedAmount || 1) : 1) }} 积分
+                </div>
+                <div v-else>
+                  总价: ¥{{ product.price * (shouldUseSelectedAmount(product) ? (product.selectedAmount || 1) : 1) }}
+                </div>
+              </div>
+
+              <NButton type="primary" block @click="handleBuy(product)">
+                立即购买
+              </NButton>
+            </NCard>
+          </div>
+        </NCard>
+      </div>
+    </NSpin>
   </div>
 </template>
 
 <script setup lang="ts">
-import { NCard, NButton, NInputNumber, NIcon } from 'naive-ui'
+import { NCard, NButton, NInputNumber, NIcon, NSpin } from 'naive-ui' // 添加 NSpin 导入
 import { ref, onMounted } from 'vue'
 import { CheckmarkCircle, InformationCircle, InfiniteOutline } from '@vicons/ionicons5'
 import { useMessage } from 'naive-ui'
@@ -136,6 +138,7 @@ import { Product} from '@/types'
 
 const message = useMessage()
 const products = ref<Product[]>([])
+const loading = ref(false) // 新增加载状态
 
 // 判断是否应该使用用户选择的数量
 const shouldUseSelectedAmount = (product: Product) => {
@@ -144,12 +147,14 @@ const shouldUseSelectedAmount = (product: Product) => {
 
 // 从API获取产品数据
 const fetchProducts = () => {
+  loading.value = true 
   userApi.get("/user/info/product", accessHandle(), (data) => {
       products.value = data.data.products.map(product => {
         // 解析 pay_method 字段为数组
         const payMethods = product.payMethod.split(';')
         // 默认选中第一个可用的支付方式
         const isPoint = payMethods.includes('points') && (payMethods[0] === 'points')
+        loading.value = false
         return {
           ...product,
           payMethods, // 存储支付方式数组
@@ -159,8 +164,10 @@ const fetchProducts = () => {
       })
   }, (messageText) => {
     message.warning(messageText)
+    loading.value = false // 加载完成
   }, (err) => {
     message.error(err.message)
+    loading.value = false
   })
 }
 

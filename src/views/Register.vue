@@ -29,6 +29,20 @@
         <NFormItem path="emailCode" label="验证码">
           <NInput v-model:value="formValue.emailCode" placeholder="请输入邮箱验证码" />
         </NFormItem>
+        
+        <!-- 新增人机验证按钮 -->
+        <NFormItem>
+          <NButton 
+            type="primary" 
+            @click="onCaptchaButtonClick"
+            :loading="captchaLoading"
+            :disabled="captchaVerified"
+            block
+          >
+            {{ captchaVerified ? '已验证' : '进行人机验证' }}
+          </NButton>
+        </NFormItem>
+        
         <NFormItem path="password" label="密码">
           <NInput
               v-model:value="formValue.password"
@@ -197,17 +211,53 @@ const handleSubmit = async (geetestResult: GeetestResult) => {
       },
       (messageText) => {
         message.error(messageText);
+        captchaVerified.value = false
         isSubmitting.value = false
       },
   )
 }
 
-const onRegisterButtonClick = async () => {
-    const geetestService = new GeetestService(packageData.captcha.Captcha_Id_Login);
-    const result = await geetestService.initAndShowCaptchaForBind();
+// 新增验证状态
+const captchaLoading = ref(false)
+const captchaVerified = ref(false)
+let geetestResult: GeetestResult | null = null
+
+// 独立验证码处理方法
+const onCaptchaButtonClick = async () => {
+  captchaLoading.value = true
+  try {
+    const geetestService = new GeetestService(packageData.captcha.Captcha_Id_Login)
+    const result = await geetestService.initAndShowCaptchaForBind()
     if (result) {
-      handleSubmit(result)
+      geetestResult = result
+      captchaVerified.value = true
+      message.success('人机验证通过')
     }
+  } catch (error) {
+    message.error('验证失败，请重试')
+  } finally {
+    captchaLoading.value = false
+  }
+}
+
+// 修改注册提交逻辑
+const onRegisterButtonClick = async () => {
+  if (!captchaVerified.value) {
+    message.error('请先完成人机验证')
+    return
+  }
+  if (!geetestResult) {
+    message.error('验证信息已失效，请重新验证')
+    return
+  }
+  
+  try {
+    const geetestService = new GeetestService(packageData.captcha.Captcha_Id_Login)
+    const result = await geetestService.initAndShowCaptchaForBind()
+    handleSubmit(geetestResult)
+  } catch (error) {
+    message.error('注册验证失败')
+  }
 }
 onMounted(async () => {
   // 加载极验脚本

@@ -8,7 +8,7 @@ export function loadGeetest() {
     }
 
     const script = document.createElement('script');
-    script.src = '/js/gt.js'; // 使用官方CDN
+    script.src = '/js/gt.js';
     script.async = true;
     script.crossOrigin = 'anonymous'; // 添加跨域属性
     script.onload = () => {
@@ -66,40 +66,4 @@ export class GeetestService {
       );
     });
   }
-
-  // // 修改initAndShowCaptchaForFloat方法类型声明
-  // public initAndShowCaptchaForFloat(): Promise<GeetestResult | null> {
-  //   return new Promise((resolve) => {
-  //     window.initGeetest4(
-  //       {
-  //         product: 'float',
-  //         captchaId: this.captchaId,
-  //         width: '100%',
-  //       },
-  //       (captchaObj: any) => { // 临时使用any类型，建议定义CaptchaObj接口
-  //         this.captchaObj = captchaObj; // 保存实例引用
-  //         captchaObj.onNextReady(() => { // 使用箭头函数保持this指向
-  //           captchaObj.appendTo(document.getElementById('geetest-wrap'));
-  //           captchaObj.showCaptcha(); // 移动到onNextReady内部确保容器已准备
-
-  //           // 添加关闭事件处理
-  //           captchaObj.onClose(() => {
-  //             console.warn('验证码被关闭');
-  //             window.$message?.warning(`验证码被关闭`);
-  //             resolve(null);
-  //           });
-
-  //           captchaObj.onSuccess(() => {
-  //             const result = captchaObj.getValidate();
-  //             if (result) {
-  //               console.log('Geetest 验证成功:', result);
-  //               window.$message?.success(`验证码验证成功`);
-  //               resolve(result);
-  //             }
-  //           });
-  //         });
-  //       }
-  //     );
-  //   });
-  // }
 }

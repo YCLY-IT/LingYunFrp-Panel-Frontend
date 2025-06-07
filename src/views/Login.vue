@@ -15,8 +15,20 @@
           <NInput v-model:value="formValue.username" placeholder="请输入用户名或邮箱" />
         </NFormItem>
         <NFormItem path="password" label="密码">
-          <NInput v-model:value="formValue.password" type="password" placeholder="请输入密码"
+          <NInput v-model:value="formValue.password" type="password" placeholder="请输入密码" 
                   show-password-on="click" />
+        </NFormItem>
+        <!-- 新增验证码按钮 -->
+        <NFormItem>
+          <NButton 
+            type="primary" 
+            @click="onCaptchaButtonClick"
+            :loading="captchaLoading"
+            :disabled="captchaVerified"
+            block
+          >
+            {{ captchaVerified ? '已验证' : '进行人机验证' }}
+          </NButton>
         </NFormItem>
         <div class="checkbox-forgot">
           <NCheckbox v-model:checked="formValue.remember">记住密码</NCheckbox>
@@ -66,22 +78,45 @@ const rules: FormRules = {
   }
 }
 
+// 新增响应式状态
+const captchaLoading = ref(false)
+const captchaVerified = ref(false)
+let geetestResult: GeetestResult | null = null
+
+// 分离验证码获取逻辑
+const onCaptchaButtonClick = async () => {
+  captchaLoading.value = true
+  const geetestService = new GeetestService(packageData.captcha.Captcha_Id_Login);
+  const result = await geetestService.initAndShowCaptchaForBind();
+  if (result) {
+    geetestResult = result
+    captchaVerified.value = true
+  } else {
+    message.error('验证失败')
+  }
+  captchaLoading.value = false
+}
+
+// 修改原登录按钮逻辑
 const onLoginButtonClick = async () => {
-    loading.value = true
-    const geetestService = new GeetestService(packageData.captcha.Captcha_Id_Login);
-    const result = await geetestService.initAndShowCaptchaForBind();
-    if (result) {
-      handleSubmit(result)
-    }else{
-      loading.value = false
-    }
+  if (!captchaVerified.value || !geetestResult) {
+    message.error('请先完成验证码验证')
+    return
+  }
+  loading.value = true
+  try {
+    await formRef.value?.validate()
+    handleSubmit(geetestResult!)
+  } finally {
+    loading.value = false
+  }
 }
 
 const handleSubmit = async (geetestResult: GeetestResult) => {
   await formRef.value?.validate()
   loading.value = true
   try {
-  userApi.login(
+    userApi.login(
       formValue.value.username,
       formValue.value.password,
       formValue.value.remember,
@@ -98,12 +133,14 @@ const handleSubmit = async (geetestResult: GeetestResult) => {
       },
       (data)=> {
         message.error(data)
+        captchaVerified.value = false
         loading.value = false
       },
   )
   } catch (error: any) {
     message.error(error)
     loading.value = false
+    captchaVerified.value = false
   } finally {
     loading.value = false
   }

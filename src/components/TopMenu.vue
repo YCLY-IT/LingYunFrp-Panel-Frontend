@@ -133,11 +133,10 @@ const handleThemeChange = () => {
   toggleTheme()
 }
 
-function userLogout() {
-  userApi.get('/user/logout', accessHandle(), () => {
+const userLogout = async () => {
+  await userApi.get('/user/logout', accessHandle(), () => {
     removeToken();
   })
-  router.push({ name: 'login' });
 }
 
 const handleUserMenuSelect = (key: string) => {
@@ -158,7 +157,7 @@ const handleUserMenuSelect = (key: string) => {
       })
       break
     case 'profile':
-      router.push('/dashboard/user/my-profile')
+      router.push('/dashboard/profile')
       break
     case 'home':
       router.push('/')

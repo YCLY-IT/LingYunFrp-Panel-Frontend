@@ -85,12 +85,11 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, h } from 'vue'
+import { ref, h, computed, onMounted } from 'vue'
 import { NCard, NSpace, NDataTable, NButton, useMessage, NTag, NInput, NSelect, NPopconfirm, NIcon, NModal, NForm, NFormItem, NInputNumber, NSwitch, SelectOption } from 'naive-ui'
 import { Search } from '@vicons/ionicons5'
 import type { DataTableColumns, FormInst, FormRules } from 'naive-ui'
 import type { UserInfo } from '@/types'
-import moment from 'moment';
 import type { FilterUsersArgs } from '@/types'
 import { switchButtonRailStyle } from '@/constants/theme.ts'
 import {userApi} from "@/net";
@@ -183,6 +182,20 @@ const editForm = ref({
   proxies: 0
 })
 
+const formatTime = (timestamp: number | string) => {
+  const date = new Date(typeof timestamp === 'string' ? timestamp : timestamp * 1000)
+  return date.toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  })
+}
+
+
 const rules: FormRules = {
   username: {
     required: true,
@@ -240,9 +253,11 @@ const columns: DataTableColumns<UserInfo> = [
   },
   {
     title: '注册时间',
-    key: 'create_at',
+    key: 'created_at',
     render(row) {
-      return h('div', { style: 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' }, moment(row.create_at).format('LLLL'))
+      return h('div', { 
+        style: 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' 
+      }, formatTime(row.created_at))
     }
   },
   {
@@ -469,13 +484,9 @@ const loadData = async () => {
     }
 
     userApi.post("/admin/user/list", params, accessHandle(), (data) => {
-      if (data.code === 0) {
         users.value = processUsers(data.data.users)
         pagination.value.pageCount = data.data.totalPages
         pagination.value.itemCount = data.data.totalUsers
-      } else {
-        message.error(data.message || '获取数据失败')
-      }
     })
   } catch (error) {
     message.error('获取数据失败')
@@ -485,6 +496,8 @@ const loadData = async () => {
 }
 
 // 初始化数据
-fetchUserGroups()
-loadData()
+onMounted(() => {
+  fetchUserGroups()
+  loadData()
+})
 </script>

@@ -30,12 +30,12 @@
 <script setup lang="ts">
 import { userApi } from '@/net';
 import { accessHandle } from '@/net/base';
-import { Traffic } from '@/types';
+import { TrafficType } from '@/types';
 import { ArrowDownCircleOutline, BarChartOutline, CalendarOutline, GlobeOutline } from '@vicons/ionicons5';
 import { useMessage } from 'naive-ui';
 import { computed, markRaw, onMounted, ref } from 'vue';
 
-const traffic = ref<Traffic>({} as Traffic)
+const traffic = ref<TrafficType>({} as TrafficType)
 
 const message = useMessage()
 // 格式化流量

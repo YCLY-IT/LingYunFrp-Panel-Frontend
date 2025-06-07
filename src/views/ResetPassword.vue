@@ -23,6 +23,20 @@
         <NFormItem path="emailCode" label="验证码">
           <NInput v-model:value="formValue.emailCode" placeholder="请输入邮箱验证码" />
         </NFormItem>
+
+        <!-- 新增人机验证按钮 -->
+        <NFormItem>
+          <NButton
+            type="primary"
+            @click="onCaptchaButtonClick"
+            :loading="captchaLoading"
+            :disabled="captchaVerified"
+            block
+          >
+            {{ captchaVerified ? '已验证' : '进行人机验证' }}
+          </NButton>
+        </NFormItem>
+
         <NFormItem path="password" label="密码">
           <NInput
               v-model:value="formValue.password"
@@ -152,30 +166,66 @@ const handleSendEmailCode = async () => {
       },
   )
 }
-const onForgetButtonClick = async () => {
-    const geetestService = new GeetestService(packageData.captcha.Captcha_Id_Login);
-    const result = await geetestService.initAndShowCaptchaForBind();
+// 新增验证状态
+const captchaLoading = ref(false)
+const captchaVerified = ref(false)
+let geetestResult: GeetestResult | null = null
+
+// 独立人机验证方法
+const onCaptchaButtonClick = async () => {
+  captchaLoading.value = true
+  try {
+    const geetestService = new GeetestService(packageData.captcha.Captcha_Id_Login)
+    const result = await geetestService.initAndShowCaptchaForBind()
     if (result) {
-      handleSubmit(result)
+      geetestResult = result
+      captchaVerified.value = true
     }
+  } catch (error) {
+    message.error('验证失败，请重试')
+  } finally {
+    captchaLoading.value = false
+  }
+}
+
+// 修改提交逻辑
+const onForgetButtonClick = async () => {
+  if (!captchaVerified.value) {
+    message.error('请先完成人机验证')
+    return
+  }
+  if (!geetestResult) {
+    message.error('验证信息已过期，请重新验证')
+    return
+  }
+  
+  try {
+    await formRef.value?.validate()
+    isSubmitting.value = true
+    handleSubmit(geetestResult)
+  } catch (error) {
+    isSubmitting.value = false
+  }
 }
 
 const handleSubmit = async (geetestResult: GeetestResult) => {
   await formRef.value?.validate()
   isSubmitting.value = true
   userApi.forget(
-      formValue.value.password,
       formValue.value.email,
+      formValue.value.password,
       formValue.value.emailCode,
       `?lotNumber=${geetestResult.lot_number}&passToken=${geetestResult.pass_token}&genTime=${geetestResult.gen_time}&captchaOutput=${geetestResult.captcha_output}`,
       (data) => {
-        message.success(data)
+        message.success(data.message)
         setTimeout(() => {
           router.push('/login');
         }, 1200);
       },
       (messageText) => {
+        isSubmitting.value = false
         message.error(messageText);
+        captchaVerified.value = false;
       }
   )
 }

@@ -264,7 +264,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, h, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, h, computed, onMounted, watch } from 'vue'
 import { NCard, NForm, NFormItem, NInput, NInputNumber, NSelect, NButton, NIcon, useMessage, type FormRules, type FormInst, NDivider, NSwitch, NTag, NSpace, NText, NGrid, NGridItem, NDynamicTags, NModal, NEmpty } from 'naive-ui'
 import { CloudUploadOutline, SearchOutline } from '@vicons/ionicons5'
 import { switchButtonRailStyle } from '@/constants/theme.ts'
@@ -276,7 +276,6 @@ const router = useRouter()
 const message = useMessage()
 const formRef = ref<FormInst | null>(null)
 const loading = ref(false)
-const userGroup = ref(localStorage.getItem('group'))
 
 // 新增搜索和区域筛选
 const searchQuery = ref('')
@@ -457,60 +456,69 @@ const rules: FormRules = {
 const groupNameMap = ref<Record<string, string>>({})
 
 const fetchUserGroups = async () => {
-  userApi.get("/user/info/groups", accessHandle(), (data) => {
+  return new Promise((resolve) => {
+    userApi.get("/user/info/groups", accessHandle(), (data) => {
       if (data.code === 0) {
-          groupNameMap.value = data.data.groups.reduce((acc: Record<string, string>, group: any) => {
-              acc[group.name] = group.friendlyName
-              return acc
-          }, {} as Record<string, string>)
+        // 处理两种不同的响应格式
+        const groups = typeof data.data.groups === 'string' 
+          ? JSON.parse(data.data.groups) 
+          : data.data.groups;
+
+        groupNameMap.value = groups.reduce((acc: Record<string, string>, group: any) => {
+          acc[group.name] = group.friendlyName;
+          return acc;
+        }, {} as Record<string, string>);
+        resolve(true);
       } else {
-          message.error(data.message || '获取用户组列表失败')
+        message.error(data.message || '获取用户组列表失败');
+        resolve(false);
       }
-  }, (messageText) => {
-      message.error(messageText || '获取用户组列表失败')
+    }, (messageText) => {
+      message.error(messageText || '获取用户组列表失败');
+      resolve(false);
+    })
   })
 }
 
 const fetchNodes = async () => {
-    userApi.get("/proxy/node/list", accessHandle(), (data) => {
-      if (data.code === 0) {
-        nodeOptions.value = data.data.map((node: any) => {
-          const [minPort, maxPort] = node.allowPort.split('-').map(Number)
-          const allowedProtocols = node.allowType.split(';').map((type: string) => type.trim())
-          const allowGroups = node.allowGroup.split(';').map((group: string) => {
-            const trimmedGroup = group.trim()
-            return {
-              name: trimmedGroup,
-              friendlyName: groupNameMap.value[trimmedGroup] || trimmedGroup
-            }
-          })
+  userApi.get("/proxy/node/list", accessHandle(), (data) => {
+    if (data.code === 0) {
+      nodeOptions.value = data.data.map((node: any) => {
+        const [minPort, maxPort] = node.allowPort.split('-').map(Number)
+        const allowedProtocols = node.allowType.split(';').map((type: string) => type.trim())
+        
+        // 确保allowGroup分割正确
+        const allowGroups = node.allowGroup.split(';')
+          .map((group: string) => group.trim())
+          .filter((group: string) => group) // 过滤空值
+          .map((group: string) => ({
+            name: group,
+            friendlyName: groupNameMap.value[group] || group
+          }));
 
-          return {
-            label: `#${node.id} - ${node.name}`,
-            value: node.id,
-            id: node.id,
-            name: node.name,
-            hostname: node.hostname,
-            description: node.description,
-            isOnline: node.status,
-            isDisabled: node.isDisabled,
-            allowedProtocols,
-            allowGroups,
-            needRealname: node.needRealname,
-            bandWidth: node.bandWidth,
-            location: node.location,
-            portRange: {
-              min: minPort,
-              max: maxPort
-            }
+        return {
+          label: `#${node.id} - ${node.name}`,
+          value: node.id,
+          id: node.id,
+          name: node.name,
+          hostname: node.hostname,
+          description: node.description,
+          isOnline: node.status,
+          isDisabled: node.isDisabled,
+          allowedProtocols,
+          allowGroups,
+          needRealname: node.needRealname,
+          bandWidth: node.bandWidth,
+          location: node.location,
+          portRange: {
+            min: minPort,
+            max: maxPort
           }
+        }
       })
-      } else {
-        message.error(data.message || '获取节点列表失败')
-      }
-    }, (error) => {
-        message.error(error || '获取节点列表失败')
-    })
+    }
+    // ... existing error handling ...
+  })
 }
 
 const selectedNode = ref<{
@@ -657,11 +665,10 @@ const goToRealname = () => {
   router.push('/dashboard/profile')
 }
 
+// 修改初始化顺序
 const init = async () => {
-  await fetchUserGroups()
-  setTimeout(() => {
-    fetchNodes()
-  }, 10)
+  await fetchUserGroups()  // 确保先获取用户组信息
+  fetchNodes()            // 移除 setTimeout 直接调用
 }
 
 onMounted(() => {
@@ -697,7 +704,6 @@ watch(showRealnameModal, (newVal) => {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 20px;
   gap: 20px;
 
   .filter-card, .node-card {

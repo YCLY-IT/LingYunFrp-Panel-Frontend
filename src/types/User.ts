@@ -6,7 +6,7 @@ export interface UserInfo {
     friendlyGroup: string
     usedProxies: number
     maxProxies: number
-    create_at: number
+    created_at: number
     traffic: number
     outBound: number
     inBound: number

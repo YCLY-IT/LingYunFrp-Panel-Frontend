@@ -21,11 +21,6 @@
       </n-card>
     </div>
 
-    <!-- 统计卡片 -->
-    <div style="margin-top: 20px;">
-      <Traffic />
-    </div>
-
     <!-- 内容面板 -->
     <div style="margin-top: 20px;" class="content-grid">
       <div class="left-column">
@@ -44,6 +39,11 @@
       <NCard title="通知内容" class="notice-card">
         <div class="markdown-content" v-html="renderedNotice" />
       </NCard>
+    </div>
+
+    <!-- 统计卡片 -->
+    <div style="margin-top: 20px;">
+      <Traffic />
     </div>
   </div>
 </template>
@@ -125,11 +125,7 @@ const renderedNotice = computed(() => {
 // 获取通知
 const fetchNotice = async (): Promise<void> => {
   userApi.get('/user/info/broadcast', accessHandle(), (data) => {
-    if (data.code === 0) {
-      notices.value = data.data.broadcast
-    } else {
-      message.error(data.message || '获取公告失败')
-    }
+      notices.value = data.data[0].broadcast
   }, (messageText) => {
     message.error('获取公告失败:' + messageText)
   })
