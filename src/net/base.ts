@@ -1,8 +1,9 @@
 import axios from 'axios';
 import { Window } from '@/types'
+import packageData from '@/../package.json'
 
 const api = axios.create({
-    baseURL: '/api',
+    baseURL: packageData.backend.baseUrl || '/api',
     headers: {
         //* NOTE: defalut content-type is set
         'Content-Type': 'application/x-www-form-urlencoded'
