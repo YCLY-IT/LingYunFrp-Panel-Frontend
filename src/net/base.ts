@@ -20,7 +20,21 @@ const defaultFailure = (messageText: string) => {
 const defaultError = (err: any) => {
     //! TODO: only console error, don't show message here
     console.error(err);
-    window.$message?.error(err.response.data.message || '请求失败，请稍后重试');
+    if (err.response) {
+        if (err.response.data.code === 2) {
+            window.$dialog?.error({
+                title: '提示',
+                content: '登录信息已过期，请重新登录',
+                positiveText: '确定',
+                negativeText: '取消',
+                onPositiveClick: () => {
+                    removeToken();
+                    window.location.href = '/login';
+                }
+            });
+        }
+    }
+    window.$message?.error(err.response?.data?.message || '请求失败，请稍后重试');
     window.$loadingBar?.error()
 };
 
@@ -78,6 +92,18 @@ function post(url: string, data: any, headers: Record<string, string | number>, 
     }).then(({ data }) => {
         if (data.code === 0) {
             success(data);
+        } else if (data.code === 2) {
+            window.$dialog?.error({
+                title: '提示',
+                content: '登录信息已过期，请重新登录',
+                positiveText: '确定',
+                negativeText: '取消',
+                onPositiveClick: () => {
+                    removeToken();
+                    window.location.href = '/login';
+                }
+            });
+            failure(data.message); 
         } else {
             failure(data.message);
         }
@@ -92,10 +118,22 @@ function get(url: string, headers: Record<string, string>, success: Function, fa
         if (data.code === 0) {
             success(data);
             window.$loadingBar?.finish()
-        }else {
+        }else if (data.code === 2) {
+            window.$dialog?.error({
+                title: '提示',
+                content: '登录信息已过期，请重新登录',
+                positiveText: '确定',
+                negativeText: '取消',
+                onPositiveClick: () => {
+                    removeToken();
+                    window.location.href = '/login';
+                }
+            });
+            failure(data.message); 
+        } else {
             failure(data.message);
-            window.$loadingBar?.error()
         }
+        window.$loadingBar?.finish();
     }).catch(err => error(err));
 }
 
