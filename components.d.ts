@@ -32,6 +32,7 @@ declare module 'vue' {
     NSkeleton: typeof import('naive-ui')['NSkeleton']
     NSpace: typeof import('naive-ui')['NSpace']
     NStatistic: typeof import('naive-ui')['NStatistic']
+    NSwitch: typeof import('naive-ui')['NSwitch']
     NTimeline: typeof import('naive-ui')['NTimeline']
     NTimelineItem: typeof import('naive-ui')['NTimelineItem']
     NUpload: typeof import('naive-ui')['NUpload']

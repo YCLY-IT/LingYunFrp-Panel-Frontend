@@ -712,7 +712,7 @@ const handleCancelSetUserGroup = () => {
 // 保存公告
 const handleSaveBasic = async () => {
   try {
-    userApi.post("/admin/setting/set/Broadcast", {
+    userApi.post("/admin/setting/Broadcast", {
       message: basicForm.value.notice
     }, accessHandle(), (data) => {
       if (data.code === 0) {
@@ -730,7 +730,7 @@ const handleSaveBasic = async () => {
 const handleSaveSecurity = async () => {
   try {
     await securityFormRef.value?.validate()
-    userApi.post("/admin/setting/set/safety", {
+    userApi.post("/admin/setting/safety", {
       allowRegister: securityForm.value.allowRegister,
       allowRealname: securityForm.value.allowRealName,
       allowLogin: securityForm.value.allowLogin,
@@ -769,7 +769,7 @@ const fetchBasicSettings = async () => {
   try {
     userApi.get("/user/info/broadcast", accessHandle(), (data) => {
       if (data.code === 0) {
-        basicForm.value.notice = data.data.broadcast
+        basicForm.value.notice = data.data[0].broadcast
       } else {
         message.error(data.message || '获取公告失败')
       }
