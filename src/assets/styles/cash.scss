@@ -1,0 +1,79 @@
+@use './variables' as *;
+
+.cash {
+  user-select: none;
+  .content-grid {
+    display: grid;
+    gap: 20px;
+  }
+
+  .service-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    align-items: start;
+    gap: 20px;
+  }
+
+  .service-card {
+    .price {
+      font-size: 24px;
+      color: $primary-color;
+      margin: 16px 0;
+
+      .unit {
+        font-size: 14px;
+        color: $text-color-2;
+      }
+    }
+
+    .features {
+      margin: 16px 0;
+
+      .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        color: $text-color-2;
+      }
+    }
+  }
+
+  .qrcode-grid {
+    display: inline-block;
+    margin-bottom: 20px;
+  }
+
+  .qrcode-item {
+    display: inline-block;
+    margin-right: 8px;
+
+    img {
+      width: 250px;
+      height: 375px;
+    }
+  }
+
+  .button-group {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  p {
+    margin: 8px 0;
+    color: $text-color-2;
+  }
+
+  @media (max-width: 768px) {
+    .qrcode-item {
+      display: block;
+      margin-right: 0;
+      margin-bottom: 8px;
+    }
+
+    .service-cards {
+      grid-template-columns: 1fr;
+    }
+  }
+} 

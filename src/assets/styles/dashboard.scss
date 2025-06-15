@@ -1,0 +1,86 @@
+@use 'variables' as *;
+@use 'transitions' as *;
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.header-content {
+  .left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 64px;
+  padding: 0 24px;
+}
+
+.logo {
+  font-size: 20px;
+  background: $text-color;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.menu-trigger {
+  display: none;
+
+  @media (max-width: 768px) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+:deep(.n-menu-item-content) {
+  justify-content: flex-start !important;
+}
+
+:deep(.n-menu-item-content-header) {
+  align-items: center;
+}
+
+.header-right {
+  margin-left: auto;
+}
+
+@media (max-width: 768px) {
+  .n-layout-content {
+    padding: 16px !important;
+  }
+}
+
+.mobile-menu {
+  min-width: 200px;
+  margin: -8px -16px;
+}
+
+:deep(.mobile-menu .n-menu-item) {
+  padding: 8px 16px;
+}
+
+:deep(.mobile-menu .n-menu) {
+  --n-item-height: 42px;
+}
+
+.n-layout-sider {
+  height: calc(100vh - 64px);
+}
+
+.n-layout-content {
+  min-height: calc(100vh - 64px);
+}
+
+.right {
+  display: flex;
+  align-items: center;
+}

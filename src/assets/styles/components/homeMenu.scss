@@ -1,0 +1,115 @@
+@use '../variables' as *;
+
+
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: $bg-color;
+    backdrop-filter: blur(8px);
+}
+
+.navbar-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+}
+
+.logo {
+    flex: 1;
+}
+
+.logo-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.logo h2 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    background: $primary-gradient;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+.desktop-menu {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.pc-navbar {
+    @media (max-width: 768px) {
+        display: none;
+    }
+}
+
+.mobile-navbar {
+    display: none;
+
+    @media (max-width: 768px) {
+        display: block;
+    }
+}
+
+.mobile-header {
+    padding: 0 24px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+    .navbar-content {
+        padding: 12px 16px;
+        gap: 8px;
+    }
+
+    .logo {
+        flex: none;
+    }
+
+    .logo h2 {
+        background: $text-color;
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+        transform: translateZ(0);
+        backface-visibility: hidden;
+    }
+}
+
+.nav-links {
+    .n-button {
+        font-size: 0.95rem;
+    }
+}
+
+.mobile-menu {
+    min-width: 160px;
+    margin: -8px -16px;
+}
+
+:deep(.mobile-menu .n-menu-item) {
+    padding: 8px 16px;
+}
+
+:deep(.mobile-menu .n-menu) {
+    --n-item-height: 42px;
+}

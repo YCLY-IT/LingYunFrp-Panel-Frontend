@@ -1,0 +1,185 @@
+@use './variables' as *;
+
+.home {
+  .welcome-banner {
+    user-select: none;
+    font-size: 1.5em;
+    margin-bottom: 10px;
+    padding: 8px 0;
+    background-color: $bg-color-hover;
+    border-radius: 4px;
+  }
+
+  .content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+
+  @media (max-width: 768px) {
+    .content-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .left-column {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .info-card,
+  .dev-card {
+    width: 100%;
+  }
+  
+  .dev-container {
+    width: 100%;
+    min-height: 200px;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    border-radius: 0;
+    background-color: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+    box-sizing: border-box;
+  }
+  
+  .notice-card {
+    height: 100%;
+    grid-row: span 2;
+  }
+  
+  :deep(.n-card-header) {
+    padding: 16px 16px 8px 16px;
+    position: relative;
+    z-index: 5;
+    box-sizing: border-box;
+  }
+
+  :deep(.n-card__content) {
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+    box-sizing: border-box;
+  }
+
+  :deep(.dev-card) {
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    box-shadow: $box-shadow;
+    transition: $transition-all;
+    
+    &:hover {
+      box-shadow: $box-shadow-hover;
+    }
+    
+    .n-card__content {
+      padding: 0;
+      overflow: hidden;
+      position: relative;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    
+    .n-card__action {
+      padding: 0;
+    }
+  }
+  
+  .markdown-content {
+    :deep(a) {
+      color: $primary-color;
+      text-decoration: none;
+      transition: $transition-all;
+
+      &:hover {
+        color: $primary-hover;
+      }
+    }
+
+    :deep(h1) {
+      font-size: 1.6em;
+      margin: 0;
+    }
+
+    :deep(h2) {
+      font-size: 1.4em;
+      margin: 0;
+    }
+
+    :deep(h3) {
+      font-size: 1.2em;
+      margin: 0;
+    }
+
+    :deep(p) {
+      margin: 0;
+      line-height: 1.6;
+      font-size: 1.1em;
+    }
+
+    :deep(ul),
+    :deep(ol) {
+      padding-left: 1.5em;
+      margin: 0;
+      font-size: 1.1em;
+    }
+
+    :deep(li) {
+      margin: 0;
+    }
+
+    :deep(code) {
+      background-color: rgba(0, 0, 0, 0.05);
+      padding: 0.2em 0.4em;
+      border-radius: 3px;
+      font-family: monospace;
+      font-size: 1.1em;
+    }
+
+    :deep(pre) {
+      background-color: rgba(0, 0, 0, 0.05);
+      padding: 1em;
+      border-radius: 5px;
+      overflow-x: auto;
+      margin: 0;
+
+      code {
+        background-color: transparent;
+        padding: 0;
+      }
+    }
+
+    :deep(blockquote) {
+      border-left: 4px solid $border-color;
+      padding-left: 1em;
+      margin: 0;
+      color: $text-color-2;
+      font-size: 1.1em;
+    }
+
+    :deep(table) {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 0;
+      font-size: 1.1em;
+    }
+
+    :deep(th),
+    :deep(td) {
+      border: 1px solid $border-color;
+      padding: 0.5em;
+    }
+
+    :deep(th) {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+  }
+}
