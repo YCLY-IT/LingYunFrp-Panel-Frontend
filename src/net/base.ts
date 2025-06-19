@@ -113,8 +113,13 @@ function post(url: string, data: any, headers: Record<string, string | number>, 
 //! TODO: use promise instead of callback
 function get(url: string, headers: Record<string, string>, success: Function, failure = defaultFailure, error = defaultError) {
     api.get(url, {
-        headers: headers
+        headers
     }).then(({ data }) => {
+        if(!data.code){
+            success(data);
+            window.$loadingBar?.finish()
+            return;
+        }
         if (data.code === 0) {
             success(data);
             window.$loadingBar?.finish()

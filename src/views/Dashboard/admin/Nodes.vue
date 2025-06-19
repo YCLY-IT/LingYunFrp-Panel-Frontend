@@ -802,6 +802,7 @@ const handleEditSubmit = () => {
     if (!errors) {
       submitting.value = true
       try {
+        const groupStr = formModel.value.allowGroup.join(';').replace(/^;+|;+$/g, '');
         const config: UpdateNodeArgs = {
           id: editingNode.value!.id,
           name: formModel.value.name,
@@ -812,7 +813,7 @@ const handleEditSubmit = () => {
           port: formModel.value.servicePort,
           adminPort: formModel.value.adminPort,
           adminPass: formModel.value.adminPass,
-          group: formModel.value.allowGroup.join(';'),
+          group: groupStr,
           allowPort: formModel.value.allowPort,
           allowType: formModel.value.allowType.join(';'),
           need_realname: formModel.value.need_realname,

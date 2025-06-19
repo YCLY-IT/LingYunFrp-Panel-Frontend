@@ -12,9 +12,7 @@ export function register(username: string, nickname: string, password: string, e
         password,
         email,
         code,
-    }, {
-        'Content-Type': 'application/x-www-form-urlencoded'
-    }, (data: any) => {
+    },{}, (data: any) => {
         if (data.code === 0) {
             success(data);
         }else {

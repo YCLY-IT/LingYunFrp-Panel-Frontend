@@ -1,8 +1,8 @@
 export const themeColors = {
-  primary: '#64B5F6',
-  primaryHover: '#81C7F5',
-  primaryPressed: '#4FC3F7',
-  primarySuppl: '#BBDEFB',
+  primary: '#73A6FF',
+  primaryHover: '#8CAEFF',
+  primaryPressed: '#609BFF',
+  primarySuppl: '#A3C2FF',
 } as const
 
 export const themeOverrides = {

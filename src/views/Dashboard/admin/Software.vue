@@ -434,6 +434,13 @@ const handleVersionSubmit = async () => {
     message.error('请填写完整')
     return
   }
+
+  // 只能包含0-9-.
+  if (!/^[0-9.-]+$/.test(versionForm.value.version)) {
+    message.error('版本号只能包含0-9-.')
+    return
+  }
+
   try {
     const versionData = {
       ...versionForm.value,

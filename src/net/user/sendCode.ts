@@ -4,11 +4,7 @@ import {accessHandle, defaultFailure, post} from "@/net/base";
 export function sendEmailCode(email: string, module, success: Function, failure = defaultFailure) {
     post(`/user/code/${module}`, {
         email: email,
-    },
-        //! TODO: to be deleted
-        {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
+    },{},
         //! TODO: why not just use "success" as param? failure is same
         (data) => {
             success(data);
