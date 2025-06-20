@@ -1,7 +1,7 @@
-import {accessHandle, defaultFailure, post} from "@/net/base";
+import {accessHandle, defaultFailure, defaultError, post} from "@/net/base";
 
 //! TODO: module is not used
-export function sendEmailCode(email: string, module, success: Function, failure = defaultFailure) {
+export function sendEmailCode(email: string, module, success: Function, failure = defaultFailure, error = defaultError) {
     post(`/user/code/${module}`, {
         email: email,
     },{},
@@ -10,9 +10,13 @@ export function sendEmailCode(email: string, module, success: Function, failure 
             success(data);
         }, (message) => {
             failure(message);
-        });
+        },
+        (err) => {
+            error(err);
+        }
+    );
 }
-export function sendSmsCode(phone: string, module, success: Function, failure = defaultFailure) {
+export function sendSmsCode(phone: string, module, success: Function, failure = defaultFailure, error = defaultError) {
     post(`/user/code/${module}`, {
         phone: phone,
     },
@@ -23,6 +27,9 @@ export function sendSmsCode(phone: string, module, success: Function, failure = 
             success(data);
         }, (message) => {
            failure(message);
+        },
+        (err) => {
+            error(err);
         }
     )
 }

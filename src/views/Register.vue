@@ -184,6 +184,11 @@ const handleSendEmailCode = async () => {
         message.error(error)
         isEmailCodeSending.value = false // 发送失败后也需要将状态设置为false
       },
+      (err) => {
+        message.error(err.response?.data?.message)
+        message.warning('请重新进行人机验证')
+        captchaVerified.value = false
+      },
   )
 }
 

@@ -106,7 +106,7 @@ const onLoginButtonClick = async () => {
   loading.value = true
   try {
     await formRef.value?.validate()
-    handleSubmit(geetestResult!)
+    await handleSubmit(geetestResult!)
   } finally {
     loading.value = false
   }
@@ -133,14 +133,20 @@ const handleSubmit = async (geetestResult: GeetestResult) => {
       },
       (data)=> {
         message.error(data)
-        captchaVerified.value = false
         loading.value = false
-      },
-  )
+        // 不自动弹窗，用户需手动点击
+      },(err) => {
+        message.error(err.response?.data?.message)
+        message.warning('请重新进行人机验证')
+        captchaVerified.value = false
+      }
+    )
   } catch (error: any) {
     message.error(error)
     loading.value = false
     captchaVerified.value = false
+    message.warning('请重新进行人机验证')
+    // 不自动弹窗，用户需手动点击
   } finally {
     loading.value = false
   }
