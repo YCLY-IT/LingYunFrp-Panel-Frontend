@@ -28,15 +28,28 @@ jobs:
         with:
           node-version: '22.x'
           cache: 'npm'
-          # 启用Node.js 22特性（可选）
           registry-url: 'https://registry.npmjs.org/'
           
-      - name: 安装依赖（Node.js 22兼容模式）
+      - name: 清除旧依赖
         run: |
-          npm --version
-          npm install --no-audit --production=false
+          rm -rf node_modules package-lock.json
+          echo "旧依赖已清除"
+          
+      - name: 安装依赖（解决可选依赖问题）
+        run: |
+          npm install --no-audit --production=false --force
+          # 手动安装Rollup二进制依赖（Linux x64）
+          if [ "$(uname -m)" == "x86_64" ]; then
+            if [ ! -d "node_modules/@rollup/rollup-linux-x64-gnu" ]; then
+              npm install @rollup/rollup-linux-x64-gnu --no-save
+              echo "已手动安装Rollup二进制"
+            fi
+          fi
+          # 验证依赖安装
+          npm list rollup
         env:
-          NODE_OPTIONS: --openssl-legacy-provider  # 解决旧依赖兼容性问题
+          NODE_OPTIONS: --openssl-legacy-provider
+          npm_config_force: true
           
       - name: 构建项目
         run: |
@@ -47,14 +60,14 @@ jobs:
           fi
         env:
           NODE_ENV: ${{ github.event.inputs.build_env }}
-          # 启用Node.js 22特性开关
-          NODE_V8_COMPAT: 1
+          NODE_V8_COMPAT: 1  # 启用V8兼容模式
           
       - name: 验证输出目录
         run: |
           dir=$(echo ${{ github.event.inputs.output_dir }})
           if [ -d "$dir" ]; then
             echo "构建目录存在: $dir"
+            ls -la "$dir"
           else
             echo "警告: 构建目录不存在，使用默认dist目录"
             mkdir -p dist
@@ -65,5 +78,5 @@ jobs:
         with:
           name: vue-build-${{ github.event.inputs.build_env }}-node22
           path: ${{ github.event.inputs.output_dir }}/
-          # 优化Node.js 22构建产物压缩
-          compression-level: 5  # 降低压缩级别，加速构建
+          compression-level: 5  # 降低压缩级别，加速Node.js 22构建
+          retention-days: 14    # 产物保留14天
