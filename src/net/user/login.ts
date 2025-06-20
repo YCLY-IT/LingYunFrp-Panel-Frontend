@@ -1,4 +1,4 @@
-import { post, defaultFailure, storeToken } from "../base";
+import { post, defaultFailure, storeToken, defaultError } from "../base";
 
 /**
  * 用户登录请求函数
@@ -9,7 +9,7 @@ import { post, defaultFailure, storeToken } from "../base";
  * @param {Function} [failure=defaultFailure] - 登录失败的回调函数，参数为(错误信息,错误码,请求URL)
  * @description 向服务器发送登录请求，成功后存储token并执行回调
  */
-export function login(username: string, password: string, remember: boolean, url: string, success: Function, failure: Function = defaultFailure) {
+export function login(username: string, password: string, remember: boolean, url: string, success: Function, failure: Function = defaultFailure, error: Function = defaultError) {
     post(`/user/login${url}`, {
         username: username,
         password: password
@@ -22,5 +22,5 @@ export function login(username: string, password: string, remember: boolean, url
         success(data);
     }, (message) => {
         failure(message);
-    });
+    }, (err)=> error(err));
 }

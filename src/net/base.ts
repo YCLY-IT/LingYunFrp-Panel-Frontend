@@ -87,6 +87,7 @@ function accessHandle() {
 
 //! TODO: use promise instead of callback
 function post(url: string, data: any, headers: Record<string, string | number>, success: Function, failure = defaultFailure, error = defaultError) {
+    window.$loadingBar?.start();
     api.post(url, data, {
         headers
     }).then(({ data }) => {
@@ -112,6 +113,7 @@ function post(url: string, data: any, headers: Record<string, string | number>, 
 
 //! TODO: use promise instead of callback
 function get(url: string, headers: Record<string, string>, success: Function, failure = defaultFailure, error = defaultError) {
+    window.$loadingBar?.start();
     api.get(url, {
         headers
     }).then(({ data }) => {

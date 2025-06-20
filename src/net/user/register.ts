@@ -1,11 +1,11 @@
-import {defaultFailure, post} from "@/net/base.js";
+import {defaultFailure, defaultError, post} from "@/net/base.js";
 
 export interface RegisterData
 {
     
 }
 
-export function register(username: string, nickname: string, password: string, email: string, code: string, url: string,  success: (arg0: any) => void, failure = defaultFailure) {
+export function register(username: string, nickname: string, password: string, email: string, code: string, url: string,  success: (arg0: any) => void, failure = defaultFailure, error = defaultError) {
     post(`/user/register${url}`, {
         username,
         nickname,
@@ -22,6 +22,6 @@ export function register(username: string, nickname: string, password: string, e
     }, (message) => {
         failure(message);
     }, (err) => {
-        failure(err);
+        error(err);
     });
 }

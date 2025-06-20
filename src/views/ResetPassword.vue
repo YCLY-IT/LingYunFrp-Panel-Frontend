@@ -226,7 +226,12 @@ const handleSubmit = async (geetestResult: GeetestResult) => {
         isSubmitting.value = false
         message.error(messageText);
         captchaVerified.value = false;
-      }
+      },
+      (err) => {
+        message.error(err.response?.data?.message)
+        message.warning('请重新进行人机验证')
+        captchaVerified.value = false
+      },
   )
 }
 </script>
