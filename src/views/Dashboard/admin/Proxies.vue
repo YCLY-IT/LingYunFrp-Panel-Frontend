@@ -787,7 +787,8 @@ const loadData = async () => {
       if (data.code === 0) {
         proxies.value = data.data.proxies
         pagination.value.pageCount = Math.ceil(data.data.totalProxies / pagination.value.pageSize)
-        pagination.value.itemCount = data.data.pagination.total
+        // 添加空值检查
+        pagination.value.itemCount = data.data.pagination?.total || 0
       } else {
         message.error(data.message || '获取数据失败')
       }

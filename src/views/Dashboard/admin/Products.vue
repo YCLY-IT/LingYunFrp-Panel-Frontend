@@ -376,16 +376,12 @@ const fetchProducts = async () => {
   loading.value = true
   try {
     userApi.get("/user/info/product", accessHandle(), (data) => {
-      if (data.code === 0) {
         productsData.value = data.data.products.map(product => ({
           ...product,
           pointPrice: product.pointPrice || 0
         }))
-      } else {
-        message.error(data.message)
-      }
     }, (error) => {
-      message.error(error || '获取产品列表失败')
+      message.info(error || '获取产品列表失败')
     })
   } catch (error) {
     message.error('获取产品列表失败')
