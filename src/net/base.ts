@@ -3,7 +3,7 @@ import { Window } from '@/types'
 import packageData from '@/../package.json'
 
 const api = axios.create({
-    baseURL: packageData.backend.baseUrl || '/api',
+    baseURL: '/api',
     headers: {
         //* NOTE: defalut content-type is set
         'Content-Type': 'application/x-www-form-urlencoded'

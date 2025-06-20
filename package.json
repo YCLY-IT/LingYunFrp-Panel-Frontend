@@ -48,8 +48,5 @@
     "Captcha_Id_Login": "3d50aa28e8c6b6cde77ada0b638b9594",
     "Captcha_Id_Register": "3d50aa28e8c6b6cde77ada0b638b9594",
     "Captcha_Id_Foget": "3d50aa28e8c6b6cde77ada0b638b9594"
-  },
-  "backend": {
-    "baseUrl": "http://localhost:8081"
   }
 }
