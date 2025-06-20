@@ -1,0 +1,69 @@
+name: Vue项目手动构建 (Node.js 22)
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_env:
+        description: '构建环境'
+        required: true
+        default: 'production'
+        options:
+          - production
+          - development
+      output_dir:
+        description: '输出目录'
+        required: false
+        default: 'dist'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+        
+      - name: 设置Node.js 22环境
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22.x'
+          cache: 'npm'
+          # 启用Node.js 22特性（可选）
+          registry-url: 'https://registry.npmjs.org/'
+          
+      - name: 安装依赖（Node.js 22兼容模式）
+        run: |
+          npm --version
+          npm install --no-audit --production=false
+        env:
+          NODE_OPTIONS: --openssl-legacy-provider  # 解决旧依赖兼容性问题
+          
+      - name: 构建项目
+        run: |
+          if [ "${{ github.event.inputs.build_env }}" == "development" ]; then
+            npm run build:dev || npm run build
+          else
+            npm run build
+          fi
+        env:
+          NODE_ENV: ${{ github.event.inputs.build_env }}
+          # 启用Node.js 22特性开关
+          NODE_V8_COMPAT: 1
+          
+      - name: 验证输出目录
+        run: |
+          dir=$(echo ${{ github.event.inputs.output_dir }})
+          if [ -d "$dir" ]; then
+            echo "构建目录存在: $dir"
+          else
+            echo "警告: 构建目录不存在，使用默认dist目录"
+            mkdir -p dist
+          fi
+          
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: vue-build-${{ github.event.inputs.build_env }}-node22
+          path: ${{ github.event.inputs.output_dir }}/
+          # 优化Node.js 22构建产物压缩
+          compression-level: 5  # 降低压缩级别，加速构建
