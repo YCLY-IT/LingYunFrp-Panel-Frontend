@@ -59,6 +59,7 @@ provide('theme', {
   theme,
   toggleTheme
 })
+
 </script>
 
 <style lang="scss">
