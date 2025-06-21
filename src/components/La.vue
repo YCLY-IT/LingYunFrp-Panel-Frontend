@@ -87,7 +87,7 @@ const props = withDefaults(defineProps<Props>(), {
   showFooter: true,
   displayOrder: () => [1, 3, 2, 4, 5], // 默认显示：今日人数、昨日人数、今日访问、昨日访问、本月访问
   titles: () => ['最近活跃访客', '今日人数', '今日访问', '昨日人数', '昨日访问', '本月访问', '总访问量'],
-  apiUrl: 'https://v6-widget.51.la/v6/JkxJmzzWDhbGjOFf/quote.js'
+  apiUrl: 'https://v6-widget.51.la/v6/3MYttaE5F5kzUqrF/quote.js'
 })
 
 // 注入主题状态
