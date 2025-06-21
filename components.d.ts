@@ -10,6 +10,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     AppContent: typeof import('./src/components/AppContent.vue')['default']
     HomeMenu: typeof import('./src/components/HomeMenu.vue')['default']
+    La: typeof import('./src/components/La.vue')['default']
     LeftMenu: typeof import('./src/components/LeftMenu.vue')['default']
     NButton: typeof import('naive-ui')['NButton']
     NCard: typeof import('naive-ui')['NCard']
@@ -38,6 +39,7 @@ declare module 'vue' {
     NSelect: typeof import('naive-ui')['NSelect']
     NSkeleton: typeof import('naive-ui')['NSkeleton']
     NSpace: typeof import('naive-ui')['NSpace']
+    NSpin: typeof import('naive-ui')['NSpin']
     NStatistic: typeof import('naive-ui')['NStatistic']
     NSwitch: typeof import('naive-ui')['NSwitch']
     NTimeline: typeof import('naive-ui')['NTimeline']

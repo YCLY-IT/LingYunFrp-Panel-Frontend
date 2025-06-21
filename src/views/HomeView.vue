@@ -180,6 +180,9 @@
         </div>
       </footer>
     </div>
+    
+    <!-- 统计组件 - 固定定位在底部中间 -->
+    <La />
   </n-config-provider>
 </template>
 
@@ -198,6 +201,7 @@ import {
   CloudIcon
 } from 'lucide-vue-next'
 import router from "@/router";
+import La from '@/components/La.vue'
 
 // 响应式断点检测
 const windowWidth = ref(window.innerWidth)
@@ -361,6 +365,7 @@ const scrollToFeatures = () => {
     featuresSection.scrollIntoView({ behavior: 'smooth' });
   }
 }
+
 </script>
 
 <style lang="scss" scoped>
@@ -428,7 +433,7 @@ const scrollToFeatures = () => {
 
   // 特性区域样式
   .features {
-    padding: 60px 0;
+    padding: 40px 0;
     background-color: var(--n-color-modal);
 
     .section-header {
@@ -486,7 +491,7 @@ const scrollToFeatures = () => {
 
   // 使用场景样式
   .use-cases {
-    padding: 60px 0;
+    padding: 40px 0;
 
     .use-case-content {
       display: flex;
@@ -501,7 +506,7 @@ const scrollToFeatures = () => {
 
   // 价格方案样式
   .pricing {
-    padding: 60px 0;
+    padding: 40px 0;
     background-color: var(--n-color-modal);
 
     .pricing-card {
@@ -583,12 +588,12 @@ const scrollToFeatures = () => {
 
   // FAQ 样式
   .faq {
-    padding: 60px 0;
+    padding: 40px 0;
   }
 
   // 联系我们样式
   .contact {
-    padding: 60px 0;
+    padding: 40px 0;
     background-color: var(--n-color-modal);
 
     .contact-content {
@@ -715,6 +720,13 @@ const scrollToFeatures = () => {
       flex-direction: column;
       text-align: center;
       gap: 12px;
+      
+      .footer-social {
+        order: 1;
+        margin: 8px 0;
+        min-width: 100%;
+        max-width: 100%;
+      }
     }
 
     .pricing-card-highlighted {
