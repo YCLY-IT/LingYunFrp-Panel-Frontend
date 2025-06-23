@@ -1,97 +1,99 @@
 <template>
   <div>
-    <div class="user-info-grid">
-      <template v-if="loading">
-        <div v-for="i in 8" :key="i" class="user-info-item">
-          <NSkeleton :sharp="false" size="medium" />
-        </div>
-      </template>
-      <template v-else>
-        <div class="user-info-item">
-          <div class="user-info-label">用户昵称</div>
-          <div class="user-info-value">
-              {{ userInfo.nickname }}
+    <div class="user-info-scroll-wrapper">
+      <div class="user-info-grid">
+        <template v-if="loading">
+          <div v-for="i in 8" :key="i" class="user-info-item">
+            <NSkeleton :sharp="false" size="medium" />
           </div>
-        </div>
-
-        <div class="user-info-item-right">
-          <div class="user-info-label">实名认证</div>
-          <div class="user-info-value">
-            <NTag :type="userInfo.isRealname ? 'success' : 'default'" size="small">
-              {{ userInfo.isRealname ? '已实名' : '未实名' }}
-            </NTag>
+        </template>
+        <template v-else>
+          <div class="user-info-item">
+            <div class="user-info-label">用户昵称</div>
+            <div class="user-info-value">
+                {{ userInfo.nickname }}
+            </div>
           </div>
-        </div>
 
-        <div class="user-info-item">
-          <div class="user-info-label">用户组</div>
-          <div class="user-info-value">
-            <NTag type="info" size="small">
-              {{ userInfo.friendlyGroup }}
-            </NTag>
+          <div class="user-info-item-right">
+            <div class="user-info-label">实名认证</div>
+            <div class="user-info-value">
+              <NTag :type="userInfo.isRealname ? 'success' : 'default'" size="small">
+                {{ userInfo.isRealname ? '已实名' : '未实名' }}
+              </NTag>
+            </div>
           </div>
-        </div>
 
-        <div class="user-info-item-right">
-          <div class="user-info-label">注册时间</div>
-          <div class="user-info-value">{{ formattedRegTime }}</div>
-        </div>
-
-        <div class="user-info-item">
-          <div class="user-info-label">注册邮箱</div>
-          <div class="user-info-value">{{ userInfo.email }}</div>
-        </div>
-
-        <div class="user-info-item-right">
-          <div class="user-info-label">隧道数量</div>
-          <div class="user-info-value">{{ userInfo.usedProxies }} / {{ userInfo.maxProxies }}</div>
-        </div>
-        <div class="user-info-item">
-          <div class="user-info-label">剩余流量</div>
-          <div class="user-info-value">
-            {{ formattedTraffic }} </div>
-        </div>
-        <div class="user-info-item-right">
-          <div class="user-info-label">剩余积分</div>
-          <div class="user-info-value">
-            {{ userInfo.point }} 分</div>
-        </div>
-        <div class="user-info-item">
-          <div class="user-info-label">入站带宽</div>
-          <div class="user-info-value">{{ userInfo.inlimit / 128 }} Mbps</div>
-        </div>
-
-        <div class="user-info-item-right">
-          <div class="user-info-label">出站带宽</div>
-          <div class="user-info-value">{{ userInfo.outlimit / 128 }} Mbps</div>
-        </div>
-        <div class="user-info-item">
-          <div class="user-info-value">
-            <NSpace class="token-section">
-              <NButton text type="primary" size="small" @click="handleCopyToken">
-                <template #icon>
-                  <CopyPlusIcon />
-                </template>
-                <div style="font-size: 14px;">复制令牌</div>
-              </NButton>
-            </NSpace>
+          <div class="user-info-item">
+            <div class="user-info-label">用户组</div>
+            <div class="user-info-value">
+              <NTag type="info" size="small">
+                {{ userInfo.friendlyGroup }}
+              </NTag>
+            </div>
           </div>
-        </div>
-      </template>
-      <NSpace class="user-info-item-right" vertical :size="4">
-        <NButton text type="primary" :loading="signLoading" :disabled="!isSignAvailable" @click="onSignButtonClick">
-          <template #icon>
-            <NIcon>
-              <CalendarOutline />
-            </NIcon>
-          </template>
-          {{ signButtonText }}
-        </NButton>
-      </NSpace>
+
+          <div class="user-info-item-right">
+            <div class="user-info-label">注册时间</div>
+            <div class="user-info-value">{{ formattedRegTime }}</div>
+          </div>
+
+          <div class="user-info-item">
+            <div class="user-info-label">注册邮箱</div>
+            <div class="user-info-value">{{ userInfo.email }}</div>
+          </div>
+
+          <div class="user-info-item-right">
+            <div class="user-info-label">隧道数量</div>
+            <div class="user-info-value">{{ userInfo.usedProxies }} / {{ userInfo.maxProxies }}</div>
+          </div>
+          <div class="user-info-item">
+            <div class="user-info-label">剩余流量</div>
+            <div class="user-info-value">
+              {{ formattedTraffic }} </div>
+          </div>
+          <div class="user-info-item-right">
+            <div class="user-info-label">剩余积分</div>
+            <div class="user-info-value">
+              {{ userInfo.point }} 分</div>
+          </div>
+          <div class="user-info-item">
+            <div class="user-info-label">入站带宽</div>
+            <div class="user-info-value">{{ userInfo.inlimit / 128 }} Mbps</div>
+          </div>
+
+          <div class="user-info-item-right">
+            <div class="user-info-label">出站带宽</div>
+            <div class="user-info-value">{{ userInfo.outlimit / 128 }} Mbps</div>
+          </div>
+          <div class="user-info-item">
+            <div class="user-info-value">
+              <NSpace class="token-section">
+                <NButton text type="primary" size="small" @click="handleCopyToken">
+                  <template #icon>
+                    <CopyPlusIcon />
+                  </template>
+                  <div style="font-size: 14px;">复制令牌</div>
+                </NButton>
+              </NSpace>
+            </div>
+          </div>
+        </template>
+        <NSpace class="user-info-item-right" vertical :size="4">
+          <NButton text type="primary" :loading="signLoading" :disabled="!isSignAvailable" @click="onSignButtonClick">
+            <template #icon>
+              <NIcon>
+                <CalendarOutline />
+              </NIcon>
+            </template>
+            {{ signButtonText }}
+          </NButton>
+        </NSpace>
+      </div>
     </div>
     <br>
     <NAlert class="user-info-item" type="info" show-icon>
-      <NText depth="3" style="font-size: 13px;">签到可以获得 100-500 积分 和 1-5GB 流量 </NText>
+      <NText depth="3" style="font-size: 13px;">签到可以获得 10-50 积分 和 1-5GB 流量 </NText>
     </NAlert>
   </div>
 </template>

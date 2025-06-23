@@ -78,11 +78,9 @@ function removeToken() {
 declare const window: Window
 
 function accessHandle() {
-    
-   return {
-    'Authorization': `${getToken()}`
-};
-
+    return {
+        'Authorization': getToken()
+    };
 }
 
 //! TODO: use promise instead of callback
@@ -91,6 +89,7 @@ function post(url: string, data: any, headers: Record<string, string | number>, 
     api.post(url, data, {
         headers
     }).then(({ data }) => {
+        window.$loadingBar?.finish();
         if (data.code === 0) {
             success(data);
         } else if (data.code === 2) {
@@ -104,8 +103,10 @@ function post(url: string, data: any, headers: Record<string, string | number>, 
                     window.location.href = '/login';
                 }
             });
-            failure(data.message); 
+            window.$loadingBar?.error();
+            failure(data.message);
         } else {
+            window.$loadingBar?.error();
             failure(data.message);
         }
     }).catch(err => error(err));
@@ -118,13 +119,13 @@ function get(url: string, headers: Record<string, string>, success: Function, fa
         headers
     }).then(({ data }) => {
         if(!data.code){
-            success(data);
             window.$loadingBar?.finish()
+            success(data);
             return;
         }
         if (data.code === 0) {
-            success(data);
             window.$loadingBar?.finish()
+            success(data);
         }else if (data.code === 2) {
             window.$dialog?.error({
                 title: '提示',

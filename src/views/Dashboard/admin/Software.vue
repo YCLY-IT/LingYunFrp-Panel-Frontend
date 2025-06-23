@@ -2,17 +2,20 @@
   <div class="software-container">
     <n-card title="软件管理">
       <template #header-extra>
-        <n-button type="primary" @click="showAddModal = true">
+        <n-button type="primary" @click="showAddModal = true" size="medium">
           添加软件
         </n-button>
       </template>
 
-      <n-data-table
-        :columns="columns"
-        :data="softwareList"
-        :pagination="pagination"
-        :loading="loading"
-      />
+      <div class="table-container">
+        <n-data-table
+          :columns="columns"
+          :data="softwareList"
+          :loading="initLoading"
+          :scroll-x="800"
+          size="medium"
+        />
+      </div>
     </n-card>
 
     <!-- 添加/编辑软件对话框 -->
@@ -20,13 +23,14 @@
       v-model:show="showAddModal"
       :title="editingSoftware ? '编辑软件' : '添加软件'"
       preset="card"
-      style="width: 600px"
+      :style="modalStyle"
+      :mask-closable="false"
     >
       <n-form
         ref="formRef"
         :model="formValue"
         :rules="rules"
-        label-placement="left"
+        label-placement="top"
         label-width="auto"
         require-mark-placement="right-hanging"
       >
@@ -41,6 +45,7 @@
             v-model:value="formValue.description"
             type="textarea"
             placeholder="请输入软件描述"
+            :autosize="{ minRows: 3, maxRows: 5 }"
           />
         </n-form-item>
         <n-form-item label="下载源" path="sourceId">
@@ -55,9 +60,9 @@
         </n-form-item>
       </n-form>
       <template #footer>
-        <n-space justify="end">
-          <n-button @click="showAddModal = false">取消</n-button>
-          <n-button type="primary" @click="handleSubmit">确定</n-button>
+        <n-space justify="end" :size="[8, 8]">
+          <n-button @click="showAddModal = false" size="medium">取消</n-button>
+          <n-button type="primary" @click="handleSubmit" size="medium">确定</n-button>
         </n-space>
       </template>
     </n-modal>
@@ -67,20 +72,24 @@
       v-model:show="showVersionModal"
       title="版本管理"
       preset="card"
-      style="width: 800px"
+      :style="versionModalStyle"
+      :mask-closable="false"
     >
-      <n-space vertical>
+      <n-space vertical :size="16">
         <n-space justify="end">
-          <n-button type="primary" @click="showAddVersionModal = true">
+          <n-button type="primary" @click="showAddVersionModal = true" size="small">
             添加版本
           </n-button>
         </n-space>
         
-        <n-data-table
-          :columns="versionColumns"
-          :data="currentVersions"
-          :pagination="{ pageSize: 5 }"
-        />
+        <div class="version-table-container">
+          <n-data-table
+            :columns="versionColumns"
+            :data="currentVersions"
+            :scroll-x="600"
+            size="small"
+          />
+        </div>
       </n-space>
     </n-modal>
 
@@ -89,13 +98,14 @@
       v-model:show="showAddVersionModal"
       title="添加版本"
       preset="card"
-      style="width: 600px"
+      :style="modalStyle"
+      :mask-closable="false"
     >
       <n-form
         ref="versionFormRef"
         :model="versionForm"
         :rules="versionRules"
-        label-placement="left"
+        label-placement="top"
         label-width="auto"
         require-mark-placement="right-hanging"
       >
@@ -130,9 +140,9 @@
         </n-form-item>
       </n-form>
       <template #footer>
-        <n-space justify="end">
-          <n-button @click="showAddVersionModal = false">取消</n-button>
-          <n-button type="primary" @click="handleVersionSubmit">确定</n-button>
+        <n-space justify="end" :size="[8, 8]">
+          <n-button @click="showAddVersionModal = false" size="small">取消</n-button>
+          <n-button type="primary" @click="handleVersionSubmit" size="small">确定</n-button>
         </n-space>
       </template>
     </n-modal>
@@ -140,7 +150,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, h, onMounted } from 'vue'
+import { ref, h, onMounted, computed } from 'vue'
 import { NButton, NSpace, useMessage } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 import { userApi } from '@/net'
@@ -187,6 +197,24 @@ const softwareList = ref<Software[]>([])
 const downloadSources = ref<DownloadSource[]>([])
 const currentVersions = ref<SoftwareVersion[]>([])
 const allVersions = ref<SoftwareVersion[]>([])
+const initLoading = ref(true)
+
+// 响应式样式计算
+const modalStyle = computed(() => {
+  const isMobile = window.innerWidth <= 768
+  return {
+    width: isMobile ? '95vw' : '600px',
+    maxWidth: '95vw'
+  }
+})
+
+const versionModalStyle = computed(() => {
+  const isMobile = window.innerWidth <= 768
+  return {
+    width: isMobile ? '95vw' : '800px',
+    maxWidth: '95vw'
+  }
+})
 
 const formValue = ref({
   name: '',
@@ -231,29 +259,62 @@ const archOptions = [
 ]
 
 const pagination = {
-  pageSize: 10
+  pageSize: 10,
+  showSizePicker: true,
+  pageSizes: [5, 10, 20],
+  showQuickJumper: true
 }
 
 const columns: DataTableColumns<Software> = [
-  { title: 'ID', key: 'id' },
-  { title: '软件名称', key: 'name' },
-  { title: '软件代号', key: 'code' },
-  { title: '最新版本', key: 'latestVersion', render: (row) => {
-    const latestVersion = row.versions?.sort((a, b) => 
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    )[0]
-    return latestVersion ? latestVersion.version : '-'
-  }},
+  { 
+    title: 'ID', 
+    key: 'id',
+    width: 60,
+    minWidth: 60
+  },
+  { 
+    title: '软件名称', 
+    key: 'name',
+    minWidth: 120,
+    ellipsis: {
+      tooltip: true
+    }
+  },
+  { 
+    title: '软件代号', 
+    key: 'code',
+    minWidth: 100,
+    ellipsis: {
+      tooltip: true
+    }
+  },
+  { 
+    title: '最新版本', 
+    key: 'latestVersion', 
+    minWidth: 100,
+    render: (row) => {
+      if (!row.versions || row.versions.length === 0) {
+        return '-'
+      }
+      const latestVersion = row.versions.sort((a, b) => 
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      )[0]
+      return latestVersion ? latestVersion.version : '-'
+    }
+  },
   { 
     title: '创建时间', 
     key: 'created_at',
+    minWidth: 120,
     render: (row) => formatDate(row.created_at)
   },
   {
     title: '操作',
     key: 'actions',
+    width: 180,
+    minWidth: 180,
     render: (row) => {
-      return h(NSpace, {}, {
+      return h(NSpace, { size: [4, 4] }, {
         default: () => [
           h(
             NButton,
@@ -270,7 +331,7 @@ const columns: DataTableColumns<Software> = [
               type: 'info',
               onClick: () => handleVersionManage(row)
             },
-            { default: () => '版本管理' }
+            { default: () => '版本' }
           ),
           h(
             NButton,
@@ -288,37 +349,54 @@ const columns: DataTableColumns<Software> = [
 ]
 
 const versionColumns: DataTableColumns<SoftwareVersion> = [
-  { title: '版本号', key: 'version' },
-  { title: '操作系统', key: 'os' },
-  { title: '架构', key: 'arch' },
-  { title: '文件大小', key: 'size', render: (row) => formatSize(row.size) },
+  { 
+    title: '版本号', 
+    key: 'version',
+    minWidth: 80
+  },
+  { 
+    title: '系统', 
+    key: 'os',
+    minWidth: 80
+  },
+  { 
+    title: '架构', 
+    key: 'arch',
+    minWidth: 80
+  },
+  { 
+    title: '大小', 
+    key: 'size', 
+    minWidth: 80,
+    render: (row) => formatSize(row.size) 
+  },
   { 
     title: '创建时间', 
     key: 'created_at',
+    minWidth: 120,
     render: (row) => formatDate(row.created_at)
   },
   {
     title: '操作',
     key: 'actions',
+    width: 80,
+    minWidth: 80,
     render: (row) => {
-      return h(NSpace, {}, {
-        default: () => [
-          h(
-            NButton,
-            {
-              size: 'small',
-              type: 'error',
-              onClick: () => handleDeleteVersion(row)
-            },
-            { default: () => '删除' }
-          )
-        ]
-      })
+      return h(
+        NButton,
+        {
+          size: 'small',
+          type: 'error',
+          onClick: () => handleDeleteVersion(row)
+        },
+        { default: () => '删除' }
+      )
     }
   }
 ]
 
 const formatSize = (size: number) => {
+  if (!size || size === 0) return '0 MB'
   const units = ['MB', 'GB']
   let index = 0
   while (size >= 1024 && index < units.length - 1) {
@@ -498,11 +576,15 @@ const fetchSoftwareVersions = async () => {
           currentVersions.value = data.data.filter(version => version.softwareId === editingSoftware.value?.id)
         }
       } else {
+        allVersions.value = []
+        currentVersions.value = []
         message.info('暂无可用版本')
       }
     })
   } catch (error) {
     message.error('获取版本列表失败')
+    allVersions.value = []
+    currentVersions.value = []
   }
 }
 
@@ -512,28 +594,110 @@ const getDownloadSource = async () => {
       if (data.data) {
         downloadSources.value = data.data
       } else {
-        message.info('暂无可用下载')
+        downloadSources.value = []
+        message.info('暂无可用下载源')
       }
     })
   } catch (error) {
     message.error('获取下载源失败')
+    downloadSources.value = []
   }
 }
 
 // 初始化加载数据
 onMounted(async () => {
-  await getDownloadSource()
-  await fetchSoftwareList()
-  await fetchSoftwareVersions()
+  initLoading.value = true
+  await Promise.all([
+    getDownloadSource(),
+    fetchSoftwareList(),
+    fetchSoftwareVersions()
+  ])
+  initLoading.value = false
 })
 </script>
 
 <style lang="scss" scoped>
-.software-container {
-  padding: 20px;
+
+.table-container {
+  overflow-x: auto;
+  
+  :deep(.n-data-table) {
+    min-width: 800px;
+  }
+}
+
+.version-table-container {
+  overflow-x: auto;
+  
+  :deep(.n-data-table) {
+    min-width: 600px;
+  }
 }
 
 :deep(.n-input-number) {
   width: 100%;
+}
+
+// 移动端优化
+@media (max-width: 768px) {
+  
+  :deep(.n-card .n-card-header) {
+    padding: 16px 12px;
+    
+    .n-card-header__main {
+      font-size: 16px;
+    }
+  }
+  
+  :deep(.n-card .n-card-content) {
+    padding: 12px;
+  }
+  
+  :deep(.n-data-table) {
+    font-size: 12px;
+    
+    .n-data-table-th {
+      padding: 8px 4px;
+    }
+    
+    .n-data-table-td {
+      padding: 8px 4px;
+    }
+  }
+  
+  :deep(.n-form-item) {
+    margin-bottom: 16px;
+  }
+  
+  :deep(.n-modal .n-card) {
+    margin: 16px 8px;
+  }
+  
+  :deep(.n-modal .n-card .n-card-header) {
+    padding: 16px;
+  }
+  
+  :deep(.n-modal .n-card .n-card-content) {
+    padding: 16px;
+  }
+  
+  :deep(.n-button) {
+    min-height: 32px;
+  }
+}
+
+// 超小屏幕优化
+@media (max-width: 480px) {
+  .software-container {
+    padding: 4px;
+  }
+  
+  :deep(.n-data-table) {
+    font-size: 11px;
+  }
+  
+  :deep(.n-modal .n-card) {
+    margin: 8px 4px;
+  }
 }
 </style>

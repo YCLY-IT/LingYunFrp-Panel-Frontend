@@ -51,3 +51,13 @@
     position: relative;
     margin-top: 3px;
 }
+
+@media (max-width: 600px) {
+  .user-info-scroll-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .user-info-grid {
+    width: max-content;
+  }
+}

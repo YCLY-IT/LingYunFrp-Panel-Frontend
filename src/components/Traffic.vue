@@ -269,4 +269,30 @@ onUnmounted(() => {
   font-size: 18px;
   font-weight: 600;
 }
+
+@media (max-width: 768px) {
+  .content-info {
+    margin-bottom: 8px;
+  }
+  .notice-card, .info-card, .user-card {
+    padding: 8px !important;
+    margin-bottom: 8px !important;
+  }
+  .markdown-content {
+    max-height: 120px;
+    overflow-y: auto;
+    font-size: 0.95rem;
+  }
+  .traffic-wrapper {
+    width: 100%;
+    max-width: 100%;
+    max-height: 200px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    margin-bottom: 8px;
+  }
+  .n-card {
+    padding: 8px !important;
+  }
+}
 </style>

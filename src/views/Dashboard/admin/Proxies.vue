@@ -6,7 +6,7 @@
           @update:value="handleSearch" />
         <NSelect v-model:value="filters.nodeId" :options="nodeOptions" placeholder="节点" clearable style="width: 100%"
           @update:value="handleFilterChange" />
-        <NSpace>
+        <NSpace class="filter-space">
           <NSelect v-model:value="filters.proxyType" :options="proxyTypeOptions" placeholder="协议" clearable
             style="width: 120px" @update:value="handleFilterChange" />
           <NSelect v-model:value="filters.isOnline" :options="onlineOptions" placeholder="在线状态" clearable
@@ -14,22 +14,23 @@
           <NSelect v-model:value="filters.isBanned" :options="banOptions" placeholder="封禁状态" clearable
             style="width: 120px" @update:value="handleFilterChange" />
         </NSpace>
-
-        <NDataTable remote :columns="columns" :data="proxies" :loading="loading" :pagination="pagination"
-          :style="{
-            '.n-data-table-td': {
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              maxWidth: '200px'
-            }
-          }"
-          @update:page="handlePageChange" />
+        <div class="table-container">
+          <NDataTable remote :columns="columns" :data="proxies" :loading="loading" :pagination="pagination"
+            :style="{
+              '.n-data-table-td': {
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                maxWidth: '200px'
+              }
+            }"
+            @update:page="handlePageChange" />
+        </div>
       </NSpace>
     </NCard>
 
     <!-- 编辑隧道弹窗 -->
-    <NModal v-model:show="showEditModal" preset="dialog" title="编辑隧道" style="width: 600px">
+    <NModal v-model:show="showEditModal" preset="dialog" title="编辑隧道" class="edit-modal" :style="modalStyle">
         <NForm ref="editFormRef" :model="editForm" :rules="rules" label-placement="left" label-width="120"
           require-mark-placement="right-hanging" size="medium" style="padding-top: 12px;">
           <NFormItem label="隧道名称" path="proxyName">
@@ -52,10 +53,12 @@
             <NDynamicTags v-model:value="domainTags" :render-tag="renderDomainTag" />
           </NFormItem>
           <NFormItem v-else label="远程端口" path="remotePort">
+            <div class="remote-port-container">
               <NInputNumber v-model:value="editForm.remotePort" :min="1" :max="65535" placeholder="请输入远程端口" />
               <NButton size="medium" :loading="gettingFreePort" @click="handleGetFreePortForEdit">
                 获取空闲端口
               </NButton>
+            </div>
           </NFormItem>
 
           <NDivider>高级配置</NDivider>
@@ -77,7 +80,7 @@
             ]" placeholder="Proxy Protocol Version" />
           </NFormItem>
           <NFormItem label="其他选项">
-            <div style="display: flex; gap: 16px;">
+            <div class="switch-container">
               <NSwitch v-model:value="editForm.use_encryption" :rail-style="switchButtonRailStyle">
                 <template #checked>启用加密</template>
                 <template #unchecked>禁用加密</template>
@@ -96,7 +99,7 @@
     </NModal>
 
     <!-- 下线确认模态框 -->
-    <NModal v-model:show="showKickModal" preset="dialog" title="确认下线">
+    <NModal v-model:show="showKickModal" preset="dialog" title="确认下线" :style="modalStyle">
       <template #default>
         确认要强制下线此隧道吗？
       </template>
@@ -107,7 +110,7 @@
     </NModal>
 
     <!-- 启用/禁用确认模态框 -->
-    <NModal v-model:show="showToggleModal" preset="dialog" :title="currentProxy?.isDisabled ? '确认启用' : '确认禁用'">
+    <NModal v-model:show="showToggleModal" preset="dialog" :title="currentProxy?.isDisabled ? '确认启用' : '确认禁用'" :style="modalStyle">
       <template #default>
         {{ currentProxy?.isDisabled ? '确认启用此隧道？' : '确认禁用此隧道？' }}
       </template>
@@ -124,7 +127,7 @@
     </NModal>
 
     <!-- 封禁/解封确认模态框 -->
-    <NModal v-model:show="showBanModal" preset="dialog" :title="currentProxy?.isBanned ? '确认解封' : '确认封禁'">
+    <NModal v-model:show="showBanModal" preset="dialog" :title="currentProxy?.isBanned ? '确认解封' : '确认封禁'" :style="modalStyle">
       <template #default>
         {{ currentProxy?.isBanned ? '确认解封此隧道？' : '确认封禁此隧道？' }}
       </template>
@@ -141,7 +144,7 @@
     </NModal>
 
     <!-- 删除确认模态框 -->
-    <NModal v-model:show="showDeleteModal" preset="dialog" title="确认删除">
+    <NModal v-model:show="showDeleteModal" preset="dialog" title="确认删除" :style="modalStyle">
       <template #default>
         确认要删除此隧道吗？此操作不可恢复！
       </template>
@@ -154,7 +157,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, h, VNode } from 'vue'
+import { ref, h, VNode, computed } from 'vue'
 import { NCard, NSpace, NDataTable, NButton, NInput, NSelect, useMessage, NTag, NModal, NForm, NFormItem, NInputNumber, NDynamicTags, NDivider, NSwitch, NDropdown, NIcon } from 'naive-ui'
 import type { DataTableColumns, SelectOption, FormRules, FormInst } from 'naive-ui'
 import type { Proxy, FilterProxiesArgs, UserNode } from '@/types'
@@ -886,10 +889,198 @@ const showToggleModal = ref(false)
 const showBanModal = ref(false)
 const showDeleteModal = ref(false)
 const currentProxy = ref<Proxy | null>(null)
+
+const modalStyle = computed(() => {
+  const isMobile = window.innerWidth <= 768
+  return {
+    width: isMobile ? '95vw' : '600px',
+    maxWidth: '95vw'
+  }
+})
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .n-button {
   margin-right: 8px;
+}
+
+.remote-port-container {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+}
+
+.switch-container {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.filter-space {
+  flex-wrap: wrap;
+}
+
+.table-container {
+  overflow-x: auto;
+  :deep(.n-data-table) {
+    min-width: 800px;
+  }
+}
+
+// 移动端适配
+@media (max-width: 768px) {
+  .n-card {
+    margin: 0 !important;
+    border-radius: 0 !important;
+  }
+
+  .edit-modal {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    margin: 0 auto !important;
+  }
+
+  .n-modal {
+    padding: 8px !important;
+  }
+
+  .n-form {
+    padding-top: 8px !important;
+  }
+
+  .n-form-item {
+    margin-bottom: 12px !important;
+    
+    .n-form-item-label {
+      font-size: 14px !important;
+      min-width: 80px !important;
+      width: 80px !important;
+    }
+  }
+
+  .n-input, .n-select, .n-input-number {
+    font-size: 16px !important;
+    min-height: 40px !important;
+  }
+
+  .n-button {
+    font-size: 14px !important;
+    min-height: 36px !important;
+    padding: 0 12px !important;
+    margin-right: 4px !important;
+  }
+
+  .n-data-table {
+    overflow-x: auto;
+    font-size: 12px !important;
+    
+    .n-data-table-table {
+      min-width: 800px;
+    }
+    
+    .n-data-table-th,
+    .n-data-table-td {
+      padding: 8px 4px !important;
+      font-size: 12px !important;
+    }
+  }
+
+  .filter-space {
+    .n-select {
+      min-width: 100px !important;
+      width: 100px !important;
+    }
+  }
+
+  .remote-port-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    
+    .n-input-number {
+      width: 100% !important;
+    }
+    
+    .n-button {
+      width: 100% !important;
+      margin-right: 0 !important;
+    }
+  }
+
+  .switch-container {
+    flex-direction: column;
+    gap: 12px;
+    
+    .n-switch {
+      width: 100% !important;
+    }
+  }
+
+  .n-space {
+    gap: 8px !important;
+  }
+
+  .n-pagination {
+    .n-pagination-item {
+      min-width: 32px !important;
+      height: 32px !important;
+      font-size: 12px !important;
+    }
+    
+    .n-pagination-size-picker {
+      .n-select {
+        min-width: 80px !important;
+      }
+    }
+  }
+
+  .n-tag {
+    font-size: 11px !important;
+    padding: 2px 6px !important;
+    max-width: 120px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .edit-modal {
+    width: 98vw !important;
+    max-width: 98vw !important;
+  }
+
+  .n-form-item {
+    .n-form-item-label {
+      min-width: 70px !important;
+      width: 70px !important;
+      font-size: 13px !important;
+    }
+  }
+
+  .n-data-table {
+    .n-data-table-table {
+      min-width: 700px;
+    }
+    
+    .n-data-table-th,
+    .n-data-table-td {
+      padding: 6px 2px !important;
+      font-size: 11px !important;
+    }
+  }
+
+  .filter-space {
+    .n-select {
+      min-width: 90px !important;
+      width: 90px !important;
+    }
+  }
+
+  .n-tag {
+    font-size: 10px !important;
+    padding: 1px 4px !important;
+    max-width: 100px !important;
+  }
 }
 </style>

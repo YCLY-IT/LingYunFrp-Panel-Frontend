@@ -648,84 +648,88 @@ const handleSendPhoneCode = async () => {
 </script>
 
 <style lang="scss" scoped>
+// 基础变量
+$card-radius: 8px;
+$primary-spacing: 16px;
+$mobile-spacing: 12px;
+$card-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+$transition-normal: all 0.2s ease;
+
+// 容器样式
 .statistic-container {
   padding: 15px;
-  
 }
+
 .page-container {
   display: flex;
-  gap: 16px;
-  padding: 16px;
+  gap: $primary-spacing;
+  padding: $primary-spacing;
   max-width: 1200px;
   margin: 0 auto;
   
   @media (max-width: 768px) {
     flex-direction: column;
+    padding: $mobile-spacing;
+    gap: $mobile-spacing;
   }
 }
 
+// 左侧列样式
 .left-column {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: $primary-spacing;
+  
+  @media (max-width: 768px) {
+    gap: $mobile-spacing;
+  }
 }
 
+// 右侧列样式
 .right-column {
   width: 450px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: $primary-spacing;
   
   @media (max-width: 768px) {
     width: 100%;
+    margin-top: $mobile-spacing;
   }
 }
 
+// 卡片基础样式
 .card {
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  padding: 16px;
+  border-radius: $card-radius;
+  box-shadow: $card-shadow;
   
   &-title {
     font-size: 18px;
     font-weight: 500;
-    margin: 0 0 16px 0;
+    margin: 0 0 $primary-spacing 0;
   }
   
   &-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
+    margin-bottom: $primary-spacing;
   }
 }
 
-.tabs {
-  display: flex;
-  gap: 16px;
-  
-  .tab {
-    cursor: pointer;
-    padding-bottom: 4px;
-    
-    &.active {
-      border-bottom: 2px solid;
-      font-weight: 500;
-    }
-  }
-}
-
+// 设置网格
 .settings-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  gap: $primary-spacing;
   
   @media (max-width: 992px) {
     grid-template-columns: 1fr;
   }
 }
 
+// 设置项样式
 .setting-item {
   display: flex;
   gap: 12px;
@@ -733,7 +737,6 @@ const handleSendPhoneCode = async () => {
   border-radius: 6px;
   cursor: pointer;
   transition: background-color 0.2s;
-  
   &:hover {
     background-color: rgba(0, 0, 0, 0.05);
   }
@@ -745,7 +748,6 @@ const handleSendPhoneCode = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  
   i {
     width: 24px;
     height: 24px;
@@ -772,68 +774,23 @@ const handleSendPhoneCode = async () => {
   margin: 0;
 }
 
-.redemption-code {
-  .code-input-group {
-    margin-top: 16px;
-  }
-  
-  .input-label {
-    margin-bottom: 8px;
-    font-size: 14px;
-    
-    .required {
-      color: #ff4d4f;
-    }
-  }
-  
-  .input-with-button {
-    display: flex;
-    gap: 8px;
-  }
-  
-  .code-input {
-    flex: 1;
-    padding: 8px 12px;
-    border: 1px solid #d9d9d9;
-    border-radius: 4px;
-    font-size: 14px;
-    
-    &:focus {
-      outline: none;
-      border-color: #1890ff;
-    }
-  }
-  
-  .verify-button {
-    padding: 0 16px;
-    border: none;
-    border-radius: 4px;
-    background-color: #b392f0;
-    cursor: pointer;
-  }
-}
-
+// 账户详情样式
 .account-details {
-  .close-button {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    padding: 0;
-    line-height: 1;
-  }
-  
   .user-profile {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: $primary-spacing;
     margin-bottom: 24px;
+    
+    @media (max-width: 768px) {
+      gap: $mobile-spacing;
+    }
   }
   
   .user-avatar {
     width: 80px;
     height: 80px;
-    border-radius: 8px;
+    border-radius: $card-radius;
     overflow: hidden;
     
     img {
@@ -843,15 +800,15 @@ const handleSendPhoneCode = async () => {
     }
   }
   
+  .user-info {
+    flex: 1;
+    min-width: 0;
+  }
+  
   .user-greeting {
     font-size: 18px;
     font-weight: 500;
     margin: 0 0 4px 0;
-    
-    .user-id {
-      font-weight: normal;
-      opacity: 0.7;
-    }
   }
   
   .user-email {
@@ -859,33 +816,59 @@ const handleSendPhoneCode = async () => {
     color: #666;
     margin: 0;
   }
-  
-  .account-info-grid {
+}
+
+// 账户信息网格
+.account-info-grid {
+  @media (min-width: 601px) {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-    border-radius: 8px;
-    padding: 16px;
+    gap: $primary-spacing;
+    padding: $primary-spacing;
   }
   
-  .info-item {
+  @media (max-width: 600px) {
     display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-  
-  .info-label {
-    font-size: 14px;
-    color: #666;
-  }
-  
-  .info-value {
-    font-size: 16px;
-    font-weight: 500;
+    padding: $mobile-spacing;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: $mobile-spacing;
+    
+    &::-webkit-scrollbar {
+      height: 4px;
+    }
+    
+    
+    &::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 2px;
+    }
+    
+    .user-info-item,
+    .user-info-item-right {
+      flex: 0 0 auto;
+      width: 160px;
+      scroll-snap-align: start;
+      background: rgba(0, 0, 0, 0.02);
+      padding: $mobile-spacing;
+      border-radius: 6px;
+      
+      .user-info-label {
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 4px;
+      }
+      
+      .user-info-value {
+        font-size: 14px;
+        font-weight: 500;
+      }
+    }
   }
 }
 
-// 模态窗口样式
+// 模态框样式
 .modal-actions {
   display: flex;
   justify-content: flex-end;
@@ -896,7 +879,7 @@ const handleSendPhoneCode = async () => {
 .avatar-preview {
   width: 100px;
   height: 100px;
-  border-radius: 8px;
+  border-radius: $card-radius;
   overflow: hidden;
   margin: 0 auto;
   
@@ -904,6 +887,35 @@ const handleSendPhoneCode = async () => {
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+}
+
+// 移动端优化
+@media (max-width: 768px) {
+  .setting-icon {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .setting-title {
+    font-size: 14px;
+  }
+  
+  .setting-desc {
+    font-size: 12px;
+  }
+  
+  .user-avatar {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .user-greeting {
+    font-size: 16px;
+  }
+  
+  .user-email {
+    font-size: 12px;
   }
 }
 </style>

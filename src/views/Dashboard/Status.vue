@@ -86,15 +86,17 @@
         <!-- 视图切换内容 -->
         <div v-if="viewMode === 'table'">
           <!-- 表格视图 -->
-          <n-data-table
-            :columns="columns"
-            :data="nodeData"
-            :pagination="pagination"
-            :bordered="false"
-            :loading="loading"
-            striped
-            class="node-table"
-          />
+          <div class="status-table-scroll">
+            <n-data-table
+              :columns="columns"
+              :data="nodeData"
+              :pagination="pagination"
+              :bordered="false"
+              :loading="loading"
+              striped
+              class="node-table"
+            />
+          </div>
         </div>
         
         <div v-else>
@@ -395,42 +397,45 @@ onMounted(() => {
 })
 </script>
 
-<style scoped>
-.node-status-container {
-  padding: 16px;
-}
+<style lang="scss" scoped>
+$radius-card: 12px;
+$radius-inner: 8px;
+$shadow-card: 0 2px 8px rgba(0, 0, 0, 0.1);
+$shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.15);
+$shadow-card-hover-strong: 0 8px 24px rgba(0, 0, 0, 0.15);
+$gap-main: 16px;
+$gap-small: 8px;
 
 .node-card {
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: $radius-card;
+  box-shadow: $shadow-card;
 }
 
 .stat-card {
-  border-radius: 8px;
+  border-radius: $radius-inner;
   transition: all 0.3s ease;
-}
-
-.stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-card-hover;
+  }
+  margin-bottom: 0;
 }
 
 .node-item-card {
-  border-radius: 8px;
+  border-radius: $radius-inner;
   transition: all 0.3s ease;
   height: 100%;
-}
-
-.node-item-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $shadow-card-hover-strong;
+  }
 }
 
 .metric-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 8px;
+  padding: $gap-small;
   background: rgba(0, 0, 0, 0.02);
   border-radius: 6px;
 }
@@ -468,24 +473,40 @@ onMounted(() => {
 }
 
 .node-table {
-  border-radius: 8px;
+  border-radius: $radius-inner;
   overflow: hidden;
 }
 
-/* 响应式设计 */
-@media (max-width: 1200px) {
-  .node-status-container {
-    padding: 12px;
+
+@media (max-width: 768px) {
+  // 统计卡片区域：一行只显示1个
+  .n-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .stat-card {
+    margin-bottom: $gap-small;
   }
 }
 
-@media (max-width: 768px) {
-  .node-status-container {
-    padding: 8px;
+@media (max-width: 600px) {
+  .status-table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
-  
-  .stat-card {
-    margin-bottom: 8px;
+  .node-table {
+    min-width: 700px;
+    width: max-content;
+  }
+  .node-table :deep(table) {
+    min-width: 700px;
+    width: max-content;
+  }
+  // 卡片视图一列
+  .n-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .node-item-card {
+    margin-bottom: $gap-main;
   }
 }
 </style>

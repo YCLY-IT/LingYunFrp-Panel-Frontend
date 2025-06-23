@@ -18,12 +18,14 @@
           <NSelect v-model:value="filters.status" :options="statusOptions" placeholder="账户状态" clearable
             style="width: 200px" @update:value="handleStatusFilter" />
         </NSpace>
-        <NDataTable remote :columns="columns" :data="users" :loading="loading" :pagination="pagination" />
+        <div class="table-container">
+          <NDataTable remote :columns="columns" :data="users" :loading="loading" :pagination="pagination" />
+        </div>
       </NSpace>
     </NCard>
 
     <!-- 添加编辑用户的模态框 -->
-    <NModal v-model:show="showEditModal" preset="card" title="编辑用户" style="width: 600px;">
+    <NModal v-model:show="showEditModal" preset="card" title="编辑用户" :style="modalStyle">
       <NForm ref="formRef" :model="editForm" :rules="rules" label-placement="left" label-width="auto"
         require-mark-placement="right-hanging">
         <NFormItem label="用户名" path="username">
@@ -86,7 +88,7 @@
 
 <script lang="ts" setup>
 import { ref, h, computed, onMounted } from 'vue'
-import { NCard, NSpace, NDataTable, NButton, useMessage, NTag, NInput, NSelect, NPopconfirm, NIcon, NModal, NForm, NFormItem, NInputNumber, NSwitch, SelectOption } from 'naive-ui'
+import { NCard, NSpace, NDataTable, NButton, useMessage, NTag, NInput, NSelect, NPopconfirm, NIcon, NModal, NForm, NFormItem, NInputNumber, NSwitch, SelectOption, useLoadingBar } from 'naive-ui'
 import { Search } from '@vicons/ionicons5'
 import type { DataTableColumns, FormInst, FormRules } from 'naive-ui'
 import type { UserInfo } from '@/types'
@@ -117,7 +119,7 @@ const filters = ref<{
   status: null
 })
 
-
+const loadingBar = useLoadingBar()
 const groupOptions = ref<{ label: string; value: string }[]>([])
 
 const statusOptions: SelectOption[] = [
@@ -426,7 +428,7 @@ const handleEdit = async (user: UserInfo) => {
 // 修改后的获取用户组方法
 const fetchUserGroups = async () => {
   try {
-    userApi.get("/user/info/groups", accessHandle(), (data) => {
+    userApi.get("/user/info/groups", accessHandle(), async (data) => {
       if (data.code === 0) {
         // 同时更新组名映射和下拉选项
         groupOptions.value = data.data.groups.map(group => ({
@@ -438,6 +440,7 @@ const fetchUserGroups = async () => {
           acc[group.name] = group.friendlyName;
           return acc;
         }, {});
+        loadingBar.finish()
       } else {
         message.error(data.message || '获取用户组列表失败');
       }
@@ -459,7 +462,11 @@ const processUsers = (users: UserInfo[]) => {
 // 统一的数据加载函数
 const loadData = async () => {
   loading.value = true
-  try {
+  try {  
+    // 确保先加载用户组信息
+    if (Object.keys(groupNameMap.value).length === 0) {
+      await fetchUserGroups()
+    }
     const params: FilterUsersArgs = {
       page: pagination.value.page,
       limit: pagination.value.pageSize
@@ -500,4 +507,69 @@ onMounted(() => {
   fetchUserGroups()
   loadData()
 })
+
+const modalStyle = computed(() => {
+  const isMobile = window.innerWidth <= 768
+  return {
+    width: isMobile ? '95vw' : '600px',
+    maxWidth: '95vw'
+  }
+})
 </script>
+
+<style lang="scss" scoped>
+.table-container {
+  overflow-x: auto;
+  :deep(.n-data-table) {
+    min-width: 800px;
+  }
+}
+:deep(.n-input-number) {
+  width: 100%;
+}
+// 移动端优化
+@media (max-width: 768px) {
+  :deep(.n-card .n-card-header) {
+    padding: 16px 12px;
+    .n-card-header__main {
+      font-size: 16px;
+    }
+  }
+  :deep(.n-card .n-card-content) {
+    padding: 12px;
+  }
+  :deep(.n-data-table) {
+    font-size: 12px;
+    .n-data-table-th, .n-data-table-td {
+      padding: 8px 4px;
+    }
+  }
+  :deep(.n-form-item) {
+    margin-bottom: 16px;
+  }
+  :deep(.n-modal .n-card) {
+    margin: 16px 8px;
+  }
+  :deep(.n-modal .n-card .n-card-header) {
+    padding: 16px;
+  }
+  :deep(.n-modal .n-card .n-card-content) {
+    padding: 16px;
+  }
+  :deep(.n-button) {
+    min-height: 32px;
+  }
+}
+// 超小屏幕优化
+@media (max-width: 480px) {
+  .table-container {
+    padding: 4px;
+  }
+  :deep(.n-data-table) {
+    font-size: 11px;
+  }
+  :deep(.n-modal .n-card) {
+    margin: 8px 4px;
+  }
+}
+</style>

@@ -20,7 +20,7 @@ export interface Proxy {
     localIp: string;
     localPort: number;
     remotePort: number;
-    domain?: string;
+    domain: string;
     proxyType: string;
     /** 隧道是否在线 */
     isOnline: boolean;
