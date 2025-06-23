@@ -18,7 +18,7 @@
               <n-tag type="info">v{{ packageData.version }}</n-tag>
             </n-descriptions-item>
             <n-descriptions-item label="最后日期">
-              {{ formattedDate }}
+              {{ formattedBuildDate }}
             </n-descriptions-item>
             <n-descriptions-item label="技术栈" :span="2">
               <n-space>
@@ -271,7 +271,7 @@ import {
 import packageData from '../../../../package.json'
 import { userApi } from '@/net'
 import { accessHandle } from '@/net/base'
-
+declare const __BUILD_DATE__: string
 interface GitHubCommit {
   sha: string
   html_url: string
@@ -295,8 +295,10 @@ const visibleCommits = ref<GitHubCommit[]>([])
 const visibleCount = ref(3)
 const loading = ref(false)
 
-const formattedDate = computed(() => {
-  return new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' })
+const buildDate = typeof __BUILD_DATE__ !== 'undefined' ? __BUILD_DATE__ : ''
+const formattedBuildDate = computed(() => {
+  if (!buildDate) return '未知';
+  return new Date(buildDate).toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' })
 })
 
 const handleAddQQGroup = () => {

@@ -11,7 +11,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "release": "npm version patch && git push --follow-tags"
   },
   "dependencies": {
     "@types/highlight.js": "^9.12.4",
