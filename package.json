@@ -4,8 +4,7 @@
   "title2": "凌云FRP",
   "github": "https://github.com/YCLY-IT",
   "ycly": "https://www.ycly.net",
-  "version": "0.1.4",
-  "lastUpdated": "2025-6-6 12:00:00",
+  "version": "0.1.5",
   "private": true,
   "type": "module",
   "scripts": {
