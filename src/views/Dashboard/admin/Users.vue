@@ -83,6 +83,23 @@
         </NSpace>
       </template>
     </NModal>
+
+    <NModal v-model:show="showBanReasonModal" preset="dialog" title="请输入封禁原因">
+      <NInput
+        v-model:value="banReason"
+        type="textarea"
+        placeholder="请填写封禁原因"
+        :autosize="{ minRows: 3, maxRows: 5 }"
+      />
+      <template #action>
+        <NButton @click="showBanReasonModal = false">取消</NButton>
+        <NButton
+          type="primary"
+          :disabled="!banReason.trim()"
+          @click="submitBanReason"
+        >确定</NButton>
+      </template>
+    </NModal>
   </div>
 </template>
 
@@ -183,6 +200,10 @@ const editForm = ref({
   in_limit: 0,
   proxies: 0
 })
+
+const showBanReasonModal = ref(false)
+const banReason = ref('')
+const banningUser = ref<UserInfo | null>(null)
 
 const formatTime = (timestamp: number | string) => {
   const date = new Date(typeof timestamp === 'string' ? timestamp : timestamp * 1000)
@@ -301,7 +322,11 @@ const columns: DataTableColumns<UserInfo> = [
             h(
               NPopconfirm,
               {
-                onPositiveClick: () => handleToggleStatus(row),
+                onPositiveClick: () => {
+                  banningUser.value = row
+                  banReason.value = ''
+                  showBanReasonModal.value = true
+                },
                 positiveText: '确定',
                 negativeText: '取消'
               },
@@ -353,11 +378,18 @@ const handleStatusFilter = () => {
   loadData()
 }
 
-const handleToggleStatus = async (user: UserInfo) => {
+const submitBanReason = () => {
+  if (!banningUser.value) return
+  handleToggleStatus(banningUser.value, banReason.value)
+  showBanReasonModal.value = false
+}
+
+const handleToggleStatus = async (user: UserInfo, reason?: string) => {
   try {
     userApi.post("/admin/user/toggle", {
       userId: user.id,
-      status: user.status === 1? 0 : 1
+      status: user.status === 1? 0 : 1,
+      reason: reason || undefined
     }, accessHandle(), (data) => {
       if (data.code === 0) {
         message.success(data.message || '操作成功')
