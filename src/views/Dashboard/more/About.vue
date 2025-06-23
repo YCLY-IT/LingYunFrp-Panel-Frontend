@@ -42,7 +42,7 @@
 
         <!-- 功能特性 -->
         <n-card title="功能特性" hoverable>
-          <n-grid cols="1 s:1 m:2 l:3 xl:3" :x-gap="16" :y-gap="16">
+          <n-grid cols="3" :x-gap="16" :y-gap="16">
             <n-grid-item>
               <n-thing>
                 <template #avatar>
