@@ -4,7 +4,7 @@
   "title2": "凌云FRP",
   "github": "https://github.com/YCLY-IT",
   "ycly": "https://www.ycly.net",
-  "version": "0.1.3",
+  "version": "0.1.1",
   "lastUpdated": "2025-6-6 12:00:00",
   "private": true,
   "type": "module",
@@ -12,7 +12,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "release": "npm version patch && git push --follow-tags"
+    "release": "npm version patch && git push --follow-tags",
+    "autopub": "git add . && git commit -m \"chore: 自动发布\" || echo 已无更改 && npm version patch && git push --follow-tags"
   },
   "dependencies": {
     "@types/highlight.js": "^9.12.4",
