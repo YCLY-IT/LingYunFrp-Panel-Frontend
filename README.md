@@ -172,16 +172,8 @@ pnpm preview
 - Fork 并提交 Pull Request
 - 优化文档或翻译
 
-参与贡献前请阅读 [CONTRIBUTING.md](./CONTRIBUTING.md)（如有）。
-
 ---
 
-## 相关项目
-
-- [LingYunFRP 后端](https://github.com/YCLY-IT/LingYunFrp-server) — 配套后端服务
-- [Naive UI](https://www.naiveui.com/) — 本项目 UI 框架
-
----
 
 ## 联系方式
 
