@@ -3,17 +3,19 @@
     <NCard title="产品管理">
       <NSpace vertical>
         <NButton type="primary" @click="openAddModal">添加产品</NButton>
-        <NDataTable
-          remote
-          :columns="productColumns"
-          :data="productsData"
-          :loading="loading"
-          :pagination="{ pageSize: 10 }"
-        />
+        <div class="table-container">
+          <NDataTable
+            remote
+            :columns="productColumns"
+            :data="productsData"
+            :loading="loading"
+            :pagination="{ pageSize: 10 }"
+          />
+        </div>
       </NSpace>
     </NCard>
 
-    <NModal v-model:show="showAddModal" preset="dialog" title="添加产品">
+    <NModal v-model:show="showAddModal" preset="dialog" title="添加产品" :style="modalStyle">
       <NForm
         ref="addFormRef"
         :model="formValue"
@@ -60,7 +62,7 @@
       </template>
     </NModal>
 
-    <NModal v-model:show="showEditModal" preset="dialog" title="编辑产品">
+    <NModal v-model:show="showEditModal" preset="dialog" title="编辑产品" :style="modalStyle">
       <NForm
         ref="editFormRef"
         :model="formValue"
@@ -110,7 +112,7 @@
 </template>
 
 <script lang="ts" setup>
-import { h, onMounted, ref, watch } from 'vue'
+import { h, onMounted, ref, watch, computed } from 'vue'
 import { 
   NButton, NCard, NDataTable, NForm, NFormItem, NInput, NInputNumber, 
   NModal, NSelect, NSpace, NCheckbox, NCheckboxGroup, NTag, useMessage, 
@@ -149,6 +151,14 @@ const groupsData = ref<Group[]>([])
 const groupsOptions = ref<{ label: string; value: string }[]>([])
 const showAddModal = ref(false)
 const showEditModal = ref(false)
+
+const modalStyle = computed(() => {
+  const isMobile = window.innerWidth <= 768
+  return {
+    width: isMobile ? '95vw' : '600px',
+    maxWidth: '95vw'
+  }
+})
 
 // 过滤分组（排除 user 和 admin）
 watch(groupsData, (newGroups) => {
@@ -412,3 +422,60 @@ onMounted(() => {
   fetchGroupsInfo()
 })
 </script>
+
+<style lang="scss" scoped>
+.table-container {
+  overflow-x: auto;
+  :deep(.n-data-table) {
+    min-width: 800px;
+  }
+}
+:deep(.n-input-number) {
+  width: 100%;
+}
+// 移动端优化
+@media (max-width: 768px) {
+  :deep(.n-card .n-card-header) {
+    padding: 16px 12px;
+    .n-card-header__main {
+      font-size: 16px;
+    }
+  }
+  :deep(.n-card .n-card-content) {
+    padding: 12px;
+  }
+  :deep(.n-data-table) {
+    font-size: 12px;
+    .n-data-table-th, .n-data-table-td {
+      padding: 8px 4px;
+    }
+  }
+  :deep(.n-form-item) {
+    margin-bottom: 16px;
+  }
+  :deep(.n-modal .n-card) {
+    margin: 16px 8px;
+  }
+  :deep(.n-modal .n-card .n-card-header) {
+    padding: 16px;
+  }
+  :deep(.n-modal .n-card .n-card-content) {
+    padding: 16px;
+  }
+  :deep(.n-button) {
+    min-height: 32px;
+  }
+}
+// 超小屏幕优化
+@media (max-width: 480px) {
+  .table-container {
+    padding: 4px;
+  }
+  :deep(.n-data-table) {
+    font-size: 11px;
+  }
+  :deep(.n-modal .n-card) {
+    margin: 8px 4px;
+  }
+}
+</style>

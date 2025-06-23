@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-gray-50 p-6">
-    <div class="max-w-4xl mx-auto">
+    <div class="max-w-4xl w-full mx-auto px-2 sm:px-6">
       <n-space vertical size="large" class="mt-6">
         <!-- 面板信息卡片 -->
         <n-card title="面板信息" hoverable>
@@ -42,7 +42,7 @@
 
         <!-- 功能特性 -->
         <n-card title="功能特性" hoverable>
-          <n-grid :cols="3" :x-gap="16" :y-gap="16">
+          <n-grid cols="1 s:1 m:2 l:3 xl:3" :x-gap="16" :y-gap="16">
             <n-grid-item>
               <n-thing>
                 <template #avatar>
@@ -168,7 +168,7 @@
 
         <!-- 联系信息 -->
         <n-card title="联系信息" hoverable>
-          <n-grid :cols="2" :x-gap="16">
+          <n-grid cols="1 s:1 m:2 l:2 xl:2" :x-gap="16">
             <n-grid-item>
               <n-space vertical>
                 <n-thing>

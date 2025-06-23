@@ -10,7 +10,7 @@
       <n-card :loading="loading" class="user-card">
         <n-space>
           <div class="user-card-avatar">
-            <img style="margin-top: 1px; height: 64px; border-radius: 64px; transform: scale(1.2);" :src="userInfoRef?.userInfo.avatar"/>
+            <img style="margin-top: 1px; height: 62px; border-radius: 64px; transform: scale(1.2);" :src="userInfoRef?.userInfo.avatar"/>
           </div>
           <div style="margin-left: 16px; text-align: left; margin-top: 5px;">
             <h3 style="margin: 0px;">{{ forTime }}{{ greetEmoji }}，{{ nickname }}</h3>
@@ -180,5 +180,66 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.content-grid {
+  display: flex;
+  gap: 24px;
+  .left-column, .notice-card {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .content-grid {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .user-card, .info-card, .notice-card {
+    width: 100% !important;
+    max-width: 100%;
+    min-width: 0;
+  }
+  .welcome-banner {
+    font-size: 1.2rem;
+  }
+  h3 {
+    font-size: 1rem;
+    word-break: break-all;
+  }
+  p {
+    font-size: 0.95rem;
+    word-break: break-all;
+  }
+  .user-card {
+    .n-space {
+      display: flex !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      flex-wrap: nowrap !important;
+    }
+    .user-card-avatar {
+      width: 48px !important;
+      height: 48px !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .user-card-avatar img {
+      width: 62px !important;
+      height: 62px !important;
+      border-radius: 50% !important;
+      margin-top: 0 !important;
+      transform: scale(1) !important;
+      object-fit: cover;
+      display: block;
+    }
+    h3, p {
+      text-align: left !important;
+      word-break: break-all;
+    }
+  }
 }
 </style>
