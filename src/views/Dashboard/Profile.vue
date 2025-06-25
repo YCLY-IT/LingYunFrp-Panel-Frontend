@@ -82,7 +82,17 @@
           
           <div class="user-profile">
             <div class="user-avatar">
-              <img :src="UserInfo.avatar" style="border-radius: 64px;" alt="User Avatar" />
+              <div 
+                :style="{
+                  backgroundImage: `url(${UserInfo.avatar})`,
+                  borderRadius: '50%',
+                  width: '80px',
+                  height: '80px',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }"
+                alt="User Avatar"
+              />
             </div>
             <div class="user-info">
               <h3 class="user-greeting">Hi, {{ UserInfo.nickname }} </h3> 
@@ -154,7 +164,17 @@
           </n-form-item>
           <n-form-item label="预览">
             <div class="avatar-preview">
-              <img style="border-radius: 64px;" :src="forms.avatar.avatarUrl" alt="Avatar Preview" />
+              <div 
+                :style="{
+                  backgroundImage: `url(${forms.avatar.avatarUrl})`,
+                  borderRadius: '50%',
+                  width: '100px',
+                  height: '100px',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }"
+                alt="Avatar Preview"
+              />
             </div>
           </n-form-item>
           <div class="modal-actions">
@@ -162,6 +182,30 @@
             <n-button :loading="loading" type="primary" @click="handleChangeAvatar">确认修改</n-button>
           </div>
         </n-form>
+      </n-modal>
+
+      <!-- 新增头像裁剪弹窗 -->
+      <n-modal v-model:show="cropperVisible" preset="card" title="裁剪头像" style="width: 400px;">
+        <vue-cropper
+          ref="cropperRef"
+          :img="cropperImg"
+          :output-size="1"
+          :output-type="'png'"
+          :info="true"
+          :can-move="true"
+          :fixed-box="true"
+          :fixed="true"
+          :center-box="true"
+          :auto-crop="true"
+          :auto-crop-width="200"
+          :auto-crop-height="200"
+          :circle="true"
+          style="height: 300px; width: 300px; margin: 0 auto;"
+        />
+        <div class="modal-actions">
+          <n-button @click="cropperVisible = false">取消</n-button>
+          <n-button type="primary" @click="handleCropConfirm">确认</n-button>
+        </div>
       </n-modal>
 
       <!-- 修改密码模态窗口 -->
@@ -229,6 +273,8 @@ import { UploadFileInfo } from 'naive-ui'
 import { userApi } from '../../net'
 import { accessHandle, removeToken } from '../../net/base'
 import Statistic from '@/components/Statistic.vue';
+import 'vue-cropper/dist/index.css'
+import { VueCropper } from 'vue-cropper'
 
 const userInfoRef = ref<InstanceType<typeof userInfo>>();
 
@@ -372,6 +418,11 @@ const phoneCodeButtonText = computed(() => {
   return '获取验证码'
 })
 
+// 新增头像裁剪相关状态
+const cropperRef = ref()
+const cropperVisible = ref(false)
+const cropperImg = ref('')
+
 // 显示模态窗口
 const showModal = (modalName) => {
   modals[modalName] = true
@@ -466,7 +517,7 @@ const handleUpdateNickname = async () => {
   }
 }
 
-// 处理更改头像前的验证
+// 修改上传前逻辑，弹出裁剪框
 const handleBeforeUpload = async (options: { file: UploadFileInfo }) => {
   const { file } = options
   if (!file.type?.startsWith('image/')) {
@@ -477,19 +528,37 @@ const handleBeforeUpload = async (options: { file: UploadFileInfo }) => {
     message.error('图片大小不能超过2MB')
     return false
   }
-  
   const reader = new FileReader()
   reader.onload = (e) => {
-    file.url = e.target?.result as string
-    forms.avatar.avatarUrl = e.target?.result as string
+    cropperImg.value = e.target?.result as string
+    cropperVisible.value = true
   }
-  
   if (file.file) {
     reader.readAsDataURL(file.file)
-    forms.avatar.avatarFile = [file]
   }
-  
-  return false
+  return false // 阻止默认上传
+}
+
+// 裁剪确认
+const handleCropConfirm = () => {
+  cropperRef.value.getCropBlob((blob) => {
+    const file = new File([blob], 'avatar.png', { type: blob.type })
+    const uploadFileInfo = {
+      id: Date.now().toString(),
+      name: 'avatar.png',
+      status: 'finished' as const,
+      percentage: 100,
+      file: file,
+      url: URL.createObjectURL(blob),
+      type: file.type,
+      batchId: null,
+      thumbnailUrl: '',
+      fullPath: ''
+    }
+    forms.avatar.avatarFile = [uploadFileInfo]
+    forms.avatar.avatarUrl = uploadFileInfo.url
+    cropperVisible.value = false
+  })
 }
 
 const handleChangeAvatar = async () => {

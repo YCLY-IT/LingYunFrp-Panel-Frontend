@@ -10,7 +10,19 @@
       <n-card :loading="loading" class="user-card">
         <n-space>
           <div class="user-card-avatar">
-            <img style="margin-top: 1px; height: 62px; border-radius: 64px; transform: scale(1.2);" :src="userInfoRef?.userInfo.avatar"/>
+            <div
+              :style="{
+                backgroundImage: `url(${userInfoRef?.userInfo.avatar})`,
+                borderRadius: '64px',
+                width: '62px',
+                height: '62px',
+                marginTop: '1px',
+                transform: 'scale(1.2)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                display: 'block',
+              }"
+            />
           </div>
           <div style="margin-left: 16px; text-align: left; margin-top: 5px;">
             <h3 style="margin: 0px;">{{ forTime }}{{ greetEmoji }}，{{ nickname }}</h3>
