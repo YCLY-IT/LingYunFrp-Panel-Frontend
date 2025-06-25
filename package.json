@@ -4,7 +4,7 @@
   "title2": "凌云FRP",
   "github": "https://github.com/YCLY-IT",
   "ycly": "https://www.ycly.net",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "private": true,
   "type": "module",
   "scripts": {
@@ -30,19 +30,20 @@
     "sass-embedded": "^1.89.2",
     "vue": "^3.5.17",
     "vue-axios": "^3.5.2",
+    "vue-cropper": "1.1.3",
     "vue-router": "^4.5.1"
   },
   "devDependencies": {
     "@types/crypto-js": "^4.2.2",
-    "@types/node": "^22.15.32",
-    "@vitejs/plugin-vue": "5.2.4",
-    "@vitejs/plugin-vue-jsx": "^4.2.0",
+    "@types/node": "^22.15.33",
+    "@vitejs/plugin-vue": "6.0.0",
+    "@vitejs/plugin-vue-jsx": "5.0.0",
     "husky": "^9.1.7",
     "naive-ui": "2.42.0",
     "typescript": "5.8.3",
     "unplugin-auto-import": "^19.3.0",
     "unplugin-vue-components": "^28.7.0",
-    "vite": "6.3.5",
+    "vite": "7.0.0",
     "vite-plugin-vue-devtools": "^7.7.7"
   },
   "captcha": {
