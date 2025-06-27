@@ -63,7 +63,7 @@
 
 <script setup lang="ts">
 import { NCard, NAlert, NButton, useMessage } from 'naive-ui'
-import { ref, onMounted, computed, markRaw, Ref } from 'vue'
+import { ref, onMounted, computed, Ref } from 'vue'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import { useRouter } from 'vue-router'
@@ -160,7 +160,7 @@ const fetchNotice = async (): Promise<void> => {
 const getHitokoto = async (): Promise<void> => {
   loading.value = true
   userApi.getHitokoto({}, (data) => {
-    textHitokoto.value = data.hitokoto
+    textHitokoto.value = data
     loading.value = false
   }, (messageText) => {
     message.error('获取一言失败:' + messageText)

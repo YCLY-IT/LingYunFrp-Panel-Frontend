@@ -104,7 +104,6 @@ import { NTag, useMessage, NSkeleton, NButton, NIcon, NSpace, NText, NAlert } fr
 import { CalendarOutline } from '@vicons/ionicons5'
 import {userApi} from "@/net";
 import {accessHandle} from "@/net/base.ts";
-import {Window} from '@/types'
 import packageData from '@/../package.json'
 import { CopyPlusIcon } from 'lucide-vue-next';
 import { GeetestService, loadGeetest } from '@/utils/captcha';

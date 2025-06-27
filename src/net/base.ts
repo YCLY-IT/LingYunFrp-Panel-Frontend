@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { Window } from '@/types'
-import packageData from '@/../package.json'
 
 const api = axios.create({
     baseURL: '/api',

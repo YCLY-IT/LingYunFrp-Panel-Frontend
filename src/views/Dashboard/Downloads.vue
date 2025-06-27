@@ -1,203 +1,192 @@
 <template>
   <div class="downloads">
-    <div class="downloads-layout">
-      <!-- 左侧：资源下载 -->
-      <NCard title="文件下载" class="download-card">
-        <div class="downloads-container">
-          <!-- 下载源选择 -->
-          <div class="select-row">
-            <div class="select-label">下载源</div>
-            <NPopselect
-              v-model:value="selectedSource"
-              :options="sourceOptions"
-              trigger="click"
-              @update:value="handleSourceChange"
-            >
-              <NButton :focusable="false" text size="small" type="info">
-                <span class="select-text">{{ currentSource?.name || '请选择下载源' }}</span>
-                <NIcon :size="16" class="select-icon" :component="ChevronDownOutline" />
-              </NButton>
-            </NPopselect>
-          </div>
-
-          <!-- 主要内容区域 -->
-          <div class="main-content" v-if="selectedSource">
-            <!-- 产品选择 -->
-            <div class="select-row">
-              <div class="select-label">产品</div>
-              <NPopselect
-                v-model:value="selectedProduct"
-                :options="productOptions"
-                trigger="click"
-                @update:value="handleProductChange"
-              >
-                <NButton :focusable="false" text size="small" type="info">
-                  <span class="select-text">{{ currentProduct?.name || '请选择产品' }}</span>
-                  <NIcon :size="16" class="select-icon" :component="ChevronDownOutline" />
-                </NButton>
-              </NPopselect>
-              <div v-if="currentProduct" class="version-selector">
-                <NPopselect
-                  v-model:value="selectedVersion"
-                  :options="versionOptions"
-                  trigger="click"
-                  @update:value="handleVersionChange"
-                >
-                  <NButton :focusable="false" text size="small" type="info">
-                    <div class="version-tag">
-                      <NTag size="small" type="success" round>
-                        <template #icon>
-                          <NIcon :component="PricetagOutline" />
-                        </template>
-                        v{{ selectedVersion }}
-                      </NTag>
-                    </div>
-                    <NIcon :size="16" class="select-icon" :component="ChevronDownOutline" />
-                  </NButton>
-                </NPopselect>
-              </div>
-            </div>
-
-            <!-- 产品详情 -->
-            <div v-if="currentProduct" class="product-content">
-              <div class="markdown-content">
-                <NText depth="3">
-                  <div v-html="renderedDesc"></div>
-                </NText>
-              </div>
-              <NDivider />
-
-              <!-- 非Docker产品显示系统和架构选择 -->
-              <template v-if="!isDockerProduct">
+    <NSpin :show="loading">
+      <NTabs type="line" animated>
+        <NTabPane name="download" tab="文件下载">
+          <div class="downloads-layout">
+            <!-- 左侧：资源下载 -->
+            <NCard title="文件下载" class="download-card">
+              <div class="downloads-container">
+                <!-- 下载源选择 -->
                 <div class="select-row">
-                  <div class="select-label">系统</div>
-                  <NSelect
-                    v-model:value="currentSystem"
-                    :options="systemOptions"
-                    @update:value="handleSystemChange"
-                    placeholder="请选择系统"
-                  />
-                </div>
-                <div class="select-row">
-                  <div class="select-label">架构</div>
-                  <NSelect
-                    v-model:value="currentArch"
-                    :options="archOptions"
-                    :disabled="!currentSystem"
-                    @update:value="handleArchChange"
-                    placeholder="请选择架构"
-                  />
-                </div>
-                <div class="download-row">
-                  <NButton
-                    secondary
-                    size="medium"
-                    :disabled="!canDownload"
-                    @click="handleCopyDownloadUrl"
+                  <div class="select-label">下载源</div>
+                  <NPopselect
+                    v-model:value="selectedSource"
+                    :options="sourceOptions"
+                    trigger="click"
+                    @update:value="handleSourceChange"
                   >
-                    <template #icon>
-                      <NIcon :component="CopyOutline" />
-                    </template>
-                    复制下载链接
-                  </NButton>
-                  <NButton
-                    type="primary"
-                    size="medium"
-                    :disabled="!canDownload"
-                    @click="handleDownload"
-                  >
-                    <template #icon>
-                      <NIcon :component="DownloadOutline" />
-                    </template>
-                    下载
-                  </NButton>
+                    <NButton :focusable="false" text size="small" type="info">
+                      <span class="select-text">{{ currentSource?.name || '请选择下载源' }}</span>
+                      <NIcon :size="16" class="select-icon" :component="ChevronDownOutline" />
+                    </NButton>
+                  </NPopselect>
                 </div>
-              </template>
 
-              <!-- Docker产品显示Docker命令 -->
-              <template v-else>
-                <div class="docker-info">
-                  <NAlert type="info" title="Docker 镜像">
-                    <template #icon>
-                      <NIcon :component="InformationCircleOutline" />
-                    </template>
-                    <p>此产品为 Docker 镜像，请使用以下命令拉取：</p>
-                    <div class="docker-command">
-                      <NCode>docker pull {{ currentProduct.code }}:{{ selectedVersion }}</NCode>
-                      <NButton size="small" @click="copyDockerCommand">
-                        <template #icon>
-                          <NIcon :component="CopyOutline" />
-                        </template>
-                        复制
-                      </NButton>
+                <!-- 主要内容区域 -->
+                <NFadeInExpandTransition>
+                  <div v-if="selectedSource" class="main-content">
+                    <!-- 产品选择 -->
+                    <div class="select-row">
+                      <div class="select-label">产品</div>
+                      <NPopselect
+                        v-model:value="selectedProduct"
+                        :options="productOptions"
+                        trigger="click"
+                        @update:value="handleProductChange"
+                      >
+                        <NButton :focusable="false" text size="small" type="info">
+                          <span class="select-text">{{ currentProduct?.name || '请选择产品' }}</span>
+                          <NIcon :size="16" class="select-icon" :component="ChevronDownOutline" />
+                        </NButton>
+                      </NPopselect>
+                      <div v-if="currentProduct" class="version-selector">
+                        <NPopselect
+                          v-model:value="selectedVersion"
+                          :options="versionOptions"
+                          trigger="click"
+                          @update:value="handleVersionChange"
+                        >
+                          <NButton :focusable="false" text size="small" type="info">
+                            <div class="version-tag">
+                              <NTag size="small" type="success" round>
+                                <template #icon>
+                                  <NIcon :component="PricetagOutline" />
+                                </template>
+                                v{{ selectedVersion }}
+                              </NTag>
+                            </div>
+                            <NIcon :size="16" class="select-icon" :component="ChevronDownOutline" />
+                          </NButton>
+                        </NPopselect>
+                      </div>
                     </div>
-                  </NAlert>
-                </div>
-              </template>
-            </div>
+
+                    <!-- 产品详情 -->
+                    <div v-if="currentProduct" class="product-content">
+                      <div class="markdown-content">
+                        <NText depth="3">
+                          <div v-html="renderedDesc"></div>
+                        </NText>
+                      </div>
+                      <NDivider />
+
+                      <!-- 非Docker产品显示系统和架构选择 -->
+                      <template v-if="!isDockerProduct">
+                        <div class="select-row">
+                          <div class="select-label">系统</div>
+                          <NSelect
+                            v-model:value="currentSystem"
+                            :options="systemOptions"
+                            @update:value="handleSystemChange"
+                            placeholder="请选择系统"
+                          />
+                        </div>
+                        <div class="select-row">
+                          <div class="select-label">架构</div>
+                          <NSelect
+                            v-model:value="currentArch"
+                            :options="archOptions"
+                            :disabled="!currentSystem"
+                            @update:value="handleArchChange"
+                            placeholder="请选择架构"
+                          />
+                        </div>
+                        <div class="download-row">
+                          <NButton
+                            secondary
+                            size="medium"
+                            :disabled="!canDownload"
+                            @click="handleCopyDownloadUrl"
+                          >
+                            <template #icon>
+                              <NIcon :component="CopyOutline" />
+                            </template>
+                            复制下载链接
+                          </NButton>
+                          <NButton
+                            type="primary"
+                            size="medium"
+                            :disabled="!canDownload"
+                            @click="handleDownload"
+                          >
+                            <template #icon>
+                              <NIcon :component="DownloadOutline" />
+                            </template>
+                            下载
+                          </NButton>
+                        </div>
+                      </template>
+
+                      <!-- Docker产品显示Docker命令 -->
+                      <template v-else>
+                        <div class="docker-info">
+                          <NAlert type="info" title="Docker 镜像">
+                            <template #icon>
+                              <NIcon :component="InformationCircleOutline" />
+                            </template>
+                            <p>此产品为 Docker 镜像，请使用以下命令拉取：</p>
+                            <div class="docker-command">
+                              <NCode>docker pull {{ currentProduct.code }}:{{ selectedVersion }}</NCode>
+                              <NButton size="small" @click="copyDockerCommand">
+                                <template #icon>
+                                  <NIcon :component="CopyOutline" />
+                                </template>
+                                复制
+                              </NButton>
+                            </div>
+                          </NAlert>
+                        </div>
+                      </template>
+                    </div>
+                  </div>
+                </NFadeInExpandTransition>
+              </div>
+            </NCard>
           </div>
-        </div>
-      </NCard>
-    </div>
+        </NTabPane>
+        <NTabPane name="overview" tab="产品总览">
+          <NDataTable
+            :columns="overviewColumns"
+            :data="overviewData"
+            :pagination="pagination"
+            :bordered="true"
+            :scroll-x="1200"
+            :scroll-y="400"
+          />
+        </NTabPane>
+      </NTabs>
+    </NSpin>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { NCode, NCard, NButton, NDivider, NText, NPopselect, NSelect, NIcon, NTag, NAlert, useMessage } from 'naive-ui'
+import { ref, computed, onMounted, watch, h } from 'vue'
+import { useDownloadStore } from '@/stores/download'
+import { storeToRefs } from 'pinia'
+import { NCode, NCard, NButton, NDivider, NText, NPopselect, NSelect, NIcon, NTag, NAlert, useMessage, NDataTable, NTabs, NTabPane } from 'naive-ui'
 import { ChevronDownOutline, DownloadOutline, CopyOutline, InformationCircleOutline, PricetagOutline } from '@vicons/ionicons5'
-import type { SelectOption } from 'naive-ui'
+import type { SelectOption, DataTableColumns } from 'naive-ui'
 import { marked } from 'marked'
-import { accessHandle } from "@/net/base.ts"
-import { userApi } from "@/net"
-
-// 类型定义
-interface Software {
-  id: number
-  name: string
-  code: string
-  description: string
-  sourceId: number
-  created_at: string
-  updated_at: string
-}
-
-interface SoftwareVersion {
-  id: number
-  softwareId: number
-  version: string
-  downloadUrl: string
-  os: string
-  arch: string
-  size: number
-  created_at: string
-  updated_at: string
-}
-
-interface DownloadSource {
-  id: number
-  name: string
-  url: string
-}
-
-interface ApiResponse<T> {
-  code: number
-  message: string
-  data: T
-}
+import NFadeInExpandTransition from 'naive-ui/es/_internal/fade-in-expand-transition'
+import type { Software } from '@/types'
 
 const message = useMessage()
 
-// 状态管理
-const products = ref<Software[]>([])
-const allProducts = ref<Software[]>([])
-const softwareVersions = ref<SoftwareVersion[]>([])
-const downloadSources = ref<DownloadSource[]>([])
+// 1. 使用 Pinia Store
+const downloadStore = useDownloadStore()
+const { products, allProducts, softwareVersions, downloadSources, loading } = storeToRefs(downloadStore)
+
+onMounted(() => {
+  downloadStore.fetchAll()
+})
+
 const selectedSource = ref<number | null>(null)
 const selectedProduct = ref<number | null>(null)
 const selectedVersion = ref<string | null>(null)
 const versionSystemMap = ref<Map<string, string | null>>(new Map())
 const versionArchMap = ref<Map<string, string | null>>(new Map())
+const showAllProducts = ref(false)
 
 // 计算属性
 const isDockerProduct = computed(() => {
@@ -212,8 +201,11 @@ const canDownload = computed(() => {
 
 const productOptions = computed<SelectOption[]>(() => {
   const uniqueProducts = new Map<string, Software>()
-  products.value.forEach(product => {
-    if (!uniqueProducts.has(product.name)) {
+  const list = showAllProducts.value ? allProducts.value : products.value
+  list.forEach(product => {
+    // 只显示有版本的产品
+    const hasVersion = softwareVersions.value.some(v => v.softwareId === product.id)
+    if (!uniqueProducts.has(product.name) && hasVersion) {
       uniqueProducts.set(product.name, product)
     }
   })
@@ -384,65 +376,139 @@ const handleCopyDownloadUrl = async () => {
   }
 }
 
-// 数据获取
-const fetchProducts = async () => {
-  try {
-    userApi.get('/user/info/softwares', accessHandle(), (data: ApiResponse<{ softwares: Software[] }>) => {
-      if (!data.data || !data.data.softwares) {
-        message.info('暂无可用产品')
-        products.value = []
-        allProducts.value = []
-        return
-      }
+// 时间格式化
+const formatTime = (isoString: string) => {
+  const date = new Date(isoString);
+  return date.toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  });
+};
 
-      allProducts.value = data.data.softwares
-      products.value = allProducts.value
-    })
-  } catch (error) {
-    message.error('获取产品列表失败')
-    products.value = []
-    allProducts.value = []
+// 产品总览表格相关
+const versionColumns: DataTableColumns<any> = [
+  { 
+    title: '版本号', 
+    key: 'version', 
+    width: 100,
+    render(row: any) {
+      return h(
+        NTag,
+        { type: 'success', size: 'small', round: true },
+        { default: () => `v${row.version}` }
+      )
+    }
+  },
+  { 
+    title: '系统', 
+    key: 'os', 
+    width: 100,
+    render(row: any) {
+      return h(
+        NTag,
+        { type: 'info', size: 'small', round: true },
+        { default: () => row.os }
+      )
+    }
+  },
+  { 
+    title: '架构', 
+    key: 'arch', 
+    width: 100,
+    render(row: any) {
+      return h(
+        NTag,
+        { type: 'warning', size: 'small', round: true },
+        { default: () => row.arch }
+      )
+    }
+  },
+  { title: '发布时间', key: 'created_at', width: 160, render(row: any) {
+      return h(NText, { type: 'secondary' }, { default: () => formatTime(row.created_at) })
+    }
+  },
+  { title: '下载链接', key: 'downloadUrl', width: 200, render(row: any) {
+      return h(NButton, {
+        size: 'small',
+        type: 'primary',
+        onClick: () => window.open(row.downloadUrl, '_blank')
+      }, { default: () => '下载' })
+    }
   }
+]
+
+function getVersionsByProduct(productId: number) {
+  return softwareVersions.value.filter(v => v.softwareId === productId)
 }
 
-const fetchDownloadSources = async () => {
-  try {
-    userApi.get('/user/info/download/sources', accessHandle(), (data: ApiResponse<DownloadSource[]>) => {
-      if (data.code !== 0 || !data.data) {
-        message.info('没有可用的源')
-        downloadSources.value = []
-        return
-      }
-      downloadSources.value = data.data || []
-    })
-  } catch (error) {
-    message.error('获取下载源列表失败')
-    downloadSources.value = []
-  }
-}
+const overviewColumns: DataTableColumns<any> = [
+  {
+    type: 'expand',
+    renderExpand: (row: any) => {
+      return h(
+        NFadeInExpandTransition,
+        {},
+        {
+          default: () =>
+            h(NDataTable, {
+              columns: versionColumns,
+              data: getVersionsByProduct(row.id),
+              bordered: false,
+              size: 'small',
+              pagination: false,
+              style: {
+                background: '#fafbfc',
+                borderRadius: '8px',
+                margin: '8px 16px'
+              }
+            })
+        }
+      )
+    }
+  },
+  { title: '产品名称', key: 'name', width: 180 },
+  { title: '标识', key: 'code', width: 120 },
+  { title: '描述', key: 'description', width: 300 },
+  { title: '所属源', key: 'sourceName', width: 120 },
+  { title: '最新版本', key: 'latestVersion', width: 120 }
+]
 
-const fetchSoftwareVersions = async () => {
-  try {
-    userApi.get('/user/info/softwares/version', accessHandle(), (data: ApiResponse<SoftwareVersion[]>) => {
-      if (data.code !== 0 || !data.data) {
-        message.info('暂无可用版本')
-        softwareVersions.value = []
-        return
+const overviewData = computed(() => {
+  return allProducts.value
+    .map(product => {
+      const versions = softwareVersions.value.filter(v => v.softwareId === product.id)
+      if (versions.length === 0) return null // 没有版本的产品直接隐藏
+      const latestVersion = versions
+        .map(v => v.version)
+        .sort((a, b) => b.localeCompare(a))[0]
+      const source = downloadSources.value.find(s => s.id === product.sourceId)
+      return {
+        ...product,
+        sourceName: source?.name || '',
+        latestVersion
       }
-      softwareVersions.value = data.data
     })
-  } catch (error) {
-    message.error('获取软件版本列表失败')
-    softwareVersions.value = []
-  }
-}
+    .filter((item): item is NonNullable<typeof item> => !!item)
+})
 
-onMounted(async () => {
-  await Promise.all([
-    fetchProducts(),
-    fetchDownloadSources(),
-    fetchSoftwareVersions()
-  ])
+const pagination = { pageSize: 10 }
+
+// 监听 showAllProducts 切换时同步 products
+watch(showAllProducts, (val) => {
+  if (val) {
+    products.value = allProducts.value
+  } else if (selectedSource.value) {
+    products.value = allProducts.value.filter(p => p.sourceId === selectedSource.value)
+  } else {
+    products.value = allProducts.value
+  }
+  selectedProduct.value = null
+  selectedVersion.value = null
 })
 </script>
 
