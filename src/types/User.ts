@@ -90,15 +90,22 @@ export interface DownloadSource {
 
 export interface Software extends DownloadSource {
     id: number
+    code: string
     name: string
-    path: string
     description: string
+    sourceId: number
+}
+
+export interface SoftwareVersion { 
+    id: number
+    name: string
     os: string
     arch: string
     version: string
-    sourceId: number
-    download_url: string
+    softwareId: number
+    downloadUrl: string
 }
+
 export interface Product {
     id: number
     name: string
