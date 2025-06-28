@@ -331,8 +331,7 @@ import {
 import type { FormRules, FormInst, DataTableColumns } from 'naive-ui'
 import { switchButtonRailStyle } from '@/constants/theme.ts'
 import type { DownloadSource, Group } from '@/types'
-import { userApi } from '@/net'
-import { accessHandle } from '@/net/base.ts'
+import { adminApi } from '@/net'
 
 const message = useMessage()
 
@@ -632,15 +631,12 @@ const handleCancelSetUserGroup = () => {
 // 保存公告
 const handleSaveBasic = async () => {
   try {
-    userApi.post("/admin/setting/Broadcast", {
-      message: basicForm.value.notice
-    }, accessHandle(), (data) => {
-      if (data.code === 0) {
-        message.success('保存公告成功')
-      } else {
-        message.error(data.message || '保存公告失败')
-      }
-    })
+    const data = await adminApi.createBroadcast(basicForm.value.notice)
+    if (data.code === 0) {
+      message.success('保存公告成功')
+    } else {
+      message.error(data.message || '保存公告失败')
+    }
   } catch (error) {
     message.error('保存基础设置失败')
   }
@@ -650,20 +646,19 @@ const handleSaveBasic = async () => {
 const handleSaveSecurity = async () => {
   try {
     await securityFormRef.value?.validate()
-    userApi.post("/admin/setting/safety", {
+    const data = await adminApi.updateSafetySetting({
       allowRegister: securityForm.value.allowRegister,
       allowRealname: securityForm.value.allowRealName,
       allowLogin: securityForm.value.allowLogin,
       allowSendEmail: securityForm.value.allowEmail,
       allowSendSms: securityForm.value.allowSms,
       allowSign: securityForm.value.allowSign
-    }, accessHandle(), (data) => {
-      if (data.code === 0) {
-        message.success('保存安全设置成功')
-      } else {
-        message.error(data.message || '保存安全设置失败')
-      }
     })
+    if (data.code === 0) {
+      message.success('保存安全设置成功')
+    } else {
+      message.error(data.message || '保存安全设置失败')
+    }
   } catch (error) {
     message.error('保存安全设置失败')
   }
@@ -672,13 +667,12 @@ const handleSaveSecurity = async () => {
 // 获取下载源列表
 const fetchDownloadSources = async () => {
   try {
-    userApi.get("/user/info/download/sources", accessHandle(), (data) => {
-      if (data.code === 0) {
-        downloadSourcesData.value = data.data
-      } else {
-        message.error(data.message || '获取下载源列表失败')
-      }
-    })
+    const data = await adminApi.getDownloadSources()
+    if (data.code === 0) {
+      downloadSourcesData.value = data.data
+    } else {
+      message.error(data.message || '获取下载源列表失败')
+    }
   } catch (error: any) {
     message.error('获取下载源列表失败')
   }
@@ -687,13 +681,12 @@ const fetchDownloadSources = async () => {
 // 获取基础设置
 const fetchBasicSettings = async () => {
   try {
-    userApi.get("/user/info/broadcast", accessHandle(), (data) => {
-      if (data.code === 0) {
-        basicForm.value.notice = data.data[0].broadcast
-      } else {
-        message.error(data.message || '获取公告失败')
-      }
-    })
+    const data = await adminApi.getBroadcastList()
+    if (data.code === 0) {
+      basicForm.value.notice = data.data[0].broadcast
+    } else {
+      message.error(data.message || '获取公告失败')
+    }
   } catch (error) {
     message.error('获取基础设置失败')
   }
@@ -702,20 +695,19 @@ const fetchBasicSettings = async () => {
 // 获取安全设置
 const fetchSecuritySettings = async () => {
   try {
-    userApi.get("/admin/setting/get", accessHandle(), (data) => {
-      if (data.code === 0) {
-        const configs = data.data;
+    const data = await adminApi.getSystemSettings()
+    if (data.code === 0) {
+      const configs = data.data;
 
-        securityForm.value.allowRegister = configs.find(c => c.type === 'allowRegister')?.value === 'true';
-        securityForm.value.allowSign = configs.find(c => c.type === 'allowSign')?.value === 'true';
-        securityForm.value.allowLogin = configs.find(c => c.type === 'allowLogin')?.value === 'true';
-        securityForm.value.allowRealName = configs.find(c => c.type === 'allowRealname')?.value === 'true';
-        securityForm.value.allowEmail = configs.find(c => c.type === 'allowSendMail')?.value === 'true';
-        securityForm.value.allowSms = configs.find(c => c.type === 'allowSendSms')?.value === 'true';
-      } else {
-        message.error(data.message || '获取安全设置失败');
-      }
-    });
+      securityForm.value.allowRegister = configs.find(c => c.type === 'allowRegister')?.value === 'true';
+      securityForm.value.allowSign = configs.find(c => c.type === 'allowSign')?.value === 'true';
+      securityForm.value.allowLogin = configs.find(c => c.type === 'allowLogin')?.value === 'true';
+      securityForm.value.allowRealName = configs.find(c => c.type === 'allowRealname')?.value === 'true';
+      securityForm.value.allowEmail = configs.find(c => c.type === 'allowSendMail')?.value === 'true';
+      securityForm.value.allowSms = configs.find(c => c.type === 'allowSendSms')?.value === 'true';
+    } else {
+      message.error(data.message || '获取安全设置失败');
+    }
   } catch (error) {
     message.error('获取安全设置失败');
   }
@@ -724,17 +716,17 @@ const fetchSecuritySettings = async () => {
 // 获取用户组列表
 const fetchGroups = async () => {
   try {
-    userApi.get("/user/info/groups", accessHandle(), (data) => {
-      if (data.code === 0) {
-        groupsData.value = data.data.groups.map(group => ({
-          ...group,
-          out_limit: group.out_limit / 128,
-          in_limit: group.in_limit / 128
-        }))
-      } else {
-        message.error(data.message || '获取用户组列表失败')
-      }
-    })
+    const data = await adminApi.getGroupList()
+    if (data.code === 0) {
+      const groups = data.data.groups || data.data
+      groupsData.value = groups.map(group => ({
+        ...group,
+        out_limit: group.out_limit / 128,
+        in_limit: group.in_limit / 128
+      }))
+    } else {
+      message.error(data.message || '获取用户组列表失败')
+    }
   } catch (error: any) {
     message.error('获取用户组列表失败')
   }
@@ -748,22 +740,19 @@ const handleAddDownloadSource = async () => {
   }
 
   try {
-    userApi.post("/admin/setting/download/create", {
-      path: addSourceForm.value.path,
+    const data = await adminApi.createDownloadSource({
       name: addSourceForm.value.name,
-    }, accessHandle(), (data) => {
-      if (data.code === 0) {
-        message.success('添加成功')
-        addSourceForm.value.name = ''
-        addSourceForm.value.path = ''
-        showAddSourceModal.value = false
-      } else {
-        message.error(data.message || '添加失败')
-      }
+      path: addSourceForm.value.path
     })
-    setTimeout(() => {
-      fetchDownloadSources()
-    }, 100)
+    if (data.code === 0) {
+      message.success('添加成功')
+      addSourceForm.value.name = ''
+      addSourceForm.value.path = ''
+      showAddSourceModal.value = false
+      await fetchDownloadSources()
+    } else {
+      message.error(data.message || '添加失败')
+    }
   } catch (error: any) {
     message.error(error?.response?.data?.message || '添加失败')
   }
@@ -777,26 +766,19 @@ const handleEditSource = async () => {
   }
 
   try {
-    userApi.post(
-        `/admin/setting/download/update/${editSourceForm.value.id}`,
-        {
-            path: editSourceForm.value.path,
-            name: editSourceForm.value.name,
-        },
-        accessHandle(), (data) => {
-          if (data.code === 0) {
-            message.success('修改成功')
-            showEditModal.value = false
-            editSourceForm.value.name = ''
-            editSourceForm.value.path = ''
-          } else {
-            message.error(data.message || '修改失败')
-          }
-          setTimeout(() => {
-            fetchDownloadSources()
-          }, 100)
-        }
-    )
+    const data = await adminApi.updateDownloadSource(editSourceForm.value.id, {
+      name: editSourceForm.value.name,
+      path: editSourceForm.value.path
+    })
+    if (data.code === 0) {
+      message.success('修改成功')
+      showEditModal.value = false
+      editSourceForm.value.name = ''
+      editSourceForm.value.path = ''
+      await fetchDownloadSources()
+    } else {
+      message.error(data.message || '修改失败')
+    }
   } catch (error: any) {
     message.error(error || '修改失败')
   }
@@ -807,18 +789,13 @@ const handleEditSource = async () => {
 // 删除下载源
 const handleRemoveDownloadSource = async (id: number) => {
   try {
-    userApi.post(`/admin/setting/download/delete/${id}`, {
-      id: id,
-    }, accessHandle(), (data) => {
-      if (data.code === 0) {
-        message.success('删除成功')
-      } else {
-        message.error(data.message || '删除失败')
-      }
-      setTimeout(() => {
-        fetchDownloadSources()
-      }, 100)
-    })
+    const data = await adminApi.deleteDownloadSource(id)
+    if (data.code === 0) {
+      message.success('删除成功')
+      await fetchDownloadSources()
+    } else {
+      message.error(data.message || '删除失败')
+    }
   } catch (error: any) {
     message.error(error?.response?.data?.message || '删除失败')
   }
@@ -827,30 +804,32 @@ const handleRemoveDownloadSource = async (id: number) => {
 // 添加用户组
 const handleAddGroup = async () => {
   try {
-    userApi.post(`/admin/setting/groups/create`, {
-      ...groupForm.value,
-      traffic: groupForm.value.traffic
-    }, accessHandle(), (data) => {
-      if (data.code === 0) {
-        message.success('添加用户组成功')
-        showAddGroupModal.value = false
-        groupForm.value = {
-          id: 0,
-          name: '',
-          friendlyName: '',
-          point: 0,
-          proxies: 0,
-          traffic: 0,
-          out_limit: 0,
-          in_limit: 0
-        }
-      } else {
-        message.error(data.message || '添加失败')
-      }
+    const data = await adminApi.createGroup({
+      name: groupForm.value.name,
+      friendlyName: groupForm.value.friendlyName,
+      point: groupForm.value.point,
+      proxies: groupForm.value.proxies,
+      traffic: groupForm.value.traffic,
+      out_limit: groupForm.value.out_limit,
+      in_limit: groupForm.value.in_limit
     })
-    setTimeout(() => {
-      fetchGroups()
-    }, 100)
+    if (data.code === 0) {
+      message.success('添加用户组成功')
+      showAddGroupModal.value = false
+      groupForm.value = {
+        id: 0,
+        name: '',
+        friendlyName: '',
+        point: 0,
+        proxies: 0,
+        traffic: 0,
+        out_limit: 0,
+        in_limit: 0
+      }
+      await fetchGroups()
+    } else {
+      message.error(data.message || '添加失败')
+    }
   } catch (error: any) {
     message.error(error?.response?.data?.message || '添加失败')
   }
@@ -859,22 +838,23 @@ const handleAddGroup = async () => {
 // 编辑用户组
 const handleEditGroup = async () => {
   try {
-    userApi.post(`/admin/setting/groups/update/${editGroupForm.value.id}`,
-        {
-          ...editGroupForm.value,
-          traffic: editGroupForm.value.traffic,
-          setUserGroup: SetUserGroup.value
-        }, accessHandle(), (data) => {
-      if (data.code === 0) {
-        message.success('更新用户组成功')
-      } else {
-        message.error(data.message || '更新用户组失败')
-      }
+    const data = await adminApi.updateGroup({
+      id: editGroupForm.value.id,
+      name: editGroupForm.value.name,
+      friendlyName: editGroupForm.value.friendlyName,
+      point: editGroupForm.value.point,
+      proxies: editGroupForm.value.proxies,
+      traffic: editGroupForm.value.traffic,
+      out_limit: editGroupForm.value.out_limit,
+      in_limit: editGroupForm.value.in_limit
     })
-    showEditGroupModal.value = false
-    setTimeout(() => {
-      fetchGroups()
-    }, 100)
+    if (data.code === 0) {
+      message.success('更新用户组成功')
+      showEditGroupModal.value = false
+      await fetchGroups()
+    } else {
+      message.error(data.message || '更新用户组失败')
+    }
   } catch (error: any) {
     message.error(error?.response?.data?.message || '修改失败')
   }
@@ -883,16 +863,13 @@ const handleEditGroup = async () => {
 // 删除用户组
 const handleRemoveGroup = async (id: number) => {
   try {
-    userApi.post(`/admin/setting/groups/delete/${id}`, {}, accessHandle(), (data) => {
-      if (data.code === 0) {
-        message.success('删除用户组成功')
-      } else {
-        message.error(data.message || '删除用户组失败')
-      }
-    })
-    setTimeout(() => {
-      fetchGroups()
-    }, 100)
+    const data = await adminApi.deleteGroup(id)
+    if (data.code === 0) {
+      message.success('删除用户组成功')
+      await fetchGroups()
+    } else {
+      message.error(data.message || '删除用户组失败')
+    }
   } catch (error: any) {
     message.error(error?.response?.data?.message || '删除失败')
   }

@@ -29,7 +29,6 @@
 
 <script setup lang="ts">
 import { userApi } from '@/net';
-import { accessHandle } from '@/net/base';
 import { TrafficType } from '@/types';
 import { ArrowDownCircleOutline, BarChartOutline, CalendarOutline, GlobeOutline } from '@vicons/ionicons5';
 import { useMessage } from 'naive-ui';
@@ -84,11 +83,12 @@ const cards = computed(() => [
 
 // 获取用户流量
 const getUserTraffic = async (): Promise<void> => {
-  userApi.get('/user/info/traffic', accessHandle(), (data) => {
+  try {
+    const data = await userApi.getUserTraffic()
     traffic.value = data.data
-  }, (messageText) => {
-    message.error('获取用户流量失败:' + messageText)
-  })
+  } catch (error: any) {
+    message.error('获取用户流量失败:' + (error.message || error))
+  }
 }
 
 defineExpose({

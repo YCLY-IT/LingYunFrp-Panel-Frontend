@@ -58,7 +58,7 @@
       </NForm>
       <template #action>
         <NButton @click="closeModal('add')">取消</NButton>
-        <NButton type="primary" @click="handleSubmitProduct('add')">确定</NButton>
+        <NButton type="primary" @click="handleSubmit">确定</NButton>
       </template>
     </NModal>
 
@@ -105,7 +105,7 @@
       </NForm>
       <template #action>
         <NButton @click="closeModal('edit')">取消</NButton>
-        <NButton type="primary" @click="handleSubmitProduct('edit')">确定</NButton>
+        <NButton type="primary" @click="handleSubmit">确定</NButton>
       </template>
     </NModal>
   </div>
@@ -121,7 +121,7 @@ import {
   FormRules
 } from 'naive-ui'
 import { userApi } from '@/net'
-import { accessHandle } from '@/net/base.ts'
+import { adminApi } from '@/net'
 import { Group, Product } from '@/types'
 
 const message = useMessage()
@@ -337,64 +337,81 @@ const openEditModal = (product: Product) => {
 }
 
 // 提交产品表单
-const handleSubmitProduct = async (formMode: 'add' | 'edit') => {
-  let formRef = formMode === 'add' ? addFormRef : editFormRef
-  if (!formRef.value) return
-
+const handleSubmit = async () => {
   try {
-    await formRef.value.validate()
+    await addFormRef.value?.validate()
     
-    const formData = { ...formValue.value }
-    formData.payMethod = formValue.value.payMethods.join(';')
+    const formMode = mode.value
+    const formData = {
+      type: formValue.value.type,
+      name: formValue.value.name,
+      desc: formValue.value.desc,
+      isPermanent: formValue.value.isPermanent,
+      price: formValue.value.price,
+      pointPrice: formValue.value.pointPrice,
+      payMethod: formValue.value.payMethods.join(';')
+    }
 
-    const apiPath = formMode === 'add'
-      ? '/admin/product/create'
-      : `/admin/product/update/${currentProduct.value?.id}`
-
-    userApi.post(apiPath, formData, accessHandle(), (data) => {
+    if (formMode === 'add') {
+      const data = await adminApi.createProduct(formData)
       if (data.code === 0) {
-        message.success(`${formMode === 'add' ? '添加' : '修改'}产品成功`)
-        closeModal(formMode)
-        fetchProducts()
+        message.success('添加产品成功')
+        closeModal('add')
+        await fetchProductsInfo()
       } else {
-        message.error(data.message)
+        message.error(data.message || '添加产品失败')
       }
-    })
-  } catch (error) {
-    message.error('请填写完整信息')
+    } else {
+      if (!currentProduct.value?.id) return
+      const data = await adminApi.updateProduct({
+        id: currentProduct.value.id,
+        ...formData
+      })
+      if (data.code === 0) {
+        message.success('修改产品成功')
+        closeModal('edit')
+        await fetchProductsInfo()
+      } else {
+        message.error(data.message || '修改产品失败')
+      }
+    }
+  } catch (error: any) {
+    message.error(error?.response?.data?.message || '操作失败')
   }
 }
 
 // 删除产品
 const handleDeleteProduct = async (productId: number) => {
   try {
-    userApi.post(`/admin/product/delete/${productId}`, {}, accessHandle(), (data) => {
-      if (data.code === 0) {
-        message.success('删除产品成功')
-        fetchProducts()
-      } else {
-        message.error(data.message)
-      }
-    })
-  } catch (error) {
-    message.error('删除产品失败')
+    const data = await adminApi.deleteProduct(productId)
+    if (data.code === 0) {
+      message.success('删除产品成功')
+      await fetchProductsInfo()
+    } else {
+      message.error(data.message || '删除产品失败')
+    }
+  } catch (error: any) {
+    message.error(error?.response?.data?.message || '删除产品失败')
   }
 }
 
 // 获取产品列表
-const fetchProducts = async () => {
+const fetchProductsInfo = async () => {
   loading.value = true
   try {
-    userApi.get("/user/info/product", accessHandle(), (data) => {
-        productsData.value = data.data.products.map(product => ({
-          ...product,
-          pointPrice: product.pointPrice || 0
-        }))
-    }, (error) => {
-      message.info(error || '获取产品列表失败')
-    })
-  } catch (error) {
-    message.error('获取产品列表失败')
+    const data = await adminApi.getProductList()
+    if (data.code === 0) {
+      productsData.value = data.data.products.map(product => ({
+        ...product,
+        payMethods: product.payMethod ? product.payMethod.split(';') : [],
+        isPoint: false,
+        selectedAmount: 0
+      }))
+    } else {
+      message.error(data.message || '获取产品列表失败')
+    }
+  } catch (error: any) {
+    message.error(error?.response?.data?.message || '获取产品列表失败')
   } finally {
     loading.value = false
   }
@@ -403,22 +420,19 @@ const fetchProducts = async () => {
 // 获取分组信息
 const fetchGroupsInfo = async () => {
   try {
-    userApi.get("/user/info/groups", accessHandle(), (data) => {
-      if (data.code === 0) {
-        groupsData.value = data.data.groups
-      } else {
-        message.error(data.message)
-      }
-    }, () => {
-      message.error('获取分组列表失败')
-    })
-  } catch (error) {
-    message.error('获取分组列表失败')
+    const data = await adminApi.getGroupList()
+    if (data.code === 0) {
+      groupsData.value = data.data.groups || data.data
+    } else {
+      message.error(data.message || '获取用户组列表失败')
+    }
+  } catch (error: any) {
+    message.error(error?.response?.data?.message || '获取用户组列表失败')
   }
 }
 
 onMounted(() => {
-  fetchProducts()
+  fetchProductsInfo()
   fetchGroupsInfo()
 })
 </script>

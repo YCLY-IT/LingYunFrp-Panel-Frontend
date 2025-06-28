@@ -56,7 +56,7 @@ import { switchButtonRailStyle } from '../constants/theme.ts'
 import { getMenuOptions, renderIcon, defaultExpandedKeys } from '../shared/menuOptions.ts'
 import LeftMenu from './LeftMenu.vue'
 import { userApi } from "@/net";
-import { accessHandle, removeToken } from "@/net/base.ts";
+import { removeToken } from '@/net/token.ts'
 
 const router = useRouter()
 const route = useRoute()
@@ -134,9 +134,12 @@ const handleThemeChange = () => {
 }
 
 const userLogout = async () => {
-  await userApi.get('/user/logout', accessHandle(), () => {
-    removeToken();
-  })
+  try {
+    await userApi.logout()
+    removeToken()
+  } catch (error: any) {
+    message.error(error?.response?.data?.message || '退出登录失败')
+  }
 }
 
 const handleUserMenuSelect = (key: string) => {

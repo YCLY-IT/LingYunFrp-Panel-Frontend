@@ -151,20 +151,20 @@ const handleSendEmailCode = async () => {
   }
 
   isEmailCodeSending.value = true
-  userApi.sendEmailCode(
-      formValue.value.email,
-      "forget",
-      (data) => {
-        message.success(data.message)
-        startEmailCodeCountdown()
-        formValue.value.emailCode = ''
-        isEmailCodeSending.value = false // 确保发送成功后将状态设置为false
-      },
-      (error) => {
-        message.error(error)
-        isEmailCodeSending.value = false // 发送失败后也需要将状态设置为false
-      },
-  )
+  try {
+    const data = await userApi.sendEmailCode(formValue.value.email, "forget")
+    if (data.code === 0) {
+      message.success(data.message)
+      startEmailCodeCountdown()
+      formValue.value.emailCode = ''
+    } else {
+      message.error(data.message || '验证码发送失败')
+    }
+  } catch (error: any) {
+    message.error(error.message || '验证码发送失败')
+  } finally {
+    isEmailCodeSending.value = false
+  }
 }
 // 新增验证状态
 const captchaLoading = ref(false)
@@ -211,28 +211,29 @@ const onForgetButtonClick = async () => {
 const handleSubmit = async (geetestResult: GeetestResult) => {
   await formRef.value?.validate()
   isSubmitting.value = true
-  userApi.forget(
-      formValue.value.email,
-      formValue.value.password,
-      formValue.value.emailCode,
-      `?lotNumber=${geetestResult.lot_number}&passToken=${geetestResult.pass_token}&genTime=${geetestResult.gen_time}&captchaOutput=${geetestResult.captcha_output}`,
-      (data) => {
-        message.success(data.message)
-        setTimeout(() => {
-          router.push('/login');
-        }, 1200);
-      },
-      (messageText) => {
-        isSubmitting.value = false
-        message.error(messageText);
-        captchaVerified.value = false;
-      },
-      (err) => {
-        message.error(err.response?.data?.message)
-        message.warning('请重新进行人机验证')
-        captchaVerified.value = false
-      },
-  )
+  try {
+    const data = await userApi.forget({
+      email: formValue.value.email,
+      password: formValue.value.password,
+      code: formValue.value.emailCode,
+      url: `?lotNumber=${geetestResult.lot_number}&passToken=${geetestResult.pass_token}&genTime=${geetestResult.gen_time}&captchaOutput=${geetestResult.captcha_output}`
+    })
+    if (data.code === 0) {
+      message.success(data.message)
+      setTimeout(() => {
+        router.push('/login');
+      }, 1200);
+    } else {
+      message.error(data.message || '重置密码失败')
+      captchaVerified.value = false
+    }
+  } catch (error: any) {
+    message.error(error.message || '重置密码失败')
+    message.warning('请重新进行人机验证')
+    captchaVerified.value = false
+  } finally {
+    isSubmitting.value = false
+  }
 }
 </script>
 

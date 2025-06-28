@@ -171,55 +171,50 @@ const handleSendEmailCode = async () => {
   }
 
   isEmailCodeSending.value = true
-  userApi.sendEmailCode(
-      formValue.value.email,
-      "register",
-      (data) => {
-        message.success(data.message)
-        startEmailCodeCountdown()
-        formValue.value.emailCode = ''
-        isEmailCodeSending.value = false // 确保发送成功后将状态设置为false
-      },
-      (error) => {
-        message.error(error)
-        isEmailCodeSending.value = false // 发送失败后也需要将状态设置为false
-      },
-      (err) => {
-        message.error(err.response?.data?.message)
-        message.warning('请重新进行人机验证')
-        captchaVerified.value = false
-      },
-  )
+  try {
+    const data = await userApi.sendEmailCode(formValue.value.email, "register")
+    if (data.code === 0) {
+      message.success(data.message)
+      startEmailCodeCountdown()
+      formValue.value.emailCode = ''
+    } else {
+      message.error(data.message || '验证码发送失败')
+    }
+  } catch (error: any) {
+    message.error(error.message || '验证码发送失败')
+  } finally {
+    isEmailCodeSending.value = false
+  }
 }
 
 
 const handleSubmit = async (geetestResult: GeetestResult) => {
     await formRef.value?.validate()
     isSubmitting.value = true
-    userApi.register(
-      formValue.value.username,
-      formValue.value.nickname,
-      formValue.value.password,
-      formValue.value.email,
-      formValue.value.emailCode,
-      `?lotNumber=${geetestResult.lot_number}&passToken=${geetestResult.pass_token}&genTime=${geetestResult.gen_time}&captchaOutput=${geetestResult.captcha_output}`,
-      (data) => {
-        if (data.code === 0) {
+    try {
+      const data = await userApi.register({
+        username: formValue.value.username,
+        nickname: formValue.value.nickname,
+        password: formValue.value.password,
+        email: formValue.value.email,
+        code: formValue.value.emailCode,
+        url: `?lotNumber=${geetestResult.lot_number}&passToken=${geetestResult.pass_token}&genTime=${geetestResult.gen_time}&captchaOutput=${geetestResult.captcha_output}`
+      })
+      if (data.code === 0) {
         message.success(data.message)
         setTimeout(() => {
           router.push('/login');
         }, 1200);
-        } else {
-          message.error(data.message)
-        }
-        isSubmitting.value = false
-      },
-      (messageText) => {
-        message.error(messageText);
+      } else {
+        message.error(data.message || '注册失败')
         captchaVerified.value = false
-        isSubmitting.value = false
-      },
-  )
+      }
+    } catch (error: any) {
+      message.error(error.message || '注册失败')
+      captchaVerified.value = false
+    } finally {
+      isSubmitting.value = false
+    }
 }
 
 // 新增验证状态

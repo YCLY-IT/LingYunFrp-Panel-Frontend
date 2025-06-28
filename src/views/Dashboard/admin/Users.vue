@@ -108,14 +108,13 @@ import { ref, h, computed, onMounted } from 'vue'
 import { NCard, NSpace, NDataTable, NButton, useMessage, NTag, NInput, NSelect, NPopconfirm, NIcon, NModal, NForm, NFormItem, NInputNumber, NSwitch, SelectOption, useLoadingBar } from 'naive-ui'
 import { Search } from '@vicons/ionicons5'
 import type { DataTableColumns, FormInst, FormRules } from 'naive-ui'
-import type { UserInfo } from '@/types'
-import type { FilterUsersArgs } from '@/types'
+import type { User } from '@/net/admin/type'
+import type { UserListParams } from '@/net/admin/type'
 import { switchButtonRailStyle } from '@/constants/theme.ts'
-import {userApi} from "@/net";
-import {accessHandle} from "@/net/base.ts";
+import { adminApi } from "@/net";
 const message = useMessage()
 const loading = ref(false)
-const users = ref<UserInfo[]>([])
+const users = ref<User[]>([])
 const groupNameMap = ref<Record<string, string>>({})
 
 const realnameOptions: SelectOption[] = [
@@ -203,7 +202,7 @@ const editForm = ref({
 
 const showBanReasonModal = ref(false)
 const banReason = ref('')
-const banningUser = ref<UserInfo | null>(null)
+const banningUser = ref<User | null>(null)
 
 const formatTime = (timestamp: number | string) => {
   const date = new Date(typeof timestamp === 'string' ? timestamp : timestamp * 1000)
@@ -245,7 +244,7 @@ const rules: FormRules = {
   }
 }
 
-const columns: DataTableColumns<UserInfo> = [
+const columns: DataTableColumns<User> = [
   {
     title: 'ID',
     key: 'id',
@@ -308,40 +307,33 @@ const columns: DataTableColumns<UserInfo> = [
     render(row) {
       return h(
         NSpace,
-        {},
+        { size: 'small' },
         {
           default: () => [
             h(
               NButton,
               {
                 size: 'small',
+                type: 'primary',
                 onClick: () => handleEdit(row)
               },
               { default: () => '编辑' }
             ),
             h(
-              NPopconfirm,
+              NButton,
               {
-                onPositiveClick: () => {
-                  banningUser.value = row
-                  banReason.value = ''
-                  showBanReasonModal.value = true
-                },
-                positiveText: '确定',
-                negativeText: '取消'
+                size: 'small',
+                type: row.status === 1 ? 'success' : 'error',
+                onClick: () => {
+                  if (row.status === 1) {
+                    handleToggleStatus(row)
+                  } else {
+                    banningUser.value = row
+                    showBanReasonModal.value = true
+                  }
+                }
               },
-              {
-                default: () => row.status === 1 ? '确认解封此用户？' : '确认封禁此用户？',
-                trigger: () =>
-                  h(
-                    NButton,
-                    {
-                      size: 'small',
-                      type: row.status === 1 ? 'success' : 'error'
-                    },
-                    { default: () => row.status === 1 ? '解封' : '封禁' }
-                  )
-              }
+              { default: () => row.status === 1 ? '解封' : '封禁' }
             )
           ]
         }
@@ -384,107 +376,127 @@ const submitBanReason = () => {
   showBanReasonModal.value = false
 }
 
-const handleToggleStatus = async (user: UserInfo, reason?: string) => {
+const handleToggleStatus = async (user: User, reason?: string) => {
   try {
-    userApi.post("/admin/user/toggle", {
+    const data = await adminApi.toggleUser({
       userId: user.id,
-      status: user.status === 1? 0 : 1,
-      reason: reason || undefined
-    }, accessHandle(), (data) => {
-      if (data.code === 0) {
-        message.success(data.message || '操作成功')
-        loadData()
-      } else {
-        message.error(data.message || '操作失败')
-      }
+      status: user.status === 1 ? 0 : 1,
+      reason: reason
     })
+    if (data.code === 0) {
+      message.success(data.message || '操作成功')
+      loadData()
+      showBanReasonModal.value = false
+      banReason.value = ''
+      banningUser.value = null
+    } else {
+      message.error(data.message || '操作失败')
+    }
   } catch (error: any) {
-    message.error(error?.response?.data?.message || '操作失败')
+    message.error(error?.message || '操作失败')
   }
 }
 
-const handleEditSubmit = () => {
-  formRef.value?.validate(async (errors) => {
-    if (!errors) {
-      submitting.value = true
-      try {
-        editForm.value.traffic *= 1024
-        editForm.value.out_limit *= 128
-        editForm.value.in_limit *= 128
-        userApi.post(`/admin/user/set/${editForm.value.ID}`, editForm.value, accessHandle(), (data) => {
-          if (data.code === 0) {
-            message.success('更新用户成功')
-          } else {
-            message.error(data.message || '更新用户失败')
-          }
-        })
-        showEditModal.value = false
-        loadData()
-      } catch (error: any) {
-        message.error(error?.response?.data?.message || '更新用户失败')
-      } finally {
-        submitting.value = false
-      }
+const handleEditSubmit = async () => {
+  try {
+    await formRef.value?.validate()
+    submitting.value = true
+    
+    editForm.value.traffic *= 1024
+    editForm.value.out_limit *= 128
+    editForm.value.in_limit *= 128
+    
+    const data = await adminApi.updateUser({
+      id: editForm.value.ID,
+      username: editForm.value.username,
+      email: editForm.value.email,
+      group: editForm.value.group,
+      status: editForm.value.status,
+      maxProxies: editForm.value.proxies,
+      traffic: editForm.value.traffic,
+      outBound: editForm.value.out_limit,
+      inBound: editForm.value.in_limit,
+      isRealname: editForm.value.is_realname,
+      remainder: editForm.value.remainder
+    })
+    
+    if (data.code === 0) {
+      message.success('更新用户成功')
+      showEditModal.value = false
+      loadData()
+    } else {
+      message.error(data.message || '更新用户失败')
     }
-  })
+  } catch (error: any) {
+    message.error(error?.message || '更新用户失败')
+  } finally {
+    submitting.value = false
+  }
 }
 
-const handleEdit = async (user: UserInfo) => {
+const handleEdit = async (user: User) => {
   try {
-    userApi.get(`/admin/user/get/${user.id}`,  accessHandle(), (data) => {
-      if (data.code === 0) {
-        const userDetail = data.data
-        editForm.value = {
-          ID: userDetail.id,
-          username: userDetail.username,
-          email: userDetail.email,
-          group: userDetail.group,
-          status: userDetail.status,
-          is_realname: userDetail.is_realname,
-          remainder: userDetail.remainder,
-          traffic: userDetail.traffic / 1024,
-          out_limit: userDetail.outBound / 128,
-          in_limit: userDetail.inBound / 128,
-          proxies: userDetail.proxies
-        }
-        showEditModal.value = true
-      } else {
-        message.error(data.message || '获取用户信息失败')
+    const data = await adminApi.getUserById(user.id)
+    if (data.code === 0) {
+      const userDetail = data.data
+      console.log('用户详情数据:', userDetail)
+      console.log('用户详情字段:', Object.keys(userDetail))
+      
+      editForm.value = {
+        ID: userDetail.id,
+        username: userDetail.username,
+        email: userDetail.email,
+        group: userDetail.group,
+        status: userDetail.status,
+        is_realname: userDetail.is_realname,
+        remainder: userDetail.remainder,
+        traffic: userDetail.traffic / 1024,
+        out_limit: userDetail.outBound / 128,
+        in_limit: userDetail.inBound / 128,
+        proxies: userDetail.proxies
       }
-    })
+      console.log('编辑表单数据:', editForm.value)
+      showEditModal.value = true
+    } else {
+      message.error(data.message || '获取用户信息失败')
+    }
   } catch (error: any) {
-    message.error(error?.response?.data?.message || '获取用户信息失败')
+    message.error(error?.message || '获取用户信息失败')
   }
 }
 
 // 修改后的获取用户组方法
 const fetchUserGroups = async () => {
   try {
-    userApi.get("/user/info/groups", accessHandle(), async (data) => {
-      if (data.code === 0) {
-        // 同时更新组名映射和下拉选项
-        groupOptions.value = data.data.groups.map(group => ({
-          label: group.friendlyName,  // 使用接口返回的友好名称
-          value: group.name
-        }));
+    const data = await adminApi.getGroupList()
+    if (data.code === 0) {
+      // 修复：使用 data.data.groups 而不是 data.data
+      const groups = data.data.groups || data.data
+      
+      // 同时更新组名映射和下拉选项
+      groupOptions.value = groups.map(group => ({
+        label: group.friendlyName,  // 使用接口返回的友好名称
+        value: group.name
+      }));
 
-        groupNameMap.value = data.data.groups.reduce((acc: Record<string, string>, group) => {
-          acc[group.name] = group.friendlyName;
-          return acc;
-        }, {});
-        loadingBar.finish()
-      } else {
-        message.error(data.message || '获取用户组列表失败');
-      }
-    })
-  } catch (error) {
+      groupNameMap.value = groups.reduce((acc: Record<string, string>, group) => {
+        acc[group.name] = group.friendlyName;
+        return acc;
+      }, {});
+      
+      loadingBar.finish()
+    } else {
+      message.error(data.message || '获取用户组列表失败');
+    }
+  } catch (error: any) {
+    console.error('获取用户组异常:', error)
     message.error('获取用户组失败');
   }
 }
 
 
 // 处理用户数据, 添加 friendlyGroup
-const processUsers = (users: UserInfo[]) => {
+const processUsers = (users: User[]) => {
   return users.map(user => ({
     ...user,
     friendlyGroup: groupNameMap.value[user.group] || user.group
@@ -499,7 +511,7 @@ const loadData = async () => {
     if (Object.keys(groupNameMap.value).length === 0) {
       await fetchUserGroups()
     }
-    const params: FilterUsersArgs = {
+    const params: UserListParams = {
       page: pagination.value.page,
       limit: pagination.value.pageSize
     }
@@ -511,22 +523,26 @@ const loadData = async () => {
     if (filters.value.group) {
       params.group = filters.value.group
     }
-// 修改后的筛选条件处理部分
+    // 修改后的筛选条件处理部分
     if (filters.value.isRealname !== null) {
-      // 直接使用boolean值
+      // 使用API响应中的字段名
       params.isRealname = filters.value.isRealname === 'true'
     }
-
 
     if (filters.value.status !== null) {
       params.status = filters.value.status
     }
 
-    userApi.post("/admin/user/list", params, accessHandle(), (data) => {
-        users.value = processUsers(data.data.users)
-        pagination.value.pageCount = data.data.totalPages
-        pagination.value.itemCount = data.data.totalUsers
-    })
+    const data = await adminApi.getUserList(params)
+    if (data.code === 0) {
+      users.value = processUsers(data.data.users)
+      // 修复分页数据结构匹配 - 根据API响应调整
+      const total = data.data.pagination.total
+      pagination.value.pageCount = Math.ceil(total / pagination.value.pageSize)
+      pagination.value.itemCount = total
+    } else {
+      message.error(data.message || '获取用户列表失败')
+    }
   } catch (error) {
     message.error('获取数据失败')
   } finally {

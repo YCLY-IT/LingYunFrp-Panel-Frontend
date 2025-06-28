@@ -70,6 +70,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, inject, Ref } from 'vue'
 import { AlertCircleIcon, ChevronUpIcon, ChevronDownIcon } from 'lucide-vue-next'
+import { getLaStatistic } from '@/net/user/user'
 
 // 组件属性定义
 interface Props {
@@ -118,21 +119,10 @@ const toggleExpand = () => {
   isExpanded.value = !isExpanded.value
 }
 
-// 获取统计数据
+// 用 user 接口统一获取统计数据
 const fetchStatisticData = async (): Promise<string[] | null> => {
   try {
-    const response = await fetch(props.apiUrl)
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
-    }
-    const data = await response.text()
-    
-    // 使用正则表达式提取数字
-    const matches = data.match(/(?<=<\/span><span>).*?(?=<\/span><\/p>)/g)
-    if (!matches || matches.length === 0) {
-      throw new Error('无法解析统计数据')
-    }
-    return matches
+    return await getLaStatistic(props.apiUrl)
   } catch (err) {
     console.error('获取统计数据失败:', err)
     return null
