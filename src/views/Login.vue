@@ -116,33 +116,22 @@ const handleSubmit = async (geetestResult: GeetestResult) => {
   await formRef.value?.validate()
   loading.value = true
   try {
-    userApi.login(
-      formValue.value.username,
-      formValue.value.password,
-      formValue.value.remember,
-      `?lotNumber=${geetestResult.lot_number}&passToken=${geetestResult.pass_token}&genTime=${geetestResult.gen_time}&captchaOutput=${geetestResult.captcha_output}`,
-      (data) => {
-        localStorage.setItem('username', data.data.username)
-        localStorage.setItem('nickname', data.data.nickname)
-        localStorage.setItem('avatar', data.data.avatar)
-        message.success(data.message)
-        loading.value = false
-        setTimeout(() => {
-          router.push('/dashboard');
-        }, 1200)
-      },
-      (data)=> {
-        message.error(data)
-        loading.value = false
-        // 不自动弹窗，用户需手动点击
-      },(err) => {
-        message.error(err.response?.data?.message)
-        message.warning('请重新进行人机验证')
-        captchaVerified.value = false
-      }
-    )
+    const data = await userApi.login({
+      username: formValue.value.username,
+      password: formValue.value.password,
+      remember: formValue.value.remember,
+      url: `?lotNumber=${geetestResult.lot_number}&passToken=${geetestResult.pass_token}&genTime=${geetestResult.gen_time}&captchaOutput=${geetestResult.captcha_output}`
+    })
+    localStorage.setItem('username', data.data.username)
+    localStorage.setItem('nickname', data.data.nickname)
+    localStorage.setItem('avatar', data.data.avatar)
+    message.success(data.message)
+    loading.value = false
+    setTimeout(() => {
+      router.push('/dashboard');
+    }, 1200)
   } catch (error: any) {
-    message.error(error)
+    message.error(error.message || '登录失败')
     loading.value = false
     captchaVerified.value = false
     message.warning('请重新进行人机验证')

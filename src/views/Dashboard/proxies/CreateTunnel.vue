@@ -272,7 +272,7 @@ import { CloudUploadOutline, SearchOutline } from '@vicons/ionicons5'
 import { switchButtonRailStyle } from '@/constants/theme.ts'
 import { useRouter } from 'vue-router'
 import { userApi } from "@/net"
-import { accessHandle } from "@/net/base.ts"
+import { CreateTunnelParams } from '@/net/proxy/type'
 
 const router = useRouter()
 const message = useMessage()
@@ -459,73 +459,65 @@ const rules: FormRules = {
 const groupNameMap = ref<Record<string, string>>({})
 
 const fetchUserGroups = async () => {
-  return new Promise((resolve) => {
-    userApi.get("/user/info/groups", accessHandle(), (data) => {
-      if (data.code === 0) {
-        // 处理两种不同的响应格式
-        const groups = typeof data.data.groups === 'string' 
-          ? JSON.parse(data.data.groups) 
-          : data.data.groups;
+  try {
+    const data = await userApi.getUserGroups()
+    const groups = typeof data.data.groups === 'string' 
+    ? JSON.parse(data.data.groups) 
+    : data.data.groups
 
-        groupNameMap.value = groups.reduce((acc: Record<string, string>, group: any) => {
-          acc[group.name] = group.friendlyName;
-          return acc;
-        }, {} as Record<string, string>);
-        resolve(true);
-      } else {
-        message.error(data.message || '获取用户组列表失败');
-        resolve(false);
-      }
-    }, (messageText) => {
-      message.error(messageText || '获取用户组列表失败');
-      resolve(false);
-    })
-  })
+    groupNameMap.value = groups.reduce((acc: Record<string, string>, group: any) => {
+      acc[group.name] = group.friendlyName
+      return acc
+    }, {} as Record<string, string>)
+    return true
+  } catch (error) {
+    message.error((error as Error).message || '获取用户组列表失败')
+    return false
+  }
 }
 
 const fetchNodes = async () => {
   nodeLoading.value = true
-  userApi.get("/proxy/node/list", accessHandle(), (data) => {
-    if (data.code === 0) {
-      nodeOptions.value = data.data.map((node: any) => {
-        const [minPort, maxPort] = node.allowPort.split('-').map(Number)
-        const allowedProtocols = node.allowType.split(';').map((type: string) => type.trim())
-        
-        // 确保allowGroup分割正确
-        const allowGroups = node.allowGroup.split(';')
-          .map((group: string) => group.trim())
-          .filter((group: string) => group) // 过滤空值
-          .map((group: string) => ({
-            name: group,
-            friendlyName: groupNameMap.value[group] || group
-          }));
+  try {
+    const data = await userApi.getNodes()
+     nodeOptions.value = data.data.map((node: any) => { 
+      const [minPort, maxPort] = node.allowPort.split('-').map(Number)
+      const allowedProtocols = node.allowType.split(';').map((type: string) => type.trim())
 
-        return {
-          label: `#${node.id} - ${node.name}`,
-          value: node.id,
-          id: node.id,
-          name: node.name,
-          hostname: node.hostname,
-          description: node.description,
-          isOnline: node.status,
-          isDisabled: node.isDisabled,
-          allowedProtocols,
-          allowGroups,
-          needRealname: node.needRealname,
-          bandWidth: node.bandWidth,
-          location: node.location,
-          portRange: {
-            min: minPort,
-            max: maxPort
-          }
+      // 确保allowGroup分割正确
+      const allowGroups = node.allowGroup.split(';')
+        .map((group: string) => group.trim())
+        .filter((group: string) => group) // 过滤空值
+        .map((group: string) => ({
+          name: group,
+          friendlyName: groupNameMap.value[group] || group
+        }));
+
+      return {
+        label: `#${node.id} - ${node.name}`,
+        value: node.id,
+        id: node.id,
+        name: node.name,
+        hostname: node.hostname,
+        description: node.description,
+        isOnline: node.status,
+        isDisabled: node.isDisabled,
+        allowedProtocols,
+        allowGroups,
+        needRealname: node.needRealname,
+        bandWidth: node.bandWidth,
+        location: node.location,
+        portRange: {
+          min: minPort,
+          max: maxPort
         }
-      })
-    }
+      }
+    }) 
+  } catch (error) {
+    message.error((error as Error).message || '获取节点列表失败')
     nodeLoading.value = false
-    // ... existing error handling ...
-  }, () => {
-    nodeLoading.value = false
-  })
+  }
+  nodeLoading.value = false
 }
 
 const selectedNode = ref<{
@@ -618,12 +610,12 @@ const handleCreate = async () => {
   try {
     loading.value = true
 
-    const requestData = {
-      nodeId: formValue.value.nodeId,
+    const requestData: CreateTunnelParams = {
+      nodeId: formValue.value.nodeId!,
       proxyName: formValue.value.name,
       localIp: formValue.value.localAddr,
-      localPort: formValue.value.localPort,
-      remotePort: formValue.value.remotePort,
+      localPort: formValue.value.localPort!,
+      remotePort: formValue.value.remotePort!,
       domain: ['http', 'https'].includes(formValue.value.type)
           ? JSON.stringify(domainTags.value)
           : '',
@@ -636,26 +628,34 @@ const handleCreate = async () => {
       useCompression: formValue.value.useCompression
     }
 
-    userApi.post(
-        "/proxy/create",
-          requestData,
-          accessHandle(),
-          (data) => {
-            if (data.code === 0) {
-              message.success('隧道创建成功')
-              formRef.value?.restoreValidation()
-              // 关闭所有弹窗
-              showCreateConfirmModal.value = false
-              showConfigModal.value = false
-              // 重置选中状态
-              selectedNodeId.value = null
-              // 可以在这里添加创建成功后的跳转逻辑
-              // router.push('/dashboard/tunnels')
-            } else {
-              message.error(data.message || '创建失败')
-            }
-          },
-    )
+    // userApi.post(
+    //     "/proxy/create",
+    //       requestData,
+    //       accessHandle(),
+    //       (data) => {
+    //         if (data.code === 0) {
+    //           message.success('隧道创建成功')
+    //           formRef.value?.restoreValidation()
+    //           // 关闭所有弹窗
+    //           showCreateConfirmModal.value = false
+    //           showConfigModal.value = false
+    //           // 重置选中状态
+    //           selectedNodeId.value = null
+    //           // 可以在这里添加创建成功后的跳转逻辑
+    //           // router.push('/dashboard/tunnels')
+    //         } else {
+    //           message.error(data.message || '创建失败')
+    //         }
+    //       },
+    // )
+    const data = await userApi.createTunnel(requestData)
+    message.success(data.message || '创建成功')
+    formRef.value?.restoreValidation()
+    // 关闭所有弹窗
+    showCreateConfirmModal.value = false
+    showConfigModal.value = false
+    // 重置选中状态
+    selectedNodeId.value = null
   } catch (error) {
     const errorMsg = error || '服务器连接异常'
     message.error(`创建失败: ${errorMsg}`)

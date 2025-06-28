@@ -103,10 +103,11 @@ import { ref, onMounted, computed } from 'vue'
 import { NTag, useMessage, NSkeleton, NButton, NIcon, NSpace, NText, NAlert } from 'naive-ui'
 import { CalendarOutline } from '@vicons/ionicons5'
 import {userApi} from "@/net";
-import {accessHandle} from "@/net/base.ts";
 import packageData from '@/../package.json'
 import { CopyPlusIcon } from 'lucide-vue-next';
 import { GeetestService, loadGeetest } from '@/utils/captcha';
+import { UserInfoData, UserInfoStore } from '@/net/user/type';
+import { storeUserInfo } from '@/utils/user';
 const emit = defineEmits<{
   (e: 'update'): void
 }>()
@@ -115,27 +116,26 @@ const loading = ref(true)
 const signLoading = ref(false)
 const isSignAvailable = ref(false)
 
-const userInfo = ref({
-  userId: 0,
-  username: '',
-  nickname: '',
+const userInfo = ref<UserInfoData>({
+  avatar: '',
+  email: '',
   isRealname: false,
-  group: '',
+  nickname: '',
   friendlyGroup: '',
-  usedProxies: 0,
-  maxProxies: 0,
-  regTime: '',
-  traffic: 0,
+  group: '',
+  status: '',
   outlimit: 0,
   inlimit: 0,
-  email: '',
-  point: 0,
-  status: 0,
-  avatar: '',
-  todaySigned: false,
-  token: '',
+  traffic: 0,
+  maxProxies: 0,
+  username: '',
   remainder: 0,
+  sign: '',
   signRemainder: 0,
+  point: 0,
+  regTime: '',
+  usedProxies: 0,
+  token: ''
 })
 const formatTime = (isoString: string) => {
   const date = new Date(isoString);
@@ -178,21 +178,21 @@ const onSignButtonClick = async () => {
     message.error('验证码加载失败')
   }
 }
-const signIn = (geetestResult: GeetestResult) => {
-    userApi.post(`/user/sign?lotNumber=${geetestResult.lot_number}&passToken=${geetestResult.pass_token}&genTime=${geetestResult.gen_time}&captchaOutput=${geetestResult.captcha_output}`, {}, accessHandle(), (data) => {
-        if (data.code === 0) {
-            message.success(`签到成功, 获得 ${data.data.point} 积分 和 ${data.data.traffic}GB 流量`)
-            isSignAvailable.value = false
-            emit('update')
-            fetchUserInfo()
-        } else {
-            message.error(data.message || '签到失败')
-        }
-        signLoading.value = false
-    }, (error) => {
-        message.error(error || '签到失败')
-        signLoading.value = false
-    })
+const signIn = async (geetestResult: GeetestResult) => {
+    try {
+      const data = await userApi.sign()
+      if (data.code === 200) {
+        message.success('签到成功')
+        isSignAvailable.value = false
+        emit('update')
+        fetchUserInfo()
+      } else {
+        message.error(data.message || '签到失败')
+      }
+      signLoading.value = false
+    } catch (error: any) {
+      message.error(error.message || '签到失败')
+    }
 }
 
 const handleCopyToken = async () => {
@@ -206,22 +206,15 @@ const handleCopyToken = async () => {
 
 const fetchUserInfo = async () => {
     loading.value = true
-
-  userApi.get('/user/info', accessHandle(), (data) => {
-    if (data.code === 0) {
-      userInfo.value = data.data
-      localStorage.setItem('group', userInfo.value.group)
-      localStorage.setItem('token', userInfo.value.token)
-      localStorage.setItem('avatar', userInfo.value.avatar)
-      isSignAvailable.value = !data.data.sign
-    } else {
-      message.error(data.message || '获取用户信息失败')
-    }
-    loading.value = false
-  }, (error) => {
-    message.error(error || '获取用户信息失败')
-    loading.value = false
-  })
+  try{
+    const data = await userApi.getUserInfo()
+    userInfo.value = data.data
+    storeUserInfo(data.data)
+    isSignAvailable.value = !data.data.sign
+  } catch (error: any) {
+    message.error(error.message || '获取用户信息失败')
+  }
+  loading.value = false
 }
 onMounted(async () => {
   await fetchUserInfo()

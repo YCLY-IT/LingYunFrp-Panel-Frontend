@@ -226,7 +226,6 @@ import {
   ListOutline
 } from '@vicons/ionicons5'
 import { userApi } from '@/net'
-import { accessHandle } from '@/net/base'
 
 // 消息提示
 const message = useMessage()
@@ -369,15 +368,18 @@ const columns = [
 const fetchNodeData = async () => {
   loading.value = true
   try {
-    userApi.get('/proxy/status', accessHandle(), (data) => {
-      if (data.code === 0) {
-        nodeData.value = data.data?.nodes || []
-        message.success(data.message || '数据获取成功')
-      } else {
-        message.error(data.message || '获取节点数据失败')
-        nodeData.value = []
-      }
-    })
+    // userApi.get('/proxy/status', accessHandle(), (data) => {
+    //   if (data.code === 0) {
+    //     nodeData.value = data.data?.nodes || []
+    //     message.success(data.message || '数据获取成功')
+    //   } else {
+    //     message.error(data.message || '获取节点数据失败')
+    //     nodeData.value = []
+    //   }
+    // })
+    const data = await userApi.getStatus()
+    nodeData.value = data.data?.nodes
+    message.success('数据获取成功')
   } catch (error) {
     message.error('获取节点数据失败: ' + error.message)
     nodeData.value = []

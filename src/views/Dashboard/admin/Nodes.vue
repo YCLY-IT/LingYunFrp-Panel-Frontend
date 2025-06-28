@@ -4,11 +4,11 @@
       <n-space vertical :size="16">
         <n-space class="filter-container">
           <n-input 
-            v-model:value="searchKeyword" 
+            v-model:value="nodesStore.searchKeyword" 
             placeholder="搜索ID、节点名称或主机名" 
             style="width: 240px" 
             clearable
-            @update:value="handleSearch"
+            @update:value="nodesStore.handleSearch"
           >
             <template #prefix>
               <n-icon><search-outline /></n-icon>
@@ -16,21 +16,21 @@
           </n-input>
           
           <n-select 
-            v-model:value="selectedOnline" 
+            v-model:value="nodesStore.selectedOnline" 
             placeholder="在线状态" 
             :options="onlineOptions" 
             style="width: 140px" 
             clearable 
-            @update:value="handleFilterChange"
+            @update:value="nodesStore.handleFilterChange"
           />
           
           <n-select 
-            v-model:value="selectedStatus" 
+            v-model:value="nodesStore.selectedStatus" 
             placeholder="节点状态" 
             :options="statusOptions" 
             style="width: 140px" 
             clearable 
-            @update:value="handleFilterChange"
+            @update:value="nodesStore.handleFilterChange"
           />
           
           <n-button type="primary" @click="showAddModal = true" class="add-button">
@@ -42,15 +42,22 @@
         </n-space>
 
         <n-data-table
-          remote
+          v-if="nodesStore.shouldShowTable"
+          :remote="!nodesStore.hasFilters"
           :columns="columns"
-          :data="nodes"
-          :loading="loading"
-          :pagination="pagination"
+          :data="nodesStore.nodes"
+          :loading="nodesStore.loading"
+          :pagination="nodesStore.pagination"
           :row-class-name="rowClassName"
           :scroll-x="1200"
-          @update:page="handlePageChange"
+          :empty="nodesStore.emptySlot"
+          @update:page="nodesStore.handlePageChange"
         />
+        
+        <!-- 空状态显示 -->
+        <div v-else-if="!nodesStore.loading && nodesStore.nodes.length === 0 && !nodesStore.hasFilters" class="empty-state">
+          <n-empty description="暂无数据" />
+        </div>
       </n-space>
 
       <!-- 添加节点模态框 -->
@@ -139,7 +146,7 @@
             <n-form-item-gi label="允许用户组" path="allowGroup">
               <div class="group-buttons">
                 <n-tag
-                  v-for="group in groupOptions"
+                  v-for="group in groupsStore.groupOptions"
                   :key="group.value"
                   :type="formModel.allowGroup.includes(group.value) ? 'primary' : 'default'"
                   :disabled="group.value === 'admin'"
@@ -175,7 +182,7 @@
         <template #footer>
           <n-space justify="end">
             <n-button @click="showAddModal = false">取消</n-button>
-            <n-button type="primary" :loading="submitting" @click="handleAddNode">确定</n-button>
+            <n-button type="primary" :loading="nodesStore.submitting" @click="handleAddNode">确定</n-button>
           </n-space>
         </template>
       </n-modal>
@@ -266,7 +273,7 @@
             <n-form-item-gi label="允许用户组" path="allowGroup">
               <div class="group-buttons">
                 <n-tag
-                  v-for="group in groupOptions"
+                  v-for="group in groupsStore.groupOptions"
                   :key="group.value"
                   :type="formModel.allowGroup.includes(group.value) ? 'primary' : 'default'"
                   :disabled="group.value === 'admin'"
@@ -302,7 +309,7 @@
         <template #footer>
           <n-space justify="end">
             <n-button @click="showEditModal = false">取消</n-button>
-            <n-button type="primary" :loading="submitting" @click="handleEditSubmit">确定</n-button>
+            <n-button type="primary" :loading="nodesStore.submitting" @click="handleEditNode">确定</n-button>
           </n-space>
         </template>
       </n-modal>
@@ -321,7 +328,7 @@
             <n-button @click="showToggleModal = false">取消</n-button>
             <n-button 
               :type="currentNode?.isDisabled ? 'primary' : 'warning'" 
-              :loading="submitting" 
+              :loading="nodesStore.submitting" 
               @click="() => currentNode && handleToggleNode(currentNode)"
             >
               确定
@@ -344,7 +351,7 @@
             <n-button @click="showDeleteModal = false">取消</n-button>
             <n-button 
               type="error" 
-              :loading="submitting" 
+              :loading="nodesStore.submitting" 
               @click="() => currentNode && handleDeleteNode(currentNode)"
             >
               删除
@@ -357,7 +364,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, h } from 'vue'
+import { ref, h, computed } from 'vue'
 import { 
   NCard, 
   NSpace, 
@@ -377,7 +384,8 @@ import {
   NTag, 
   NDropdown, 
   NIcon,
-  NSwitch
+  NSwitch,
+  NEmpty
 } from 'naive-ui'
 import { 
   EllipsisHorizontalCircleOutline, 
@@ -389,35 +397,23 @@ import {
 } from '@vicons/ionicons5'
 import type { DataTableColumns, FormRules, FormInst, SelectOption, DropdownOption } from 'naive-ui'
 import type { Node, UpdateNodeArgs, GetNodesArgs } from '@/types'
-import { userApi } from "@/net"
-import { accessHandle } from "@/net/base.ts"
+import { useNodesStore } from '@/stores/nodes'
+import { useGroupsStore } from '@/stores/groups'
 
 const message = useMessage()
-const loading = ref(false)
-const submitting = ref(false)
-const nodes = ref<Node[]>([])
+const nodesStore = useNodesStore()
+const groupsStore = useGroupsStore()
+
+// 模态框状态
 const showAddModal = ref(false)
+const showEditModal = ref(false)
+const showToggleModal = ref(false)
+const showDeleteModal = ref(false)
 const formRef = ref<FormInst | null>(null)
+const editingNode = ref<Node | null>(null)
+const currentNode = ref<Node | null>(null)
 
-const searchKeyword = ref('')
-const selectedOnline = ref<string | null>(null)
-const selectedStatus = ref<string | null>(null)
-
-const groupOptions = ref<{ label: string; value: string }[]>([])
-
-const protocolOptions = [
-  { label: 'TCP', value: 'tcp' },
-  { label: 'UDP', value: 'udp' },
-  { label: 'HTTP', value: 'http' },
-  { label: 'HTTPS', value: 'https' }
-]
-
-const locationOptions = [
-  { label: '中国', value: 'cn' },
-  { label: '中国港澳台', value: 'cn-out' },
-  { label: '海外', value: 'out' },
-]
-
+// 表单模型
 const formModel = ref({
   id: 0,
   name: '',
@@ -436,31 +432,31 @@ const formModel = ref({
   location: 'cn'
 })
 
-const toggleGroup = (value: string) => {
-  if (value === 'admin') {
-    if (!formModel.value.allowGroup.includes(value)) {
-      formModel.value.allowGroup.push(value)
-    }
-    return
-  }
+// 选项配置
+const protocolOptions = [
+  { label: 'TCP', value: 'tcp' },
+  { label: 'UDP', value: 'udp' },
+  { label: 'HTTP', value: 'http' },
+  { label: 'HTTPS', value: 'https' }
+]
 
-  const index = formModel.value.allowGroup.indexOf(value)
-  if (index === -1) {
-    formModel.value.allowGroup.push(value)
-  } else {
-    formModel.value.allowGroup.splice(index, 1)
-  }
-}
+const locationOptions = [
+  { label: '中国', value: 'cn' },
+  { label: '中国港澳台', value: 'cn-out' },
+  { label: '海外', value: 'out' },
+]
 
-const toggleProtocol = (value: string) => {
-  const index = formModel.value.allowType.indexOf(value)
-  if (index === -1) {
-    formModel.value.allowType.push(value)
-  } else {
-    formModel.value.allowType.splice(index, 1)
-  }
-}
+const onlineOptions: SelectOption[] = [
+  { label: '在线', value: 'online' },
+  { label: '离线', value: 'offline' }
+]
 
+const statusOptions: SelectOption[] = [
+  { label: '已启用', value: 'enabled' },
+  { label: '已禁用', value: 'disabled' },
+]
+
+// 表单验证规则
 const rules: FormRules = {
   name: {
     required: true,
@@ -574,21 +570,12 @@ const rules: FormRules = {
   }
 }
 
-const pagination = ref({
-  page: 1,
-  pageSize: 10,
-  pageCount: 1,
-  itemCount: 0,
-  prefix({ itemCount }: { itemCount?: number }) {
-    return `共 ${itemCount} 条`
-  }
-})
-
 // 行样式
 const rowClassName = (row: Node) => {
   return row.isDisabled ? 'disabled-row' : ''
 }
 
+// 渲染状态标签
 const renderStatusTag = (status: boolean, successText: string, errorText: string) => {
   return h(
     NTag,
@@ -602,6 +589,7 @@ const renderStatusTag = (status: boolean, successText: string, errorText: string
   )
 }
 
+// 表格列配置
 const columns: DataTableColumns<Node> = [
   {
     title: 'ID',
@@ -665,7 +653,7 @@ const columns: DataTableColumns<Node> = [
         { wrap: true, justify: 'start' },
         {
           default: () => groups.map(group => {
-            const option = groupOptions.value.find(opt => opt.value === group)
+            const option = groupsStore.groupOptions.find(opt => opt.value === group)
             return h(
               NTag,
               {
@@ -761,14 +749,76 @@ const columns: DataTableColumns<Node> = [
   }
 ]
 
-const handlePageChange = (page: number) => {
-  pagination.value.page = page
-  fetchNodes()
+// 下拉菜单选项
+const dropdownOptions = (row: Node): DropdownOption[] => [
+  {
+    label: '编辑',
+    key: 'edit',
+    disabled: false,
+    icon: () => h(NIcon, null, { default: () => h(CreateOutline) })
+  },
+  {
+    label: !row.isDisabled ? '禁用' : '启用',
+    key: 'toggle',
+    disabled: false,
+    icon: () => h(NIcon, null, { default: () => h(PowerOutline) })
+  },
+  {
+    label: '删除',
+    key: 'delete',
+    disabled: false,
+    icon: () => h(NIcon, null, { default: () => h(TrashOutline) })
+  }
+]
+
+// 用户组和协议切换
+const toggleGroup = (value: string) => {
+  if (value === 'admin') {
+    if (!formModel.value.allowGroup.includes(value)) {
+      formModel.value.allowGroup.push(value)
+    }
+    return
+  }
+
+  const index = formModel.value.allowGroup.indexOf(value)
+  if (index === -1) {
+    formModel.value.allowGroup.push(value)
+  } else {
+    formModel.value.allowGroup.splice(index, 1)
+  }
 }
 
-const showEditModal = ref(false)
-const editingNode = ref<Node | null>(null)
+const toggleProtocol = (value: string) => {
+  const index = formModel.value.allowType.indexOf(value)
+  if (index === -1) {
+    formModel.value.allowType.push(value)
+  } else {
+    formModel.value.allowType.splice(index, 1)
+  }
+}
 
+// 表单重置
+const resetForm = () => {
+  Object.assign(formModel.value, {
+    id: 0,
+    name: '',
+    hostname: '',
+    ip: '',
+    description: '',
+    token: '',
+    servicePort: 2333,
+    adminPort: 8233,
+    adminPass: '',
+    allowGroup: [],
+    allowPort: '',
+    allowType: [],
+    need_realname: true,
+    bandWidth: 0,
+    location: 'cn'
+  })
+}
+
+// 编辑节点
 const handleEdit = (row: Node) => {
   editingNode.value = row
   formModel.value = {
@@ -791,207 +841,98 @@ const handleEdit = (row: Node) => {
   showEditModal.value = true
 }
 
-const handleEditSubmit = () => {
-  if (!editingNode.value) return
+// 编辑节点提交
+const handleEditNode = async () => {
+  if (!formRef.value) return
+  
+  try {
+    await formRef.value.validate()
+    
+    const config = {
+      id: editingNode.value!.id,
+      name: formModel.value.name,
+      hostname: formModel.value.hostname,
+      ip: formModel.value.ip,
+      description: formModel.value.description,
+      token: formModel.value.token,
+      port: formModel.value.servicePort,
+      adminPort: formModel.value.adminPort,
+      adminPass: formModel.value.adminPass,
+      group: formModel.value.allowGroup.join(';'),
+      allowPort: formModel.value.allowPort,
+      allowType: formModel.value.allowType.join(';'),
+      need_realname: formModel.value.need_realname,
+      bandWidth: formModel.value.bandWidth,
+      location: formModel.value.location
+    }
+    
+    const success = await nodesStore.updateNode(config, message)
+    if (success) {
+      showEditModal.value = false
+      formRef.value?.restoreValidation()
+      editingNode.value = null
+    }
+  } catch (error: any) {
+    message.error(error?.response?.data?.message || '更新节点失败')
+  }
+}
 
+// 添加节点提交
+const handleAddNode = async () => {
   if (!formModel.value.allowGroup.includes('admin')) {
     formModel.value.allowGroup.push('admin')
   }
 
-  formRef.value?.validate(async (errors) => {
-    if (!errors) {
-      submitting.value = true
-      try {
-        const groupStr = formModel.value.allowGroup.join(';').replace(/^;+|;+$/g, '');
-        const config: UpdateNodeArgs = {
-          id: editingNode.value!.id,
-          name: formModel.value.name,
-          hostname: formModel.value.hostname,
-          ip: formModel.value.ip,
-          description: formModel.value.description,
-          token: formModel.value.token,
-          port: formModel.value.servicePort,
-          adminPort: formModel.value.adminPort,
-          adminPass: formModel.value.adminPass,
-          group: groupStr,
-          allowPort: formModel.value.allowPort,
-          allowType: formModel.value.allowType.join(';'),
-          need_realname: formModel.value.need_realname,
-          bandWidth: formModel.value.bandWidth,
-          location: formModel.value.location
-        }
-        userApi.post(`/admin/node/set/${editingNode.value!.id}`, config, accessHandle(), (data) => {
-          if (data.code === 0) {
-            message.success('更新节点成功')
-            showEditModal.value = false
-            formRef.value?.restoreValidation()
-            editingNode.value = null
-            Object.assign(formModel.value, {
-              name: '',
-              hostname: '',
-              ip: '',
-              description: '',
-              token: '',
-              servicePort: 2333,
-              adminPort: 8233,
-              adminPass: '',
-              allowGroup: [],
-              allowPort: '',
-              allowType: [],
-              need_realname: false,
-              bandWidth: 0,
-              location: 'cn'
-            })
-            fetchNodes()
-          } else {
-            message.error(data.message || '更新节点失败')
-          }
-        })
-      } catch (error: any) {
-        message.error(error?.response?.data?.message || '更新节点失败')
-      } finally {
-        submitting.value = false
-      }
+  if (!formRef.value) return
+  
+  try {
+    await formRef.value.validate()
+    
+    const config = {
+      name: formModel.value.name,
+      hostname: formModel.value.hostname,
+      ip: formModel.value.ip,
+      description: formModel.value.description,
+      token: formModel.value.token,
+      port: formModel.value.servicePort,
+      adminPort: formModel.value.adminPort,
+      adminPass: formModel.value.adminPass,
+      group: formModel.value.allowGroup.join(';'),
+      allowPort: formModel.value.allowPort,
+      allowType: formModel.value.allowType.join(';'),
+      need_realname: formModel.value.need_realname,
+      bandWidth: formModel.value.bandWidth,
+      location: formModel.value.location
     }
-  })
-}
-
-const handleAddNode = () => {
-  if (!formModel.value.allowGroup.includes('admin')) {
-    formModel.value.allowGroup.push('admin')
+    
+    const success = await nodesStore.addNode(config, message)
+    if (success) {
+      showAddModal.value = false
+      formRef.value?.restoreValidation()
+      resetForm()
+    }
+  } catch (error: any) {
+    message.error(error?.response?.data?.message || '添加节点失败')
   }
-
-  formRef.value?.validate(async (errors) => {
-    if (!errors) {
-      submitting.value = true
-      try {
-        const config = {
-          ...formModel.value,
-          allowGroup: formModel.value.allowGroup.join(';'),
-          allowType: formModel.value.allowType.join(';')
-        }
-        userApi.post(`/admin/node/create`, config, accessHandle(), (data) => {
-          if (data.code === 0) {
-            message.success('添加节点成功')
-            showAddModal.value = false
-            formRef.value?.restoreValidation()
-            Object.assign(formModel.value, {
-              name: '',
-              hostname: '',
-              ip: '',
-              description: '',
-              token: '',
-              servicePort: 2333,
-              adminPort: 8233,
-              adminPass: '',
-              allowGroup: [],
-              allowPort: '',
-              allowType: [],
-              need_realname: true,
-              bandWidth: 0,
-              location: 'cn'
-            })
-            fetchNodes()
-          } else {
-            message.error(data.message || '添加节点失败')
-          }
-        })
-      } catch (error: any) {
-        message.error(error || '添加节点失败')
-      } finally {
-        submitting.value = false
-      }
-    }
-  })
 }
 
-const handleSearch = () => {
-  pagination.value.page = 1
-  fetchNodes()
-}
-
-const handleFilterChange = () => {
-  pagination.value.page = 1
-  fetchNodes()
-}
-
-const onlineOptions: SelectOption[] = [
-  { label: '在线', value: 'online' },
-  { label: '离线', value: 'offline' }
-]
-
-const statusOptions: SelectOption[] = [
-  { label: '已启用', value: 'enabled' },
-  { label: '已禁用', value: 'disabled' },
-]
-
-const showToggleModal = ref(false)
-const showDeleteModal = ref(false)
-const currentNode = ref<Node | null>(null)
-
+// 切换节点状态
 const handleToggleNode = async (node: Node) => {
-  try {
-    submitting.value = true
-    userApi.post(`/admin/node/toggle/${node.id}`, { isDisabled: !node.isDisabled }, accessHandle(), (data) => {
-      if (data.code === 0) {
-        node.isDisabled = !node.isDisabled
-        message.success(node.isDisabled ? '禁用节点成功' : '启用节点成功')
-        showToggleModal.value = false
-        loadData()
-      } else {
-        message.error(data.message || '操作失败')
-      }
-    })
-  } catch (error: any) {
-    message.error(error || '操作失败')
-  } finally {
-    submitting.value = false
+  const success = await nodesStore.toggleNode(node.id, !node.isDisabled, message)
+  if (success) {
+    showToggleModal.value = false
   }
 }
 
+// 删除节点
 const handleDeleteNode = async (node: Node) => {
-  try {
-    submitting.value = true
-    userApi.post(`/admin/node/delete/${node.id}`, {}, accessHandle(), (data) => {
-      if (data.code === 0) {
-        message.success('删除节点成功')
-        setTimeout(() => {
-          fetchNodes()
-        }, 100)
-      } else {
-        message.error(data.message || '删除节点失败')
-      }
-    })
+  const success = await nodesStore.deleteNode(node.id, message)
+  if (success) {
     showDeleteModal.value = false
-    loadData()
-  } catch (error: any) {
-    message.error(error || '操作失败')
-  } finally {
-    submitting.value = false
   }
 }
 
-const dropdownOptions = (row: Node): DropdownOption[] => [
-  {
-    label: '编辑',
-    key: 'edit',
-    disabled: false,
-    icon: () => h(NIcon, null, { default: () => h(CreateOutline) })
-  },
-  {
-    label: !row.isDisabled ? '禁用' : '启用',
-    key: 'toggle',
-    disabled: false,
-    icon: () => h(NIcon, null, { default: () => h(PowerOutline) })
-  },
-  {
-    label: '删除',
-    key: 'delete',
-    disabled: false,
-    icon: () => h(NIcon, null, { default: () => h(TrashOutline) })
-  }
-]
-
+// 下拉菜单选择处理
 const handleSelect = (key: string, row: Node) => {
   switch (key) {
     case 'edit':
@@ -1008,76 +949,10 @@ const handleSelect = (key: string, row: Node) => {
   }
 }
 
-const fetchNodes = async () => {
-  loading.value = true
-  try {
-    const params: GetNodesArgs = {
-      page: pagination.value.page,
-      limit: pagination.value.pageSize
-    }
-
-    if (searchKeyword.value) {
-      params.keyword = searchKeyword.value
-    }
-    if (selectedOnline.value !== null) {
-      params.isOnline = selectedOnline.value === 'online'
-    }
-    if (selectedStatus.value !== null) {
-      params.isDisabled = selectedStatus.value === 'disabled'
-    }
-
-    userApi.post("/admin/node/list", params, accessHandle(), (data) => {
-      nodes.value = (data.data?.nodes || []).map(node => ({
-        ...node,
-        allowGroup: node.group || '',
-        allowType: node.allowType || '',
-        location: node.location 
-      }))
-      pagination.value.itemCount = data.data?.total || 0
-      pagination.value.pageCount = Math.ceil((data.data?.total || 0) / pagination.value.pageSize)
-    }, (error) => {
-      message.warning(error || '获取节点列表失败')
-      nodes.value = []
-      pagination.value.itemCount = 0
-      pagination.value.pageCount = 0
-    })
-  } catch (error: any) {
-    message.error(error || '获取节点列表失败')
-    nodes.value = []
-  } finally {
-    loading.value = false
-  }
-}
-
-const fetchUserGroups = async () => {
-  try {
-    userApi.get("/user/info/groups", accessHandle(), (data) => {
-      if (data.code === 0) {
-        // 过滤掉 traffic 和 proxies 组
-        groupOptions.value = data.data.groups
-          .filter(group => group.name !== 'traffic' && group.name !== 'proxies')
-          .map(group => ({
-            label: group.friendlyName,
-            value: group.name
-          }));
-      } else {
-        message.error(data.message || '获取用户组列表失败');
-      }
-    });
-  } catch (error: any) {
-    message.error(error || '获取用户组列表失败');
-  }
-};
-
-const loadData = () => {
-  fetchNodes()
-  fetchUserGroups()
-}
-
-// 在组件挂载时获取用户组列表
+// 初始化数据
 const init = () => {
-  fetchUserGroups()
-  fetchNodes()
+  groupsStore.fetchUserGroups(message)
+  nodesStore.fetchNodes(message)
 }
 
 init()
@@ -1098,6 +973,14 @@ init()
 
 .add-button {
   margin-left: auto;
+}
+
+.empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  padding: 40px 0;
 }
 
 .group-buttons,

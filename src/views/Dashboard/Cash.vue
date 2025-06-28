@@ -133,8 +133,7 @@ import { ref, onMounted } from 'vue'
 import { CheckmarkCircle, InformationCircle, InfiniteOutline } from '@vicons/ionicons5'
 import { useMessage } from 'naive-ui'
 import { userApi } from '@/net'
-import { accessHandle } from '@/net/base.ts'
-import { Product} from '@/types'
+import { Product } from '@/net/user/type'
 
 const message = useMessage()
 const products = ref<Product[]>([])
@@ -146,15 +145,16 @@ const shouldUseSelectedAmount = (product: Product) => {
 }
 
 // 从API获取产品数据
-const fetchProducts = () => {
+const fetchProducts = async () => {
   loading.value = true 
-  userApi.get("/user/info/product", accessHandle(), (data) => {
+  try {
+    const data = await userApi.getProducts()
+    if (data.code === 0 && data.data && data.data.products) {
       products.value = data.data.products.map(product => {
         // 解析 pay_method 字段为数组
         const payMethods = product.payMethod.split(';')
         // 默认选中第一个可用的支付方式
         const isPoint = payMethods.includes('points') && (payMethods[0] === 'points')
-        loading.value = false
         return {
           ...product,
           payMethods, // 存储支付方式数组
@@ -162,17 +162,23 @@ const fetchProducts = () => {
           selectedAmount: 1, // 默认数量为1
         }
       })
-  }, (messageText) => {
-    message.warning(messageText)
-    loading.value = false // 加载完成
-  }, (err) => {
-    message.error(err.message)
+    } else {
+      // 当没有产品时，显示空数组
+      products.value = []
+      if (data.code !== 0) {
+        message.warning(data.message || '暂无产品')
+      }
+    }
+  } catch (err: any) {
+    message.error(err.message || '获取产品列表失败')
+    products.value = []
+  } finally {
     loading.value = false
-  })
+  }
 }
 
 // 购买处理
-const handleBuy = (product) => {
+const handleBuy = async (product: Product) => {
   // 确定使用哪个数量
   const amount = shouldUseSelectedAmount(product) ? product.selectedAmount : 1
 
@@ -195,13 +201,15 @@ const handleBuy = (product) => {
     message.info(`正在创建价格订单：${product.name}`)
   }
 
-  // 调用API进行购买
-  userApi.post("/user/buy", {
-    productId: product.id,
-    type: product.type,
-    amount: amount,
-    isPoint: product.isPoint,
-  }, accessHandle(), (data) => {
+  try {
+    // 调用API进行购买
+    const data = await userApi.buyProduct({
+      productId: product.id,
+      type: product.type,
+      amount: amount,
+      isPoint: product.isPoint,
+    })
+    
     if (data.code === 0) {
       message.success('购买成功')
       // 可以在这里重置购买数量
@@ -211,11 +219,9 @@ const handleBuy = (product) => {
     } else {
       message.error(data.message)
     }
-  }, (messageText) => {
-    message.error(messageText)
-  }, (err) => {
-    message.error(err.message)
-  })
+  } catch (err: any) {
+    message.error(err.message || '购买失败')
+  }
 }
 
 // 在组件挂载时获取产品数据

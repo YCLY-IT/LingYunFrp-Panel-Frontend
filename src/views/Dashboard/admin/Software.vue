@@ -153,31 +153,8 @@
 import { ref, h, onMounted, computed } from 'vue'
 import { NButton, NSpace, useMessage } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
-import { userApi } from '@/net'
-import { accessHandle } from '@/net/base'
-
-interface Software {
-  id: number
-  name: string
-  code: string
-  description: string
-  sourceId: number
-  versions: SoftwareVersion[]
-  created_at: string
-  updated_at: string
-}
-
-interface SoftwareVersion {
-  id: number
-  softwareId: number
-  version: string
-  downloadUrl: string
-  os: string
-  arch: string
-  size: number
-  created_at: string
-  updated_at: string
-}
+import { adminApi } from '@/net'
+import type { Software, SoftwareVersion } from '@/net/admin/type'
 
 interface DownloadSource {
   id: number
@@ -439,33 +416,23 @@ const handleVersionManage = (row: Software) => {
 
 const handleDelete = async (row: Software) => {
   try {
-    userApi.post(`/admin/software/delete/${row.id}`, {}, accessHandle(), async (data) => {
-      message.success(data.message)
-      setTimeout(async () => {
-        await fetchSoftwareList()
-      }, 100)
-    }, (error) => {
-      message.error(error)
-    })
-  } catch (error) {
-    message.error('删除失败')
+    const data = await adminApi.deleteSoftware(row.id)
+    message.success(data.message)
+    await fetchSoftwareList()
+  } catch (error: any) {
+    message.error(error?.response?.data?.message || '删除失败')
   }
 }
 
 const handleDeleteVersion = async (version: SoftwareVersion) => {
   try {
-    userApi.post(`/admin/software/version/delete/${version.id}`, {}, accessHandle(), async (data) => {
-      message.success(data.message)
-      currentVersions.value = currentVersions.value.filter(v => v.id !== version.id)
-      allVersions.value = allVersions.value.filter(v => v.id !== version.id)
-      setTimeout(async () => {
-        await fetchSoftwareVersions()
-      }, 100)
-    }, (error) => {
-      message.error(error)
-    })
-  } catch (error) {
-    message.error('删除失败')
+    const data = await adminApi.deleteSoftwareVersion(version.id)
+    message.success(data.message)
+    currentVersions.value = currentVersions.value.filter(v => v.id !== version.id)
+    allVersions.value = allVersions.value.filter(v => v.id !== version.id)
+    await fetchSoftwareVersions()
+  } catch (error: any) {
+    message.error(error?.response?.data?.message || '删除失败')
   }
 }
 
@@ -476,17 +443,22 @@ const handleSubmit = async () => {
       return
     }
     if (editingSoftware.value) {
-      userApi.post(`/admin/software/update/${editingSoftware.value.id}`, formValue.value, accessHandle(), (data) => {
-          message.success(data.message)
-      }, (error) => {
-        message.error(error)
+      const data = await adminApi.updateSoftware({
+        id: editingSoftware.value.id,
+        name: formValue.value.name,
+        code: formValue.value.code,
+        description: formValue.value.description,
+        sourceId: Number(formValue.value.sourceId)
       })
+      message.success(data.message)
     } else {
-      userApi.post('/admin/software', formValue.value, accessHandle(), (data) => {
-          message.success(data.message)
-      }, (error) => {
-        message.error(error)
+      const data = await adminApi.createSoftware({
+        name: formValue.value.name,
+        code: formValue.value.code,
+        description: formValue.value.description,
+        sourceId: Number(formValue.value.sourceId)
       })
+      message.success(data.message)
     }
     showAddModal.value = false
     // 重置表单和编辑状态
@@ -497,12 +469,9 @@ const handleSubmit = async () => {
       sourceId: ''
     }
     editingSoftware.value = null
-  } catch (error) {
-    message.error('操作失败')
-  } finally {
-    setTimeout(async () => {
-      await fetchSoftwareList()
-    }, 200)
+    await fetchSoftwareList()
+  } catch (error: any) {
+    message.error(error?.response?.data?.message || '操作失败')
   }
 }
 
@@ -520,45 +489,41 @@ const handleVersionSubmit = async () => {
   }
 
   try {
-    const versionData = {
-      ...versionForm.value,
+    const data = await adminApi.createSoftwareVersion({
+      name: versionForm.value.version,
+      version: versionForm.value.version,
+      downloadUrl: versionForm.value.downloadUrl,
+      os: versionForm.value.os,
+      arch: versionForm.value.arch,
+      size: versionForm.value.size,
       softwareId: editingSoftware.value.id
-    }
-    
-    userApi.post('/admin/software/version', versionData, accessHandle(), async (data) => {
-      message.success(data.message)
-      showAddVersionModal.value = false
-      // 重置版本表单
-      versionForm.value = {
-        version: '',
-        downloadUrl: '',
-        os: '',
-        arch: '',
-        size: 0
-      }
-      // 延迟重新获取数据
-      setTimeout(async () => {
-        await fetchSoftwareVersions()
-      }, 100)
-    }, (error) => {
-      message.error(error)
     })
-  } catch (error) {
-    message.error('添加版本失败')
+    message.success(data.message)
+    showAddVersionModal.value = false
+    // 重置版本表单
+    versionForm.value = {
+      version: '',
+      downloadUrl: '',
+      os: '',
+      arch: '',
+      size: 0
+    }
+    await fetchSoftwareVersions()
+  } catch (error: any) {
+    message.error(error?.response?.data?.message || '添加版本失败')
   }
 }
 
 const fetchSoftwareList = async () => {
   loading.value = true
   try {
-    userApi.get('/user/info/softwares', accessHandle(), (data) => {
-      if (data.code === 0 && data.data && data.data.softwares) {
-        softwareList.value = data.data.softwares
-      } else {
-        message.info('暂无可用软件')
-        softwareList.value = []
-      }
-    })
+    const data = await adminApi.getSoftwareList()
+    if (data.code === 0 && data.data) {
+      softwareList.value = data.data.softwares || []
+    } else {
+      message.info('暂无可用软件')
+      softwareList.value = []
+    }
   } catch (error) {
     message.error('获取软件列表失败')
     softwareList.value = []
@@ -569,19 +534,21 @@ const fetchSoftwareList = async () => {
 
 const fetchSoftwareVersions = async () => {
   try {
-    userApi.get(`/user/info/softwares/version`, accessHandle(), (data) => {
-      if (data.data) {
-        allVersions.value = data.data
-        if (editingSoftware.value) {
-          currentVersions.value = data.data.filter(version => version.softwareId === editingSoftware.value?.id)
-        }
-      } else {
-        allVersions.value = []
-        currentVersions.value = []
-        message.info('暂无可用版本')
+    // 使用专门的版本获取API
+    const data = await adminApi.getSoftwareVersions()
+    if (data.code === 0 && data.data) {
+      allVersions.value = data.data
+      
+      if (editingSoftware.value) {
+        currentVersions.value = allVersions.value.filter(version => version.softwareId === editingSoftware.value?.id)
       }
-    })
+    } else {
+      allVersions.value = []
+      currentVersions.value = []
+      message.info('暂无可用版本')
+    }
   } catch (error) {
+    console.error('获取版本列表失败:', error)
     message.error('获取版本列表失败')
     allVersions.value = []
     currentVersions.value = []
@@ -590,14 +557,13 @@ const fetchSoftwareVersions = async () => {
 
 const getDownloadSource = async () => {
   try {
-    userApi.get('/user/info/download/sources', accessHandle(), (data) => {
-      if (data.data) {
-        downloadSources.value = data.data
-      } else {
-        downloadSources.value = []
-        message.info('暂无可用下载源')
-      }
-    })
+    const data = await adminApi.getDownloadSources()
+    if (data.code === 0 && data.data) {
+      downloadSources.value = data.data
+    } else {
+      downloadSources.value = []
+      message.info('暂无可用下载源')
+    }
   } catch (error) {
     message.error('获取下载源失败')
     downloadSources.value = []

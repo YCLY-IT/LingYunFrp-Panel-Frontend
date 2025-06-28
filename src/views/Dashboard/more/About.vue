@@ -105,7 +105,7 @@
           <n-spin :show="loading">
             <n-timeline v-if="commits.length > 0">
               <n-timeline-item
-                v-for="(commit, index) in visibleCommits"
+                v-for="(commit, _index) in visibleCommits"
                 :key="commit.sha"
                 :type="getCommitType(commit.commit.message)"
                 :title="getCommitTitle(commit.commit.message)"
@@ -269,25 +269,9 @@ import {
 } from 'lucide-vue-next'
 
 import packageData from '../../../../package.json'
-import { userApi } from '@/net'
-import { accessHandle } from '@/net/base'
+import { getGitHubCommits } from '@/net/user/user'
+import { GitHubCommit } from '@/net/user/type'
 declare const __BUILD_DATE__: string
-interface GitHubCommit {
-  sha: string
-  html_url: string
-  author: {
-    login: string
-    avatar_url: string
-  }
-  commit: {
-    author: {
-      name: string
-      email: string
-      date: string
-    }
-    message: string
-  }
-}
 
 const message = useMessage()
 const commits = ref<GitHubCommit[]>([])
@@ -371,18 +355,11 @@ const getCommitContent = (message: string) => {
 const fetchGetGitHubCommits = async () => {
   loading.value = true
   try {
-    userApi.get('/user/info/githubCommits', accessHandle(), (data) => {
-      console.log('GitHub 提交记录:', data.data)
-      commits.value = data.data || []
-      // 初始化显示前五条
-      visibleCommits.value = commits.value.slice(0, visibleCount.value)
-    }, (messageText) => {
-      message.warning(messageText)
-    }, (err) => {
-      message.error('获取 GitHub 提交记录失败: ' + err.message)
-    })
-  } catch (error) {
-    message.error('获取 GitHub 提交记录失败: ' + error)
+    const data = await getGitHubCommits()
+    commits.value = data.data || []
+    visibleCommits.value = commits.value.slice(0, visibleCount.value)
+  } catch (error: any) {
+    message.error('获取 GitHub 提交记录失败: ' + (error?.message || error))
   } finally {
     loading.value = false
   }

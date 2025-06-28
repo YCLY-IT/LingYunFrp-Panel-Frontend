@@ -68,7 +68,6 @@ import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import { useRouter } from 'vue-router'
 import { userApi } from "@/net"
-import { accessHandle } from "@/net/base"
 import UserInfo from "@/components/UserInfo.vue"
 import Traffic from '@/components/Traffic.vue'
 import { TrafficType } from '@/types'
@@ -145,26 +144,25 @@ const renderedNotice = computed(() => {
 const fetchNotice = async (): Promise<void> => {
   // 开始获取通知，显示加载状态
   isNoticeLoading.value = true
-  userApi.get('/user/info/broadcast', accessHandle(), (data) => {
-      notices.value = data.data[0].broadcast
-      // 通知获取成功，隐藏加载状态
-      isNoticeLoading.value = false
-  }, (messageText) => {
-    message.error('获取公告失败:' + messageText)
-    // 通知获取失败，隐藏加载状态
+  try {
+    const data = await userApi.getBroadcast()
+    notices.value = data?.data[0].broadcast
     isNoticeLoading.value = false
-  })
+  } catch (err: any) {
+    isNoticeLoading.value = false
+  }
 }
 
 // 获取一言
 const getHitokoto = async (): Promise<void> => {
   loading.value = true
-  userApi.getHitokoto({}, (data) => {
+  try{
+    const data = await userApi.getHitokoto()
     textHitokoto.value = data
     loading.value = false
-  }, (messageText) => {
-    message.error('获取一言失败:' + messageText)
-  })
+  }catch(err: any){
+    message.error('获取一言失败:' + err.message)
+  }
 }
 
 // 页面挂载后执行

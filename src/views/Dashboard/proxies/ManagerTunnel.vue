@@ -329,7 +329,9 @@
         <div class="modal-footer">
           <NButton @click="showModal = false">
             <template #icon>
-              <RefreshOutline />
+              <NIcon>
+                <RefreshOutline />
+              </NIcon>
             </template>
             关闭</NButton>
           <NButton 
@@ -621,7 +623,7 @@ import type { Proxy} from '@/types'
 import { switchButtonRailStyle } from '@/constants/theme'
 import { useRouter } from 'vue-router'
 import {userApi} from "@/net";
-import {accessHandle} from "@/net/base.ts";
+import { getToken } from "@/net/token";
 
 const isIPAddress = (hostname: string) => {
   const ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/
@@ -673,7 +675,10 @@ const editForm = ref({
   use_compression: false,
   proxy_protocol_version: '',
   proxyType: '',
-  nodeId: 0
+  nodeId: 0,
+  proxyProtocolVersion: '',
+  useEncryption: false,
+  useCompression: false
 })
 const router = useRouter()
 const gettingFreePort = ref(false)
@@ -751,14 +756,17 @@ const filteredProxies = computed(() => {
 const handleRefresh = async () => {
   loading.value = true
   try {
-    userApi.get("/proxy/list", accessHandle(), (data) => {
-        proxies.value = data.data
-    }, (error) => {
-      message.warning(error || '获取隧道列表失败')
-    }, (error) => {
-      message.error(error.message || '获取隧道列表失败')
-      loading.value = false
-    })
+    const data = await userApi.getProxyList()
+    if (data.code === 0) {
+      // 将 ProxyData[] 转换为 Proxy[]
+      proxies.value = data.data.map((item: any) => ({
+        ...item,
+        lastStartTime: item.lastStartTime || 0,
+        lastCloseTime: item.lastCloseTime || 0
+      }))
+    } else {
+      message.warning(data.message || '获取隧道列表失败')
+    }
   } catch (error: any) {
     message.error(error?.response?.data?.message || '获取隧道列表失败')
   } finally {
@@ -773,18 +781,16 @@ const createTunnel = () => {
 // 获取节点列表
 const fetchNodes = async () => {
   try {
-    userApi.get("/proxy/node/list",  accessHandle(), (data) => {
-      if (data.code === 0) {
-        nodeOptions.value = (data.data || []).map((node: any) => ({
-          label: node.name,
-          value: node.nodeId,
-          hostname: node.hostname
-        }))
-      } else {
-        message.error('获取节点列表失败')
-      }
-    }, () => {
-    })
+    const data = await userApi.getProxyNodes()
+    if (data.code === 0) {
+      nodeOptions.value = (data.data || []).map((node: any) => ({
+        label: node.name,
+        value: node.nodeId,
+        hostname: node.hostname
+      }))
+    } else {
+      message.error('获取节点列表失败')
+    }
   } catch (error: any) {
     message.error('获取节点列表失败')
   }
@@ -834,33 +840,28 @@ const handleGenConfig = async (proxy: Proxy) => {
 
   try {
     loading.value = true
-    userApi.post("/proxy/config", {
+    const data = await userApi.getProxyConfig({
       proxyId: proxy.proxyId,
       type: configFormat.value
-    }, accessHandle(), (data) => {
-      if (data.code === 0) {
-        switch (configFormat.value) {
-          case 'toml':
-            tomlContent.value = data.data.config
-            break
-          case 'ini':
-            iniContent.value = data.data.config
-            break
-          case 'json':
-            jsonContent.value = data.data.config
-            break
-          case 'yml':
-            ymlContent.value = data.data.config
-            break
-        }
-      } else {
-        message.error(data.message || '获取配置失败')
+    })
+    if (data.code === 0) {
+      switch (configFormat.value) {
+        case 'toml':
+          tomlContent.value = data.data.config
+          break
+        case 'ini':
+          iniContent.value = data.data.config
+          break
+        case 'json':
+          jsonContent.value = data.data.config
+          break
+        case 'yml':
+          ymlContent.value = data.data.config
+          break
       }
-    }, (error) => {
-      message.error(error || '获取配置失败')
-    }, () => {
-      loading.value = false
-})
+    } else {
+      message.error(data.message || '获取配置失败')
+    }
   } catch (error: any) {
     message.error(error?.response?.data?.message || '获取配置失败')
   } finally {
@@ -877,20 +878,17 @@ const handleToggleConfirm = async () => {
   if (!proxyToOperate.value) return
   try {
     loading.value = true
-    userApi.post("/proxy/toggle", {
+    const data = await userApi.toggleProxy({
       proxyId: proxyToOperate.value.proxyId,
       isDisabled: !proxyToOperate.value.isDisabled
-    }, accessHandle(), (data) => {
-      if (data.code === 0) {
-        message.success('操作成功')
-        showToggleModal.value = false
-        handleRefresh()
-      } else {
-        message.error(data.message || '操作失败')
-      }
-    }, (messageText) => {
-      message.error(messageText || '操作失败')
     })
+    if (data.code === 0) {
+      message.success('操作成功')
+      showToggleModal.value = false
+      handleRefresh()
+    } else {
+      message.error(data.message || '操作失败')
+    }
   } catch (error: any) {
     message.error(error?.response?.data?.message || '操作失败')
   } finally {
@@ -920,7 +918,10 @@ const handleEdit = (proxy: Proxy) => {
     use_compression: proxy.useCompression || false,
     proxy_protocol_version: proxy.proxyProtocolVersion || '',
     proxyType: proxy.proxyType,
-    nodeId: proxy.nodeId
+    nodeId: proxy.nodeId,
+    proxyProtocolVersion: proxy.proxyProtocolVersion || '',
+    useEncryption: proxy.useEncryption || false,
+    useCompression: proxy.useCompression || false
   }
   // 处理域名数组
   try {
@@ -936,19 +937,32 @@ const handleEditSubmit = () => {
     if (!errors) {
       loading.value = true
       try {
-        userApi.post("/proxy/update", editForm.value, accessHandle(), (data) => {
-          if (data.code === 0) {
-            message.success('更新隧道成功')
-            showEditModal.value = false
-            handleRefresh()
-          } else {
-            message.error(data.message || '更新隧道失败')
-          }
-        }, (messageText) => {
-          message.error("更新隧道失败:" + messageText || '更新隧道失败')
-        }, () => {
-          loading.value = false
-        })
+        // 构造符合 UpdateTunnelParams 的参数
+        const updateParams = {
+          proxyId: editForm.value.proxyId,
+          nodeId: editForm.value.nodeId,
+          proxyName: editForm.value.proxyName,
+          localIp: editForm.value.localIp,
+          localPort: editForm.value.localPort,
+          remotePort: editForm.value.remotePort,
+          domain: editForm.value.domain,
+          proxyType: editForm.value.proxyType,
+          accessKey: editForm.value.accessKey,
+          hostHeaderRewrite: editForm.value.hostHeaderRewrite,
+          headerXFromWhere: editForm.value.headerXFromWhere,
+          proxyProtocolVersion: editForm.value.proxyProtocolVersion,
+          useEncryption: editForm.value.useEncryption,
+          useCompression: editForm.value.useCompression
+        }
+        
+        const data = await userApi.updateProxy(updateParams)
+        if (data.code === 0) {
+          message.success('更新隧道成功')
+          showEditModal.value = false
+          handleRefresh()
+        } else {
+          message.error(data.message || '更新隧道失败')
+        }
       } catch (error: any) {
         message.error(error|| '更新隧道失败')
       } finally {
@@ -977,20 +991,15 @@ const handleDeleteClick = (proxy: Proxy) => {
 const handleDeleteConfirm = async () => {
   if (!proxyToDelete.value) return
   try {
-    userApi.post("/proxy/delete", {
+    const data = await userApi.deleteProxy({
       proxyId: proxyToDelete.value.proxyId
-    }, accessHandle(), (data) => {
-      console.log(data)
-      if (data.code === 0) {
-        message.success('删除隧道成功')
-        handleRefresh()
-      } else {
-        message.error('删除隧道失败')
-      }
-    }, (messageText) => {
-      loading.value = false
-      message.error(messageText || '删除隧道失败')
     })
+    if (data.code === 0) {
+      message.success('删除隧道成功')
+      handleRefresh()
+    } else {
+      message.error('删除隧道失败')
+    }
     showDeleteModal.value = false
   } catch (error: any) {
     message.error(error?.response?.data?.message || '删除隧道失败')
@@ -1024,16 +1033,15 @@ const handleSelect = (key: string, proxy: Proxy) => {
 const handleGetFreePortForEdit = async () => {
   try {
     gettingFreePort.value = true
-    userApi.post("/proxy/freePort", {
+    const data = await userApi.getFreePort({
       nodeId: editForm.value.nodeId,
       protocol: editForm.value.proxyType === 'udp' ? 'udp' : 'tcp'
-      }, accessHandle(), (data) => {
-      if (data.code === 0) {
-        editForm.value.remotePort = data.data
-      } else {
-        message.error(data.message || '获取空闲端口失败')
-      }
     })
+    if (data.code === 0) {
+      editForm.value.remotePort = data.data.port
+    } else {
+      message.error(data.message || '获取空闲端口失败')
+    }
   } catch (error: any) {
     message.error(error?.response?.data?.message || '获取空闲端口失败')
   } finally {
@@ -1077,11 +1085,10 @@ watch(() => configFormat.value, async (newFormat) => {
 
   try {
     loading.value = true
-userApi.post("/proxy/config", {
-    proxyId: selectedProxy.value.proxyId,
-    type: newFormat
-  }, accessHandle(), (data) => {
-
+    const data = await userApi.getProxyConfig({
+      proxyId: selectedProxy.value.proxyId,
+      type: newFormat
+    })
     if (data.code === 0) {
       switch (newFormat) {
         case 'toml':
@@ -1100,11 +1107,6 @@ userApi.post("/proxy/config", {
     } else {
       message.error(data.message || '获取配置失败')
     }
-    }, (error) => {
-      message.error(error || '获取配置失败')
-    }, (error) => {
-message.error('获取配置失败:' + error.message)
-    })
   } catch (error: any) {
     message.error(error?.response?.data?.message || '获取配置失败')
   } finally {

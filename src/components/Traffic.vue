@@ -50,7 +50,6 @@ import {
 import { Refresh as RefreshIcon } from '@vicons/ionicons5'
 import * as echarts from 'echarts'
 import { userApi } from '@/net'
-import { accessHandle } from '@/net/base'
 import { TrafficData } from '@/types'
 
 // 响应式数据
@@ -95,15 +94,12 @@ const dayOptions = ref([
 const fetchData = async () => {
   loading.value = true
   try {
-    userApi.get('/user/info/trafficTrend?day='+ days.value, accessHandle(), async (data) => {
-    chartData.value = data.data.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+   const data = await userApi.getTrafficTrend(days.value)
+    chartData.value = (data.data || []).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     await nextTick()
     updateChart()
-    }, (error) => {
-      message.error('数据加载失败: ' + error)
-  })
   } catch (error) {
-    message.error('请求失败: ' + error)
+    message.error('数据加载失败: ' + error)
   } finally {
     loading.value = false
   }

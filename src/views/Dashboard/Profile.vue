@@ -271,7 +271,7 @@ import { UserIcon, ImageUpIcon, LockIcon, BadgeCheckIcon } from 'lucide-vue-next
 import userInfo from "../../components/UserInfo.vue";
 import { UploadFileInfo } from 'naive-ui'
 import { userApi } from '../../net'
-import { accessHandle, removeToken } from '../../net/base'
+import { removeToken } from '../../net/token'
 import Statistic from '@/components/Statistic.vue';
 import 'vue-cropper/dist/index.css'
 import { VueCropper } from 'vue-cropper'
@@ -360,7 +360,7 @@ const rules = {
     confirmPassword: [
       { required: true, message: '请确认新密码', trigger: 'blur' },
       {
-        validator: (rule, value) => {
+        validator: (_rule, value) => {
           return value === forms.password.newPassword
         },
         message: '两次输入的密码不一致',
@@ -444,22 +444,26 @@ const handleChangeUsername = async () => {
   }
   loading.value = true
   try {
-    userApi.post('/user/update/username', { newUsername: forms.username.newUsername, emailCode: forms.username.emailCode }, accessHandle(), (data) => {
+    const data = await userApi.updateUsername({ 
+      newUsername: forms.username.newUsername, 
+      emailCode: forms.username.emailCode 
+    })
+    if (data.code === 0) {
       UserInfo.username = forms.username.newUsername
       message.success('用户名修改成功')
       forms.username.newUsername = ''
       forms.username.emailCode = ''
       modals.changeUsername = false
-    },(errors) => {
-      message.error(errors || '用户名修改失败')
-    })
-  } catch (errors) {
-    message.error('用户名修改失败')
+    } else {
+      message.error(data.message || '用户名修改失败')
+    }
+  } catch (error: any) {
+    message.error(error.message || '用户名修改失败')
   }
   loading.value = false
 }
 
-const sendEmailVerificationCode = async (model : string, email: string) => {
+const sendEmailVerificationCode = async (model: string, email: string) => {
   if (emailCodeSending.value || emailCodeCountdown.value > 0) return
   if (!email) {
     message.error('请输入邮箱')
@@ -469,22 +473,21 @@ const sendEmailVerificationCode = async (model : string, email: string) => {
   emailCodeSending.value = true
   
   try {
-    userApi.post(`/user/code/${model}`, { email: email }, accessHandle(), (data) => {
-      if (data.code !== 0) {
-        message.success('验证码发送成功')
-        emailCodeCountdown.value = 60
-        const timer = setInterval(() => {
-          emailCodeCountdown.value--
-          if (emailCodeCountdown.value <= 0) {
-            clearInterval(timer)
-          }
-        }, 1000)
-      }
-    }, (messageText) => {
-      message.error(messageText || '验证码发送失败')
-    })
-  } catch (error) {
-    message.error('验证码发送失败')
+    const data = await userApi.sendEmailCode(email, model)
+    if (data.code === 0) {
+      message.success('验证码发送成功')
+      emailCodeCountdown.value = 60
+      const timer = setInterval(() => {
+        emailCodeCountdown.value--
+        if (emailCodeCountdown.value <= 0) {
+          clearInterval(timer)
+        }
+      }, 1000)
+    } else {
+      message.error(data.message || '验证码发送失败')
+    }
+  } catch (error: any) {
+    message.error(error.message || '验证码发送失败')
   } finally {
     emailCodeSending.value = false
   }
@@ -497,21 +500,20 @@ const handleUpdateNickname = async () => {
   }
   loading.value = true
   try {
-    userApi.post(`/user/update/nickname/${forms.nickname.newNickname}`, { nickname: forms.nickname.newNickname }, accessHandle(), (data) => {
+    const data = await userApi.updateNickname(forms.nickname.newNickname)
+    if (data.code === 0) {
       localStorage.setItem('nickname', forms.nickname.newNickname)
       message.success('昵称修改成功')
       forms.nickname.newNickname = ''
       setTimeout(() => {
         window.location.reload()
       }, 1500)
-    }, (messageText) => {
-      message.error(messageText || '昵称修改失败')
-    })
-  }
-  catch (error) {
-    message.error('昵称修改失败') 
-  }
-  finally {
+    } else {
+      message.error(data.message || '昵称修改失败')
+    }
+  } catch (error: any) {
+    message.error(error.message || '昵称修改失败') 
+  } finally {
     modals.changeNickname = false
     loading.value = false
   }
@@ -578,20 +580,19 @@ const handleChangeAvatar = async () => {
   loading.value = true
   try {
     message.loading('正在上传头像...')
-    userApi.post('/user/update/avatar', formData, {
-      ...accessHandle(),
-      'Content-Type': 'multipart/form-data',
-    }, (data) => {
+    const data = await userApi.updateAvatar(formData)
+    if (data.code === 0) {
       localStorage.setItem('avatar', data.data)
       message.success(data.message)
       setTimeout(() => {
         window.location.reload()
       }, 1000)
-    })
-  } catch (error) {
-    message.error('头像上传失败，请稍后再试')
-  }
-  finally {
+    } else {
+      message.error(data.message || '头像上传失败，请稍后再试')
+    }
+  } catch (error: any) {
+    message.error(error.message || '头像上传失败，请稍后再试')
+  } finally {
     loading.value = false 
   }
 }
@@ -609,11 +610,12 @@ const handleChangePassword = async () => {
   }
   loading.value = true
   try {
-    userApi.post('/user/update/password', {
+    const data = await userApi.updatePassword({
       oldPassword: forms.password.currentPassword,
       newPassword: forms.password.newPassword,
       confirmPassword: forms.password.confirmPassword
-    }, accessHandle(), (data) => {
+    })
+    if (data.code === 0) {
       forms.password.currentPassword = ''
       forms.password.newPassword = ''
       forms.password.confirmPassword = ''
@@ -623,9 +625,11 @@ const handleChangePassword = async () => {
       setTimeout(() => {
         window.location.href = '/login'
       }, 2000)
-    })
-  } catch (errors) {
-    message.error('密码修改失败')
+    } else {
+      message.error(data.message || '密码修改失败')
+    }
+  } catch (error: any) {
+    message.error(error.message || '密码修改失败')
   } finally{
     loading.value = false
   }
@@ -647,35 +651,26 @@ const handleChangeRealname = async () => {
   
   loading.value = true
   try {
-    userApi.post(
-      '/user/realname',
-      { 
-        name: forms.realname.realname, 
-        IDCard: forms.realname.idCard,
-        phone: forms.realname.phone,
-        phoneCode: forms.realname.phoneCode
-      },
-      accessHandle(),
-      (data) => {
-        if (data.code === 0) {
-          message.success(data.message)
-          modals.changeRealname = false
-          UserInfo.isRealname = true
-          // 清空表单
-          forms.realname.realname = ''
-          forms.realname.idCard = ''
-          forms.realname.phone = ''
-          forms.realname.phoneCode = ''
-        } else {
-          message.error(data.message)
-        }
-      },
-      (error) => {
-        message.error(error)
-      },
-    )
-  } catch (error) {
-    message.error('真实姓名认证失败')
+    const data = await userApi.submitRealname({
+      name: forms.realname.realname,
+      IDCard: forms.realname.idCard,
+      phone: forms.realname.phone,
+      phoneCode: forms.realname.phoneCode
+    })
+    if (data.code === 0) {
+      message.success(data.message)
+      modals.changeRealname = false
+      UserInfo.isRealname = true
+      // 清空表单
+      forms.realname.realname = ''
+      forms.realname.idCard = ''
+      forms.realname.phone = ''
+      forms.realname.phoneCode = ''
+    } else {
+      message.error(data.message)
+    }
+  } catch (error: any) {
+    message.error(error.message || '真实姓名认证失败')
   } finally {
     loading.value = false
   }
@@ -697,7 +692,8 @@ const handleSendPhoneCode = async () => {
   phoneCodeSending.value = true
   
   try {
-    userApi.sendSmsCode(forms.realname.phone, "realname", (data) => {
+    const data = await userApi.sendSmsCode(forms.realname.phone, "realname")
+    if (data.code === 0) {
       message.success('验证码已发送')
       phoneCodeCountdown.value = 60
       const timer = setInterval(() => {
@@ -706,9 +702,11 @@ const handleSendPhoneCode = async () => {
           clearInterval(timer)
         }
       }, 1000)
-    })
-  } catch (error) {
-    message.error('验证码发送失败') 
+    } else {
+      message.error(data.message || '验证码发送失败') 
+    }
+  } catch (error: any) {
+    message.error(error.message || '验证码发送失败') 
   } finally {
     phoneCodeSending.value = false
   }

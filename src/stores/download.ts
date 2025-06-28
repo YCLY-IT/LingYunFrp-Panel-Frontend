@@ -1,8 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { userApi } from '@/net'
-import { accessHandle } from '@/net/base'
-import type { DownloadSource, Software, SoftwareVersion } from '@/types'
+import type { DownloadSource, Software, SoftwareVersion } from '@/net/user/type'
 
 export const useDownloadStore = defineStore('download', () => {
   const products = ref<Software[]>([])
@@ -26,47 +25,48 @@ export const useDownloadStore = defineStore('download', () => {
   }
 
   async function fetchProducts() {
-    return new Promise<void>((resolve) => {
-      userApi.get('/user/info/softwares', accessHandle(), (data: any) => {
-        if (!data.data || !data.data.softwares) {
-          products.value = []
-          allProducts.value = []
-          resolve()
-          return
-        }
-        allProducts.value = data.data.softwares
+    try {
+      const data = await userApi.getSoftwares()
+      if (data.code === 0 && data.data) {
+        allProducts.value = data.data
         products.value = allProducts.value
-        resolve()
-      })
-    })
+      } else {
+        products.value = []
+        allProducts.value = []
+      }
+    } catch (error) {
+      console.error('获取软件列表失败:', error)
+      products.value = []
+      allProducts.value = []
+    }
   }
 
   async function fetchDownloadSources() {
-    return new Promise<void>((resolve) => {
-      userApi.get('/user/info/download/sources', accessHandle(), (data: any) => {
-        if (data.code !== 0 || !data.data) {
-          downloadSources.value = []
-          resolve()
-          return
-        }
-        downloadSources.value = data.data || []
-        resolve()
-      })
-    })
+    try {
+      const data = await userApi.getDownloadSources()
+      if (data.code === 0 && data.data) {
+        downloadSources.value = data.data
+      } else {
+        downloadSources.value = []
+      }
+    } catch (error) {
+      console.error('获取下载源失败:', error)
+      downloadSources.value = []
+    }
   }
 
   async function fetchSoftwareVersions() {
-    return new Promise<void>((resolve) => {
-      userApi.get('/user/info/softwares/version', accessHandle(), (data: any) => {
-        if (data.code !== 0 || !data.data) {
-          softwareVersions.value = []
-          resolve()
-          return
-        }
+    try {
+      const data = await userApi.getSoftwareVersions()
+      if (data.code === 0 && data.data) {
         softwareVersions.value = data.data
-        resolve()
-      })
-    })
+      } else {
+        softwareVersions.value = []
+      }
+    } catch (error) {
+      console.error('获取软件版本失败:', error)
+      softwareVersions.value = []
+    }
   }
 
   // 可选：强制刷新
