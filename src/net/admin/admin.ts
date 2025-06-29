@@ -213,7 +213,7 @@ export async function getBroadcastList(): Promise<BroadcastApiResponse> {
 }
 
 export async function createBroadcast(content: string): Promise<CodeResponse> {
-  return await post<CodeResponse>('/admin/setting/Broadcast', { broadcast: content }, {
+  return await post<CodeResponse>('/admin/setting/Broadcast', { message: content }, {
     headers: { Authorization: getToken() }
   });
 }

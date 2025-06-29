@@ -120,7 +120,6 @@ import {
   FormInst,
   FormRules
 } from 'naive-ui'
-import { userApi } from '@/net'
 import { adminApi } from '@/net'
 import { Group, Product } from '@/types'
 

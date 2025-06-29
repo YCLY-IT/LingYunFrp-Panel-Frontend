@@ -201,11 +201,11 @@ const canDownload = computed(() => {
 
 const productOptions = computed<SelectOption[]>(() => {
   const uniqueProducts = new Map<string, Software>()
-  const list = showAllProducts.value ? allProducts.value : products.value
+  const list = Array.isArray(showAllProducts.value ? allProducts.value : products.value)
+    ? (showAllProducts.value ? allProducts.value : products.value)
+    : []
   list.forEach(product => {
-    // 只显示有版本的产品
-    const hasVersion = softwareVersions.value.some(v => v.softwareId === product.id)
-    if (!uniqueProducts.has(product.name) && hasVersion) {
+    if (!uniqueProducts.has(product.name)) {
       uniqueProducts.set(product.name, product)
     }
   })
@@ -293,9 +293,13 @@ const handleSourceChange = (value: number) => {
   selectedProduct.value = null
   selectedVersion.value = null
   if (value) {
-    products.value = allProducts.value.filter(p => p.sourceId === value)
+    products.value = Array.isArray(allProducts.value)
+      ? allProducts.value.filter(p => p.sourceId === value)
+      : []
   } else {
-    products.value = allProducts.value
+    products.value = Array.isArray(allProducts.value)
+      ? allProducts.value
+      : []
   }
 }
 
@@ -479,21 +483,23 @@ const overviewColumns: DataTableColumns<any> = [
 ]
 
 const overviewData = computed(() => {
-  return allProducts.value
-    .map(product => {
-      const versions = softwareVersions.value.filter(v => v.softwareId === product.id)
-      if (versions.length === 0) return null // 没有版本的产品直接隐藏
-      const latestVersion = versions
-        .map(v => v.version)
-        .sort((a, b) => b.localeCompare(a))[0]
-      const source = downloadSources.value.find(s => s.id === product.sourceId)
-      return {
-        ...product,
-        sourceName: source?.name || '',
-        latestVersion
-      }
-    })
-    .filter((item): item is NonNullable<typeof item> => !!item)
+  return Array.isArray(allProducts.value)
+    ? allProducts.value
+      .map(product => {
+        const versions = softwareVersions.value.filter(v => v.softwareId === product.id)
+        if (versions.length === 0) return null // 没有版本的产品直接隐藏
+        const latestVersion = versions
+          .map(v => v.version)
+          .sort((a, b) => b.localeCompare(a))[0]
+        const source = downloadSources.value.find(s => s.id === product.sourceId)
+        return {
+          ...product,
+          sourceName: source?.name || '',
+          latestVersion
+        }
+      })
+      .filter((item): item is NonNullable<typeof item> => !!item)
+    : []
 })
 
 const pagination = { pageSize: 10 }

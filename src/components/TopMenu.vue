@@ -138,7 +138,7 @@ const userLogout = async () => {
     await userApi.logout()
     removeToken()
   } catch (error: any) {
-    message.error(error?.response?.data?.message || '退出登录失败')
+    removeToken()
   }
 }
 

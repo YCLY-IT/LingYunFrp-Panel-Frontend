@@ -7,7 +7,6 @@ import {
   RegisterParams,
   BuyProductParams,
   CodeResponse,
-  HitokotoResponse,
   LoginResponse,
   ProductsResponse,
   SoftwaresResponse,
@@ -40,8 +39,8 @@ export async function forget(params: ForgetParams): Promise<CodeResponse> {
   return await post<CodeResponse>(`/user/forget${url}`, { email, password, code });
 }
 
-export async function getHitokoto(): Promise<HitokotoResponse> {
-    return await get<HitokotoResponse>("https://v1.hitokoto.cn/?c=i&encode=text");
+export async function getHitokoto(): Promise<string> {
+    return await get<string>("https://v1.hitokoto.cn/?c=i&encode=text");
 }
 
 export async function sendEmailCode(email: string, module: string): Promise<CodeResponse> {

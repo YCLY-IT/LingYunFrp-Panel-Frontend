@@ -208,9 +208,11 @@ const fetchUserInfo = async () => {
     loading.value = true
   try{
     const data = await userApi.getUserInfo()
-    userInfo.value = data.data
-    storeUserInfo(data.data)
-    isSignAvailable.value = !data.data.sign
+    if (data.code === 0){
+      userInfo.value = data.data
+      storeUserInfo(data.data)
+      isSignAvailable.value = !data.data.sign
+    }
   } catch (error: any) {
     message.error(error.message || '获取用户信息失败')
   }
