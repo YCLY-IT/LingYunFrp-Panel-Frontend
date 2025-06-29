@@ -27,13 +27,17 @@ export const useDownloadStore = defineStore('download', () => {
   async function fetchProducts() {
     try {
       const data = await userApi.getSoftwares()
-      if (data.code === 0 && data.data) {
-        allProducts.value = data.data
-        products.value = allProducts.value
-      } else {
-        products.value = []
-        allProducts.value = []
+      let softwares: any[] = []
+      const raw = data.data as any
+      if (data.code === 0 && raw) {
+        if (Array.isArray(raw)) {
+          softwares = raw
+        } else if (Array.isArray(raw.softwares)) {
+          softwares = raw.softwares
+        }
       }
+      allProducts.value = softwares
+      products.value = softwares
     } catch (error) {
       console.error('获取软件列表失败:', error)
       products.value = []

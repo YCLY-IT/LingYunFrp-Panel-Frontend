@@ -84,15 +84,15 @@
       </template>
     </NModal>
 
-    <NModal v-model:show="showBanReasonModal" preset="dialog" title="请输入封禁原因">
+    <NModal v-model:show="showBanReasonModal" preset="dialog" :title="banReasonModalTitle">
       <NInput
         v-model:value="banReason"
         type="textarea"
-        placeholder="请填写封禁原因"
+        :placeholder="banReasonModalPlaceholder"
         :autosize="{ minRows: 3, maxRows: 5 }"
       />
       <template #action>
-        <NButton @click="showBanReasonModal = false">取消</NButton>
+        <NButton @click="cancelBanReason">取消</NButton>
         <NButton
           type="primary"
           :disabled="!banReason.trim()"
@@ -105,7 +105,7 @@
 
 <script lang="ts" setup>
 import { ref, h, computed, onMounted } from 'vue'
-import { NCard, NSpace, NDataTable, NButton, useMessage, NTag, NInput, NSelect, NPopconfirm, NIcon, NModal, NForm, NFormItem, NInputNumber, NSwitch, SelectOption, useLoadingBar } from 'naive-ui'
+import { NCard, NSpace, NDataTable, NButton, useMessage, NTag, NInput, NSelect, NIcon, NModal, NForm, NFormItem, NInputNumber, NSwitch, SelectOption, useLoadingBar } from 'naive-ui'
 import { Search } from '@vicons/ionicons5'
 import type { DataTableColumns, FormInst, FormRules } from 'naive-ui'
 import type { User } from '@/net/admin/type'
@@ -203,6 +203,16 @@ const editForm = ref({
 const showBanReasonModal = ref(false)
 const banReason = ref('')
 const banningUser = ref<User | null>(null)
+const isUnbanning = ref(false)
+
+// 计算属性：动态设置模态框标题和占位符
+const banReasonModalTitle = computed(() => {
+  return isUnbanning.value ? '请输入解封原因' : '请输入封禁原因'
+})
+
+const banReasonModalPlaceholder = computed(() => {
+  return isUnbanning.value ? '请填写解封原因' : '请填写封禁原因'
+})
 
 const formatTime = (timestamp: number | string) => {
   const date = new Date(typeof timestamp === 'string' ? timestamp : timestamp * 1000)
@@ -325,12 +335,9 @@ const columns: DataTableColumns<User> = [
                 size: 'small',
                 type: row.status === 1 ? 'success' : 'error',
                 onClick: () => {
-                  if (row.status === 1) {
-                    handleToggleStatus(row)
-                  } else {
-                    banningUser.value = row
-                    showBanReasonModal.value = true
-                  }
+                  banningUser.value = row
+                  isUnbanning.value = row.status === 1
+                  showBanReasonModal.value = true
                 }
               },
               { default: () => row.status === 1 ? '解封' : '封禁' }
@@ -374,6 +381,16 @@ const submitBanReason = () => {
   if (!banningUser.value) return
   handleToggleStatus(banningUser.value, banReason.value)
   showBanReasonModal.value = false
+  banReason.value = ''
+  banningUser.value = null
+  isUnbanning.value = false
+}
+
+const cancelBanReason = () => {
+  showBanReasonModal.value = false
+  banReason.value = ''
+  banningUser.value = null
+  isUnbanning.value = false
 }
 
 const handleToggleStatus = async (user: User, reason?: string) => {
@@ -389,6 +406,7 @@ const handleToggleStatus = async (user: User, reason?: string) => {
       showBanReasonModal.value = false
       banReason.value = ''
       banningUser.value = null
+      isUnbanning.value = false
     } else {
       message.error(data.message || '操作失败')
     }

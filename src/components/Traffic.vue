@@ -94,7 +94,10 @@ const dayOptions = ref([
 const fetchData = async () => {
   loading.value = true
   try {
-   const data = await userApi.getTrafficTrend(days.value)
+    const data = await userApi.getTrafficTrend(days.value)
+    if (data.code === 1) {
+      return
+    }
     chartData.value = (data.data || []).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     await nextTick()
     updateChart()

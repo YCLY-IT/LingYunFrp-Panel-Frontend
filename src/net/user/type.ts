@@ -1,5 +1,3 @@
-import { Group } from "@/types";
-
 export interface LoginParams {
     username: string;
     password: string;
@@ -191,7 +189,7 @@ export interface LoginResponse {
   message: string;
 }
 
-export type GroupResponse = ApiBaseResponse<Group[]>;
+export type GroupResponse = ApiBaseResponse<any>;
 export type UserTrafficResponse = ApiBaseResponse<UserTraffic>;
 export type StatusResponse = ApiBaseResponse<StatusData>;
 export type SignResponse = ApiBaseResponse<SignData>;

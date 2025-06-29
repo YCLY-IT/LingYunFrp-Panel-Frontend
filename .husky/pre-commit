@@ -1,5 +1,5 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-pnpm version patch --no-git-tag-version
+node ./auto-version.cjs
 git add package.json 

@@ -298,6 +298,7 @@ export interface CreateGroupParams {
 
 export interface UpdateGroupParams extends CreateGroupParams {
   id: number;
+  setUserGroup?: string;
 }
 
 // 响应类型定义

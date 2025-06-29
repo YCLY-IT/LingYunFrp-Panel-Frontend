@@ -301,8 +301,7 @@
       </NForm>
       <template #action>
         <NButton @click="showEditGroupModal = false">取消</NButton>
-        <!-- <NButton type="primary" @click="handleEditGroup">确定</NButton> -->
-         <n-button type="primary" @click="showSetUserGroupModal = true">确定</n-button>
+        <n-button type="primary" @click="showSetUserGroupModal = true">确定</n-button>
       </template>
     </NModal>
 
@@ -332,6 +331,7 @@ import type { FormRules, FormInst, DataTableColumns } from 'naive-ui'
 import { switchButtonRailStyle } from '@/constants/theme.ts'
 import type { DownloadSource, Group } from '@/types'
 import { adminApi } from '@/net'
+import type { ApiError } from '@/net/request'
 
 const message = useMessage()
 
@@ -595,6 +595,7 @@ const groupColumns: DataTableColumns<Group> = [
                 type: 'primary',
                 onClick: () => {
                   editGroupForm.value = { ...row }
+                  SetUserGroup.value = false
                   showEditGroupModal.value = true
                 }
               },
@@ -638,7 +639,7 @@ const handleSaveBasic = async () => {
       message.error(data.message || '保存公告失败')
     }
   } catch (error) {
-    message.error('保存基础设置失败')
+    message.error((error as ApiError).message)
   }
 }
 
@@ -673,7 +674,7 @@ const fetchDownloadSources = async () => {
     } else {
       message.error(data.message || '获取下载源列表失败')
     }
-  } catch (error: any) {
+  } catch (error) {
     message.error('获取下载源列表失败')
   }
 }
@@ -709,7 +710,7 @@ const fetchSecuritySettings = async () => {
       message.error(data.message || '获取安全设置失败');
     }
   } catch (error) {
-    message.error('获取安全设置失败');
+    message.error((error as ApiError).message);
   }
 }
 
@@ -727,8 +728,8 @@ const fetchGroups = async () => {
     } else {
       message.error(data.message || '获取用户组列表失败')
     }
-  } catch (error: any) {
-    message.error('获取用户组列表失败')
+  } catch (error) {
+    message.error((error as ApiError).message)
   }
 }
 
@@ -753,8 +754,8 @@ const handleAddDownloadSource = async () => {
     } else {
       message.error(data.message || '添加失败')
     }
-  } catch (error: any) {
-    message.error(error?.response?.data?.message || '添加失败')
+  } catch (error) {
+    message.error((error as ApiError).message)
   }
 }
 
@@ -779,8 +780,8 @@ const handleEditSource = async () => {
     } else {
       message.error(data.message || '修改失败')
     }
-  } catch (error: any) {
-    message.error(error || '修改失败')
+  } catch (error) {
+    message.error((error as ApiError).message)
   }
   showEditModal.value = false
   showSetUserGroupModal.value = false
@@ -796,8 +797,8 @@ const handleRemoveDownloadSource = async (id: number) => {
     } else {
       message.error(data.message || '删除失败')
     }
-  } catch (error: any) {
-    message.error(error?.response?.data?.message || '删除失败')
+  } catch (error) {
+    message.error((error as ApiError).message)
   }
 }
 
@@ -830,8 +831,8 @@ const handleAddGroup = async () => {
     } else {
       message.error(data.message || '添加失败')
     }
-  } catch (error: any) {
-    message.error(error?.response?.data?.message || '添加失败')
+  } catch (error) {
+    message.error((error as ApiError).message)
   }
 }
 
@@ -846,17 +847,19 @@ const handleEditGroup = async () => {
       proxies: editGroupForm.value.proxies,
       traffic: editGroupForm.value.traffic,
       out_limit: editGroupForm.value.out_limit,
-      in_limit: editGroupForm.value.in_limit
+      in_limit: editGroupForm.value.in_limit,
+      setUserGroup: SetUserGroup.value ? 'true' : 'false'
     })
     if (data.code === 0) {
       message.success('更新用户组成功')
       showEditGroupModal.value = false
+      SetUserGroup.value = false
       await fetchGroups()
     } else {
       message.error(data.message || '更新用户组失败')
     }
-  } catch (error: any) {
-    message.error(error?.response?.data?.message || '修改失败')
+  } catch (error) {
+    message.error((error as ApiError).message)
   }
 }
 
@@ -870,8 +873,8 @@ const handleRemoveGroup = async (id: number) => {
     } else {
       message.error(data.message || '删除用户组失败')
     }
-  } catch (error: any) {
-    message.error(error?.response?.data?.message || '删除失败')
+  } catch (error) {
+    message.error((error as ApiError).message)
   }
 }
 

@@ -1,4 +1,4 @@
-import { Window } from '@/types'
+import { showSingleMessage } from '@/utils/message'
 declare const window: Window
 export function loadGeetest() {
   return new Promise((resolve, reject) => {
@@ -50,7 +50,7 @@ export class GeetestService {
 
           this.captchaObj.onClose(() => {
             console.warn('验证码被关闭');
-            window.$message?.warning(`验证码被关闭`);
+            showSingleMessage('warning', `验证码被关闭`);
             resolve(null);
           });
 
@@ -58,7 +58,7 @@ export class GeetestService {
             const result = this.captchaObj.getValidate();
             if (result) {
               console.log('Geetest 验证成功:', result);
-              window.$message?.success(`验证码验证成功`);
+              showSingleMessage('success', `验证码验证成功`);
               resolve(result);
             }
           });

@@ -1,11 +1,13 @@
 export * from './proxy'
 export * from './User'
 import type { DialogApi, MessageApi, } from 'naive-ui'
-export declare interface Window extends globalThis.Window {
+
+declare global {
+  interface Window {
     $loadingBar?: {
-        start: () => void
-        finish: () => void
-        error: () => void
+      start: () => void
+      finish: () => void
+      error: () => void
     }
     $message?: MessageApi
     $dialog?: DialogApi
@@ -13,5 +15,5 @@ export declare interface Window extends globalThis.Window {
     initGeetest?: (config: any, callback: (captcha: any) => void) => void;
     gt?: string;
     challenge?: string;
-
+  }
 }

@@ -364,7 +364,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, h, computed } from 'vue'
+import { ref, h } from 'vue'
 import { 
   NCard, 
   NSpace, 
@@ -372,14 +372,12 @@ import {
   NButton, 
   NModal, 
   NForm, 
-  NFormItem, 
   NFormItemGi,
   NGrid,
   NGridItem,
   NInput, 
   NInputNumber, 
   useMessage, 
-  NButtonGroup, 
   NSelect, 
   NTag, 
   NDropdown, 
@@ -396,7 +394,7 @@ import {
   AddOutline
 } from '@vicons/ionicons5'
 import type { DataTableColumns, FormRules, FormInst, SelectOption, DropdownOption } from 'naive-ui'
-import type { Node, UpdateNodeArgs, GetNodesArgs } from '@/types'
+import type { Node } from '@/types'
 import { useNodesStore } from '@/stores/nodes'
 import { useGroupsStore } from '@/stores/groups'
 
@@ -675,6 +673,7 @@ const columns: DataTableColumns<Node> = [
     key: 'location',
     width: 100,
     render(row) {
+      const option = locationOptions.find(opt => opt.value === row.location)
       return h(
         NTag,
         {
@@ -683,7 +682,7 @@ const columns: DataTableColumns<Node> = [
           round: true,
           bordered: false
         },
-        { default: () => row.location }
+        { default: () => option ? option.label : row.location }
       )
     }
   },
