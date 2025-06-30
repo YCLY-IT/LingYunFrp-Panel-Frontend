@@ -185,26 +185,39 @@
       </n-modal>
 
       <!-- 新增头像裁剪弹窗 -->
-      <n-modal v-model:show="cropperVisible" preset="card" title="裁剪头像" style="width: 400px;">
-        <vue-cropper
-          ref="cropperRef"
-          :img="cropperImg"
-          :output-size="1"
-          :output-type="'png'"
-          :info="true"
-          :can-move="true"
-          :fixed-box="true"
-          :fixed="true"
-          :center-box="true"
-          :auto-crop="true"
-          :auto-crop-width="200"
-          :auto-crop-height="200"
-          :circle="true"
-          style="height: 300px; width: 300px; margin: 0 auto;"
-        />
-        <div class="modal-actions">
-          <n-button @click="cropperVisible = false">取消</n-button>
-          <n-button type="primary" @click="handleCropConfirm">确认</n-button>
+      <n-modal v-model:show="cropperVisible" preset="card" title="裁剪头像" style="width: 500px;">
+        <div style="padding: 20px;">
+          <div class="cropper-container" style="height: 360px;">
+            <Cropper
+              ref="cropperRef"
+              class="cropper"
+              :src="cropperImg"
+              :stencil-props="{
+                aspectRatio: 1,
+                minWidth: '80%',
+                minHeight: '80%'
+              }"
+              :resize-image="{
+                touch: true,
+                wheel: true
+              }"
+              :stencil-component="CircleStencil"
+              :auto-zoom="true"
+              :canvas="{
+                width: 500,
+                height: 500
+              }"
+              :default-visibility="true"
+              :class-names="{
+                default: 'vue-advanced-cropper'
+              }"
+              style="height: 400px;"
+            />
+          </div>
+          <div class="modal-actions">
+            <n-button @click="cropperVisible = false">取消</n-button>
+            <n-button type="primary" @click="handleCropConfirm">确认</n-button>
+          </div>
         </div>
       </n-modal>
 
@@ -258,7 +271,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { 
   NModal, 
   NButton, 
@@ -273,8 +286,8 @@ import { UploadFileInfo } from 'naive-ui'
 import { userApi } from '../../net'
 import { removeToken } from '../../net/token'
 import Statistic from '@/components/Statistic.vue';
-import 'vue-cropper/dist/index.css'
-import { VueCropper } from 'vue-cropper'
+import { Cropper, CircleStencil } from 'vue-advanced-cropper'
+import 'vue-advanced-cropper/dist/style.css'
 
 const userInfoRef = ref<InstanceType<typeof userInfo>>();
 
@@ -418,10 +431,10 @@ const phoneCodeButtonText = computed(() => {
   return '获取验证码'
 })
 
-// 新增头像裁剪相关状态
-const cropperRef = ref()
-const cropperVisible = ref(false)
+// 新增裁剪相关的响应式变量
 const cropperImg = ref('')
+const cropperVisible = ref(false)
+const cropperRef = ref()
 
 // 显示模态窗口
 const showModal = (modalName) => {
@@ -519,7 +532,6 @@ const handleUpdateNickname = async () => {
   }
 }
 
-// 修改上传前逻辑，弹出裁剪框
 const handleBeforeUpload = async (options: { file: UploadFileInfo }) => {
   const { file } = options
   if (!file.type?.startsWith('image/')) {
@@ -530,6 +542,7 @@ const handleBeforeUpload = async (options: { file: UploadFileInfo }) => {
     message.error('图片大小不能超过2MB')
     return false
   }
+
   const reader = new FileReader()
   reader.onload = (e) => {
     cropperImg.value = e.target?.result as string
@@ -538,29 +551,34 @@ const handleBeforeUpload = async (options: { file: UploadFileInfo }) => {
   if (file.file) {
     reader.readAsDataURL(file.file)
   }
-  return false // 阻止默认上传
+  return false
 }
 
-// 裁剪确认
 const handleCropConfirm = () => {
-  cropperRef.value.getCropBlob((blob) => {
-    const file = new File([blob], 'avatar.png', { type: blob.type })
-    const uploadFileInfo = {
-      id: Date.now().toString(),
-      name: 'avatar.png',
-      status: 'finished' as const,
-      percentage: 100,
-      file: file,
-      url: URL.createObjectURL(blob),
-      type: file.type,
-      batchId: null,
-      thumbnailUrl: '',
-      fullPath: ''
-    }
-    forms.avatar.avatarFile = [uploadFileInfo]
-    forms.avatar.avatarUrl = uploadFileInfo.url
-    cropperVisible.value = false
-  })
+  const { canvas } = cropperRef.value.getResult()
+  
+  if (canvas) {
+    canvas.toBlob((blob) => {
+      if (blob) {
+        const file = new File([blob], 'avatar.png', { type: 'image/png' })
+        const uploadFileInfo = {
+          id: Date.now().toString(),
+          name: 'avatar.png',
+          status: 'finished' as const,
+          percentage: 100,
+          file: file,
+          url: URL.createObjectURL(blob),
+          type: 'image/png',
+          batchId: null,
+          thumbnailUrl: '',
+          fullPath: ''
+        }
+        forms.avatar.avatarFile = [uploadFileInfo]
+        forms.avatar.avatarUrl = uploadFileInfo.url
+        cropperVisible.value = false
+      }
+    }, 'image/png', 1)
+  }
 }
 
 const handleChangeAvatar = async () => {
@@ -711,6 +729,16 @@ const handleSendPhoneCode = async () => {
     phoneCodeSending.value = false
   }
 }
+
+// 组件卸载时清理
+onMounted(() => {
+  return () => {
+    if (cropperRef.value) {
+      cropperRef.value.destroy()
+      cropperRef.value = null
+    }
+  }
+})
 
 </script>
 
@@ -984,5 +1012,41 @@ $transition-normal: all 0.2s ease;
   .user-email {
     font-size: 12px;
   }
+}
+
+.cropper-container {
+  width: 100%;
+  position: relative;
+  
+  :deep(.vue-advanced-cropper) {
+    .vue-advanced-cropper__image {
+      opacity: 1 !important;
+    }
+
+    .vue-circle-stencil {
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.4);
+      border: 2px solid #2080f0;
+    }
+  }
+}
+
+
+.preview-container {
+  margin-top: 20px;
+  
+  .cropper-preview {
+    border: 2px solid #eee;
+  }
+}
+
+// 确保裁剪区域是圆形的
+:deep(.cropper-view-box),
+:deep(.cropper-face) {
+  border-radius: 50%;
+}
+
+:deep(.cropper-view-box) {
+  outline: 0;
+  box-shadow: 0 0 0 1px #39f;
 }
 </style>

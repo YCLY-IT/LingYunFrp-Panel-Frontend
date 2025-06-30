@@ -106,7 +106,7 @@ import {userApi} from "@/net";
 import packageData from '@/../package.json'
 import { CopyPlusIcon } from 'lucide-vue-next';
 import { GeetestService, loadGeetest } from '@/utils/captcha';
-import { UserInfoData, UserInfoStore } from '@/net/user/type';
+import { UserInfoData} from '@/net/user/type';
 import { storeUserInfo } from '@/utils/user';
 const emit = defineEmits<{
   (e: 'update'): void
