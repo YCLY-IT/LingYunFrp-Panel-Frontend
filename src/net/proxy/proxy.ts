@@ -188,7 +188,7 @@ export async function batchOperateProxies(proxyIds: number[], action: 'delete' |
  */
 export async function getProxyStats(): Promise<any> {
     try {
-        return await get('/proxy/stats', {
+        return await get('/proxy/status', {
             headers: { 
                 Authorization: getToken() 
             }

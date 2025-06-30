@@ -73,7 +73,7 @@
             <NInput v-model:value="editForm.headerXFromWhere" placeholder="请输入 X-From-Where 请求头值" />
           </NFormItem>
           <NFormItem label="Proxy Protocol" path="proxyProtocolVersion">
-            <NSelect v-model:value="editForm.proxy_protocol_version" :options="[
+            <NSelect v-model:value="editForm.proxyProtocolVersion" :options="[
               { label: '不启用', value: '' },
               { label: 'v1', value: 'v1' },
               { label: 'v2', value: 'v2' }
@@ -81,11 +81,11 @@
           </NFormItem>
           <NFormItem label="其他选项">
             <div class="switch-container">
-              <NSwitch v-model:value="editForm.use_encryption" :rail-style="switchButtonRailStyle">
+              <NSwitch v-model:value="editForm.useEncryption" :rail-style="switchButtonRailStyle">
                 <template #checked>启用加密</template>
                 <template #unchecked>禁用加密</template>
               </NSwitch>
-              <NSwitch v-model:value="editForm.use_compression" :rail-style="switchButtonRailStyle">
+              <NSwitch v-model:value="editForm.useCompression" :rail-style="switchButtonRailStyle">
                 <template #checked>启用压缩</template>
                 <template #unchecked>禁用压缩</template>
               </NSwitch>
@@ -157,10 +157,10 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, h, VNode, computed } from 'vue'
+import { ref, h, VNode, computed, onMounted } from 'vue'
 import { NCard, NSpace, NDataTable, NButton, NInput, NSelect, useMessage, NTag, NModal, NForm, NFormItem, NInputNumber, NDynamicTags, NDivider, NSwitch, NDropdown, NIcon } from 'naive-ui'
 import type { DataTableColumns, SelectOption, FormRules, FormInst } from 'naive-ui'
-import type { Proxy, FilterProxiesArgs, UserNode } from '@/types'
+import type { Proxy, FilterProxiesArgs } from '@/types'
 import { switchButtonRailStyle } from '@/constants/theme.ts'
 import { BanOutline, TrashOutline, EllipsisHorizontalCircleOutline, CreateOutline, PowerOutline, LogOutOutline } from '@vicons/ionicons5'
 import { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
@@ -252,23 +252,26 @@ interface NodeOption extends SelectOption {
 
 const nodeOptions = ref<NodeOption[]>([])
 
-const editForm = ref({
+const editForm = ref<Proxy>({
   proxyId: 0,
-  nodeId: 0,
   proxyName: '',
+  nodeId: 0,
   localIp: '',
   localPort: 0,
   remotePort: 0,
-  proxyType: '',
   domain: '',
+  proxyType: '',
+  isOnline: false,
+  isBanned: false,
   location: '',
   accessKey: '',
+  lastStartTime: 0,
+  lastCloseTime: 0,
   hostHeaderRewrite: '',
   headerXFromWhere: '',
-  use_encryption: false,
-  use_compression: false,
-  proxy_protocol_version: '',
-  username: ''
+  useEncryption: false,
+  useCompression: false,
+  proxyProtocolVersion: ''
 })
 
 const domainTags = ref<string[]>([])
@@ -280,21 +283,15 @@ const handleDomainsUpdate = (tags: string[]) => {
 
 const handleEdit = (proxy: Proxy) => {
   editForm.value = {
-    proxyId: proxy.proxyId,
-    nodeId: proxy.nodeId,
-    proxyName: proxy.proxyName,
-    localIp: proxy.localIp,
-    localPort: proxy.localPort,
-    remotePort: proxy.remotePort,
-    proxyType: proxy.proxyType,
+    ...proxy,
     domain: proxy.domain || '',
     location: proxy.location || '',
-    accessKey: '',
+    accessKey: proxy.accessKey || '',
     hostHeaderRewrite: proxy.hostHeaderRewrite || '',
-    headerXFromWhere: proxy.headerXFromWhere || '',
-    use_encryption: proxy.useEncryption || false,
-    use_compression: proxy.useCompression || false,
-    proxy_protocol_version: proxy.proxyProtocolVersion || '',
+    headerXFromWhere: proxy.headerXFromWhere ? String(proxy.headerXFromWhere) : '',
+    useEncryption: proxy.useEncryption || false,
+    useCompression: proxy.useCompression || false,
+    proxyProtocolVersion: proxy.proxyProtocolVersion || '',
     username: proxy.username || ''
   }
   
@@ -780,24 +777,28 @@ const loadData = async () => {
 
     const data = await adminApi.getProxyList(params)
     if (data.code === 0) {
-      proxies.value = data.data.proxies.map(proxy => ({
-        ...proxy,
-        proxyName: proxy.name,
-        domain: '',
-        proxyType: proxy.type,
-        isOnline: proxy.status === 1,
-        isBanned: proxy.status === 2,
-        isDisabled: proxy.status === 0,
-        useEncryption: false,
-        useCompression: false,
-        proxyProtocolVersion: '',
-        hostHeaderRewrite: '',
-        headerXFromWhere: '',
-        location: '',
-        username: proxy.username || '',
-        accessKey: '',
-        lastStartTime: 0,
-        lastCloseTime: 0
+      proxies.value = data.data.proxies.map((proxy: any) => ({
+        proxyId: proxy.proxyId ?? proxy.id,
+        proxyName: proxy.proxyName ?? proxy.name ?? '',
+        nodeId: proxy.nodeId,
+        localIp: proxy.localIp,
+        localPort: proxy.localPort,
+        remotePort: proxy.remotePort,
+        domain: proxy.domain ?? '',
+        proxyType: proxy.proxyType ?? proxy.type ?? '',
+        isOnline: proxy.isOnline,
+        isBanned: proxy.isBanned,
+        isDisabled: proxy.isDisabled ?? false,
+        username: proxy.username ?? '',
+        accessKey: proxy.accessKey ?? '',
+        lastStartTime: proxy.lastStartTime ?? 0,
+        lastCloseTime: proxy.lastCloseTime ?? 0,
+        hostHeaderRewrite: proxy.hostHeaderRewrite ?? '',
+        headerXFromWhere: String(proxy.headerXFromWhere ?? proxy['header_X-From-Where'] ?? ''),
+        useEncryption: proxy.useEncryption ?? false,
+        useCompression: proxy.useCompression ?? false,
+        proxyProtocolVersion: proxy.proxyProtocolVersion ?? '',
+        location: proxy.location ?? ''
       }))
       pagination.value.pageCount = Math.ceil(data.data.total / pagination.value.pageSize)
       pagination.value.itemCount = data.data.total
@@ -867,7 +868,6 @@ const gettingFreePort = ref(false)
 const handleGetFreePortForEdit = async () => {
   try {
     gettingFreePort.value = true
-    const protocol = editForm.value.proxyType === 'udp' ? 'udp' : 'tcp'
     // 注意：这个API可能不在adminApi中，需要添加或使用其他方式
     const data = await adminApi.getProxyList({
       page: 1,
@@ -900,6 +900,11 @@ const modalStyle = computed(() => {
     width: isMobile ? '95vw' : '600px',
     maxWidth: '95vw'
   }
+})
+
+onMounted(() => {
+  fetchNodes()
+  loadData()
 })
 </script>
 
