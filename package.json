@@ -4,7 +4,7 @@
   "title2": "凌云FRP",
   "github": "https://github.com/YCLY-IT",
   "ycly": "https://www.ycly.net",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "private": true,
   "type": "module",
   "scripts": {
@@ -27,8 +27,8 @@
     "pinia": "^3.0.3",
     "sass-embedded": "^1.89.2",
     "vue": "^3.5.17",
+    "vue-advanced-cropper": "^2.8.9",
     "vue-axios": "^3.5.2",
-    "vue-cropper": "1.1.3",
     "vue-router": "^4.5.1"
   },
   "devDependencies": {
