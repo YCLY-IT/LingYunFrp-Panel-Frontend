@@ -65,10 +65,6 @@ export interface ProxyConfigData {
     format: string;
 }
 
-export interface FreePortData {
-    port: number;
-}
-
 export interface ToggleProxyParams {
     proxyId: number;
     isDisabled: boolean;
@@ -91,7 +87,7 @@ export interface GetFreePortParams {
 export type NodeResponse = ApiBaseResponse<NodeData[]>;
 export type ProxyListResponse = ApiBaseResponse<ProxyData[]>;
 export type ProxyConfigResponse = ApiBaseResponse<ProxyConfigData>;
-export type FreePortResponse = ApiBaseResponse<FreePortData>;
+export type FreePortResponse = ApiBaseResponse<number>;
 export type CreateTunnelResponse = ApiBaseResponse<{ proxyId: number }>;
 export type UpdateTunnelResponse = ApiBaseResponse<null>;
 export type DeleteTunnelResponse = ApiBaseResponse<null>;

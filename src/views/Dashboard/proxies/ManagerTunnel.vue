@@ -423,7 +423,7 @@
             <NInput v-model:value="editForm.headerXFromWhere" placeholder="请输入 X-From-Where 请求头值" />
           </NFormItem>
           <NFormItem label="Proxy Protocol" path="proxyProtocolVersion">
-            <NSelect v-model:value="editForm.proxy_protocol_version" :options="[
+            <NSelect v-model:value="editForm.proxyProtocolVersion" :options="[
               { label: '不启用', value: '' },
               { label: 'v1', value: 'v1' },
               { label: 'v2', value: 'v2' }
@@ -431,11 +431,11 @@
           </NFormItem>
           <NFormItem label="其他选项">
             <div class="switch-group">
-              <NSwitch v-model:value="editForm.use_encryption" :rail-style="switchButtonRailStyle">
+              <NSwitch v-model:value="editForm.useEncryption" :rail-style="switchButtonRailStyle">
                 <template #checked>启用加密</template>
                 <template #unchecked>禁用加密</template>
               </NSwitch>
-              <NSwitch v-model:value="editForm.use_compression" :rail-style="switchButtonRailStyle">
+              <NSwitch v-model:value="editForm.useCompression" :rail-style="switchButtonRailStyle">
                 <template #checked>启用压缩</template>
                 <template #unchecked>禁用压缩</template>
               </NSwitch>
@@ -602,13 +602,13 @@
 import { ref, computed, h, watch } from 'vue'
 import {
   NCard, NButton, NButtonGroup, NTag, NDataTable, NTable, NSpace, NIcon,
-  NModal, NInput, NDropdown, NForm, NFormItem, NSelect, NInputNumber,
-  useMessage, type FormInst, type FormRules, NDivider, NSwitch, NText,
+  NModal, NInput, NForm, NFormItem, NSelect, NInputNumber,
+  useMessage, type FormInst, type FormRules, NSwitch, NText,
   NEmpty, NCode, NCollapse, NCollapseItem, NAlert, NDynamicTags, NSpin,
   NTabs, NTabPane, NScrollbar
 } from 'naive-ui'
 import { 
-  GridOutline, ListOutline, BuildOutline, RefreshOutline, SearchOutline, 
+  GridOutline, ListOutline, RefreshOutline, SearchOutline, 
   InformationCircleOutline, CreateOutline, TrashOutline, PowerOutline, 
   AddOutline, CopyOutline, DocumentOutline, 
   DownloadOutline 
@@ -623,7 +623,6 @@ import type { Proxy} from '@/types'
 import { switchButtonRailStyle } from '@/constants/theme'
 import { useRouter } from 'vue-router'
 import {userApi} from "@/net";
-import { getToken } from "@/net/token";
 
 const isIPAddress = (hostname: string) => {
   const ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/
@@ -660,25 +659,26 @@ const showModal = ref(false)
 const selectedProxy = ref<Proxy | null>(null)
 const showEditModal = ref(false)
 const editFormRef = ref<FormInst | null>(null)
-const editForm = ref({
+const editForm = ref<Proxy>({
   proxyId: 0,
   proxyName: '',
+  nodeId: 0,
   localIp: '',
   localPort: 0,
   remotePort: 0,
   domain: '',
+  proxyType: '',
+  isOnline: false,
+  isBanned: false,
   location: '',
   accessKey: '',
+  lastStartTime: 0,
+  lastCloseTime: 0,
   hostHeaderRewrite: '',
   headerXFromWhere: '',
-  use_encryption: false,
-  use_compression: false,
-  proxy_protocol_version: '',
-  proxyType: '',
-  nodeId: 0,
-  proxyProtocolVersion: '',
   useEncryption: false,
-  useCompression: false
+  useCompression: false,
+  proxyProtocolVersion: ''
 })
 const router = useRouter()
 const gettingFreePort = ref(false)
@@ -904,24 +904,16 @@ const handleKickClick = (proxy: Proxy) => {
 
 const handleEdit = (proxy: Proxy) => {
   editForm.value = {
-    proxyId: proxy.proxyId,
-    proxyName: proxy.proxyName,
-    localIp: proxy.localIp,
-    localPort: proxy.localPort,
-    remotePort: proxy.remotePort,
+    ...proxy,
     domain: proxy.domain || '',
     location: proxy.location || '',
-    accessKey: '',
+    accessKey: proxy.accessKey || '',
     hostHeaderRewrite: proxy.hostHeaderRewrite || '',
-    headerXFromWhere: proxy.headerXFromWhere || '',
-    use_encryption: proxy.useEncryption || false,
-    use_compression: proxy.useCompression || false,
-    proxy_protocol_version: proxy.proxyProtocolVersion || '',
-    proxyType: proxy.proxyType,
-    nodeId: proxy.nodeId,
-    proxyProtocolVersion: proxy.proxyProtocolVersion || '',
+    headerXFromWhere: proxy.headerXFromWhere ? String(proxy.headerXFromWhere) : '',
     useEncryption: proxy.useEncryption || false,
-    useCompression: proxy.useCompression || false
+    useCompression: proxy.useCompression || false,
+    proxyProtocolVersion: proxy.proxyProtocolVersion || '',
+    username: proxy.username || ''
   }
   // 处理域名数组
   try {
@@ -1038,7 +1030,7 @@ const handleGetFreePortForEdit = async () => {
       protocol: editForm.value.proxyType === 'udp' ? 'udp' : 'tcp'
     })
     if (data.code === 0) {
-      editForm.value.remotePort = data.data.port
+      editForm.value.remotePort = data.data
     } else {
       message.error(data.message || '获取空闲端口失败')
     }
