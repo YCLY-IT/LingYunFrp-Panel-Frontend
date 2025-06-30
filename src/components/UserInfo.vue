@@ -180,8 +180,9 @@ const onSignButtonClick = async () => {
 }
 const signIn = async (geetestResult: GeetestResult) => {
     try {
-      const data = await userApi.sign()
-      if (data.code === 200) {
+      const url = `?lotNumber=${geetestResult.lot_number}&passToken=${geetestResult.pass_token}&genTime=${geetestResult.gen_time}&captchaOutput=${geetestResult.captcha_output}`
+      const data = await userApi.sign(url)
+      if (data.code === 0) {
         message.success('签到成功')
         isSignAvailable.value = false
         emit('update')
