@@ -142,11 +142,11 @@ export async function getUserInfo(): Promise<UserInfoResponse> {
   }
 }
 
-export async function sign(): Promise<SignResponse> {
-  return await post<SignResponse>('/user/sign', {
+export async function sign(url: string): Promise<SignResponse> {
+  return await post<SignResponse>(`/user/sign${url}`, {}, {
     headers: { 
       Authorization: getToken() 
-    }}, {});
+    }});
 }
 
 export async function getUserTraffic(): Promise<UserTrafficResponse> {
