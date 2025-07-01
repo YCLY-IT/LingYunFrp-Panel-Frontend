@@ -1,6 +1,6 @@
 import {createRouter, createWebHistory} from 'vue-router'
-import { Window } from '@/types'
 import { unauthorized } from '@/net/token'
+import packageData from '../../package.json'
 
 // 声明window类型
 declare const window: Window
@@ -227,6 +227,17 @@ router.beforeEach((to, _from, next) => {
   }else {
     next()
   }
+})
+
+router.beforeEach((to, _from, next) => {
+  // 如果是首页，不修改标题
+  if (to.name === 'home') {
+  } else if (to.meta.title) {
+    document.title = `${to.meta.title} - ${packageData.title2}`
+  } else {
+    document.title = packageData.title2
+  }
+  next()
 })
 
 // 添加路由导航守卫
