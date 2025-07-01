@@ -146,14 +146,18 @@
           </div>
         </NTabPane>
         <NTabPane name="overview" tab="产品总览">
-          <NDataTable
-            :columns="overviewColumns"
-            :data="overviewData"
-            :pagination="pagination"
-            :bordered="true"
-            :scroll-x="1200"
-            :scroll-y="400"
-          />
+          <div style="padding-bottom: 16px;">
+            <NDataTable
+              :columns="overviewColumns"
+              :data="overviewData"
+              :pagination="pagination"
+              :bordered="true"
+              :scroll-x="1200"
+              :scroll-y="400"
+              v-model:expanded-row-keys="expandedRowKeys"
+              :row-key="row => row.id"
+            />
+          </div>
         </NTabPane>
       </NTabs>
     </NSpin>
@@ -164,7 +168,7 @@
 import { ref, computed, onMounted, watch, h } from 'vue'
 import { useDownloadStore } from '@/stores/download'
 import { storeToRefs } from 'pinia'
-import { NCode, NCard, NButton, NDivider, NText, NPopselect, NSelect, NIcon, NTag, NAlert, useMessage, NDataTable, NTabs, NTabPane } from 'naive-ui'
+import { NCode, NCard, NButton, NDivider, NText, NPopselect, NSelect, NIcon, NTag, NAlert, useMessage, NDataTable, NTabs, NTabPane, NCollapseTransition } from 'naive-ui'
 import { ChevronDownOutline, DownloadOutline, CopyOutline, InformationCircleOutline, PricetagOutline } from '@vicons/ionicons5'
 import type { SelectOption, DataTableColumns } from 'naive-ui'
 import { marked } from 'marked'
@@ -187,6 +191,7 @@ const selectedVersion = ref<string | null>(null)
 const versionSystemMap = ref<Map<string, string | null>>(new Map())
 const versionArchMap = ref<Map<string, string | null>>(new Map())
 const showAllProducts = ref(false)
+const expandedRowKeys = ref<number[]>([])
 
 // 计算属性
 const isDockerProduct = computed(() => {
@@ -455,7 +460,7 @@ const overviewColumns: DataTableColumns<any> = [
     type: 'expand',
     renderExpand: (row: any) => {
       return h(
-        NFadeInExpandTransition,
+        NCollapseTransition,
         {},
         {
           default: () =>
@@ -515,6 +520,12 @@ watch(showAllProducts, (val) => {
   }
   selectedProduct.value = null
   selectedVersion.value = null
+})
+
+watch(expandedRowKeys, (val) => {
+  if (val.length > 1) {
+    expandedRowKeys.value = [val[val.length - 1]]
+  }
 })
 </script>
 
@@ -576,5 +587,9 @@ watch(showAllProducts, (val) => {
       font-size: 14px;
     }
   }
+}
+
+:deep(.n-data-table-base-table-body) {
+  padding-bottom: 6px;
 }
 </style>
