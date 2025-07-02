@@ -76,9 +76,7 @@ input, textarea, select {
 </style>
 
 <style lang="scss">
-.n-card {
-  border-radius: 10px;
-}
+@import "./assets/styles/index.scss";
 body {
   margin: 0;
   padding: 0;

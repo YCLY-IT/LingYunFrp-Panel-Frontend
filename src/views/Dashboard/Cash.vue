@@ -131,11 +131,12 @@
 import { NCard, NButton, NInputNumber, NIcon, NSpin } from 'naive-ui' // 添加 NSpin 导入
 import { ref, onMounted } from 'vue'
 import { CheckmarkCircle, InformationCircle, InfiniteOutline } from '@vicons/ionicons5'
-import { useMessage } from 'naive-ui'
+import { useMessage, useDialog } from 'naive-ui'
 import { userApi } from '@/net'
 import { Product } from '@/net/user/type'
 
 const message = useMessage()
+const dialog = useDialog()
 const products = ref<Product[]>([])
 const loading = ref(false) // 新增加载状态
 
@@ -211,7 +212,12 @@ const handleBuy = async (product: Product) => {
     })
     
     if (data.code === 0) {
-      message.success('购买成功')
+      console.log(data)
+      dialog.success({
+        title: '购买成功',
+        content: `您已成功购买：${product.name}${shouldUseSelectedAmount(product) ? `（数量：${amount}）` : ''}`,
+        positiveText: '确定',
+      })
       // 可以在这里重置购买数量
       if (shouldUseSelectedAmount(product)) {
         product.selectedAmount = 1
