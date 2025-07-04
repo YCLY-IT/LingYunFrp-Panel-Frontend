@@ -76,7 +76,7 @@ input, textarea, select {
 </style>
 
 <style lang="scss">
-@import "./assets/styles/index.scss";
+@use "./assets/styles/index.scss";
 body {
   margin: 0;
   padding: 0;

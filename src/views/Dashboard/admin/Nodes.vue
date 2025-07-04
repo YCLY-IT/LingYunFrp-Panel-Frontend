@@ -33,7 +33,7 @@
             @update:value="nodesStore.handleFilterChange"
           />
           
-          <n-button type="primary" @click="showAddModal = true" class="add-button">
+          <n-button type="primary" @click="onAddNodeClick" class="add-button">
             <template #icon>
               <n-icon><add-outline /></n-icon>
             </template>
@@ -114,12 +114,25 @@
             <n-grid-item :span="1">
               <n-grid :cols="2" :x-gap="16">
                 <n-form-item-gi label="管理密码" path="adminPass">
-                  <n-input 
-                    v-model:value="formModel.adminPass" 
-                    type="password" 
+                  <n-input
+                    v-model:value="formModel.adminPass"
+                    type="password"
                     show-password-on="click"
-                    placeholder="请输入管理密码" 
-                  />
+                    placeholder="请输入管理密码"
+                    style="width: 220px"
+                  >
+                    <template #suffix>
+                      <n-button
+                        quaternary
+                        size="small"
+                        style="padding: 0 4px"
+                        @click="handleRandomPassword"
+                        :focusable="false"
+                      >
+                        <n-icon :component="SparklesOutline" />
+                      </n-button>
+                    </template>
+                  </n-input>
                 </n-form-item-gi>
                 <n-form-item-gi label="带宽(Mbps)" path="bandWidth">
                   <n-input-number v-model:value="formModel.bandWidth" placeholder="请输入带宽" />
@@ -241,12 +254,25 @@
             <n-grid-item :span="1">
               <n-grid :cols="2" :x-gap="16">
                 <n-form-item-gi label="管理密码" path="adminPass">
-                  <n-input 
-                    v-model:value="formModel.adminPass" 
-                    type="password" 
+                  <n-input
+                    v-model:value="formModel.adminPass"
+                    type="password"
                     show-password-on="click"
-                    placeholder="请输入管理密码" 
-                  />
+                    placeholder="请输入管理密码"
+                    style="width: 220px"
+                  >
+                    <template #suffix>
+                      <n-button
+                        quaternary
+                        size="small"
+                        style="padding: 0 4px"
+                        @click="handleRandomPassword"
+                        :focusable="false"
+                      >
+                        <n-icon :component="SparklesOutline" />
+                      </n-button>
+                    </template>
+                  </n-input>
                 </n-form-item-gi>
                 <n-form-item-gi label="带宽(Mbps)" path="bandWidth">
                   <n-input-number v-model:value="formModel.bandWidth" placeholder="请输入带宽" />
@@ -391,7 +417,8 @@ import {
   PowerOutline, 
   TrashOutline,
   SearchOutline,
-  AddOutline
+  AddOutline,
+  SparklesOutline
 } from '@vicons/ionicons5'
 import type { DataTableColumns, FormRules, FormInst, SelectOption, DropdownOption } from 'naive-ui'
 import type { Node } from '@/types'
@@ -419,15 +446,15 @@ const formModel = ref({
   ip: '',
   description: '',
   token: '',
-  servicePort: 2333,
-  adminPort: 8233,
+  servicePort: 7000,
+  adminPort: 7500,
   adminPass: '',
   allowGroup: [] as string[],
   allowPort: '',
   allowType: [] as string[],
   need_realname: true,
   bandWidth: 0,
-  location: 'cn'
+  location: ''
 })
 
 // 选项配置
@@ -439,6 +466,7 @@ const protocolOptions = [
 ]
 
 const locationOptions = [
+  { label: '请选择地区', value: '' },
   { label: '中国', value: 'cn' },
   { label: '中国港澳台', value: 'cn-out' },
   { label: '海外', value: 'out' },
@@ -599,10 +627,19 @@ const columns: DataTableColumns<Node> = [
     key: 'name',
     width: 180,
     render(row) {
-      return h(NSpace, { align: 'center' }, {
+      return h(NSpace, { align: 'center', wrap: false }, {
         default: () => [
           renderStatusTag(row.isOnline, '在线', '离线'),
-          h('span', row.name)
+          h('span', {
+            style: {
+              'max-width': '100px',
+              'overflow': 'hidden',
+              'text-overflow': 'ellipsis',
+              'white-space': 'nowrap',
+              'display': 'inline-block',
+              'vertical-align': 'middle'
+            }
+          }, row.name)
         ]
       })
     }
@@ -805,15 +842,15 @@ const resetForm = () => {
     ip: '',
     description: '',
     token: '',
-    servicePort: 2333,
-    adminPort: 8233,
+    servicePort: 7000,
+    adminPort: 7500,
     adminPass: '',
-    allowGroup: [],
+    allowGroup: ['admin'],
     allowPort: '',
     allowType: [],
     need_realname: true,
     bandWidth: 0,
-    location: 'cn'
+    location: ''
   })
 }
 
@@ -952,6 +989,24 @@ const handleSelect = (key: string, row: Node) => {
 const init = () => {
   groupsStore.fetchUserGroups(message)
   nodesStore.fetchNodes(message)
+}
+
+const onAddNodeClick = () => {
+  resetForm()
+  showAddModal.value = true
+}
+
+const generateRandomPassword = (length = 12) => {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*'
+  let pwd = ''
+  for (let i = 0; i < length; i++) {
+    pwd += chars.charAt(Math.floor(Math.random() * chars.length))
+  }
+  return pwd
+}
+
+const handleRandomPassword = () => {
+  formModel.value.adminPass = generateRandomPassword()
 }
 
 init()
