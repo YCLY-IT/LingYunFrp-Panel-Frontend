@@ -8,7 +8,7 @@ let version = pkg.version.trim();
 let parts = version.split('.').map(Number);
 
 for (let i = parts.length - 1; i >= 0; i--) {
-  if (parts[i] < 9) {
+  if (parts[i] < 99) {
     parts[i]++;
     break;
   } else {

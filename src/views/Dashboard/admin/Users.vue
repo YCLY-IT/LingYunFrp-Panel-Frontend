@@ -17,9 +17,20 @@
             style="width: 200px" @update:value="handleRealnameFilter" />
           <NSelect v-model:value="filters.status" :options="statusOptions" placeholder="账户状态" clearable
             style="width: 200px" @update:value="handleStatusFilter" />
+          <NSelect v-model:value="sortOptions.key" :options="sortFieldOptions" placeholder="排序字段" clearable
+            style="width: 150px" @update:value="handleSortFieldChange" />
+          <NSelect v-model:value="sortOptions.order" :options="sortOrderOptions" placeholder="排序方式" clearable
+            style="width: 120px" @update:value="handleSortOrderChange" />
         </NSpace>
         <div class="table-container">
-          <NDataTable remote :columns="columns" :data="users" :loading="loading" :pagination="pagination" />
+          <NDataTable 
+            :columns="columns" 
+            :data="sortedUsers" 
+            :loading="loading" 
+            :pagination="pagination"
+            :sorter="sorter"
+            @update:sorter="handleSortChange"
+          />
         </div>
       </NSpace>
     </NCard>
@@ -144,6 +155,22 @@ const statusOptions: SelectOption[] = [
   { label: '流量超限', value: 2 }
 ]
 
+// 排序字段选项
+const sortFieldOptions: SelectOption[] = [
+  { label: 'ID', value: 'id' },
+  { label: '用户名', value: 'username' },
+  { label: '用户组', value: 'group' },
+  { label: '邮箱', value: 'email' },
+  { label: '注册时间', value: 'created_at' },
+  { label: '状态', value: 'status' }
+]
+
+// 排序方式选项
+const sortOrderOptions: SelectOption[] = [
+  { label: '升序', value: 'asc' },
+  { label: '降序', value: 'desc' }
+]
+
 const pagination = ref({
   page: 1,
   pageSize: 20,
@@ -173,12 +200,12 @@ const pagination = ref({
   },
   onUpdatePage: (page: number) => {
     pagination.value.page = page
-    loadData()
+    // 本地分页，不需要重新加载数据
   },
   onUpdatePageSize: (pageSize: number) => {
     pagination.value.pageSize = pageSize
     pagination.value.page = 1
-    loadData()
+    // 本地分页，不需要重新加载数据
   }
 })
 
@@ -258,6 +285,7 @@ const columns: DataTableColumns<User> = [
   {
     title: 'ID',
     key: 'id',
+    sorter: true,
     render(row) {
       return h('div', { style: 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' }, row.id)
     }
@@ -265,6 +293,7 @@ const columns: DataTableColumns<User> = [
   {
     title: '用户名',
     key: 'username',
+    sorter: true,
     render(row) {
       return h('div', { style: 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' }, row.username)
     }
@@ -272,6 +301,7 @@ const columns: DataTableColumns<User> = [
   {
     title: '邮箱',
     key: 'email',
+    sorter: true,
     render(row) {
       return h('div', { style: 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' }, row.email)
     }
@@ -279,6 +309,7 @@ const columns: DataTableColumns<User> = [
   {
     title: '用户组',
     key: 'group',
+    sorter: true,
     render(row) {
       return h('div', { style: 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' }, row.friendlyGroup || row.group)
     }
@@ -286,6 +317,7 @@ const columns: DataTableColumns<User> = [
   {
     title: '注册时间',
     key: 'created_at',
+    sorter: true,
     render(row) {
       return h('div', { 
         style: 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' 
@@ -295,6 +327,7 @@ const columns: DataTableColumns<User> = [
   {
     title: '状态',
     key: 'status',
+    sorter: true,
     render(row) {
       const statusMap: Record<number, { text: string, type: 'success' | 'error' | 'warning' }> = {
         0: { text: '正常', type: 'success' },
@@ -354,11 +387,8 @@ const searchTimeout = ref<number>()
 const handleSearch = () => {
   window.clearTimeout(searchTimeout.value)
   searchTimeout.value = window.setTimeout(() => {
-    if (pagination.value.page !== 1) {
-      pagination.value.page = 1
-    } else {
-      loadData() // 防止页码相同时不触发
-    }
+    pagination.value.page = 1
+    loadData() // 搜索时重新加载数据
   }, 300)
 }
 
@@ -375,6 +405,14 @@ const handleRealnameFilter = () => {
 const handleStatusFilter = () => {
   pagination.value.page = 1
   loadData()
+}
+
+const handleSortFieldChange = () => {
+  // 本地排序，不需要重新加载数据
+}
+
+const handleSortOrderChange = () => {
+  // 本地排序，不需要重新加载数据
 }
 
 const submitBanReason = () => {
@@ -530,8 +568,8 @@ const loadData = async () => {
       await fetchUserGroups()
     }
     const params: UserListParams = {
-      page: pagination.value.page,
-      limit: pagination.value.pageSize
+      page: 1,
+      limit: 1000 // 获取足够多的数据用于本地排序和分页
     }
 
     // 添加所有有效的筛选条件
@@ -554,10 +592,10 @@ const loadData = async () => {
     const data = await adminApi.getUserList(params)
     if (data.code === 0) {
       users.value = processUsers(data.data.users)
-      // 修复分页数据结构匹配 - 根据API响应调整
+      // 本地分页处理
       const total = data.data.pagination.total
-      pagination.value.pageCount = Math.ceil(total / pagination.value.pageSize)
       pagination.value.itemCount = total
+      pagination.value.pageCount = Math.ceil(total / pagination.value.pageSize)
     } else {
       message.error(data.message || '获取用户列表失败')
     }
@@ -581,6 +619,90 @@ const modalStyle = computed(() => {
     maxWidth: '95vw'
   }
 })
+
+const sortOptions = ref<{
+  key: string;
+  order: 'asc' | 'desc';
+}>({
+  key: 'id',
+  order: 'asc'
+})
+
+const sorter = computed(() => {
+  return {
+    columnKey: sortOptions.value.key,
+    order: sortOptions.value.order === 'asc' ? 'ascend' : 'descend'
+  }
+})
+
+// 本地排序和分页的计算属性
+const sortedUsers = computed(() => {
+  let sorted = [...users.value]
+  
+  // 本地排序
+  if (sortOptions.value.key && sortOptions.value.order) {
+    sorted = sorted.sort((a, b) => {
+      let aValue: any
+      let bValue: any
+
+      switch (sortOptions.value.key) {
+        case 'id':
+          aValue = a.id
+          bValue = b.id
+          break
+        case 'username':
+          aValue = a.username
+          bValue = b.username
+          break
+        case 'email':
+          aValue = a.email
+          bValue = b.email
+          break
+        case 'group':
+          aValue = a.friendlyGroup || a.group
+          bValue = b.friendlyGroup || b.group
+          break
+        case 'created_at':
+          aValue = new Date(a.created_at).getTime()
+          bValue = new Date(b.created_at).getTime()
+          break
+        case 'status':
+          aValue = a.status
+          bValue = b.status
+          // 状态相同时，按ID升降序
+          if (aValue === bValue) {
+            if (sortOptions.value.order === 'asc') {
+              return a.id - b.id
+            } else {
+              return b.id - a.id
+            }
+          }
+          break
+        default:
+          return 0
+      }
+
+      if (sortOptions.value.order === 'asc') {
+        return aValue > bValue ? 1 : aValue < bValue ? -1 : 0
+      } else {
+        return aValue < bValue ? 1 : aValue > bValue ? -1 : 0
+      }
+    })
+  }
+
+  // 本地分页
+  const startIndex = (pagination.value.page - 1) * pagination.value.pageSize
+  const endIndex = startIndex + pagination.value.pageSize
+  return sorted.slice(startIndex, endIndex)
+})
+
+const handleSortChange = (sorter: any) => {
+  if (sorter) {
+    sortOptions.value.key = sorter.columnKey
+    sortOptions.value.order = sorter.order === 'ascend' ? 'asc' : 'desc'
+    // 本地排序，不需要重新加载数据
+  }
+}
 </script>
 
 <style lang="scss" scoped>

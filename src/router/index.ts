@@ -110,7 +110,7 @@ const router = createRouter({
           }
         },
         {
-          path: 'node/status',
+          path: 'node-status',
           name: 'node-status',
           component: () => import('../views/Dashboard/Status.vue'),
           meta: {

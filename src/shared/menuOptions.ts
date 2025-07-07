@@ -47,7 +47,7 @@ const baseMenuOptions: MenuOption[] = [
     label: '节点状态',
     icon: renderIcon(StatsChartOutline),
     key: 'node-status',
-    link: '/dashboard/node/status',
+    link: '/dashboard/node-status',
   },
   {
     label: '文件下载',

@@ -77,13 +77,38 @@
         </NTabPane>
 
         <NTabPane name="downloads" tab="下载">
-          <NButton
+          <div class="download-filter-row">
+            <n-select
+              v-model:value="filterMode"
+              :options="filterModeOptions"
+              placeholder="筛选方式"
+              class="download-filter-item"
+              style="min-width: 100px"
+            />
+            <n-input
+              v-model:value="filterKeyword"
+              placeholder="请输入关键词"
+              class="download-filter-item"
+              clearable
+              @update:value="filterDownloadSources"
+            />
+            <n-select
+              v-model:value="sortOrder"
+              :options="sortOrderOptions"
+              placeholder="排序方式"
+              class="download-filter-item"
+              style="min-width: 100px"
+              @update:value="filterDownloadSources"
+            />
+            <n-button
               type="primary"
-              style="margin-bottom: 8px;"
               @click="showAddSourceModal = true"
-          >
-            添加下载源
-          </NButton>
+              class="download-filter-btn"
+              size="small"
+            >
+              添加下载源
+            </n-button>
+          </div>
           <NSpace vertical>
             <NDataTable
                 :columns="downloadSourceColumn"
@@ -94,16 +119,42 @@
         </NTabPane>
 
         <NTabPane name="groups" tab="用户组">
-          <NSpace vertical>
-            <NButton
-                type="primary"
-                @click="showAddGroupModal = true"
+          <div class="group-filter-row">
+            <n-select
+              v-model:value="groupFilterMode"
+              :options="groupFilterModeOptions"
+              placeholder="筛选方式"
+              class="group-filter-item"
+              style="min-width: 100px"
+            />
+            <n-input
+              v-model:value="groupFilterKeyword"
+              placeholder="请输入关键词"
+              class="group-filter-item"
+              clearable
+              @update:value="filterGroups"
+            />
+            <n-select
+              v-model:value="groupSortOrder"
+              :options="groupSortOrderOptions"
+              placeholder="排序方式"
+              class="group-filter-item"
+              style="min-width: 100px"
+              @update:value="filterGroups"
+            />
+            <n-button
+              type="primary"
+              @click="showAddGroupModal = true"
+              class="group-filter-btn"
+              size="small"
             >
               添加用户组
-            </NButton>
+            </n-button>
+          </div>
+          <NSpace vertical>
             <NDataTable
                 :columns="groupColumns"
-                :data="groupsData"
+                :data="filteredGroupsData"
                 :bordered="false"
             />
           </NSpace>
@@ -360,6 +411,7 @@ const securityForm = ref({
 
 const downloadSourcesData = ref<DownloadSource[]>([])
 const groupsData = ref<Group[]>([])
+const filteredGroupsData = ref<Group[]>([])
 const SetUserGroup = ref(false)
 
 // 模态框状态
@@ -665,18 +717,98 @@ const handleSaveSecurity = async () => {
   }
 }
 
+// 过滤条件
+const filterModeOptions = [
+  { label: 'ID', value: 'id' },
+  { label: '名称', value: 'name' }
+]
+const sortOrderOptions = [
+  { label: '升序', value: 'asc' },
+  { label: '降序', value: 'desc' }
+]
+const filterMode = ref('id')
+const filterKeyword = ref('')
+const sortOrder = ref('asc')
+
+// 用户组筛选条件
+const groupFilterModeOptions = [
+  { label: '组名', value: 'name' },
+  { label: '显示名称', value: 'friendlyName' }
+]
+const groupSortOrderOptions = [
+  { label: '升序', value: 'asc' },
+  { label: '降序', value: 'desc' }
+]
+const groupFilterMode = ref('name')
+const groupFilterKeyword = ref('')
+const groupSortOrder = ref('asc')
+
+// 原始数据副本
+const allDownloadSources = ref<DownloadSource[]>([])
+
 // 获取下载源列表
 const fetchDownloadSources = async () => {
   try {
     const data = await adminApi.getDownloadSources()
     if (data.code === 0) {
-      downloadSourcesData.value = data.data
+      allDownloadSources.value = data.data
+      filterDownloadSources()
     } else {
       message.error(data.message || '获取下载源列表失败')
     }
   } catch (error) {
     message.error('获取下载源列表失败')
   }
+}
+
+// 过滤方法
+const filterDownloadSources = () => {
+  let filtered = allDownloadSources.value
+  if (filterKeyword.value) {
+    if (filterMode.value === 'id') {
+      filtered = filtered.filter(item =>
+        String(item.id).includes(filterKeyword.value.trim())
+      )
+    } else if (filterMode.value === 'name') {
+      filtered = filtered.filter(item =>
+        item.name?.toLowerCase().includes(filterKeyword.value.trim().toLowerCase())
+      )
+    }
+  }
+  if (sortOrder.value === 'asc') {
+    filtered.sort((a, b) => a.id - b.id)
+  } else {
+    filtered.sort((a, b) => b.id - a.id)
+  }
+  downloadSourcesData.value = filtered
+}
+
+// 用户组过滤方法
+const filterGroups = () => {
+  let filtered = groupsData.value
+  if (groupFilterKeyword.value) {
+    if (groupFilterMode.value === 'name') {
+      filtered = filtered.filter(item =>
+        item.name?.toLowerCase().includes(groupFilterKeyword.value.trim().toLowerCase())
+      )
+    } else if (groupFilterMode.value === 'friendlyName') {
+      filtered = filtered.filter(item =>
+        item.friendlyName?.toLowerCase().includes(groupFilterKeyword.value.trim().toLowerCase())
+      )
+    }
+  }
+  if (groupSortOrder.value === 'asc') {
+    filtered.sort((a, b) => {
+      if (a.id === b.id) return 0
+      return a.id - b.id
+    })
+  } else {
+    filtered.sort((a, b) => {
+      if (a.id === b.id) return 0
+      return b.id - a.id
+    })
+  }
+  filteredGroupsData.value = filtered
 }
 
 // 获取基础设置
@@ -725,6 +857,7 @@ const fetchGroups = async () => {
         out_limit: group.out_limit / 128,
         in_limit: group.in_limit / 128
       }))
+      filterGroups()
     } else {
       message.error(data.message || '获取用户组列表失败')
     }
@@ -901,3 +1034,49 @@ onMounted(() => {
   fetchBasicSettings()
 })
 </script>
+
+<style scoped>
+.download-filter-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+  width: 100%;
+  align-items: stretch;
+}
+.download-filter-item {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+.download-filter-btn {
+  flex: none;
+  min-width: unset;
+  width: auto;
+  padding: 0 16px;
+  height: 32px;
+  align-self: center;
+}
+
+.group-filter-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+  width: 100%;
+  align-items: stretch;
+}
+.group-filter-item {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+.group-filter-btn {
+  flex: none;
+  min-width: unset;
+  width: auto;
+  padding: 0 16px;
+  height: 32px;
+  align-self: center;
+}
+</style>

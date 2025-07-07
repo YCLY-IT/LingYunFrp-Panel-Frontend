@@ -34,6 +34,8 @@ export interface UserListParams {
   isRealname?: boolean;
   status?: number;
   keyword?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
 }
 
 export interface UserListResponse {
@@ -160,9 +162,11 @@ export interface ProxyListParams {
 
 export interface ProxyListResponse {
   proxies: Proxy[];
-  total: number;
-  page: number;
-  limit: number;
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+  };
 }
 
 export interface UpdateProxyParams {

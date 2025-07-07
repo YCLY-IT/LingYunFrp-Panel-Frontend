@@ -2,56 +2,85 @@
   <div class="node-management">
     <n-card title="节点管理" class="main-card">
       <n-space vertical :size="16">
-        <n-space class="filter-container">
-          <n-input 
-            v-model:value="nodesStore.searchKeyword" 
-            placeholder="搜索ID、节点名称或主机名" 
-            style="width: 240px" 
-            clearable
-            @update:value="nodesStore.handleSearch"
-          >
-            <template #prefix>
-              <n-icon><search-outline /></n-icon>
-            </template>
-          </n-input>
-          
-          <n-select 
-            v-model:value="nodesStore.selectedOnline" 
-            placeholder="在线状态" 
-            :options="onlineOptions" 
-            style="width: 140px" 
-            clearable 
-            @update:value="nodesStore.handleFilterChange"
-          />
-          
-          <n-select 
-            v-model:value="nodesStore.selectedStatus" 
-            placeholder="节点状态" 
-            :options="statusOptions" 
-            style="width: 140px" 
-            clearable 
-            @update:value="nodesStore.handleFilterChange"
-          />
-          
-          <n-button type="primary" @click="onAddNodeClick" class="add-button">
-            <template #icon>
-              <n-icon><add-outline /></n-icon>
-            </template>
-            添加节点
-          </n-button>
-        </n-space>
+        <div class="filter-container-grid">
+          <n-grid :cols="24" :x-gap="16" :y-gap="8">
+            <!-- 第一行：搜索相关 -->
+            <n-grid-item :span="12">
+              <n-input 
+                v-model:value="nodesStore.searchKeyword" 
+                placeholder="搜索ID、节点名称或主机名" 
+                clearable
+                @update:value="nodesStore.handleSearch"
+              >
+                <template #prefix>
+                  <n-icon><search-outline /></n-icon>
+                </template>
+              </n-input>
+            </n-grid-item>
+            <n-grid-item :span="6">
+              <n-select 
+                v-model:value="nodesStore.selectedOnline" 
+                placeholder="在线状态" 
+                :options="onlineOptions" 
+                clearable 
+                @update:value="nodesStore.handleFilterChange"
+              />
+            </n-grid-item>
+            <n-grid-item :span="6">
+              <n-select 
+                v-model:value="nodesStore.selectedStatus" 
+                placeholder="节点状态" 
+                :options="statusOptions" 
+                clearable 
+                @update:value="nodesStore.handleFilterChange"
+              />
+            </n-grid-item>
+            <!-- 第二行：排序相关+操作 -->
+            <n-grid-item :span="6">
+              <n-select
+                v-model:value="sortOptions.key"
+                :options="sortFieldOptions"
+                placeholder="排序字段"
+                clearable
+                @update:value="handleSortFieldChange"
+              />
+            </n-grid-item>
+            <n-grid-item :span="6">
+              <n-select
+                v-model:value="sortOptions.order"
+                :options="sortOrderOptions"
+                placeholder="排序方式"
+                clearable
+                @update:value="handleSortOrderChange"
+              />
+            </n-grid-item>
+            <n-grid-item :span="12">
+              <n-button
+                type="primary"
+                @click="onAddNodeClick"
+                style="width: 100%;"
+              >
+                <template #icon>
+                  <n-icon><add-outline /></n-icon>
+                </template>
+                添加节点
+              </n-button>
+            </n-grid-item>
+          </n-grid>
+        </div>
 
         <n-data-table
           v-if="nodesStore.shouldShowTable"
           :remote="!nodesStore.hasFilters"
           :columns="columns"
-          :data="nodesStore.nodes"
+          :data="sortedNodes"
           :loading="nodesStore.loading"
           :pagination="nodesStore.pagination"
           :row-class-name="rowClassName"
           :scroll-x="1200"
           :empty="nodesStore.emptySlot"
           @update:page="nodesStore.handlePageChange"
+          @update:sorter="handleSortChange"
         />
         
         <!-- 空状态显示 -->
@@ -390,7 +419,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, h } from 'vue'
+import { ref, h, computed } from 'vue'
 import { 
   NCard, 
   NSpace, 
@@ -481,6 +510,75 @@ const statusOptions: SelectOption[] = [
   { label: '已启用', value: 'enabled' },
   { label: '已禁用', value: 'disabled' },
 ]
+
+// 1. 排序字段和方式选项
+const sortFieldOptions = [
+  { label: 'ID', value: 'id' },
+  { label: '名称', value: 'name' },
+  { label: '服务端口', value: 'servicePort' },
+  { label: '管理端口', value: 'adminPort' },
+  { label: '实名', value: 'need_realname' },
+  { label: '用户组', value: 'allowGroup' }
+]
+const sortOrderOptions = [
+  { label: '升序', value: 'asc' },
+  { label: '降序', value: 'desc' }
+]
+const sortOptions = ref({ key: 'id', order: 'asc' })
+
+// 2. 本地排序和分页
+const sortedNodes = computed(() => {
+  let sorted = [...nodesStore.nodes]
+  if (sortOptions.value.key && sortOptions.value.order) {
+    sorted = sorted.sort((a, b) => {
+      let aValue, bValue
+      switch (sortOptions.value.key) {
+        case 'id':
+          aValue = a.id; bValue = b.id; break
+        case 'name':
+          aValue = a.name; bValue = b.name; break
+        case 'servicePort':
+          aValue = a.port; bValue = b.port; break
+        case 'adminPort':
+          aValue = a.adminPort; bValue = b.adminPort; break
+        case 'need_realname':
+          aValue = a.need_realname ? 1 : 0; bValue = b.need_realname ? 1 : 0; break
+        case 'allowGroup':
+          aValue = a.allowGroup; bValue = b.allowGroup; break
+        default:
+          return 0
+      }
+      // 主字段相同用ID次级排序
+      if (aValue === bValue) {
+        return sortOptions.value.order === 'asc' ? a.id - b.id : b.id - a.id
+      }
+      if (sortOptions.value.order === 'asc') {
+        return aValue > bValue ? 1 : aValue < bValue ? -1 : 0
+      } else {
+        return aValue < bValue ? 1 : aValue > bValue ? -1 : 0
+      }
+    })
+  }
+  // 本地分页
+  const start = (nodesStore.pagination.page - 1) * nodesStore.pagination.pageSize
+  const end = start + nodesStore.pagination.pageSize
+  return sorted.slice(start, end)
+})
+
+// 3. 排序处理函数
+const handleSortFieldChange = () => {
+  nodesStore.pagination.page = 1
+}
+const handleSortOrderChange = () => {
+  nodesStore.pagination.page = 1
+}
+const handleSortChange = (sorter) => {
+  if (sorter) {
+    sortOptions.value.key = sorter.columnKey
+    sortOptions.value.order = sorter.order === 'ascend' ? 'asc' : 'desc'
+    nodesStore.pagination.page = 1
+  }
+}
 
 // 表单验证规则
 const rules: FormRules = {
@@ -948,7 +1046,7 @@ const handleAddNode = async () => {
       resetForm()
     }
   } catch (error: any) {
-    message.error(error?.response?.data?.message || '添加节点失败')
+    message.error(error.message)
   }
 }
 
@@ -1021,8 +1119,8 @@ init()
   border-radius: 8px;
 }
 
-.filter-container {
-  padding: 8px 0;
+.filter-container-grid {
+  margin-bottom: 8px;
 }
 
 .add-button {
@@ -1085,5 +1183,15 @@ init()
 
 :deep(.n-button) {
   font-weight: 500;
+}
+
+@media (max-width: 900px) {
+  .filter-container-grid .n-grid {
+    flex-direction: column;
+  }
+  .filter-container-grid .n-grid-item {
+    width: 100% !important;
+    min-width: 0;
+  }
 }
 </style>

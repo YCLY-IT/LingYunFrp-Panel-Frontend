@@ -84,7 +84,8 @@ const statisticRef = ref<{
   traffic: Ref<TrafficType>;
 } | null>()
 // 是否实名认证
-const IsRealname = computed(() => userInfoRef.value?.userInfo.isRealname || false)
+const IsRealname = computed(() => userInfoRef.value?.userInfo.isRealname ?? true)
+
 
 // 一言和流量数据
 const textHitokoto = ref('')
@@ -237,14 +238,15 @@ onMounted(() => {
       justify-content: center;
       flex-shrink: 0;
     }
-    .user-card-avatar img {
-      width: 62px !important;
-      height: 62px !important;
+    .user-card-avatar > div {
+      width: 48px !important;
+      height: 48px !important;
       border-radius: 50% !important;
       margin-top: 0 !important;
-      transform: scale(1) !important;
-      object-fit: cover;
-      display: block;
+      transform: scale(1.5) !important;
+      background-size: cover !important;
+      background-position: center !important;
+      display: block !important;
     }
     h3, p {
       text-align: left !important;
