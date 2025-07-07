@@ -20,13 +20,11 @@ import {
   CreateSoftwareParams,
   UpdateSoftwareParams,
   CreateSoftwareVersionParams,
-  SoftwareVersionApiResponse,
   SystemSettingApiResponse,
   BroadcastApiResponse,
   GroupListApiResponse,
   CreateGroupParams,
   UpdateGroupParams,
-  GroupApiResponse,
   DownloadSourceApiResponse,
   CodeResponse,
   SoftwareVersion

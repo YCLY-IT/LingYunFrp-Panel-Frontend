@@ -75,6 +75,7 @@ import {
     deleteDownloadSource,
     updateSafetySetting
 } from "./admin/admin"
+import { get } from './request'
 
 const userApi = {
     login,
@@ -160,6 +161,19 @@ const adminApi = {
     createDownloadSource,
     updateDownloadSource,
     deleteDownloadSource
+}
+
+// 新增：Bing背景图片API封装
+export function getBingBackgroundUrl(): Promise<string> {
+    // 直接返回图片URL字符串
+    return get<{url: string}>(
+        'https://api.nxvav.cn/api/bing'
+    ).then(res => {
+        // 兼容API返回格式
+        if (typeof res === 'string') return res
+        if (res && res.url) return res.url
+        return 'https://api.nxvav.cn/api/bing'
+    })
 }
 
 export { userApi, adminApi }

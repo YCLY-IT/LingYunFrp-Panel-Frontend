@@ -14,8 +14,11 @@
         <NFormItem path="email" label="邮箱">
           <NInputGroup>
             <NInput v-model:value="formValue.email" placeholder="请输入邮箱" :disabled="emailCodeCountdown > 0"/>
-            <NButton type="primary" ghost :disabled="isEmailCodeSending || emailCodeCountdown > 0"
+            <NButton type="info" ghost :disabled="isEmailCodeSending || emailCodeCountdown > 0"
                      @click="handleSendEmailCode" :loading="isEmailCodeSending">
+              <template #icon>
+                <NIcon :component="MailOutline" />
+              </template>
               {{ emailCodeButtonText }}
             </NButton>
           </NInputGroup>
@@ -73,13 +76,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { NForm, NFormItem, NInput, NButton, NCard, NIcon, NInputGroup, type FormRules, useMessage, type FormInst } from 'naive-ui'
-import {PersonAddOutline} from '@vicons/ionicons5'
+import {PersonAddOutline, MailOutline} from '@vicons/ionicons5'
 import {userApi} from "@/net";
 import { GeetestService } from '@/utils/captcha';
 import packageData from "@/../package.json";
+import { BING_BG_URL } from '@/constants/bing'
 
 const router = useRouter()
 const message = useMessage()
@@ -235,13 +239,21 @@ const handleSubmit = async (geetestResult: GeetestResult) => {
     isSubmitting.value = false
   }
 }
+onMounted(() => {
+  const bgUrl = BING_BG_URL
+  const loginEl = document.querySelector('.forget') as HTMLElement
+  if (loginEl) {
+    loginEl.style.backgroundImage = `url('${bgUrl}')`
+    loginEl.style.backgroundSize = 'cover'
+    loginEl.style.backgroundPosition = 'center'
+  }
+})
 </script>
 
 <style lang="scss" scoped>
 @use '../assets/styles/register.scss';
 
 .forget {
-  background-image: url('https://dailybing.com/api/v1');
   display: flex;
 
 }

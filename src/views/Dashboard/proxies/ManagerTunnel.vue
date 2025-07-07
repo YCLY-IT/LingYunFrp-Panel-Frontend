@@ -64,7 +64,13 @@
     <!-- 网格视图 -->
     <div v-if="viewMode === 'grid'" class="tunnel-grid">
       <template v-if="filteredProxies.length">
-        <NCard v-for="proxy in filteredProxies" :key="proxy.proxyId" class="tunnel-card">
+        <NCard
+          v-for="proxy in filteredProxies"
+          :key="proxy.proxyId"
+          class="tunnel-card"
+          @click="isMobile ? handleSelect('view', proxy) : undefined"
+          :style="isMobile ? 'cursor:pointer;' : ''"
+        >
           <div class="tunnel-header">
             <div class="tunnel-title-area">
               <h3 class="tunnel-title">
@@ -91,12 +97,18 @@
             <div class="info-row">
               <div class="info-item">
                 <div class="label">协议:</div>
-                <div class="value protocol">{{ proxy.proxyType.toUpperCase() }}</div>
+                <div class="value protocol">
+                  <NTag type="info" size="small">{{ proxy.proxyType.toUpperCase() }}</NTag>
+                </div>
               </div>
               
               <div class="info-item node-item">
                 <div class="label">节点:</div>
-                <div class="value node-value">{{ getNodeLabel(proxy.nodeId).split(' - ')[1] }}</div>
+                <div class="value node-value">
+                  <NTag :type="getNodeTagType(getNodeLocation(proxy.nodeId))" size="small">
+                    {{ getNodeLabel(proxy.nodeId).split(' - ')[1] }}
+                  </NTag>
+                </div>
               </div>
             </div>
             
@@ -112,62 +124,86 @@
                     </NTag>
                   </div>
                 </div>
-                <template v-else>{{ proxy.remotePort }}</template>
+                <template v-else>
+                  <NTag type="info" size="small">{{ proxy.remotePort }}</NTag>
+                </template>
               </div>
             </div>
           </div>
           
           <div class="tunnel-actions">
-            <NButton quaternary size="small" @click="() => handleSelect('view', proxy)" class="action-btn">
-              <template #icon>
-                <NIcon>
-                  <InformationCircleOutline />
-                </NIcon>
-              </template>
-              详情
-            </NButton>
-            
-            <NButton quaternary size="small" @click="() => handleSelect('genConfig', proxy)" class="action-btn">
-              <template #icon>
-                <NIcon>
-                  <DocumentOutline />
-                </NIcon>
-              </template>
-              配置
-            </NButton>
-            
-            <NButton quaternary size="small" @click="() => handleSelect('edit', proxy)" class="action-btn">
-              <template #icon>
-                <NIcon>
-                  <CreateOutline />
-                </NIcon>
-              </template>
-              编辑
-            </NButton>
-            
-            <NButton 
-              quaternary 
-              size="small" 
-              :type="proxy.isDisabled ? 'success' : 'warning'"
-              @click="() => handleSelect('toggle', proxy)" 
-              class="action-btn"
-            >
-              <template #icon>
-                <NIcon>
-                  <PowerOutline />
-                </NIcon>
-              </template>
-              {{ proxy.isDisabled ? '启用' : '禁用' }}
-            </NButton>
-            
-            <NButton quaternary size="small" type="error" @click="() => handleSelect('delete', proxy)" class="action-btn">
-              <template #icon>
-                <NIcon>
-                  <TrashOutline />
-                </NIcon>
-              </template>
-              删除
-            </NButton>
+            <template v-if="!isMobile">
+              <NButton quaternary size="small" @click="() => handleSelect('view', proxy)" class="action-btn">
+                <template #icon>
+                  <NIcon>
+                    <InformationCircleOutline />
+                  </NIcon>
+                </template>
+                详情
+              </NButton>
+              <NButton quaternary size="small" @click="() => handleSelect('genConfig', proxy)" class="action-btn">
+                <template #icon>
+                  <NIcon>
+                    <DocumentOutline />
+                  </NIcon>
+                </template>
+                配置
+              </NButton>
+              <NButton quaternary size="small" @click="() => handleSelect('edit', proxy)" class="action-btn">
+                <template #icon>
+                  <NIcon>
+                    <CreateOutline />
+                  </NIcon>
+                </template>
+                编辑
+              </NButton>
+              <NButton 
+                quaternary 
+                size="small" 
+                :type="proxy.isDisabled ? 'success' : 'warning'"
+                @click="() => handleSelect('toggle', proxy)" 
+                class="action-btn"
+              >
+                <template #icon>
+                  <NIcon>
+                    <PowerOutline />
+                  </NIcon>
+                </template>
+                {{ proxy.isDisabled ? '启用' : '禁用' }}
+              </NButton>
+              <NButton quaternary size="small" type="error" @click="() => handleSelect('delete', proxy)" class="action-btn">
+                <template #icon>
+                  <NIcon>
+                    <TrashOutline />
+                  </NIcon>
+                </template>
+                删除
+              </NButton>
+            </template>
+            <template v-else>
+              <NButton quaternary size="small" @click.stop="handleSelect('view', proxy)" class="action-btn">
+                <template #icon>
+                  <NIcon>
+                    <InformationCircleOutline />
+                  </NIcon>
+                </template>
+                详情
+              </NButton>
+              <NDropdown
+                trigger="click"
+                :options="actionOptions(proxy)"
+                @select="key => handleSelect(key, proxy)"
+              >
+                <NButton quaternary size="small" class="action-btn" @click.stop>
+                  <template #icon>
+                    <NIcon>
+                      <EllipsisHorizontalOutline />
+                    </NIcon>
+                  </template>
+                  更多
+                </NButton>
+              </NDropdown>
+            </template>
           </div>
         </NCard>
       </template>
@@ -397,51 +433,56 @@
             <NInputNumber v-model:value="editForm.localPort" :min="1" :max="65535" placeholder="请输入本地端口" />
           </NFormItem>
           <NFormItem v-if="editForm.proxyType !== 'http' && editForm.proxyType !== 'https'" label="远程端口" path="remotePort">
+            <div class="port-input-group">
               <NInputNumber v-model:value="editForm.remotePort" :min="1" :max="65535" placeholder="请输入远程端口" />
-              <NButton style="margin-left: 8px" :loading="gettingFreePort" @click="handleGetFreePortForEdit">
+              <NButton class="get-port-btn" :loading="gettingFreePort" @click="handleGetFreePortForEdit">
                 获取空闲端口
               </NButton>
+            </div>
           </NFormItem>
           <NFormItem v-if="editForm.proxyType === 'http' || editForm.proxyType === 'https'" label="绑定域名" path="domain">
             <NDynamicTags v-model:value="domainTags" :render-tag="renderDomainTag" @update:value="handleDomainsUpdate" />
           </NFormItem>
         </div>
 
-        <div class="form-section">
-          <h3 class="section-title">高级配置</h3>
-          <NText depth="3" class="advanced-notice">
-            提示：仅推荐技术用户使用, 一般用户请勿随意填写。请确保您的配置正确, 否则隧道可能无法启动。
-          </NText>
+        <NCollapse v-model:expanded-names="editFormCollapse" style="margin-bottom: 24px;">
+          <NCollapseItem name="advanced" title="高级配置">
+            <NText depth="3" class="advanced-notice">
+              提示：仅推荐技术用户使用, 一般用户请勿随意填写。请确保您的配置正确, 否则隧道可能无法启动。
+            </NText>
 
-          <NFormItem label="访问密钥" path="accessKey">
-            <NInput v-model:value="editForm.accessKey" placeholder="访问密钥已不再支持" :disabled="true"/>
-          </NFormItem>
-          <NFormItem label="Host Header Rewrite" path="hostHeaderRewrite">
-            <NInput v-model:value="editForm.hostHeaderRewrite" placeholder="请输入 Host 请求头重写值" />
-          </NFormItem>
-          <NFormItem label="X-From-Where" path="headerXFromWhere">
-            <NInput v-model:value="editForm.headerXFromWhere" placeholder="请输入 X-From-Where 请求头值" />
-          </NFormItem>
-          <NFormItem label="Proxy Protocol" path="proxyProtocolVersion">
-            <NSelect v-model:value="editForm.proxyProtocolVersion" :options="[
-              { label: '不启用', value: '' },
-              { label: 'v1', value: 'v1' },
-              { label: 'v2', value: 'v2' }
-            ]" placeholder="Proxy Protocol Version" />
-          </NFormItem>
-          <NFormItem label="其他选项">
-            <div class="switch-group">
-              <NSwitch v-model:value="editForm.useEncryption" :rail-style="switchButtonRailStyle">
-                <template #checked>启用加密</template>
-                <template #unchecked>禁用加密</template>
-              </NSwitch>
-              <NSwitch v-model:value="editForm.useCompression" :rail-style="switchButtonRailStyle">
-                <template #checked>启用压缩</template>
-                <template #unchecked>禁用压缩</template>
-              </NSwitch>
-            </div>
-          </NFormItem>
-        </div>
+            <NFormItem label="访问密钥" path="accessKey">
+              <NInput v-model:value="editForm.accessKey" placeholder="访问密钥已不再支持" :disabled="true"/>
+            </NFormItem>
+            <NFormItem label="Host Header Rewrite" path="hostHeaderRewrite">
+              <NInput v-model:value="editForm.hostHeaderRewrite" placeholder="请输入 Host 请求头重写值" />
+            </NFormItem>
+            <NFormItem label="X-From-Where" path="headerXFromWhere">
+              <NInput v-model:value="editForm.headerXFromWhere" placeholder="请输入 X-From-Where 请求头值" />
+            </NFormItem>
+            <NFormItem label="Proxy Protocol" path="proxyProtocolVersion">
+              <NSelect v-model:value="editForm.proxyProtocolVersion" :options="[
+                { label: '不启用', value: '' },
+                { label: 'v1', value: 'v1' },
+                { label: 'v2', value: 'v2' }
+              ]" placeholder="Proxy Protocol Version" />
+            </NFormItem>
+            <NFormItem :label="isMobile ? '' : '其他选项'">
+              <div class="switch-group-outer">
+                <div class="switch-group">
+                  <NSwitch v-model:value="editForm.useEncryption" :rail-style="switchButtonRailStyle">
+                    <template #checked>启用加密</template>
+                    <template #unchecked>禁用加密</template>
+                  </NSwitch>
+                  <NSwitch style="margin-left: 16px;" v-model:value="editForm.useCompression" :rail-style="switchButtonRailStyle">
+                    <template #checked>启用压缩</template>
+                    <template #unchecked>禁用压缩</template>
+                  </NSwitch>
+                </div>
+              </div>
+            </NFormItem>
+          </NCollapseItem>
+        </NCollapse>
       </NForm>
       
       <template #footer>
@@ -599,19 +640,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, h, watch } from 'vue'
+import { ref, computed, h, watch, onMounted, onUnmounted } from 'vue'
 import {
   NCard, NButton, NButtonGroup, NTag, NDataTable, NTable, NSpace, NIcon,
   NModal, NInput, NForm, NFormItem, NSelect, NInputNumber,
   useMessage, type FormInst, type FormRules, NSwitch, NText,
   NEmpty, NCode, NCollapse, NCollapseItem, NAlert, NDynamicTags, NSpin,
-  NTabs, NTabPane, NScrollbar
+  NTabs, NTabPane, NScrollbar, NDropdown
 } from 'naive-ui'
 import { 
   GridOutline, ListOutline, RefreshOutline, SearchOutline, 
   InformationCircleOutline, CreateOutline, TrashOutline, PowerOutline, 
   AddOutline, CopyOutline, DocumentOutline, 
-  DownloadOutline 
+  DownloadOutline, EllipsisHorizontalOutline
 } from '@vicons/ionicons5'
 import hljs from 'highlight.js/lib/core'
 import javascript from 'highlight.js/lib/languages/javascript'
@@ -654,7 +695,7 @@ const loading = ref(false)
 const proxies = ref<Proxy[]>([])
 const viewMode = ref<'grid' | 'list'>('grid')
 const searchText = ref('')
-const nodeOptions = ref<{ label: string; value: number; hostname: string }[]>([])
+const nodeOptions = ref<{ label: string; value: number; hostname: string; location: string }[]>([])
 const showModal = ref(false)
 const selectedProxy = ref<Proxy | null>(null)
 const showEditModal = ref(false)
@@ -691,6 +732,8 @@ const ymlContent = ref('')
 const runArgs = ref('')
 const token = ref('')
 const domainTags = ref<string[]>([])
+const isMobile = ref(false)
+const editFormCollapse = ref<string[]>([]) // 默认折叠
 
 const rules: FormRules = {
   proxyName: {
@@ -768,7 +811,7 @@ const handleRefresh = async () => {
       message.warning(data.message || '获取隧道列表失败')
     }
   } catch (error: any) {
-    message.error(error?.response?.data?.message || '获取隧道列表失败')
+    message.error(error.message || '获取隧道列表失败')
   } finally {
     loading.value = false
   }
@@ -786,7 +829,8 @@ const fetchNodes = async () => {
       nodeOptions.value = (data.data || []).map((node: any) => ({
         label: node.name,
         value: node.nodeId,
-        hostname: node.hostname
+        hostname: node.hostname,
+        location: node.location
       }))
     } else {
       message.error('获取节点列表失败')
@@ -1204,21 +1248,21 @@ const columns = [
     title: '类型',
     key: 'proxyType',
     render(row) {
-      return h('div', { style: 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' }, row.proxyType.toUpperCase())
+      return h(NTag, { type: 'info', size: 'small' }, { default: () => row.proxyType.toUpperCase() })
     }
   },
   {
     title: '远程端口',
     key: 'remotePort',
     render(row) {
-      return h('div', { style: 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' }, row.remotePort)
+      return h(NTag, { type: 'info', size: 'small' }, { default: () => row.remotePort })
     }
   },
   {
     title: '节点',
     key: 'nodeId',
     render(row) {
-      return h('div', { style: 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' }, getNodeLabel(row.nodeId))
+      return h(NTag, { type: getNodeTagType(getNodeLocation(row.nodeId)), size: 'small' }, { default: () => getNodeLabel(row.nodeId) })
     }
   },
   {
@@ -1323,6 +1367,56 @@ const handleDownloadConfig = () => {
 
   message.success(`配置文件已下载: ${fileName}`)
 }
+
+const getNodeTagType = (loc) => {
+  if (!loc) return 'default'
+  const l = String(loc).trim().toLowerCase()
+  if (l === 'cn') return 'info'
+  if (l === 'cn-out') return 'warning'
+  if (l === 'out') return 'error'
+  return 'default'
+}
+
+const getNodeLocation = (nodeId: number) => {
+  const node = nodeOptions.value.find(n => n.value === nodeId)
+  return node ? node.location : ''
+}
+
+const checkMobile = () => {
+  isMobile.value = window.innerWidth <= 480
+}
+
+onMounted(() => {
+  checkMobile()
+  window.addEventListener('resize', checkMobile)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkMobile)
+})
+
+const actionOptions = (proxy: Proxy) => [
+  {
+    label: proxy.isDisabled ? '启用' : '禁用',
+    key: 'toggle',
+    icon: () => h(NIcon, null, { default: () => h(PowerOutline) })
+  },
+  {
+    label: '编辑',
+    key: 'edit',
+    icon: () => h(NIcon, null, { default: () => h(CreateOutline) })
+  },
+  {
+    label: '配置',
+    key: 'genConfig',
+    icon: () => h(NIcon, null, { default: () => h(DocumentOutline) })
+  },
+  {
+    label: '删除',
+    key: 'delete',
+    icon: () => h(NIcon, null, { default: () => h(TrashOutline) })
+  }
+]
 </script>
 
 <style lang="scss" scoped>
@@ -1430,13 +1524,10 @@ const handleDownloadConfig = () => {
           
           .value {
             font-size: 14px;
-            color: rgb(0, 255, 42);
-            
             &.protocol {
               font-weight: 500;
               color: #1890ff;
             }
-            
             &.node-value {
               white-space: nowrap;
               overflow: hidden;
@@ -1457,12 +1548,19 @@ const handleDownloadConfig = () => {
       
       .tunnel-actions {
         display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        
+        flex-wrap: nowrap;
+        gap: 6px;
+        justify-content: flex-start;
+        align-items: stretch;
+        margin-top: 8px;
+
         .action-btn {
-          flex: 1;
-          min-width: 80px;
+          flex: 1 1 0;
+          min-width: 60px;
+          max-width: 100px;
+          padding: 0 6px;
+          font-size: 14px;
+          white-space: nowrap;
           justify-content: center;
         }
       }
@@ -1525,8 +1623,6 @@ const handleDownloadConfig = () => {
         
         .value {
           font-size: 14px;
-          color: #333;
-          
           &.connection-value {
             font-family: monospace;
             padding: 2px 6px;
@@ -1599,9 +1695,23 @@ const handleDownloadConfig = () => {
       gap: 12px;
     }
     
+    .switch-group-outer {
+      display: flex;
+      justify-content: center;
+    }
+    
     .switch-group {
       display: flex;
-      gap: 24px;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      gap: 40px;
+      > * {
+        flex: 0 0 auto;
+        display: flex;
+        justify-content: center;
+        min-width: 0;
+      }
     }
   }
   
@@ -1674,11 +1784,76 @@ const handleDownloadConfig = () => {
     }
     
     .tunnel-actions {
-      flex-direction: column;
-      
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
       .action-btn {
-        width: 100%;
+        flex: 1 1 0;
+        min-width: 0;
+        max-width: 140px;
+        margin: 0 4px;
+        border-radius: 8px;
+        height: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
+    }
+
+    .toolbar-right {
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      .create-btn {
+        width: 100%;
+        margin-top: 8px;
+        font-size: 14px;
+      }
+      .view-btn, .refresh-btn {
+        flex: 1 1 0;
+        min-width: 0;
+        max-width: 140px;
+      }
+    }
+
+    .switch-group-outer {
+      width: 100% !important;
+      display: flex !important;
+      justify-content: center !important;
+    }
+    .switch-group {
+      display: flex !important;
+      flex-direction: row !important;
+      justify-content: center !important;
+      align-items: center !important;
+      gap: 60px !important;
+      width: 100% !important;
+    }
+  }
+}
+
+.port-input-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  .get-port-btn {
+    margin-left: 8px;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .port-input-group {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    .get-port-btn {
+      margin-left: 0;
+      width: 100%;
     }
   }
 }

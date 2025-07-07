@@ -2,12 +2,18 @@
   <div>
     <NCard title="产品管理">
       <NSpace vertical>
-        <NButton type="primary" @click="openAddModal">添加产品</NButton>
+        <div class="product-sort-row">
+          <n-select v-model:value="sortOptions.key" :options="sortFieldOptions" placeholder="排序字段" clearable class="product-sort-item" @update:value="handleSortFieldChange" />
+          <n-select v-model:value="sortOptions.order" :options="sortOrderOptions" placeholder="排序方式" clearable class="product-sort-item" @update:value="handleSortOrderChange" />
+          <n-button type="primary" @click="openAddModal" class="product-sort-btn" size="medium">
+            添加产品
+          </n-button>
+        </div>
         <div class="table-container">
           <NDataTable
             remote
             :columns="productColumns"
-            :data="productsData"
+            :data="sortedProductsData"
             :loading="loading"
             :pagination="{ pageSize: 10 }"
           />
@@ -158,6 +164,51 @@ const modalStyle = computed(() => {
     maxWidth: '95vw'
   }
 })
+
+const sortFieldOptions = [
+  { label: 'ID', value: 'id' },
+  { label: '分组', value: 'type' },
+  { label: '名称', value: 'name' },
+  { label: '价格', value: 'price' },
+  { label: '积分价格', value: 'pointPrice' },
+  { label: '支付方式', value: 'payMethod' }
+]
+const sortOrderOptions = [
+  { label: '升序', value: 'asc' },
+  { label: '降序', value: 'desc' }
+]
+const sortOptions = ref({ key: 'id', order: 'asc' })
+
+const sortedProductsData = computed(() => {
+  let sorted = [...productsData.value]
+  if (sortOptions.value.key && sortOptions.value.order) {
+    sorted = sorted.sort((a, b) => {
+      let aValue: any, bValue: any
+      switch (sortOptions.value.key) {
+        case 'id': aValue = a.id; bValue = b.id; break
+        case 'type': aValue = a.type; bValue = b.type; break
+        case 'name': aValue = a.name; bValue = b.name; break
+        case 'price': aValue = a.price; bValue = b.price; break
+        case 'pointPrice': aValue = a.pointPrice; bValue = b.pointPrice; break
+        case 'payMethod': aValue = a.payMethod; bValue = b.payMethod; break
+        default: return 0
+      }
+      // 主字段相同用ID次级排序
+      if (aValue === bValue) {
+        return sortOptions.value.order === 'asc' ? a.id - b.id : b.id - a.id
+      }
+      if (sortOptions.value.order === 'asc') {
+        return aValue > bValue ? 1 : aValue < bValue ? -1 : 0
+      } else {
+        return aValue < bValue ? 1 : aValue > bValue ? -1 : 0
+      }
+    })
+  }
+  return sorted
+})
+
+const handleSortFieldChange = () => {}
+const handleSortOrderChange = () => {}
 
 // 过滤分组（排除 user 和 admin）
 watch(groupsData, (newGroups) => {
@@ -490,5 +541,26 @@ onMounted(() => {
   :deep(.n-modal .n-card) {
     margin: 8px 4px;
   }
+}
+
+.product-sort-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+  width: 100%;
+  align-items: stretch;
+}
+.product-sort-item {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+.product-sort-btn {
+  flex: none;
+  min-width: unset;
+  width: auto;
+  padding: 0 40px;
+  align-self: center;
 }
 </style>

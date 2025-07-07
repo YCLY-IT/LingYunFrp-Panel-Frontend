@@ -6,16 +6,20 @@
           @update:value="handleSearch" />
         <NSelect v-model:value="filters.nodeId" :options="nodeOptions" placeholder="节点" clearable style="width: 100%"
           @update:value="handleFilterChange" />
-        <NSpace class="filter-space">
+        <div class="proxy-sort-filter-row">
+          <NSelect v-model:value="sortOptions.key" :options="sortFieldOptions" placeholder="排序字段" clearable
+            class="proxy-sort-item" @update:value="handleSortFieldChange" />
+          <NSelect v-model:value="sortOptions.order" :options="sortOrderOptions" placeholder="排序方式" clearable
+            class="proxy-sort-item" @update:value="handleSortOrderChange" />
           <NSelect v-model:value="filters.proxyType" :options="proxyTypeOptions" placeholder="协议" clearable
-            style="width: 120px" @update:value="handleFilterChange" />
+            class="proxy-sort-item" @update:value="handleFilterChange" />
           <NSelect v-model:value="filters.isOnline" :options="onlineOptions" placeholder="在线状态" clearable
-            style="width: 120px" @update:value="handleFilterChange" />
+            class="proxy-sort-item" @update:value="handleFilterChange" />
           <NSelect v-model:value="filters.isBanned" :options="banOptions" placeholder="封禁状态" clearable
-            style="width: 120px" @update:value="handleFilterChange" />
-        </NSpace>
+            class="proxy-sort-item" @update:value="handleFilterChange" />
+        </div>
         <div class="table-container">
-          <NDataTable remote :columns="columns" :data="proxies" :loading="loading" :pagination="pagination"
+          <NDataTable remote :columns="columns" :data="sortedProxies" :loading="loading" :pagination="pagination"
             :style="{
               '.n-data-table-td': {
                 whiteSpace: 'nowrap',
@@ -24,7 +28,8 @@
                 maxWidth: '200px'
               }
             }"
-            @update:page="handlePageChange" />
+            @update:page="handlePageChange"
+            @update:sorter="handleSortChange" />
         </div>
       </NSpace>
     </NCard>
@@ -800,8 +805,8 @@ const loadData = async () => {
         proxyProtocolVersion: proxy.proxyProtocolVersion ?? '',
         location: proxy.location ?? ''
       }))
-      pagination.value.pageCount = Math.ceil(data.data.total / pagination.value.pageSize)
-      pagination.value.itemCount = data.data.total
+      pagination.value.pageCount = Math.ceil((data.data.pagination?.total) / pagination.value.pageSize)
+      pagination.value.itemCount = data.data.pagination?.total
     } else {
       message.error(data.message || '获取数据失败')
     }
@@ -902,6 +907,76 @@ const modalStyle = computed(() => {
   }
 })
 
+// 排序相关
+const sortFieldOptions: SelectOption[] = [
+  { label: 'ID', value: 'proxyId' },
+  { label: '所属用户', value: 'username' },
+  { label: '隧道名称', value: 'proxyName' },
+  { label: '节点', value: 'nodeId' },
+  { label: '协议', value: 'proxyType' },
+  { label: '状态', value: 'status' }
+]
+const sortOrderOptions: SelectOption[] = [
+  { label: '升序', value: 'asc' },
+  { label: '降序', value: 'desc' }
+]
+const sortOptions = ref({ key: 'proxyId', order: 'asc' })
+
+// 本地排序和分页
+const sortedProxies = computed(() => {
+  let sorted = [...proxies.value]
+  if (sortOptions.value.key && sortOptions.value.order) {
+    sorted = sorted.sort((a, b) => {
+      let aValue: any, bValue: any
+      switch (sortOptions.value.key) {
+        case 'proxyId':
+          aValue = a.proxyId; bValue = b.proxyId; break
+        case 'username':
+          aValue = a.username; bValue = b.username; break
+        case 'proxyName':
+          aValue = a.proxyName; bValue = b.proxyName; break
+        case 'nodeId':
+          aValue = a.nodeId; bValue = b.nodeId; break
+        case 'proxyType':
+          aValue = a.proxyType; bValue = b.proxyType; break
+        case 'status':
+          // 状态：在线>封禁>禁用>正常
+          const getStatus = (row: any) => (row.isOnline ? 3 : row.isBanned ? 2 : row.isDisabled ? 1 : 0)
+          aValue = getStatus(a); bValue = getStatus(b); break
+        default:
+          return 0
+      }
+      // 主字段相同用ID次级排序
+      if (aValue === bValue) {
+        return sortOptions.value.order === 'asc' ? a.proxyId - b.proxyId : b.proxyId - a.proxyId
+      }
+      if (sortOptions.value.order === 'asc') {
+        return aValue > bValue ? 1 : aValue < bValue ? -1 : 0
+      } else {
+        return aValue < bValue ? 1 : aValue > bValue ? -1 : 0
+      }
+    })
+  }
+  // 本地分页
+  const start = (pagination.value.page - 1) * pagination.value.pageSize
+  const end = start + pagination.value.pageSize
+  return sorted.slice(start, end)
+})
+
+const handleSortFieldChange = () => {
+  pagination.value.page = 1
+}
+const handleSortOrderChange = () => {
+  pagination.value.page = 1
+}
+const handleSortChange = (sorter: any) => {
+  if (sorter) {
+    sortOptions.value.key = sorter.columnKey
+    sortOptions.value.order = sorter.order === 'ascend' ? 'asc' : 'desc'
+    pagination.value.page = 1
+  }
+}
+
 onMounted(() => {
   fetchNodes()
   loadData()
@@ -928,6 +1003,18 @@ onMounted(() => {
 
 .filter-space {
   flex-wrap: wrap;
+}
+
+.proxy-sort-filter-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.proxy-sort-item {
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .table-container {

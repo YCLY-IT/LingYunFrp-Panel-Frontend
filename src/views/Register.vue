@@ -20,8 +20,11 @@
         <NFormItem path="email" label="邮箱">
           <NInputGroup>
             <NInput v-model:value="formValue.email" placeholder="请输入邮箱" :disabled="emailCodeCountdown > 0"/>
-            <NButton type="primary" ghost :disabled="isEmailCodeSending || emailCodeCountdown > 0"
+            <NButton type="info" ghost :disabled="isEmailCodeSending || emailCodeCountdown > 0"
                      @click="handleSendEmailCode" :loading="isEmailCodeSending">
+              <template #icon>
+                <NIcon :component="MailOutline" />
+              </template>
               {{ emailCodeButtonText }}
             </NButton>
           </NInputGroup>
@@ -88,10 +91,11 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { NForm, NFormItem, NInput, NButton, NCard, NIcon, NInputGroup, type FormRules, useMessage, type FormInst } from 'naive-ui'
-import {PersonAddOutline} from '@vicons/ionicons5'
+import {PersonAddOutline, MailOutline} from '@vicons/ionicons5'
 import {userApi} from "@/net";
 import { GeetestService, loadGeetest } from '@/utils/captcha';
 import packageData from "@/../package.json";
+import { BING_BG_URL } from '@/constants/bing'
 
 const router = useRouter()
 const message = useMessage()
@@ -100,7 +104,6 @@ const formRef = ref<FormInst | null>(null)
 const isSubmitting = ref(false)
 const isEmailCodeSending = ref(false)
 const emailCodeCountdown = ref(0)
-const loading = ref(false)
 
 
 const formValue = ref({
@@ -260,6 +263,13 @@ const onRegisterButtonClick = async () => {
 onMounted(async () => {
   // 加载极验脚本
   await loadGeetest()
+  const bgUrl = BING_BG_URL
+  const loginEl = document.querySelector('.register') as HTMLElement
+  if (loginEl) {
+    loginEl.style.backgroundImage = `url('${bgUrl}')`
+    loginEl.style.backgroundSize = 'cover'
+    loginEl.style.backgroundPosition = 'center'
+  }
 })
 </script>
 
@@ -267,9 +277,7 @@ onMounted(async () => {
 @use '../assets/styles/register.scss';
 
 .register {
-  background-image: url('https://dailybing.com/api/v1');
   display: flex;
-
 }
 .auth-card {
   background-color: transparent;
@@ -279,6 +287,6 @@ onMounted(async () => {
 .title-with-icon {
   display: flex;
   align-items: center;
-  gap: 0px;; // 调整这个值来改变间距
+  gap: 0px;
 }
 </style>

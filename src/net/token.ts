@@ -26,7 +26,7 @@ export function getToken(): string | null {
       removeToken();
       return null;
     }
-    return token.Authorization;
+    return "Bearer " + token.Authorization;
   }
   return null;
 }

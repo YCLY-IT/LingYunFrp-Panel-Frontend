@@ -52,6 +52,7 @@ import { useRouter } from 'vue-router'
 import { NForm, NFormItem, NInput, NButton, NCard, NIcon, type FormRules, useMessage, type FormInst } from 'naive-ui'
 import { LogInOutline } from '@vicons/ionicons5'
 import { userApi } from '@/net'
+import { BING_BG_URL } from '@/constants/bing'
 import { GeetestService, loadGeetest } from '@/utils/captcha'
 import packageData from '@/../package.json'
 
@@ -125,6 +126,7 @@ const handleSubmit = async (geetestResult: GeetestResult) => {
     localStorage.setItem('username', data.data.username)
     localStorage.setItem('nickname', data.data.nickname)
     localStorage.setItem('avatar', data.data.avatar)
+    localStorage.setItem('group', data.data.role)
     message.success(data.message)
     loading.value = false
     setTimeout(() => {
@@ -143,6 +145,14 @@ const handleSubmit = async (geetestResult: GeetestResult) => {
 onMounted(async () => {
   // 加载极验脚本
   await loadGeetest()
+  // 动态设置Bing背景
+  const bgUrl = BING_BG_URL
+  const loginEl = document.querySelector('.login') as HTMLElement
+  if (loginEl) {
+    loginEl.style.backgroundImage = `url('${bgUrl}')`
+    loginEl.style.backgroundSize = 'cover'
+    loginEl.style.backgroundPosition = 'center'
+  }
 })
 </script>
 
@@ -155,7 +165,6 @@ onMounted(async () => {
   margin-bottom: 16px; // 根据需要调整间距
 }
 .login {
-  background-image: url('https://dailybing.com/api/v1');
   height: 100vh;
   display: flex;
 }

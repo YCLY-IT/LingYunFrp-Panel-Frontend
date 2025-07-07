@@ -1,16 +1,23 @@
 <template>
   <div class="software-container">
     <n-card title="软件管理">
-      <template #header-extra>
-        <n-button type="primary" @click="showAddModal = true" size="medium">
+      <div class="software-sort-row">
+        <n-select v-model:value="sortOptions.key" :options="sortFieldOptions" placeholder="排序字段" clearable class="software-sort-item" @update:value="handleSortFieldChange" />
+        <n-select v-model:value="sortOptions.order" :options="sortOrderOptions" placeholder="排序方式" clearable class="software-sort-item" @update:value="handleSortOrderChange" />
+        <n-button
+          type="primary"
+          @click="showAddModal = true"
+          class="software-sort-btn"
+          size="medium"
+        >
           添加软件
         </n-button>
-      </template>
+      </div>
 
       <div class="table-container">
         <n-data-table
           :columns="columns"
-          :data="softwareList"
+          :data="sortedSoftwareList"
           :loading="initLoading"
           :scroll-x="800"
           size="medium"
@@ -176,6 +183,47 @@ const currentVersions = ref<SoftwareVersion[]>([])
 const allVersions = ref<SoftwareVersion[]>([])
 const initLoading = ref(true)
 
+const sortFieldOptions = [
+  { label: 'ID', value: 'id' },
+  { label: '软件名称', value: 'name' },
+  { label: '软件代号', value: 'code' },
+  { label: '创建时间', value: 'created_at' }
+]
+const sortOrderOptions = [
+  { label: '升序', value: 'asc' },
+  { label: '降序', value: 'desc' }
+]
+const sortOptions = ref({ key: 'id', order: 'asc' })
+
+const sortedSoftwareList = computed(() => {
+  let sorted = [...softwareList.value]
+  if (sortOptions.value.key && sortOptions.value.order) {
+    sorted = sorted.sort((a, b) => {
+      let aValue: any, bValue: any
+      switch (sortOptions.value.key) {
+        case 'id': aValue = a.id; bValue = b.id; break
+        case 'name': aValue = a.name; bValue = b.name; break
+        case 'code': aValue = a.code; bValue = b.code; break
+        case 'created_at': aValue = a.created_at; bValue = b.created_at; break
+        default: return 0
+      }
+      // 主字段相同用ID次级排序
+      if (aValue === bValue) {
+        return sortOptions.value.order === 'asc' ? a.id - b.id : b.id - a.id
+      }
+      if (sortOptions.value.order === 'asc') {
+        return aValue > bValue ? 1 : aValue < bValue ? -1 : 0
+      } else {
+        return aValue < bValue ? 1 : aValue > bValue ? -1 : 0
+      }
+    })
+  }
+  return sorted
+})
+
+const handleSortFieldChange = () => {}
+const handleSortOrderChange = () => {}
+
 // 响应式样式计算
 const modalStyle = computed(() => {
   const isMobile = window.innerWidth <= 768
@@ -234,13 +282,6 @@ const archOptions = [
   { label: 'arm64', value: 'arm64' },
   { label: '386', value: '386' }
 ]
-
-const pagination = {
-  pageSize: 10,
-  showSizePicker: true,
-  pageSizes: [5, 10, 20],
-  showQuickJumper: true
-}
 
 const columns: DataTableColumns<Software> = [
   { 
@@ -665,5 +706,27 @@ onMounted(async () => {
   :deep(.n-modal .n-card) {
     margin: 8px 4px;
   }
+}
+
+.software-sort-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+  width: 100%;
+  align-items: stretch;
+}
+.software-sort-item {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+.software-sort-btn {
+  flex: none;
+  min-width: unset;
+  width: auto;
+  padding: 0 40px;
+  align-self: center;
+  /* 让按钮高度和小号下拉框一致 */
 }
 </style>
