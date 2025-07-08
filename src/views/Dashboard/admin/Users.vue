@@ -111,6 +111,23 @@
         >确定</NButton>
       </template>
     </NModal>
+
+    <NModal v-model:show="showEditReasonModal" preset="dialog" title="请输入修改账户状态原因">
+      <NInput
+        v-model:value="editReason"
+        type="textarea"
+        placeholder="请填写原因"
+        :autosize="{ minRows: 3, maxRows: 5 }"
+      />
+      <template #action>
+        <NButton @click="() => { showEditReasonModal = false; editReason = '' }">取消</NButton>
+        <NButton
+          type="primary"
+          :disabled="!editReason.trim()"
+          @click="submitEditReason"
+        >确定</NButton>
+      </template>
+    </NModal>
   </div>
 </template>
 
@@ -219,6 +236,7 @@ const editForm = ref({
   email: '',
   group: '',
   status: 0,
+  originalStatus: 0, // 新增
   is_realname: false,
   remainder: 0,
   traffic: 0,
@@ -453,9 +471,18 @@ const handleToggleStatus = async (user: User, reason?: string) => {
   }
 }
 
+const editReason = ref('') // 新增
+const showEditReasonModal = ref(false) // 新增
+const pendingEditSubmit = ref(false) // 新增
+
 const handleEditSubmit = async () => {
   try {
     await formRef.value?.validate()
+    // 检查状态是否变化
+    if (editForm.value.status !== editForm.value.originalStatus && !pendingEditSubmit.value) {
+      showEditReasonModal.value = true
+      return
+    }
     submitting.value = true
     
     editForm.value.traffic *= 1024
@@ -473,7 +500,8 @@ const handleEditSubmit = async () => {
       outBound: editForm.value.out_limit,
       inBound: editForm.value.in_limit,
       isRealname: editForm.value.is_realname,
-      remainder: editForm.value.remainder
+      remainder: editForm.value.remainder,
+      reason: editReason.value
     })
     
     if (data.code === 0) {
@@ -487,6 +515,8 @@ const handleEditSubmit = async () => {
     message.error(error?.message || '更新用户失败')
   } finally {
     submitting.value = false
+    editReason.value = ''
+    pendingEditSubmit.value = false
   }
 }
 
@@ -504,6 +534,7 @@ const handleEdit = async (user: User) => {
         email: userDetail.email,
         group: userDetail.group,
         status: userDetail.status,
+        originalStatus: userDetail.status, // 新增
         is_realname: userDetail.is_realname,
         remainder: userDetail.remainder,
         traffic: userDetail.traffic / 1024,
@@ -702,6 +733,12 @@ const handleSortChange = (sorter: any) => {
     sortOptions.value.order = sorter.order === 'ascend' ? 'asc' : 'desc'
     // 本地排序，不需要重新加载数据
   }
+}
+
+const submitEditReason = () => {
+  showEditReasonModal.value = false
+  pendingEditSubmit.value = true
+  handleEditSubmit()
 }
 </script>
 
