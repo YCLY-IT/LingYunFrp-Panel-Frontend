@@ -17,47 +17,14 @@
     <!-- 搜索和区域筛选 -->
     <NCard title="筛选选项" class="filter-card">
       <NSpace vertical size="medium">
-        <NInput style="margin-top: 20px;" v-model:value="searchQuery" placeholder="搜索节点..." clearable>
-          <template #prefix>
-            <NIcon><SearchOutline /></NIcon>
-          </template>
-        </NInput>
+        <NInput style="margin-top: 10px;" v-model:value="searchQuery" placeholder="搜索节点..." clearable :prefix="() => h(NIcon, null, { default: () => h(SearchOutline) })" />
         
-        <div class="filter-row">
-          <div class="region-filter">
-            <NText>区域筛选：</NText>
-            <div class="region-tags-row" style="margin-top: 5px;">
-              <NTag 
-                :type="selectedRegion === 'all' ? 'primary' : 'default'" 
-                checkable 
-                :checked="selectedRegion === 'all'"
-                @click="selectedRegion = 'all'"
-              >全部</NTag>
-              <NTag 
-                :type="selectedRegion === 'cn' ? 'primary' : 'default'" 
-                checkable 
-                :checked="selectedRegion === 'cn'"
-                @click="selectedRegion = 'cn'"
-              >中国大陆</NTag>
-              <NTag 
-                :type="selectedRegion === 'cn-out' ? 'primary' : 'default'" 
-                checkable 
-                :checked="selectedRegion === 'cn-out'"
-                @click="selectedRegion = 'cn-out'"
-              >中国港澳台</NTag>
-              <NTag 
-                :type="selectedRegion === 'out' ? 'primary' : 'default'" 
-                checkable 
-                :checked="selectedRegion === 'out'"
-                @click="selectedRegion = 'out'"
-              >海外地区</NTag>
-            </div>
-          </div>
+        <div class="filter-row" style="margin-top: 5px;">
           <div class="group-filter">
             <NText>用户组筛选：</NText>
             <NSelect
               class="group-select"
-              style="width: 220px;"
+              style="width: 300px;"
               v-model:value="selectedGroup"
               :options="[{ label: '全部', value: 'all' }, ...groupList]"
               clearable
@@ -80,76 +47,204 @@
       </NSpace>
     </NCard>
     
-    <!-- 节点选择卡片 - 修改为每行三个节点 -->
+    <!-- 节点选择卡片 - 修改为折叠篮按地区分组 -->
     <NCard title="选择节点" class="node-card">
       <NSpin :show="nodeLoading" tip="节点加载中...">
         <NSpace vertical>
-          <!-- 修改这里的cols属性从1改为3 -->
-          <NGrid x-gap="8" y-gap="8" cols="3" responsive="screen" style="padding-top: 14px;">
-            <NGridItem v-for="node in filteredNodes" :key="node.value">
-              <NCard
-                hoverable
-                @click="handleNodeSelect(node)"
-                :class="[{'selected-node': selectedNodeId === node.value, 'node-offline': !node.isOnline}]"
-                class="node-item"
-              >
-                <div class="node-header">
-                  <div class="node-title">
-                    <NTag type="info" size="small"># {{ node.id }}</NTag>
-                    <NText style="white-space: nowrap; margin-left: -3px; margin-right: 4px;">{{ node.name }}</NText>
-                  </div>
-                  <div class="node-tags">
-                    <NTag :type="getRegionTagType(node.location)" size="small">
-                      {{ getRegionName(node.location) }}
-                    </NTag>
-                  </div>
-                </div>
-                
-                <NText depth="3" style="font-size: 13px; margin: 6px 0;">{{ node.description }}</NText>
-                
-                <NSpace vertical style="margin-top: 4px;">
-                  <div class="info-item">
-                    <NSpace wrap>
-                      <NTag
-                        v-for="group in node.allowGroups.filter(g => !['admin','proxies','traffic'].includes(g.name.trim().toLowerCase()))"
-                        :key="group.name"
-                        size="small"
-                        type="info"
-                      >
-                        {{ group.friendlyName }}
-                      </NTag>
+          <NCollapse v-model:expanded-names="expandedRegion">
+            <NCollapseItem title="中国大陆" name="cn">
+              <NGrid x-gap="8" y-gap="8" cols="3" responsive="screen" style="padding-top: 14px;">
+                <NGridItem v-for="node in filteredNodes.filter(n => n.location === 'cn')" :key="node.value">
+                  <NCard
+                    hoverable
+                    @click="handleNodeSelect(node)"
+                    :class="[{'selected-node': selectedNodeId === node.value, 'node-offline': !node.isOnline}]"
+                    class="node-item"
+                  >
+                    <div class="node-header">
+                      <div class="node-title">
+                        <NTag type="info" size="small"># {{ node.id }}</NTag>
+                        <NText style="white-space: nowrap; margin-left: -3px; margin-right: 4px;">{{ node.name }}</NText>
+                      </div>
+                      <div class="node-tags">
+                        <NTag v-if="supportsUdp(node)" type="success" size="small">UDP</NTag>
+                        <NTag v-if="supportsHttp(node) && supportsHttps(node)" type="success" size="small">HTTP(S)</NTag>
+                        <NTag v-else-if="supportsHttp(node)" type="success" size="small">HTTP</NTag>
+                        <NTag v-else-if="supportsHttps(node)" type="success" size="small">HTTPS</NTag>
+                      </div>
+                    </div>
+                    <NText depth="3" style="font-size: 13px; margin: 6px 0;">{{ node.description }}</NText>
+                    <NSpace vertical style="margin-top: 4px;">
+                      <div class="info-item">
+                        <NSpace wrap>
+                          <NTag
+                            v-for="group in node.allowGroups.filter(g => !['admin','proxies','traffic'].includes(g.name.trim().toLowerCase()))"
+                            :key="group.name"
+                            size="small"
+                            type="info"
+                          >
+                            {{ group.friendlyName }}
+                          </NTag>
+                        </NSpace>
+                      </div>
+                      <div class="info-item" style="margin-top: -1px;">
+                        <NSpace wrap>
+                          <NTag v-if="supportsTcp(node)" type="success" size="small">TCP</NTag>
+                          <NTag v-if="supportsUdp(node)" type="success" size="small">UDP</NTag>
+                          <NTag v-if="supportsHttp(node)" type="success" size="small">HTTP</NTag>
+                          <NTag v-if="supportsHttps(node)" type="success" size="small">HTTPS</NTag>
+                        </NSpace>
+                      </div>
+                      <div class="info-item" style="margin-top: -1px;">
+                        <NSpace wrap>
+                          <NTag type="warning" size="small">
+                            {{ node.portRange.min }} - {{ node.portRange.max }}
+                          </NTag>
+                          <NTag type="info" size="small">
+                            {{ node.bandWidth }} Mbps
+                          </NTag>
+                          <NTag v-if="node.needRealname" type="info" size="small">
+                            实名
+                          </NTag>
+                        </NSpace>
+                      </div>
                     </NSpace>
-                  </div>
-                  <div class="info-item" style="margin-top: -1px;">
-                    <NSpace wrap>
-                      <NTag v-if="supportsTcp(node)" type="success" size="small">TCP</NTag>
-                      <NTag v-if="supportsUdp(node)" type="success" size="small">UDP</NTag>
-                      <NTag v-if="supportsHttp(node)" type="success" size="small">HTTP</NTag>
-                      <NTag v-if="supportsHttps(node)" type="success" size="small">HTTPS</NTag>
+                  </NCard>
+                </NGridItem>
+              </NGrid>
+              <div v-if="filteredNodes.filter(n => n.location === 'cn').length === 0" class="no-results">
+                <NEmpty description="没有找到符合条件的节点" />
+              </div>
+            </NCollapseItem>
+            <NCollapseItem title="中国港澳台" name="cn-out">
+              <NGrid x-gap="8" y-gap="8" cols="3" responsive="screen" style="padding-top: 14px;">
+                <NGridItem v-for="node in filteredNodes.filter(n => n.location === 'cn-out')" :key="node.value">
+                  <NCard
+                    hoverable
+                    @click="handleNodeSelect(node)"
+                    :class="[{'selected-node': selectedNodeId === node.value, 'node-offline': !node.isOnline}]"
+                    class="node-item"
+                  >
+                    <div class="node-header">
+                      <div class="node-title">
+                        <NTag type="info" size="small"># {{ node.id }}</NTag>
+                        <NText style="white-space: nowrap; margin-left: -3px; margin-right: 4px;">{{ node.name }}</NText>
+                      </div>
+                      <div class="node-tags">
+                        <NTag v-if="supportsUdp(node)" type="success" size="small">UDP</NTag>
+                        <NTag v-if="supportsHttp(node) && supportsHttps(node)" type="success" size="small">HTTP(S)</NTag>
+                        <NTag v-else-if="supportsHttp(node)" type="success" size="small">HTTP</NTag>
+                        <NTag v-else-if="supportsHttps(node)" type="success" size="small">HTTPS</NTag>
+                      </div>
+                    </div>
+                    <NText depth="3" style="font-size: 13px; margin: 6px 0;">{{ node.description }}</NText>
+                    <NSpace vertical style="margin-top: 4px;">
+                      <div class="info-item">
+                        <NSpace wrap>
+                          <NTag
+                            v-for="group in node.allowGroups.filter(g => !['admin','proxies','traffic'].includes(g.name.trim().toLowerCase()))"
+                            :key="group.name"
+                            size="small"
+                            type="info"
+                          >
+                            {{ group.friendlyName }}
+                          </NTag>
+                        </NSpace>
+                      </div>
+                      <div class="info-item" style="margin-top: -1px;">
+                        <NSpace wrap>
+                          <NTag v-if="supportsTcp(node)" type="success" size="small">TCP</NTag>
+                          <NTag v-if="supportsUdp(node)" type="success" size="small">UDP</NTag>
+                          <NTag v-if="supportsHttp(node)" type="success" size="small">HTTP</NTag>
+                          <NTag v-if="supportsHttps(node)" type="success" size="small">HTTPS</NTag>
+                        </NSpace>
+                      </div>
+                      <div class="info-item" style="margin-top: -1px;">
+                        <NSpace wrap>
+                          <NTag type="warning" size="small">
+                            {{ node.portRange.min }} - {{ node.portRange.max }}
+                          </NTag>
+                          <NTag type="info" size="small">
+                            {{ node.bandWidth }} Mbps
+                          </NTag>
+                          <NTag v-if="node.needRealname" type="info" size="small">
+                            实名
+                          </NTag>
+                        </NSpace>
+                      </div>
                     </NSpace>
-                  </div>
-                  <div class="info-item" style="margin-top: -1px;">
-                    <NSpace wrap>
-                      <NTag type="warning" size="small">
-                        {{ node.portRange.min }} - {{ node.portRange.max }}
-                      </NTag>
-                      <NTag type="info" size="small">
-                        {{ node.bandWidth }} Mbps
-                      </NTag>
-                      <NTag v-if="node.needRealname" type="info" size="small">
-                        实名
-                      </NTag>
+                  </NCard>
+                </NGridItem>
+              </NGrid>
+              <div v-if="filteredNodes.filter(n => n.location === 'cn-out').length === 0" class="no-results">
+                <NEmpty description="没有找到符合条件的节点" />
+              </div>
+            </NCollapseItem>
+            <NCollapseItem title="海外地区" name="out">
+              <NGrid x-gap="8" y-gap="8" cols="3" responsive="screen" style="padding-top: 14px;">
+                <NGridItem v-for="node in filteredNodes.filter(n => n.location === 'out')" :key="node.value">
+                  <NCard
+                    hoverable
+                    @click="handleNodeSelect(node)"
+                    :class="[{'selected-node': selectedNodeId === node.value, 'node-offline': !node.isOnline}]"
+                    class="node-item"
+                  >
+                    <div class="node-header">
+                      <div class="node-title">
+                        <NTag type="info" size="small"># {{ node.id }}</NTag>
+                        <NText style="white-space: nowrap; margin-left: -3px; margin-right: 4px;">{{ node.name }}</NText>
+                      </div>
+                      <div class="node-tags">
+                        <NTag v-if="supportsUdp(node)" type="success" size="small">UDP</NTag>
+                        <NTag v-if="supportsHttp(node) && supportsHttps(node)" type="success" size="small">HTTP(S)</NTag>
+                        <NTag v-else-if="supportsHttp(node)" type="success" size="small">HTTP</NTag>
+                        <NTag v-else-if="supportsHttps(node)" type="success" size="small">HTTPS</NTag>
+                      </div>
+                    </div>
+                    <NText depth="3" style="font-size: 13px; margin: 6px 0;">{{ node.description }}</NText>
+                    <NSpace vertical style="margin-top: 4px;">
+                      <div class="info-item">
+                        <NSpace wrap>
+                          <NTag
+                            v-for="group in node.allowGroups.filter(g => !['admin','proxies','traffic'].includes(g.name.trim().toLowerCase()))"
+                            :key="group.name"
+                            size="small"
+                            type="info"
+                          >
+                            {{ group.friendlyName }}
+                          </NTag>
+                        </NSpace>
+                      </div>
+                      <div class="info-item" style="margin-top: -1px;">
+                        <NSpace wrap>
+                          <NTag v-if="supportsTcp(node)" type="success" size="small">TCP</NTag>
+                          <NTag v-if="supportsUdp(node)" type="success" size="small">UDP</NTag>
+                          <NTag v-if="supportsHttp(node)" type="success" size="small">HTTP</NTag>
+                          <NTag v-if="supportsHttps(node)" type="success" size="small">HTTPS</NTag>
+                        </NSpace>
+                      </div>
+                      <div class="info-item" style="margin-top: -1px;">
+                        <NSpace wrap>
+                          <NTag type="warning" size="small">
+                            {{ node.portRange.min }} - {{ node.portRange.max }}
+                          </NTag>
+                          <NTag type="info" size="small">
+                            {{ node.bandWidth }} Mbps
+                          </NTag>
+                          <NTag v-if="node.needRealname" type="info" size="small">
+                            实名
+                          </NTag>
+                        </NSpace>
+                      </div>
                     </NSpace>
-                  </div>
-                </NSpace>
-              </NCard>
-            </NGridItem>
-          </NGrid>
-          
-          <!-- 无结果提示 -->
-          <div v-if="filteredNodes.length === 0" class="no-results">
-            <NEmpty description="没有找到符合条件的节点" />
-          </div>
+                  </NCard>
+                </NGridItem>
+              </NGrid>
+              <div v-if="filteredNodes.filter(n => n.location === 'out').length === 0" class="no-results">
+                <NEmpty description="没有找到符合条件的节点" />
+              </div>
+            </NCollapseItem>
+          </NCollapse>
         </NSpace>
       </NSpin>
     </NCard>
@@ -286,7 +381,7 @@
 
 <script setup lang="ts">
 import { ref, h, computed, onMounted, watch, watchEffect } from 'vue'
-import { NCard, NForm, NFormItem, NInput, NInputNumber, NSelect, NButton, NIcon, useMessage, type FormRules, type FormInst, NDivider, NSwitch, NTag, NSpace, NText, NGrid, NGridItem, NDynamicTags, NModal, NEmpty, NSpin} from 'naive-ui'
+import { NCard, NForm, NFormItem, NInput, NInputNumber, NSelect, NButton, NIcon, useMessage, type FormRules, type FormInst, NDivider, NSwitch, NTag, NSpace, NText, NGrid, NGridItem, NDynamicTags, NModal, NEmpty, NSpin, NCollapse, NCollapseItem} from 'naive-ui'
 import { CloudUploadOutline, SearchOutline } from '@vicons/ionicons5'
 import { switchButtonRailStyle } from '@/constants/theme.ts'
 import { useRouter } from 'vue-router'
@@ -301,7 +396,8 @@ const nodeLoading = ref(false)
 
 // 新增搜索和区域筛选
 const searchQuery = ref('')
-const selectedRegion = ref('all') // 'all', 'cn', 'cn-out', 'out'
+// 删除区域筛选相关变量
+// const selectedRegion = ref('all') // 'all', 'cn', 'cn-out', 'out'
 const selectedGroup = ref('all') // 新增：'all' 或 groupNameMap 的 key
 const selectedProtocols = ref<string[]>([])
 
@@ -352,66 +448,41 @@ const nodeOptions = ref<{
     max: number
   }
 }[]>([])
-
-// 添加区域名称获取函数
-const getRegionName = (location: string) => {
-  switch (location) {
-    case 'cn':
-      return '中国大陆'
-    case 'cn-out':
-      return '中国港澳台'
-    case 'out':
-      return '海外'
-    default:
-      return '未知区域'
-  }
-}
-
-// 添加区域标签类型获取函数
-const getRegionTagType = (location: string) => {
-  switch (location) {
-    case 'cn':
-      return 'info'
-    case 'cn-out':
-      return 'warning'
-    case 'out':
-      return 'error'
-    default:
-      return 'default'
-  }
-}
-
 // 添加过滤节点的计算属性
 const filteredNodes = computed(() => {
-  return nodeOptions.value.filter(node => {
-    // 区域筛选
-    if (selectedRegion.value !== 'all' && node.location !== selectedRegion.value) {
-      return false
-    }
-    // 用户组多选筛选
-    if (!selectedGroup.value.includes('all')) {
-      const groupNames = node.allowGroups.map(g => g.name)
-      if (!groupNames.some(name => selectedGroup.value.includes(name))) {
-        return false
+  return nodeOptions.value
+    .filter(node => {
+      // 用户组多选筛选
+      if (!selectedGroup.value.includes('all')) {
+        const groupNames = node.allowGroups.map(g => g.name)
+        if (!groupNames.some(name => selectedGroup.value.includes(name))) {
+          return false
+        }
       }
-    }
-    // 协议多选筛选
-    if (selectedProtocols.value.length > 0) {
-      if (!selectedProtocols.value.some(protocol => node.allowedProtocols.includes(protocol))) {
-        return false
+      // 协议多选筛选
+      if (selectedProtocols.value.length > 0) {
+        if (!selectedProtocols.value.some(protocol => node.allowedProtocols.includes(protocol))) {
+          return false
+        }
       }
-    }
-    // 搜索筛选
-    if (searchQuery.value) {
-      const query = searchQuery.value.toLowerCase()
-      return (
-        node.name.toLowerCase().includes(query) ||
-        node.description.toLowerCase().includes(query) ||
-        node.id.toString().includes(query)
-      )
-    }
-    return true
-  })
+      // 搜索筛选
+      if (searchQuery.value) {
+        const query = searchQuery.value.toLowerCase()
+        return (
+          node.name.toLowerCase().includes(query) ||
+          node.description.toLowerCase().includes(query) ||
+          node.id.toString().includes(query)
+        )
+      }
+      return true
+    })
+    .sort((a, b) => {
+      // 在线优先，ID升序
+      if (a.isOnline !== b.isOnline) {
+        return a.isOnline ? -1 : 1
+      }
+      return a.id - b.id
+    })
 })
 
 // 添加协议支持检查函数
@@ -724,6 +795,9 @@ watch(showRealnameModal, (newVal) => {
 watchEffect(() => {
   console.log('groupNameMap', groupNameMap.value)
 })
+
+// 折叠篮默认展开中国大陆
+const expandedRegion = ref(['cn'])
 </script>
 
 <style lang="scss" scoped>
@@ -873,8 +947,8 @@ watchEffect(() => {
 }
 
 .node-offline {
-  filter: grayscale(0.3);
-  opacity: 0.7;
+  filter: grayscale(0.4);
+  opacity: 0.5;
 }
 
 .node-tags :deep(.n-tag) {
@@ -884,7 +958,7 @@ watchEffect(() => {
 .filter-row {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 30px;
   width: 100%;
   min-width: 0;
   flex-wrap: nowrap;
