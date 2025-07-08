@@ -587,9 +587,9 @@ const rules: FormRules = {
     message: '请输入节点名称',
     trigger: ['blur', 'input']
   },
-  hostname: {
+  ip: {
     required: true,
-    message: '请输入主机名地址',
+    message: '请输入IP地址',
     trigger: ['blur', 'input']
   },
   token: {

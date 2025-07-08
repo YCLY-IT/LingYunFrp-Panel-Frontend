@@ -61,6 +61,7 @@ export interface UpdateUserParams {
   point?: number;
   isRealname?: boolean;
   remainder?: number;
+  reason?: string;
 }
 
 export interface ToggleUserParams {
