@@ -188,6 +188,7 @@
 
 <script setup lang="ts">
 import packageData from '../../package.json'
+import { BING_BG_URL } from '@/constants/bing'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import {
   ZapIcon,
@@ -366,6 +367,15 @@ const scrollToFeatures = () => {
   }
 }
 
+onMounted(() => {
+  const bgUrl = BING_BG_URL
+  const loginEl = document.querySelector('.hero') as HTMLElement
+  if (loginEl) {
+    loginEl.style.backgroundImage = `url('${bgUrl}')`
+    loginEl.style.backgroundSize = 'cover'
+    loginEl.style.backgroundPosition = 'center'
+  }
+})
 </script>
 
 <style lang="scss" scoped>
@@ -383,7 +393,6 @@ const scrollToFeatures = () => {
   // 英雄区域样式
   .hero {
     padding: 125px 0;
-    background-image: url('https://dailybing.com/api/v1');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
