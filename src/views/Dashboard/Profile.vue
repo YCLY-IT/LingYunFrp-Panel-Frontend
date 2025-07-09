@@ -152,29 +152,64 @@
       <!-- 更改头像模态窗口 -->
       <n-modal v-model:show="modals.changeAvatar" preset="card" title="更改头像" style="width: 500px;">
         <n-form ref="avatarFormRef" :model="forms.avatar">
-          <n-form-item label="上传头像" path="avatarUrl">
-            <n-upload
-              @before-upload="handleBeforeUpload"
-              v-model:file-list="forms.avatar.avatarFile"
-              accept="image/*"
-              list-type="image-card"
-              :max="1"
-            >
-            </n-upload>
-          </n-form-item>
+          <n-tabs v-model:value="forms.avatar.avatarMode">
+            <n-tab-pane name="upload" tab="上传图片">
+              <n-form-item label="上传头像" path="avatarUrl">
+                <n-upload
+                  @before-upload="handleBeforeUpload"
+                  v-model:file-list="forms.avatar.avatarFile"
+                  accept="image/*"
+                  list-type="image-card"
+                  :max="1"
+                >
+                </n-upload>
+              </n-form-item>
+            </n-tab-pane>
+            <n-tab-pane name="qq" tab="QQ 头像">
+              <n-form-item label="QQ号">
+                <n-input v-model:value="forms.avatar.qqNumber" placeholder="请输入QQ号" />
+              </n-form-item>
+            </n-tab-pane>
+            <n-tab-pane name="cravatar" tab="Cravatar">
+              <n-form-item label="邮箱">
+                <n-input :value="UserInfo.email" disabled />
+              </n-form-item>
+            </n-tab-pane>
+          </n-tabs>
           <n-form-item label="预览">
             <div class="avatar-preview">
-              <div 
-                :style="{
-                  backgroundImage: `url(${forms.avatar.avatarUrl})`,
-                  borderRadius: '50%',
-                  width: '100px',
-                  height: '100px',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                }"
-                alt="Avatar Preview"
-              />
+              <template v-if="forms.avatar.avatarMode === 'upload'">
+                <div 
+                  :style="{
+                    backgroundImage: `url(${forms.avatar.avatarUrl})`,
+                    borderRadius: '50%',
+                    width: '100px',
+                    height: '100px',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                  }"
+                  alt="Avatar Preview"
+                />
+              </template>
+              <template v-else-if="forms.avatar.avatarMode === 'qq' && forms.avatar.qqNumber">
+                <img :src="`https://q1.qlogo.cn/g?b=qq&nk=${forms.avatar.qqNumber}&s=640`" style="width:100px;height:100px;border-radius:50%;object-fit:cover;" />
+              </template>
+              <template v-else-if="forms.avatar.avatarMode === 'cravatar'">
+                <img :src="`https://cravatar.cn/avatar/${md5(UserInfo.email)}?s=100`" style="width:100px;height:100px;border-radius:50%;object-fit:cover;" />
+              </template>
+              <template v-else>
+                <div 
+                  :style="{
+                    backgroundImage: `url(${UserInfo.avatar})`,
+                    borderRadius: '50%',
+                    width: '100px',
+                    height: '100px',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                  }"
+                  alt="当前头像"
+                />
+              </template>
             </div>
           </n-form-item>
           <div class="modal-actions">
@@ -278,16 +313,20 @@ import {
   NForm, 
   NFormItem, 
   NInput, 
-  useMessage 
+  useMessage,
+  NTabs,
+  NTabPane,
+  NUpload,
+  UploadFileInfo
 } from 'naive-ui'
 import { UserIcon, ImageUpIcon, LockIcon, BadgeCheckIcon } from 'lucide-vue-next'
 import userInfo from "../../components/UserInfo.vue";
-import { UploadFileInfo } from 'naive-ui'
 import { userApi } from '../../net'
 import { removeToken } from '../../net/token'
 import Statistic from '@/components/Statistic.vue';
 import { Cropper, CircleStencil } from 'vue-advanced-cropper'
 import 'vue-advanced-cropper/dist/style.css'
+import md5 from 'blueimp-md5'
 
 const userInfoRef = ref<InstanceType<typeof userInfo>>();
 
@@ -321,8 +360,11 @@ const forms = reactive({
     emailCode: ''
   },
   avatar: {
+    avatarMode: 'upload', // 新增，'upload' | 'qq' | 'cravatar'
     avatarUrl: UserInfo.avatar || '',
-    avatarFile: [] as UploadFileInfo[]
+    avatarFile: [] as UploadFileInfo[],
+    qqNumber: '', // 新增
+    cravatarAccount: '' // 新增
   },
   password: {
     currentPassword: '',
@@ -582,23 +624,38 @@ const handleCropConfirm = () => {
 }
 
 const handleChangeAvatar = async () => {
-  if (!forms.avatar.avatarFile || forms.avatar.avatarFile.length === 0) {
-    message.error('请先上传头像')
-    return
+  let params: any = { mode: forms.avatar.avatarMode }
+  if (forms.avatar.avatarMode === 'upload') {
+    if (!forms.avatar.avatarFile || forms.avatar.avatarFile.length === 0) {
+      message.error('请先上传头像')
+      return
+    }
+    const file = forms.avatar.avatarFile[0].file as File
+    if (!file) {
+      message.error('请先选择头像文件')
+      return
+    }
+    const formData = new FormData()
+    formData.append('mode', 'upload')
+    formData.append('avatar', file)
+    params = formData
+  } else if (forms.avatar.avatarMode === 'qq') {
+    if (!forms.avatar.qqNumber) {
+      message.error('请输入QQ号')
+      return
+    }
+    params = { mode: 'qq', qq: forms.avatar.qqNumber }
+  } else if (forms.avatar.avatarMode === 'cravatar') {
+    if (!UserInfo.email) {
+      message.error('未获取到邮箱，无法使用Cravatar')
+      return
+    }
+    params = { mode: 'cravatar', cravatar: md5(UserInfo.email) }
   }
-  
-  const file = forms.avatar.avatarFile[0].file as File
-  if (!file) {
-    message.error('请先选择头像文件')
-    return
-  }
-  
-  const formData = new FormData()
-  formData.append('avatar', file)
   loading.value = true
   try {
     message.loading('正在上传头像...')
-    const data = await userApi.updateAvatar(formData)
+    const data = await userApi.updateAvatar(params)
     if (data.code === 0) {
       localStorage.setItem('avatar', data.data)
       message.success(data.message)

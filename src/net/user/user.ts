@@ -215,12 +215,15 @@ export async function updateNickname(nickname: string): Promise<UpdateNicknameRe
 }
 
 // 更新头像
-export async function updateAvatar(formData: FormData): Promise<UpdateAvatarResponse> {
-  return await post<UpdateAvatarResponse>('/user/update/avatar', formData, {
-    headers: { 
-      Authorization: getToken(),
-      'Content-Type': 'multipart/form-data',
-    }});
+export async function updateAvatar(data: any): Promise<UpdateAvatarResponse> {
+  let headers: Record<string, string> = {
+    Authorization: getToken() || ''
+  };
+  // 如果是 FormData，设置 multipart/form-data
+  if (data instanceof FormData) {
+    headers['Content-Type'] = 'multipart/form-data';
+  }
+  return await post<UpdateAvatarResponse>('/user/update/avatar', data, { headers });
 }
 
 // 更新密码
