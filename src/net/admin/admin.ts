@@ -112,14 +112,14 @@ export async function deleteProxy(id: number): Promise<CodeResponse> {
   });
 }
 
-export async function toggleProxy(id: number, status: number): Promise<CodeResponse> {
-  return await post<CodeResponse>(`/admin/proxy/toggle/${id}`, { status }, {
+export async function toggleProxy(id: number, isDisabled: boolean): Promise<CodeResponse> {
+  return await post<CodeResponse>(`/admin/proxy/toggle/${id}`, { isDisabled }, {
     headers: { Authorization: getToken() }
   });
 }
 
-export async function banProxy(id: number): Promise<CodeResponse> {
-  return await post<CodeResponse>(`/admin/proxy/ban/${id}`, {}, {
+export async function banProxy(id: number, isBanned: boolean): Promise<CodeResponse> {
+  return await post<CodeResponse>(`/admin/proxy/ban/${id}`, {isBanned}, {
     headers: { Authorization: getToken() }
   });
 }

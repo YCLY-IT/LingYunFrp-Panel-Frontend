@@ -179,6 +179,13 @@ export interface UpdateProxyParams {
   remotePort?: number;
   nodeId?: number;
   status?: number;
+  hostHeaderRewrite?: string;
+  headerXFromWhere?: string;
+  useEncryption?: boolean;
+  useCompression?: boolean;
+  proxyProtocolVersion?: string;
+  // 还有 domain 字段
+  domain?: string;
 }
 
 // 产品管理相关类型

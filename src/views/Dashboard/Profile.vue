@@ -444,7 +444,7 @@ const rules = {
     ],
     idCard: [
       { required: true, message: '请输入身份证号', trigger: 'blur' },
-      { pattern: /^[1-9]\d{5}(18|19)\d{8}[\dXx]$/, message: '请输入有效的身份证号', trigger: 'blur' }
+      { pattern: /^[1-9]\d{5}(18|19|20)\d{2}\d{2}\d{2}\d{3}[\dXx]$/, message: '请输入有效的身份证号', trigger: 'blur' }
     ]
   },
 }

@@ -740,8 +740,13 @@ const handleCreate = async () => {
       useCompression: formValue.value.useCompression
     }
     const data = await userApi.createTunnel(requestData)
-    message.success(data.message || '创建成功')
-    formRef.value?.restoreValidation()
+    if (data.code !== 0) {
+      message.error(data.message || '创建失败')
+      return
+    } else{
+      message.success(data.message || '创建成功')
+      formRef.value?.restoreValidation()
+    }
     // 关闭所有弹窗
     showCreateConfirmModal.value = false
     showConfigModal.value = false

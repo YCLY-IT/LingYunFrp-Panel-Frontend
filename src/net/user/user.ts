@@ -48,7 +48,11 @@ export async function sendEmailCode(email: string, module: string): Promise<Code
 }
 
 export async function sendSmsCode(phone: string, module: string): Promise<CodeResponse> {
-    return await post<CodeResponse>(`/user/code/${module}`, { phone });
+    return await post<CodeResponse>(`/user/code/${module}`, { phone },{
+      headers: {
+        Authorization: getToken()
+      }
+    });
 }
   
 export async function register(params: RegisterParams): Promise<CodeResponse> {
