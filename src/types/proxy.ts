@@ -29,7 +29,7 @@ export interface Proxy {
     /** 隧道所属用户名 */
     username?: string;
     /** 隧道是否被禁用 */
-    isDisabled?: boolean;
+    isDisabled: boolean;
     location: string;
     accessKey: string;
     lastStartTime: number;

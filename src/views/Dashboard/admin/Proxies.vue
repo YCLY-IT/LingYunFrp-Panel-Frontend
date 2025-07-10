@@ -268,6 +268,7 @@ const editForm = ref<Proxy>({
   proxyType: '',
   isOnline: false,
   isBanned: false,
+  isDisabled: false,
   location: '',
   accessKey: '',
   lastStartTime: 0,
@@ -429,10 +430,11 @@ const renderStatus = (row: Proxy) => {
 const handleToggleProxy = async (proxy: Proxy) => {
   if (!proxy) return
   try {
-    const data = await adminApi.toggleProxy(proxy.proxyId, proxy.isDisabled ? 0 : 1)
+    const data = await adminApi.toggleProxy(proxy.proxyId, proxy.isDisabled)
     if (data.code === 0) {
       proxy.isDisabled = !proxy.isDisabled
       message.success(proxy.isDisabled ? '禁用隧道成功' : '启用隧道成功')
+      showToggleModal.value = false
     } else {
       message.error(data.message || '操作失败')
     }
@@ -649,26 +651,28 @@ const handleBanProxy = async (proxy: Proxy) => {
   if (!proxy) return
   try {
     if (proxy.isBanned) {
-      const data = await adminApi.toggleProxy(proxy.proxyId, 0)
+      const data = await adminApi.banProxy(proxy.proxyId, !proxy.isBanned)
       if (data.code === 0) {
         message.success('解封隧道成功')
-        proxy.isBanned = false
-        loadData()
+        showBanModal.value = false
+        setTimeout( ()=> {
+          loadData()
+        }, 50)
       } else {
         message.error(data.message || '解封失败')
       }
     } else {
-      const data = await adminApi.toggleProxy(proxy.proxyId, 1)
+      const data = await adminApi.banProxy(proxy.proxyId, !proxy.isBanned)
       if (data.code === 0) {
         message.success('封禁隧道成功')
-        proxy.isBanned = true
+        showBanModal.value = false
         loadData()
       } else {
         message.error(data.message || '封禁失败')
       }
     }
   } catch (error: any) {
-    message.error(error?.response?.data?.message || '操作失败')
+    message.error(error.message || '操作失败')
   }
 }
 
@@ -712,7 +716,15 @@ const handleEditSubmit = async () => {
         localIp: editForm.value.localIp,
         localPort: editForm.value.localPort,
         remotePort: editForm.value.remotePort,
-        nodeId: editForm.value.nodeId
+        nodeId: editForm.value.nodeId,
+        // 高级配置字段补全
+        hostHeaderRewrite: editForm.value.hostHeaderRewrite,
+        headerXFromWhere: editForm.value.headerXFromWhere,
+        useEncryption: editForm.value.useEncryption,
+        useCompression: editForm.value.useCompression,
+        proxyProtocolVersion: editForm.value.proxyProtocolVersion,
+        // 还有 domain 字段
+        domain: editForm.value.domain
       })
       if (data.code === 0) {
         message.success('更新隧道成功')
@@ -722,7 +734,7 @@ const handleEditSubmit = async () => {
         message.error(data.message || '更新失败')
       }
     } catch (error: any) {
-      message.error(error?.response?.data?.message || '更新失败')
+      message.error(error.message || '更新失败')
     } finally {
       submitting.value = false
     }
