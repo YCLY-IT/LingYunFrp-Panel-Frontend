@@ -91,7 +91,7 @@ export interface UserInfoData {
 
 export interface SignData {
   point: number
-  traffc: number
+  traffic: number
 }
 
 export interface StatusData {
