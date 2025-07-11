@@ -36,6 +36,7 @@ import {
   updateAvatar,
   updatePassword,
   submitRealname,
+  resetToken,
 } from './user/user'
 import {
   getUserList,
@@ -114,6 +115,7 @@ const userApi = {
   updateAvatar,
   updatePassword,
   submitRealname,
+  resetToken,
 }
 
 const adminApi = {
