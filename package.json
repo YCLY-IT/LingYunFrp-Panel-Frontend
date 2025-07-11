@@ -4,7 +4,7 @@
   "title2": "凌云FRP",
   "github": "https://github.com/YCLY-IT",
   "ycly": "https://www.ycly.net",
-  "version": "0.2.12",
+  "version": "0.2.13",
   "private": true,
   "type": "module",
   "scripts": {
@@ -46,9 +46,6 @@
     "vite-plugin-vue-devtools": "^7.7.7"
   },
   "captcha": {
-    "Captcha_Id_Sign": "3d50aa28e8c6b6cde77ada0b638b9594",
-    "Captcha_Id_Login": "3d50aa28e8c6b6cde77ada0b638b9594",
-    "Captcha_Id_Register": "3d50aa28e8c6b6cde77ada0b638b9594",
-    "Captcha_Id_Foget": "3d50aa28e8c6b6cde77ada0b638b9594"
+    "Captcha": "3d50aa28e8c6b6cde77ada0b638b9594"
   }
 }

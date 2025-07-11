@@ -327,6 +327,8 @@ import Statistic from '@/components/Statistic.vue';
 import { Cropper, CircleStencil } from 'vue-advanced-cropper'
 import 'vue-advanced-cropper/dist/style.css'
 import md5 from 'blueimp-md5'
+import { GeetestService, loadGeetest } from '@/utils/captcha'
+import packageData from '@/../package.json'
 
 const userInfoRef = ref<InstanceType<typeof userInfo>>();
 
@@ -478,6 +480,10 @@ const cropperImg = ref('')
 const cropperVisible = ref(false)
 const cropperRef = ref()
 
+// 验证码相关状态
+const captchaLoading = ref(false)
+const captchaVerified = ref(false)
+
 // 显示模态窗口
 const showModal = (modalName) => {
   modals[modalName] = true
@@ -525,26 +531,41 @@ const sendEmailVerificationCode = async (model: string, email: string) => {
     return
   }
   
-  emailCodeSending.value = true
-  
+  // 先进行人机验证
+  captchaLoading.value = true
   try {
-    const data = await userApi.sendEmailCode(email, model)
-    if (data.code === 0) {
-      message.success('验证码发送成功')
-      emailCodeCountdown.value = 60
-      const timer = setInterval(() => {
-        emailCodeCountdown.value--
-        if (emailCodeCountdown.value <= 0) {
-          clearInterval(timer)
+    const geetestService = new GeetestService(packageData.captcha.Captcha)
+    const result = await geetestService.initAndShowCaptchaForBind()
+    if (result) {
+      captchaVerified.value = true
+      
+      // 人机验证通过后发送邮件验证码
+      emailCodeSending.value = true
+      try {
+        const url = `?lotNumber=${result.lot_number}&passToken=${result.pass_token}&genTime=${result.gen_time}&captchaOutput=${result.captcha_output}`
+        const data = await userApi.sendEmailCode(email, model, url)
+        if (data.code === 0) {
+          message.success('验证码发送成功')
+          emailCodeCountdown.value = 60
+          const timer = setInterval(() => {
+            emailCodeCountdown.value--
+            if (emailCodeCountdown.value <= 0) {
+              clearInterval(timer)
+            }
+          }, 1000)
+        } else {
+          message.error(data.message || '验证码发送失败')
         }
-      }, 1000)
-    } else {
-      message.error(data.message || '验证码发送失败')
+      } catch (error: any) {
+        message.error(error.message || '验证码发送失败')
+      } finally {
+        emailCodeSending.value = false
+      }
     }
-  } catch (error: any) {
-    message.error(error.message || '验证码发送失败')
+  } catch (error) {
+    message.error('人机验证失败，请重试')
   } finally {
-    emailCodeSending.value = false
+    captchaLoading.value = false
   }
 }
 
@@ -764,31 +785,49 @@ const handleSendPhoneCode = async () => {
     return
   }
   
-  phoneCodeSending.value = true
-  
+  // 先进行人机验证
+  captchaLoading.value = true
   try {
-    const data = await userApi.sendSmsCode(forms.realname.phone, "realname")
-    if (data.code === 0) {
-      message.success('验证码已发送')
-      phoneCodeCountdown.value = 60
-      const timer = setInterval(() => {
-        phoneCodeCountdown.value--
-        if (phoneCodeCountdown.value <= 0) {
-          clearInterval(timer)
+    const geetestService = new GeetestService(packageData.captcha.Captcha)
+    const result = await geetestService.initAndShowCaptchaForBind()
+    if (result) {
+      captchaVerified.value = true
+      
+      // 人机验证通过后发送手机验证码
+      phoneCodeSending.value = true
+      try {
+        const url = `?lotNumber=${result.lot_number}&passToken=${result.pass_token}&genTime=${result.gen_time}&captchaOutput=${result.captcha_output}`
+        const data = await userApi.sendSmsCode(forms.realname.phone, "realname", url)
+        if (data.code === 0) {
+          message.success('验证码已发送')
+          phoneCodeCountdown.value = 60
+          const timer = setInterval(() => {
+            phoneCodeCountdown.value--
+            if (phoneCodeCountdown.value <= 0) {
+              clearInterval(timer)
+            }
+          }, 1000)
+        } else {
+          message.error(data.message || '验证码发送失败') 
         }
-      }, 1000)
-    } else {
-      message.error(data.message || '验证码发送失败') 
+      } catch (error: any) {
+        message.error(error.message || '验证码发送失败') 
+      } finally {
+        phoneCodeSending.value = false
+      }
     }
-  } catch (error: any) {
-    message.error(error.message || '验证码发送失败') 
+  } catch (error) {
+    message.error('人机验证失败，请重试')
   } finally {
-    phoneCodeSending.value = false
+    captchaLoading.value = false
   }
 }
 
 // 组件卸载时清理
-onMounted(() => {
+onMounted(async () => {
+  // 加载极验脚本
+  await loadGeetest()
+  
   return () => {
     if (cropperRef.value) {
       cropperRef.value.destroy()

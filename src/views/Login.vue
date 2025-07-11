@@ -18,18 +18,6 @@
           <NInput v-model:value="formValue.password" type="password" placeholder="请输入密码" 
                   show-password-on="click" />
         </NFormItem>
-        <!-- 新增验证码按钮 -->
-        <NFormItem>
-          <NButton 
-            type="primary" 
-            @click="onCaptchaButtonClick"
-            :loading="captchaLoading"
-            :disabled="captchaVerified"
-            block
-          >
-            {{ captchaVerified ? '已验证' : '进行人机验证' }}
-          </NButton>
-        </NFormItem>
         <div class="checkbox-forgot">
           <NCheckbox v-model:checked="formValue.remember">记住密码</NCheckbox>
           <router-link to="/forget" class="forgot-link">忘记密码？</router-link>
@@ -53,7 +41,6 @@ import { NForm, NFormItem, NInput, NButton, NCard, NIcon, type FormRules, useMes
 import { LogInOutline } from '@vicons/ionicons5'
 import { userApi } from '@/net'
 import { BING_BG_URL } from '@/constants/bing'
-import { GeetestService, loadGeetest } from '@/utils/captcha'
 import packageData from '@/../package.json'
 
 const router = useRouter()
@@ -79,41 +66,18 @@ const rules: FormRules = {
   }
 }
 
-// 新增响应式状态
-const captchaLoading = ref(false)
-const captchaVerified = ref(false)
-let geetestResult: GeetestResult | null = null
-
-// 分离验证码获取逻辑
-const onCaptchaButtonClick = async () => {
-  captchaLoading.value = true
-  const geetestService = new GeetestService(packageData.captcha.Captcha_Id_Login);
-  const result = await geetestService.initAndShowCaptchaForBind();
-  if (result) {
-    geetestResult = result
-    captchaVerified.value = true
-  } else {
-    message.error('验证失败')
-  }
-  captchaLoading.value = false
-}
-
-// 修改原登录按钮逻辑
+// 登录按钮逻辑
 const onLoginButtonClick = async () => {
-  if (!captchaVerified.value || !geetestResult) {
-    message.error('请先完成验证码验证')
-    return
-  }
   loading.value = true
   try {
     await formRef.value?.validate()
-    await handleSubmit(geetestResult!)
+    await handleSubmit()
   } finally {
     loading.value = false
   }
 }
 
-const handleSubmit = async (geetestResult: GeetestResult) => {
+const handleSubmit = async () => {
   await formRef.value?.validate()
   loading.value = true
   try {
@@ -121,7 +85,7 @@ const handleSubmit = async (geetestResult: GeetestResult) => {
       username: formValue.value.username,
       password: formValue.value.password,
       remember: formValue.value.remember,
-      url: `?lotNumber=${geetestResult.lot_number}&passToken=${geetestResult.pass_token}&genTime=${geetestResult.gen_time}&captchaOutput=${geetestResult.captcha_output}`
+      url: ''
     })
     localStorage.setItem('username', data.data.username)
     localStorage.setItem('nickname', data.data.nickname)
@@ -135,16 +99,11 @@ const handleSubmit = async (geetestResult: GeetestResult) => {
   } catch (error: any) {
     message.error(error.message || '登录失败')
     loading.value = false
-    captchaVerified.value = false
-    message.warning('请重新进行人机验证')
-    // 不自动弹窗，用户需手动点击
   } finally {
     loading.value = false
   }
 }
-onMounted(async () => {
-  // 加载极验脚本
-  await loadGeetest()
+onMounted(() => {
   // 动态设置Bing背景
   const bgUrl = BING_BG_URL
   const loginEl = document.querySelector('.login') as HTMLElement
