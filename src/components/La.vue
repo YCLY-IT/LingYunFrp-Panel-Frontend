@@ -25,7 +25,10 @@
 -->
 
 <template>
-  <div class="statistic-container" :class="{ 'expanded': isExpanded, 'dark-mode': isDarkMode }">
+  <div
+    class="statistic-container"
+    :class="{ expanded: isExpanded, 'dark-mode': isDarkMode }"
+  >
     <div class="statistic-bar" @click="toggleExpand">
       <div class="statistic-content" ref="statisticContent">
         <div v-if="loading" class="loading">
@@ -40,23 +43,36 @@
         </div>
         <div v-else class="statistic-items">
           <!-- 默认显示前3个统计项 -->
-          <div v-for="(index, i) in visibleDisplayOrder" :key="i" class="statistic-item">
+          <div
+            v-for="(index, i) in visibleDisplayOrder"
+            :key="i"
+            class="statistic-item"
+          >
             <span class="statistic-title">{{ props.titles[index] }}</span>
-            <span class="statistic-value">{{ statisticData[index] || '0' }}</span>
+            <span class="statistic-value">{{
+              statisticData[index] || '0'
+            }}</span>
           </div>
           <!-- 展开时显示全部 -->
-          <div v-if="isExpanded" v-for="(index, i) in hiddenDisplayOrder" :key="`hidden-${i}`" class="statistic-item">
+          <div
+            v-if="isExpanded"
+            v-for="(index, i) in hiddenDisplayOrder"
+            :key="`hidden-${i}`"
+            class="statistic-item"
+          >
             <span class="statistic-title">{{ props.titles[index] }}</span>
-            <span class="statistic-value">{{ statisticData[index] || '0' }}</span>
+            <span class="statistic-value">{{
+              statisticData[index] || '0'
+            }}</span>
           </div>
         </div>
       </div>
-      
+
       <div v-if="showFooter" class="statistic-footer">
         <span>统计：</span>
         <a href="https://v6.51.la/" target="_blank" rel="noopener">51la</a>
       </div>
-      
+
       <!-- 展开/收起指示器 -->
       <div class="expand-indicator">
         <n-icon :size="12" :depth="3">
@@ -69,7 +85,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed, inject, Ref } from 'vue'
-import { AlertCircleIcon, ChevronUpIcon, ChevronDownIcon } from 'lucide-vue-next'
+import {
+  AlertCircleIcon,
+  ChevronUpIcon,
+  ChevronDownIcon,
+} from 'lucide-vue-next'
 import { getLaStatistic } from '@/net/user/user'
 
 // 组件属性定义
@@ -87,13 +107,21 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   showFooter: true,
   displayOrder: () => [1, 3, 2, 4, 5], // 默认显示：今日人数、昨日人数、今日访问、昨日访问、本月访问
-  titles: () => ['最近活跃访客', '今日人数', '今日访问', '昨日人数', '昨日访问', '本月访问', '总访问量'],
-  apiUrl: 'https://v6-widget.51.la/v6/3MYttaE5F5kzUqrF/quote.js'
+  titles: () => [
+    '最近活跃访客',
+    '今日人数',
+    '今日访问',
+    '昨日人数',
+    '昨日访问',
+    '本月访问',
+    '总访问量',
+  ],
+  apiUrl: 'https://v6-widget.51.la/v6/3MYttaE5F5kzUqrF/quote.js',
 })
 
 // 注入主题状态
 const { isDarkMode } = inject('theme', {
-  isDarkMode: ref(false)
+  isDarkMode: ref(false),
 }) as {
   isDarkMode: Ref<boolean>
 }
@@ -134,7 +162,7 @@ onMounted(async () => {
   try {
     loading.value = true
     error.value = false
-    
+
     const data = await fetchStatisticData()
     if (data) {
       statisticData.value = data
@@ -158,14 +186,14 @@ onMounted(async () => {
   transform: translateX(-50%);
   z-index: 1000;
   transition: all 0.3s ease;
-  
+
   &.expanded {
     .statistic-bar {
       max-width: 600px;
       min-width: 500px;
     }
   }
-  
+
   .statistic-bar {
     display: flex;
     align-items: center;
@@ -180,93 +208,93 @@ onMounted(async () => {
     transition: all 0.3s ease;
     max-width: 500px;
     min-width: 400px;
-    
+
     &:hover {
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
       transform: translateY(-1px);
     }
   }
-  
+
   // 暗黑模式下的样式 - 使用动态类名
   &.dark-mode .statistic-bar {
     background-color: #18181c !important;
     border-color: rgba(255, 255, 255, 0.1) !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-    
+
     &:hover {
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4) !important;
     }
-    
+
     .loading,
     .error {
       color: rgba(240, 240, 240, 0.7) !important;
     }
-    
+
     .statistic-items .statistic-item .statistic-title {
       color: rgba(240, 240, 240, 0.7) !important;
     }
-    
+
     .expand-indicator {
       color: rgba(240, 240, 240, 0.7) !important;
     }
   }
-  
+
   // 暗黑模式下的样式 - 使用媒体查询
   @media (prefers-color-scheme: dark) {
     .statistic-bar {
       background-color: #18181c !important;
       border-color: rgba(255, 255, 255, 0.1) !important;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-      
+
       &:hover {
         box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4) !important;
       }
-      
+
       .loading,
       .error {
         color: rgba(240, 240, 240, 0.7) !important;
       }
-      
+
       .statistic-items .statistic-item .statistic-title {
         color: rgba(240, 240, 240, 0.7) !important;
       }
-      
+
       .expand-indicator {
         color: rgba(240, 240, 240, 0.7) !important;
       }
     }
   }
-  
+
   // 暗黑模式下的样式 - 使用Naive UI的类名
   :deep(.n-theme-dark) .statistic-bar {
     background-color: #18181c !important;
     border-color: rgba(255, 255, 255, 0.1) !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-    
+
     &:hover {
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4) !important;
     }
-    
+
     .loading,
     .error {
       color: rgba(240, 240, 240, 0.7) !important;
     }
-    
+
     .statistic-items .statistic-item .statistic-title {
       color: rgba(240, 240, 240, 0.7) !important;
     }
-    
+
     .expand-indicator {
       color: rgba(240, 240, 240, 0.7) !important;
     }
   }
-  
+
   .statistic-content {
     flex: 1;
     display: flex;
     align-items: center;
     height: 100%;
-    
+
     .loading,
     .error {
       display: flex;
@@ -276,57 +304,57 @@ onMounted(async () => {
       font-size: 14px;
       height: 100%;
     }
-    
+
     .statistic-items {
       display: flex;
       align-items: center;
       gap: 20px;
       height: 100%;
       flex-wrap: wrap;
-      
+
       .statistic-item {
         display: flex;
         align-items: center;
         gap: 6px;
         height: 100%;
         white-space: nowrap;
-        
+
         .statistic-title {
           font-size: 13px;
           color: #666666;
           line-height: 1;
         }
-        
+
         .statistic-value {
           font-size: 13px;
           font-weight: 600;
-          color: #73A6FF;
+          color: #73a6ff;
           line-height: 1;
         }
       }
     }
   }
-  
+
   .statistic-footer {
     display: flex;
     align-items: center;
     gap: 4px;
     font-size: 12px;
-    color: #73A6FF;
+    color: #73a6ff;
     margin-left: 16px;
     white-space: nowrap;
-    
+
     a {
-      color: #73A6FF;
+      color: #73a6ff;
       text-decoration: none;
       transition: color 0.2s ease;
-      
+
       &:hover {
-        color: #8CAEFF;
+        color: #8caeff;
       }
     }
   }
-  
+
   .expand-indicator {
     display: flex;
     align-items: center;
@@ -340,43 +368,43 @@ onMounted(async () => {
 @media (max-width: 768px) {
   .statistic-container {
     bottom: 15px;
-    
+
     &.expanded {
       .statistic-bar {
         max-width: 400px;
         min-width: 350px;
       }
     }
-    
+
     .statistic-bar {
       height: 36px;
       padding: 0 16px;
       max-width: 350px;
       min-width: 300px;
-      
+
       .statistic-content {
         .statistic-items {
           gap: 16px;
-          
+
           .statistic-item {
             gap: 4px;
-            
+
             .statistic-title {
               font-size: 12px;
             }
-            
+
             .statistic-value {
               font-size: 12px;
             }
           }
         }
       }
-      
+
       .statistic-footer {
         font-size: 11px;
         margin-left: 12px;
       }
-      
+
       .expand-indicator {
         margin-left: 8px;
       }
@@ -388,43 +416,43 @@ onMounted(async () => {
 @media (max-width: 480px) {
   .statistic-container {
     bottom: 10px;
-    
+
     &.expanded {
       .statistic-bar {
         max-width: 320px;
         min-width: 280px;
       }
     }
-    
+
     .statistic-bar {
       height: 32px;
       padding: 0 12px;
       max-width: 280px;
       min-width: 240px;
-      
+
       .statistic-content {
         .statistic-items {
           gap: 12px;
-          
+
           .statistic-item {
             gap: 3px;
-            
+
             .statistic-title {
               font-size: 11px;
             }
-            
+
             .statistic-value {
               font-size: 11px;
             }
           }
         }
       }
-      
+
       .statistic-footer {
         font-size: 10px;
         margin-left: 8px;
       }
-      
+
       .expand-indicator {
         margin-left: 6px;
       }

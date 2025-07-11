@@ -6,9 +6,9 @@
           <n-grid :cols="24" :x-gap="16" :y-gap="8">
             <!-- 第一行：搜索相关 -->
             <n-grid-item :span="12">
-              <n-input 
-                v-model:value="nodesStore.searchKeyword" 
-                placeholder="搜索ID、节点名称或主机名" 
+              <n-input
+                v-model:value="nodesStore.searchKeyword"
+                placeholder="搜索ID、节点名称或主机名"
                 clearable
                 @update:value="nodesStore.handleSearch"
               >
@@ -18,20 +18,20 @@
               </n-input>
             </n-grid-item>
             <n-grid-item :span="6">
-              <n-select 
-                v-model:value="nodesStore.selectedOnline" 
-                placeholder="在线状态" 
-                :options="onlineOptions" 
-                clearable 
+              <n-select
+                v-model:value="nodesStore.selectedOnline"
+                placeholder="在线状态"
+                :options="onlineOptions"
+                clearable
                 @update:value="nodesStore.handleFilterChange"
               />
             </n-grid-item>
             <n-grid-item :span="6">
-              <n-select 
-                v-model:value="nodesStore.selectedStatus" 
-                placeholder="节点状态" 
-                :options="statusOptions" 
-                clearable 
+              <n-select
+                v-model:value="nodesStore.selectedStatus"
+                placeholder="节点状态"
+                :options="statusOptions"
+                clearable
                 @update:value="nodesStore.handleFilterChange"
               />
             </n-grid-item>
@@ -58,7 +58,7 @@
               <n-button
                 type="primary"
                 @click="onAddNodeClick"
-                style="width: 100%;"
+                style="width: 100%"
               >
                 <template #icon>
                   <n-icon><add-outline /></n-icon>
@@ -82,64 +82,93 @@
           @update:page="nodesStore.handlePageChange"
           @update:sorter="handleSortChange"
         />
-        
+
         <!-- 空状态显示 -->
-        <div v-else-if="!nodesStore.loading && nodesStore.nodes.length === 0 && !nodesStore.hasFilters" class="empty-state">
+        <div
+          v-else-if="
+            !nodesStore.loading &&
+            nodesStore.nodes.length === 0 &&
+            !nodesStore.hasFilters
+          "
+          class="empty-state"
+        >
           <n-empty description="暂无数据" />
         </div>
       </n-space>
 
       <!-- 添加节点模态框 -->
-      <n-modal 
-        v-model:show="showAddModal" 
-        preset="card" 
-        title="添加节点" 
+      <n-modal
+        v-model:show="showAddModal"
+        preset="card"
+        title="添加节点"
         class="node-modal"
         :style="{ width: '650px' }"
       >
-        <n-form 
-          ref="formRef" 
-          :model="formModel" 
-          :rules="rules" 
-          label-placement="left" 
+        <n-form
+          ref="formRef"
+          :model="formModel"
+          :rules="rules"
+          label-placement="left"
           label-width="auto"
           require-mark-placement="right-hanging"
         >
           <n-grid :cols="1" :x-gap="16">
             <n-form-item-gi label="节点名称" path="name">
-              <n-input v-model:value="formModel.name" placeholder="请输入节点名称" />
+              <n-input
+                v-model:value="formModel.name"
+                placeholder="请输入节点名称"
+              />
             </n-form-item-gi>
-            
+
             <n-grid-item :span="1">
               <n-grid :cols="2" :x-gap="16">
                 <n-form-item-gi label="主机名" path="hostname">
-                  <n-input v-model:value="formModel.hostname" placeholder="请输入主机名" />
+                  <n-input
+                    v-model:value="formModel.hostname"
+                    placeholder="请输入主机名"
+                  />
                 </n-form-item-gi>
                 <n-form-item-gi label="IP地址" path="ip">
-                  <n-input v-model:value="formModel.ip" placeholder="请输入IP地址" />
+                  <n-input
+                    v-model:value="formModel.ip"
+                    placeholder="请输入IP地址"
+                  />
                 </n-form-item-gi>
               </n-grid>
             </n-grid-item>
-            
+
             <n-form-item-gi label="节点描述" path="description">
-              <n-input v-model:value="formModel.description" type="textarea" placeholder="请输入节点描述" />
+              <n-input
+                v-model:value="formModel.description"
+                type="textarea"
+                placeholder="请输入节点描述"
+              />
             </n-form-item-gi>
-            
+
             <n-form-item-gi label="Token" path="token">
-              <n-input v-model:value="formModel.token" placeholder="请输入Token" />
+              <n-input
+                v-model:value="formModel.token"
+                placeholder="请输入Token"
+              />
             </n-form-item-gi>
-            
+
             <n-grid-item :span="1">
               <n-grid :cols="2" :x-gap="16">
                 <n-form-item-gi label="服务端口" path="servicePort">
-                  <n-input-number v-model:value="formModel.servicePort" placeholder="请输入服务端口" />
+                  <n-input-number
+                    v-model:value="formModel.servicePort"
+                    placeholder="请输入服务端口"
+                  />
                 </n-form-item-gi>
                 <n-form-item-gi label="管理端口" path="adminPort">
-                  <n-input-number v-model:value="formModel.adminPort" placeholder="请输入管理端口" />
+                  <n-input-number
+                    v-model:value="formModel.adminPort"
+                    placeholder="请输入管理端口"
+                  />
                 </n-form-item-gi>
               </n-grid>
             </n-grid-item>
-            
+
             <n-grid-item :span="1">
               <n-grid :cols="2" :x-gap="16">
                 <n-form-item-gi label="管理密码" path="adminPass">
@@ -164,11 +193,14 @@
                   </n-input>
                 </n-form-item-gi>
                 <n-form-item-gi label="带宽(Mbps)" path="bandWidth">
-                  <n-input-number v-model:value="formModel.bandWidth" placeholder="请输入带宽" />
+                  <n-input-number
+                    v-model:value="formModel.bandWidth"
+                    placeholder="请输入带宽"
+                  />
                 </n-form-item-gi>
               </n-grid>
             </n-grid-item>
-            
+
             <n-grid-item :span="1">
               <n-grid :cols="2" :x-gap="16">
                 <n-form-item-gi label="节点地区" path="location">
@@ -184,13 +216,17 @@
                 </n-form-item-gi>
               </n-grid>
             </n-grid-item>
-            
+
             <n-form-item-gi label="允许用户组" path="allowGroup">
               <div class="group-buttons">
                 <n-tag
                   v-for="group in groupsStore.groupOptions"
                   :key="group.value"
-                  :type="formModel.allowGroup.includes(group.value) ? 'primary' : 'default'"
+                  :type="
+                    formModel.allowGroup.includes(group.value)
+                      ? 'primary'
+                      : 'default'
+                  "
                   :disabled="group.value === 'admin'"
                   class="group-tag"
                   :bordered="false"
@@ -200,17 +236,24 @@
                 </n-tag>
               </div>
             </n-form-item-gi>
-            
+
             <n-form-item-gi label="允许端口" path="allowPort">
-              <n-input v-model:value="formModel.allowPort" placeholder="请输入允许的端口范围, 如: 10000-20000" />
+              <n-input
+                v-model:value="formModel.allowPort"
+                placeholder="请输入允许的端口范围, 如: 10000-20000"
+              />
             </n-form-item-gi>
-            
+
             <n-form-item-gi label="允许协议" path="allowType">
               <div class="protocol-buttons">
                 <n-tag
                   v-for="protocol in protocolOptions"
                   :key="protocol.value"
-                  :type="formModel.allowType.includes(protocol.value) ? 'primary' : 'default'"
+                  :type="
+                    formModel.allowType.includes(protocol.value)
+                      ? 'primary'
+                      : 'default'
+                  "
                   class="protocol-tag"
                   :bordered="false"
                   @click="toggleProtocol(protocol.value)"
@@ -224,62 +267,89 @@
         <template #footer>
           <n-space justify="end">
             <n-button @click="showAddModal = false">取消</n-button>
-            <n-button type="primary" :loading="nodesStore.submitting" @click="handleAddNode">确定</n-button>
+            <n-button
+              type="primary"
+              :loading="nodesStore.submitting"
+              @click="handleAddNode"
+              >确定</n-button
+            >
           </n-space>
         </template>
       </n-modal>
 
       <!-- 编辑节点模态框 -->
-      <n-modal 
-        v-model:show="showEditModal" 
-        preset="card" 
-        title="编辑节点" 
+      <n-modal
+        v-model:show="showEditModal"
+        preset="card"
+        title="编辑节点"
         class="node-modal"
         :style="{ width: '650px' }"
       >
-        <n-form 
-          ref="formRef" 
-          :model="formModel" 
-          :rules="rules" 
-          label-placement="left" 
+        <n-form
+          ref="formRef"
+          :model="formModel"
+          :rules="rules"
+          label-placement="left"
           label-width="auto"
           require-mark-placement="right-hanging"
         >
           <n-grid :cols="1" :x-gap="16">
             <n-form-item-gi label="节点名称" path="name">
-              <n-input v-model:value="formModel.name" placeholder="请输入节点名称" />
+              <n-input
+                v-model:value="formModel.name"
+                placeholder="请输入节点名称"
+              />
             </n-form-item-gi>
-            
+
             <n-grid-item :span="1">
               <n-grid :cols="2" :x-gap="16">
                 <n-form-item-gi label="主机名" path="hostname">
-                  <n-input v-model:value="formModel.hostname" placeholder="请输入主机名" />
+                  <n-input
+                    v-model:value="formModel.hostname"
+                    placeholder="请输入主机名"
+                  />
                 </n-form-item-gi>
                 <n-form-item-gi label="IP地址" path="ip">
-                  <n-input v-model:value="formModel.ip" placeholder="请输入IP地址" />
+                  <n-input
+                    v-model:value="formModel.ip"
+                    placeholder="请输入IP地址"
+                  />
                 </n-form-item-gi>
               </n-grid>
             </n-grid-item>
-            
+
             <n-form-item-gi label="节点描述" path="description">
-              <n-input v-model:value="formModel.description" type="textarea" placeholder="请输入节点描述" />
+              <n-input
+                v-model:value="formModel.description"
+                type="textarea"
+                placeholder="请输入节点描述"
+              />
             </n-form-item-gi>
-            
+
             <n-form-item-gi label="Token" path="token">
-              <n-input v-model:value="formModel.token" placeholder="请输入Token" />
+              <n-input
+                v-model:value="formModel.token"
+                placeholder="请输入Token"
+              />
             </n-form-item-gi>
-            
+
             <n-grid-item :span="1">
               <n-grid :cols="2" :x-gap="16">
                 <n-form-item-gi label="服务端口" path="servicePort">
-                  <n-input-number v-model:value="formModel.servicePort" placeholder="请输入服务端口" />
+                  <n-input-number
+                    v-model:value="formModel.servicePort"
+                    placeholder="请输入服务端口"
+                  />
                 </n-form-item-gi>
                 <n-form-item-gi label="管理端口" path="adminPort">
-                  <n-input-number v-model:value="formModel.adminPort" placeholder="请输入管理端口" />
+                  <n-input-number
+                    v-model:value="formModel.adminPort"
+                    placeholder="请输入管理端口"
+                  />
                 </n-form-item-gi>
               </n-grid>
             </n-grid-item>
-            
+
             <n-grid-item :span="1">
               <n-grid :cols="2" :x-gap="16">
                 <n-form-item-gi label="管理密码" path="adminPass">
@@ -304,7 +374,10 @@
                   </n-input>
                 </n-form-item-gi>
                 <n-form-item-gi label="带宽(Mbps)" path="bandWidth">
-                  <n-input-number v-model:value="formModel.bandWidth" placeholder="请输入带宽" />
+                  <n-input-number
+                    v-model:value="formModel.bandWidth"
+                    placeholder="请输入带宽"
+                  />
                 </n-form-item-gi>
               </n-grid>
             </n-grid-item>
@@ -324,13 +397,17 @@
                 </n-form-item-gi>
               </n-grid>
             </n-grid-item>
-            
+
             <n-form-item-gi label="允许用户组" path="allowGroup">
               <div class="group-buttons">
                 <n-tag
                   v-for="group in groupsStore.groupOptions"
                   :key="group.value"
-                  :type="formModel.allowGroup.includes(group.value) ? 'primary' : 'default'"
+                  :type="
+                    formModel.allowGroup.includes(group.value)
+                      ? 'primary'
+                      : 'default'
+                  "
                   :disabled="group.value === 'admin'"
                   class="group-tag"
                   :bordered="false"
@@ -340,17 +417,24 @@
                 </n-tag>
               </div>
             </n-form-item-gi>
-            
+
             <n-form-item-gi label="允许端口" path="allowPort">
-              <n-input v-model:value="formModel.allowPort" placeholder="请输入允许的端口范围, 如: 10000-20000" />
+              <n-input
+                v-model:value="formModel.allowPort"
+                placeholder="请输入允许的端口范围, 如: 10000-20000"
+              />
             </n-form-item-gi>
-            
+
             <n-form-item-gi label="允许协议" path="allowType">
               <div class="protocol-buttons">
                 <n-tag
                   v-for="protocol in protocolOptions"
                   :key="protocol.value"
-                  :type="formModel.allowType.includes(protocol.value) ? 'primary' : 'default'"
+                  :type="
+                    formModel.allowType.includes(protocol.value)
+                      ? 'primary'
+                      : 'default'
+                  "
                   class="protocol-tag"
                   :bordered="false"
                   @click="toggleProtocol(protocol.value)"
@@ -364,26 +448,35 @@
         <template #footer>
           <n-space justify="end">
             <n-button @click="showEditModal = false">取消</n-button>
-            <n-button type="primary" :loading="nodesStore.submitting" @click="handleEditNode">确定</n-button>
+            <n-button
+              type="primary"
+              :loading="nodesStore.submitting"
+              @click="handleEditNode"
+              >确定</n-button
+            >
           </n-space>
         </template>
       </n-modal>
 
       <!-- 启用/禁用节点确认框 -->
-      <n-modal 
-        v-model:show="showToggleModal" 
+      <n-modal
+        v-model:show="showToggleModal"
         preset="dialog"
         :title="currentNode?.isDisabled ? '启用节点' : '禁用节点'"
         :style="{ width: '420px' }"
         :show-icon="false"
       >
-        <div class="confirm-text">确定要{{ currentNode?.isDisabled ? '启用' : '禁用' }}节点 "{{ currentNode?.name }}" 吗？</div>
+        <div class="confirm-text">
+          确定要{{ currentNode?.isDisabled ? '启用' : '禁用' }}节点 "{{
+            currentNode?.name
+          }}" 吗？
+        </div>
         <template #action>
           <n-space justify="end">
             <n-button @click="showToggleModal = false">取消</n-button>
-            <n-button 
-              :type="currentNode?.isDisabled ? 'primary' : 'warning'" 
-              :loading="nodesStore.submitting" 
+            <n-button
+              :type="currentNode?.isDisabled ? 'primary' : 'warning'"
+              :loading="nodesStore.submitting"
               @click="() => currentNode && handleToggleNode(currentNode)"
             >
               确定
@@ -393,20 +486,22 @@
       </n-modal>
 
       <!-- 删除节点确认框 -->
-      <n-modal 
-        v-model:show="showDeleteModal" 
+      <n-modal
+        v-model:show="showDeleteModal"
         preset="dialog"
         title="删除节点"
         :style="{ width: '420px' }"
         :show-icon="false"
       >
-        <div class="confirm-text">确定要删除节点 "{{ currentNode?.name }}" 吗？此操作不可恢复！</div>
+        <div class="confirm-text">
+          确定要删除节点 "{{ currentNode?.name }}" 吗？此操作不可恢复！
+        </div>
         <template #action>
           <n-space justify="end">
             <n-button @click="showDeleteModal = false">取消</n-button>
-            <n-button 
-              type="error" 
-              :loading="nodesStore.submitting" 
+            <n-button
+              type="error"
+              :loading="nodesStore.submitting"
               @click="() => currentNode && handleDeleteNode(currentNode)"
             >
               删除
@@ -420,36 +515,42 @@
 
 <script lang="ts" setup>
 import { ref, h, computed } from 'vue'
-import { 
-  NCard, 
-  NSpace, 
-  NDataTable, 
-  NButton, 
-  NModal, 
-  NForm, 
+import {
+  NCard,
+  NSpace,
+  NDataTable,
+  NButton,
+  NModal,
+  NForm,
   NFormItemGi,
   NGrid,
   NGridItem,
-  NInput, 
-  NInputNumber, 
-  useMessage, 
-  NSelect, 
-  NTag, 
-  NDropdown, 
+  NInput,
+  NInputNumber,
+  useMessage,
+  NSelect,
+  NTag,
+  NDropdown,
   NIcon,
   NSwitch,
-  NEmpty
+  NEmpty,
 } from 'naive-ui'
-import { 
-  EllipsisHorizontalCircleOutline, 
-  CreateOutline, 
-  PowerOutline, 
+import {
+  EllipsisHorizontalCircleOutline,
+  CreateOutline,
+  PowerOutline,
   TrashOutline,
   SearchOutline,
   AddOutline,
-  SparklesOutline
+  SparklesOutline,
 } from '@vicons/ionicons5'
-import type { DataTableColumns, FormRules, FormInst, SelectOption, DropdownOption } from 'naive-ui'
+import type {
+  DataTableColumns,
+  FormRules,
+  FormInst,
+  SelectOption,
+  DropdownOption,
+} from 'naive-ui'
 import type { Node } from '@/types'
 import { useNodesStore } from '@/stores/nodes'
 import { useGroupsStore } from '@/stores/groups'
@@ -483,7 +584,7 @@ const formModel = ref({
   allowType: [] as string[],
   need_realname: true,
   bandWidth: 0,
-  location: ''
+  location: '',
 })
 
 // 选项配置
@@ -491,7 +592,7 @@ const protocolOptions = [
   { label: 'TCP', value: 'tcp' },
   { label: 'UDP', value: 'udp' },
   { label: 'HTTP', value: 'http' },
-  { label: 'HTTPS', value: 'https' }
+  { label: 'HTTPS', value: 'https' },
 ]
 
 const locationOptions = [
@@ -503,7 +604,7 @@ const locationOptions = [
 
 const onlineOptions: SelectOption[] = [
   { label: '在线', value: 'online' },
-  { label: '离线', value: 'offline' }
+  { label: '离线', value: 'offline' },
 ]
 
 const statusOptions: SelectOption[] = [
@@ -518,11 +619,11 @@ const sortFieldOptions = [
   { label: '服务端口', value: 'servicePort' },
   { label: '管理端口', value: 'adminPort' },
   { label: '实名', value: 'need_realname' },
-  { label: '用户组', value: 'allowGroup' }
+  { label: '用户组', value: 'allowGroup' },
 ]
 const sortOrderOptions = [
   { label: '升序', value: 'asc' },
-  { label: '降序', value: 'desc' }
+  { label: '降序', value: 'desc' },
 ]
 const sortOptions = ref({ key: 'id', order: 'asc' })
 
@@ -534,17 +635,29 @@ const sortedNodes = computed(() => {
       let aValue, bValue
       switch (sortOptions.value.key) {
         case 'id':
-          aValue = a.id; bValue = b.id; break
+          aValue = a.id
+          bValue = b.id
+          break
         case 'name':
-          aValue = a.name; bValue = b.name; break
+          aValue = a.name
+          bValue = b.name
+          break
         case 'servicePort':
-          aValue = a.port; bValue = b.port; break
+          aValue = a.port
+          bValue = b.port
+          break
         case 'adminPort':
-          aValue = a.adminPort; bValue = b.adminPort; break
+          aValue = a.adminPort
+          bValue = b.adminPort
+          break
         case 'need_realname':
-          aValue = a.need_realname ? 1 : 0; bValue = b.need_realname ? 1 : 0; break
+          aValue = a.need_realname ? 1 : 0
+          bValue = b.need_realname ? 1 : 0
+          break
         case 'allowGroup':
-          aValue = a.allowGroup; bValue = b.allowGroup; break
+          aValue = a.allowGroup
+          bValue = b.allowGroup
+          break
         default:
           return 0
       }
@@ -560,7 +673,8 @@ const sortedNodes = computed(() => {
     })
   }
   // 本地分页
-  const start = (nodesStore.pagination.page - 1) * nodesStore.pagination.pageSize
+  const start =
+    (nodesStore.pagination.page - 1) * nodesStore.pagination.pageSize
   const end = start + nodesStore.pagination.pageSize
   return sorted.slice(start, end)
 })
@@ -585,17 +699,17 @@ const rules: FormRules = {
   name: {
     required: true,
     message: '请输入节点名称',
-    trigger: ['blur', 'input']
+    trigger: ['blur', 'input'],
   },
   ip: {
     required: true,
     message: '请输入IP地址',
-    trigger: ['blur', 'input']
+    trigger: ['blur', 'input'],
   },
   token: {
     required: true,
     message: '请输入Token',
-    trigger: ['blur', 'input']
+    trigger: ['blur', 'input'],
   },
   servicePort: {
     required: true,
@@ -606,7 +720,7 @@ const rules: FormRules = {
         return new Error('端口范围必须在 1-65535 之间')
       }
       return true
-    }
+    },
   },
   adminPort: {
     required: true,
@@ -617,17 +731,17 @@ const rules: FormRules = {
         return new Error('端口范围必须在 1-65535 之间')
       }
       return true
-    }
+    },
   },
   adminPass: {
     required: true,
     message: '请输入管理密码',
-    trigger: ['blur', 'input']
+    trigger: ['blur', 'input'],
   },
   location: {
     required: true,
     message: '请选择节点地区',
-    trigger: ['change']
+    trigger: ['change'],
   },
   allowGroup: {
     required: true,
@@ -638,7 +752,7 @@ const rules: FormRules = {
         return new Error('请至少选择一个用户组')
       }
       return true
-    }
+    },
   },
   allowPort: {
     required: true,
@@ -648,7 +762,7 @@ const rules: FormRules = {
       if (!value) return new Error('请输入端口范围')
 
       // 支持多个端口范围, 用逗号分隔
-      const ranges = value.split(';').map(range => range.trim())
+      const ranges = value.split(';').map((range) => range.trim())
 
       for (const range of ranges) {
         // 检查单个端口
@@ -663,7 +777,9 @@ const rules: FormRules = {
         // 检查端口范围
         const match = range.match(/^(\d+)-(\d+)$/)
         if (!match) {
-          return new Error('端口范围格式不正确, 请使用 1-65535 或 80,443 或 1000-2000,3000-4000 的格式')
+          return new Error(
+            '端口范围格式不正确, 请使用 1-65535 或 80,443 或 1000-2000,3000-4000 的格式',
+          )
         }
 
         const start = parseInt(match[1])
@@ -679,7 +795,7 @@ const rules: FormRules = {
       }
 
       return true
-    }
+    },
   },
   allowType: {
     required: true,
@@ -690,8 +806,8 @@ const rules: FormRules = {
         return new Error('请至少选择一个协议')
       }
       return true
-    }
-  }
+    },
+  },
 }
 
 // 行样式
@@ -700,16 +816,20 @@ const rowClassName = (row: Node) => {
 }
 
 // 渲染状态标签
-const renderStatusTag = (status: boolean, successText: string, errorText: string) => {
+const renderStatusTag = (
+  status: boolean,
+  successText: string,
+  errorText: string,
+) => {
   return h(
     NTag,
     {
       type: status ? 'success' : 'error',
       size: 'small',
       round: true,
-      bordered: false
+      bordered: false,
     },
-    { default: () => status ? successText : errorText }
+    { default: () => (status ? successText : errorText) },
   )
 }
 
@@ -718,41 +838,49 @@ const columns: DataTableColumns<Node> = [
   {
     title: 'ID',
     key: 'id',
-    width: 80
+    width: 80,
   },
   {
     title: '名称',
     key: 'name',
     width: 180,
     render(row) {
-      return h(NSpace, { align: 'center', wrap: false }, {
-        default: () => [
-          renderStatusTag(row.isOnline, '在线', '离线'),
-          h('span', {
-            style: {
-              'max-width': '100px',
-              'overflow': 'hidden',
-              'text-overflow': 'ellipsis',
-              'white-space': 'nowrap',
-              'display': 'inline-block',
-              'vertical-align': 'middle'
-            }
-          }, row.name)
-        ]
-      })
-    }
+      return h(
+        NSpace,
+        { align: 'center', wrap: false },
+        {
+          default: () => [
+            renderStatusTag(row.isOnline, '在线', '离线'),
+            h(
+              'span',
+              {
+                style: {
+                  'max-width': '100px',
+                  overflow: 'hidden',
+                  'text-overflow': 'ellipsis',
+                  'white-space': 'nowrap',
+                  display: 'inline-block',
+                  'vertical-align': 'middle',
+                },
+              },
+              row.name,
+            ),
+          ],
+        },
+      )
+    },
   },
   {
     title: '主机名',
     key: 'hostname',
-    width: 150
+    width: 150,
   },
   {
     title: '描述',
     key: 'description',
     ellipsis: {
-      tooltip: true
-    }
+      tooltip: true,
+    },
   },
   {
     title: '服务端口',
@@ -760,12 +888,12 @@ const columns: DataTableColumns<Node> = [
     width: 100,
     render(row) {
       return row.port
-    }
+    },
   },
   {
     title: '管理端口',
     key: 'adminPort',
-    width: 100
+    width: 100,
   },
   {
     title: '实名',
@@ -773,7 +901,7 @@ const columns: DataTableColumns<Node> = [
     width: 80,
     render(row) {
       return renderStatusTag(row.need_realname, '需要', '不需要')
-    }
+    },
   },
   {
     title: '用户组',
@@ -785,41 +913,44 @@ const columns: DataTableColumns<Node> = [
         NSpace,
         { wrap: true, justify: 'start' },
         {
-          default: () => groups.map(group => {
-            const option = groupsStore.groupOptions.find(opt => opt.value === group)
-            return h(
-              NTag,
-              {
-                type: 'info',
-                size: 'small',
-                round: true,
-                bordered: false,
-                style: 'margin: 2px'
-              },
-              { default: () => option ? option.label : group }
-            )
-          })
-        }
+          default: () =>
+            groups.map((group) => {
+              const option = groupsStore.groupOptions.find(
+                (opt) => opt.value === group,
+              )
+              return h(
+                NTag,
+                {
+                  type: 'info',
+                  size: 'small',
+                  round: true,
+                  bordered: false,
+                  style: 'margin: 2px',
+                },
+                { default: () => (option ? option.label : group) },
+              )
+            }),
+        },
       )
-    }
+    },
   },
   {
     title: '地区',
     key: 'location',
     width: 100,
     render(row) {
-      const option = locationOptions.find(opt => opt.value === row.location)
+      const option = locationOptions.find((opt) => opt.value === row.location)
       return h(
         NTag,
         {
           type: 'info',
           size: 'small',
           round: true,
-          bordered: false
+          bordered: false,
         },
-        { default: () => option ? option.label : row.location }
+        { default: () => (option ? option.label : row.location) },
       )
-    }
+    },
   },
   {
     title: '协议',
@@ -831,23 +962,24 @@ const columns: DataTableColumns<Node> = [
         NSpace,
         { wrap: true, justify: 'start' },
         {
-          default: () => types.map(type => {
-            const option = protocolOptions.find(opt => opt.value === type)
-            return h(
-              NTag,
-              {
-                type: 'success',
-                size: 'small',
-                round: true,
-                bordered: false,
-                style: 'margin: 2px'
-              },
-              { default: () => option ? option.label : type }
-            )
-          })
-        }
+          default: () =>
+            types.map((type) => {
+              const option = protocolOptions.find((opt) => opt.value === type)
+              return h(
+                NTag,
+                {
+                  type: 'success',
+                  size: 'small',
+                  round: true,
+                  bordered: false,
+                  style: 'margin: 2px',
+                },
+                { default: () => (option ? option.label : type) },
+              )
+            }),
+        },
       )
-    }
+    },
   },
   {
     title: '状态',
@@ -855,7 +987,7 @@ const columns: DataTableColumns<Node> = [
     width: 100,
     render(row) {
       return renderStatusTag(!row.isDisabled, '已启用', '已禁用')
-    }
+    },
   },
   {
     title: '操作',
@@ -863,24 +995,34 @@ const columns: DataTableColumns<Node> = [
     width: 100,
     fixed: 'right',
     render(row) {
-      return h(NDropdown, {
-        trigger: 'click',
-        options: dropdownOptions(row),
-        onSelect: (key: string) => handleSelect(key, row),
-        placement: 'bottom-end'
-      }, {
-        default: () => h(NButton, {
-          quaternary: true,
-          circle: true,
-          size: 'small'
-        }, {
-          icon: () => h(NIcon, null, {
-            default: () => h(EllipsisHorizontalCircleOutline)
-          })
-        })
-      })
-    }
-  }
+      return h(
+        NDropdown,
+        {
+          trigger: 'click',
+          options: dropdownOptions(row),
+          onSelect: (key: string) => handleSelect(key, row),
+          placement: 'bottom-end',
+        },
+        {
+          default: () =>
+            h(
+              NButton,
+              {
+                quaternary: true,
+                circle: true,
+                size: 'small',
+              },
+              {
+                icon: () =>
+                  h(NIcon, null, {
+                    default: () => h(EllipsisHorizontalCircleOutline),
+                  }),
+              },
+            ),
+        },
+      )
+    },
+  },
 ]
 
 // 下拉菜单选项
@@ -889,20 +1031,20 @@ const dropdownOptions = (row: Node): DropdownOption[] => [
     label: '编辑',
     key: 'edit',
     disabled: false,
-    icon: () => h(NIcon, null, { default: () => h(CreateOutline) })
+    icon: () => h(NIcon, null, { default: () => h(CreateOutline) }),
   },
   {
     label: !row.isDisabled ? '禁用' : '启用',
     key: 'toggle',
     disabled: false,
-    icon: () => h(NIcon, null, { default: () => h(PowerOutline) })
+    icon: () => h(NIcon, null, { default: () => h(PowerOutline) }),
   },
   {
     label: '删除',
     key: 'delete',
     disabled: false,
-    icon: () => h(NIcon, null, { default: () => h(TrashOutline) })
-  }
+    icon: () => h(NIcon, null, { default: () => h(TrashOutline) }),
+  },
 ]
 
 // 用户组和协议切换
@@ -948,7 +1090,7 @@ const resetForm = () => {
     allowType: [],
     need_realname: true,
     bandWidth: 0,
-    location: ''
+    location: '',
   })
 }
 
@@ -970,7 +1112,7 @@ const handleEdit = (row: Node) => {
     allowType: row.allowType.split(';'),
     need_realname: row.need_realname,
     bandWidth: row.bandWidth,
-    location: row.location
+    location: row.location,
   }
   showEditModal.value = true
 }
@@ -978,10 +1120,10 @@ const handleEdit = (row: Node) => {
 // 编辑节点提交
 const handleEditNode = async () => {
   if (!formRef.value) return
-  
+
   try {
     await formRef.value.validate()
-    
+
     const config = {
       id: editingNode.value!.id,
       name: formModel.value.name,
@@ -997,9 +1139,9 @@ const handleEditNode = async () => {
       allowType: formModel.value.allowType.join(';'),
       need_realname: formModel.value.need_realname,
       bandWidth: formModel.value.bandWidth,
-      location: formModel.value.location
+      location: formModel.value.location,
     }
-    
+
     const success = await nodesStore.updateNode(config, message)
     if (success) {
       showEditModal.value = false
@@ -1018,10 +1160,10 @@ const handleAddNode = async () => {
   }
 
   if (!formRef.value) return
-  
+
   try {
     await formRef.value.validate()
-    
+
     const config = {
       name: formModel.value.name,
       hostname: formModel.value.hostname,
@@ -1036,9 +1178,9 @@ const handleAddNode = async () => {
       allowType: formModel.value.allowType.join(';'),
       need_realname: formModel.value.need_realname,
       bandWidth: formModel.value.bandWidth,
-      location: formModel.value.location
+      location: formModel.value.location,
     }
-    
+
     const success = await nodesStore.addNode(config, message)
     if (success) {
       showAddModal.value = false
@@ -1052,7 +1194,11 @@ const handleAddNode = async () => {
 
 // 切换节点状态
 const handleToggleNode = async (node: Node) => {
-  const success = await nodesStore.toggleNode(node.id, !node.isDisabled, message)
+  const success = await nodesStore.toggleNode(
+    node.id,
+    !node.isDisabled,
+    message,
+  )
   if (success) {
     showToggleModal.value = false
   }
@@ -1095,7 +1241,8 @@ const onAddNodeClick = () => {
 }
 
 const generateRandomPassword = (length = 12) => {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*'
+  const chars =
+    'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*'
   let pwd = ''
   for (let i = 0; i < length; i++) {
     pwd += chars.charAt(Math.floor(Math.random() * chars.length))

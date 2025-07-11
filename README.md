@@ -168,12 +168,12 @@ pnpm preview
 ## 贡献指南
 
 欢迎任何形式的贡献！你可以：
+
 - 提交 Issue 反馈 bug 或建议
 - Fork 并提交 Pull Request
 - 优化文档或翻译
 
 ---
-
 
 ## 联系方式
 

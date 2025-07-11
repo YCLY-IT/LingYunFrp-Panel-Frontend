@@ -17,8 +17,14 @@
                     @update:value="handleSourceChange"
                   >
                     <NButton :focusable="false" text size="small" type="info">
-                      <span class="select-text">{{ currentSource?.name || '请选择下载源' }}</span>
-                      <NIcon :size="16" class="select-icon" :component="ChevronDownOutline" />
+                      <span class="select-text">{{
+                        currentSource?.name || '请选择下载源'
+                      }}</span>
+                      <NIcon
+                        :size="16"
+                        class="select-icon"
+                        :component="ChevronDownOutline"
+                      />
                     </NButton>
                   </NPopselect>
                 </div>
@@ -35,9 +41,20 @@
                         trigger="click"
                         @update:value="handleProductChange"
                       >
-                        <NButton :focusable="false" text size="small" type="info">
-                          <span class="select-text">{{ currentProduct?.name || '请选择产品' }}</span>
-                          <NIcon :size="16" class="select-icon" :component="ChevronDownOutline" />
+                        <NButton
+                          :focusable="false"
+                          text
+                          size="small"
+                          type="info"
+                        >
+                          <span class="select-text">{{
+                            currentProduct?.name || '请选择产品'
+                          }}</span>
+                          <NIcon
+                            :size="16"
+                            class="select-icon"
+                            :component="ChevronDownOutline"
+                          />
                         </NButton>
                       </NPopselect>
                       <div v-if="currentProduct" class="version-selector">
@@ -47,7 +64,12 @@
                           trigger="click"
                           @update:value="handleVersionChange"
                         >
-                          <NButton :focusable="false" text size="small" type="info">
+                          <NButton
+                            :focusable="false"
+                            text
+                            size="small"
+                            type="info"
+                          >
                             <div class="version-tag">
                               <NTag size="small" type="success" round>
                                 <template #icon>
@@ -56,7 +78,11 @@
                                 v{{ selectedVersion }}
                               </NTag>
                             </div>
-                            <NIcon :size="16" class="select-icon" :component="ChevronDownOutline" />
+                            <NIcon
+                              :size="16"
+                              class="select-icon"
+                              :component="ChevronDownOutline"
+                            />
                           </NButton>
                         </NPopselect>
                       </div>
@@ -127,7 +153,11 @@
                             </template>
                             <p>此产品为 Docker 镜像，请使用以下命令拉取：</p>
                             <div class="docker-command">
-                              <NCode>docker pull {{ currentProduct.code }}:{{ selectedVersion }}</NCode>
+                              <NCode
+                                >docker pull {{ currentProduct.code }}:{{
+                                  selectedVersion
+                                }}</NCode
+                              >
                               <NButton size="small" @click="copyDockerCommand">
                                 <template #icon>
                                   <NIcon :component="CopyOutline" />
@@ -146,7 +176,7 @@
           </div>
         </NTabPane>
         <NTabPane name="overview" tab="产品总览">
-          <div style="padding-bottom: 16px;">
+          <div style="padding-bottom: 16px">
             <NDataTable
               :columns="overviewColumns"
               :data="overviewData"
@@ -155,7 +185,7 @@
               :scroll-x="1200"
               :scroll-y="400"
               v-model:expanded-row-keys="expandedRowKeys"
-              :row-key="row => row.id"
+              :row-key="(row) => row.id"
             />
           </div>
         </NTabPane>
@@ -168,8 +198,30 @@
 import { ref, computed, onMounted, watch, h } from 'vue'
 import { useDownloadStore } from '@/stores/download'
 import { storeToRefs } from 'pinia'
-import { NCode, NCard, NButton, NDivider, NText, NPopselect, NSelect, NIcon, NTag, NAlert, useMessage, NDataTable, NTabs, NTabPane, NCollapseTransition } from 'naive-ui'
-import { ChevronDownOutline, DownloadOutline, CopyOutline, InformationCircleOutline, PricetagOutline } from '@vicons/ionicons5'
+import {
+  NCode,
+  NCard,
+  NButton,
+  NDivider,
+  NText,
+  NPopselect,
+  NSelect,
+  NIcon,
+  NTag,
+  NAlert,
+  useMessage,
+  NDataTable,
+  NTabs,
+  NTabPane,
+  NCollapseTransition,
+} from 'naive-ui'
+import {
+  ChevronDownOutline,
+  DownloadOutline,
+  CopyOutline,
+  InformationCircleOutline,
+  PricetagOutline,
+} from '@vicons/ionicons5'
 import type { SelectOption, DataTableColumns } from 'naive-ui'
 import { marked } from 'marked'
 import NFadeInExpandTransition from 'naive-ui/es/_internal/fade-in-expand-transition'
@@ -179,7 +231,8 @@ const message = useMessage()
 
 // 1. 使用 Pinia Store
 const downloadStore = useDownloadStore()
-const { products, allProducts, softwareVersions, downloadSources, loading } = storeToRefs(downloadStore)
+const { products, allProducts, softwareVersions, downloadSources, loading } =
+  storeToRefs(downloadStore)
 
 onMounted(() => {
   downloadStore.fetchAll()
@@ -206,33 +259,39 @@ const canDownload = computed(() => {
 
 const productOptions = computed<SelectOption[]>(() => {
   const uniqueProducts = new Map<string, Software>()
-  const list = Array.isArray(showAllProducts.value ? allProducts.value : products.value)
-    ? (showAllProducts.value ? allProducts.value : products.value)
+  const list = Array.isArray(
+    showAllProducts.value ? allProducts.value : products.value,
+  )
+    ? showAllProducts.value
+      ? allProducts.value
+      : products.value
     : []
-  list.forEach(product => {
+  list.forEach((product) => {
     if (!uniqueProducts.has(product.name)) {
       uniqueProducts.set(product.name, product)
     }
   })
-  return Array.from(uniqueProducts.values()).map(product => ({
+  return Array.from(uniqueProducts.values()).map((product) => ({
     label: product.name,
-    value: product.id
+    value: product.id,
   }))
 })
 
 const currentProduct = computed(() => {
-  return (products.value || []).find(p => p.id === selectedProduct.value) || null
+  return (
+    (products.value || []).find((p) => p.id === selectedProduct.value) || null
+  )
 })
 
 const currentSource = computed(() =>
-  (downloadSources.value || []).find(s => s.id === selectedSource.value)
+  (downloadSources.value || []).find((s) => s.id === selectedSource.value),
 )
 
 const sourceOptions = computed<SelectOption[]>(() =>
-  (downloadSources.value || []).map(source => ({
+  (downloadSources.value || []).map((source) => ({
     label: source.name,
-    value: source.id
-  }))
+    value: source.id,
+  })),
 )
 
 const currentSystem = computed(() => {
@@ -249,27 +308,33 @@ const systemOptions = computed<SelectOption[]>(() => {
   if (!currentProduct.value || !selectedVersion.value) return []
   const systems = new Set<string>()
   softwareVersions.value
-    .filter(v => v.softwareId === currentProduct.value?.id && v.version === selectedVersion.value)
-    .forEach(v => systems.add(v.os))
-  return Array.from(systems).map(os => ({
+    .filter(
+      (v) =>
+        v.softwareId === currentProduct.value?.id &&
+        v.version === selectedVersion.value,
+    )
+    .forEach((v) => systems.add(v.os))
+  return Array.from(systems).map((os) => ({
     label: os,
-    value: os
+    value: os,
   }))
 })
 
 const archOptions = computed<SelectOption[]>(() => {
-  if (!currentProduct.value || !selectedVersion.value || !currentSystem.value) return []
+  if (!currentProduct.value || !selectedVersion.value || !currentSystem.value)
+    return []
   const archs = new Set<string>()
   softwareVersions.value
-    .filter(v => 
-      v.softwareId === currentProduct.value?.id && 
-      v.version === selectedVersion.value && 
-      v.os === currentSystem.value
+    .filter(
+      (v) =>
+        v.softwareId === currentProduct.value?.id &&
+        v.version === selectedVersion.value &&
+        v.os === currentSystem.value,
     )
-    .forEach(v => archs.add(v.arch))
-  return Array.from(archs).map(arch => ({
+    .forEach((v) => archs.add(v.arch))
+  return Array.from(archs).map((arch) => ({
     label: arch,
-    value: arch
+    value: arch,
   }))
 })
 
@@ -282,13 +347,13 @@ const versionOptions = computed<SelectOption[]>(() => {
   if (!currentProduct.value) return []
   const versions = new Set<string>()
   softwareVersions.value
-    .filter(v => v.softwareId === currentProduct.value?.id)
-    .forEach(v => versions.add(v.version))
+    .filter((v) => v.softwareId === currentProduct.value?.id)
+    .forEach((v) => versions.add(v.version))
   return Array.from(versions)
     .sort((a, b) => b.localeCompare(a))
-    .map(version => ({
+    .map((version) => ({
       label: `v${version}`,
-      value: version
+      value: version,
     }))
 })
 
@@ -299,12 +364,10 @@ const handleSourceChange = (value: number) => {
   selectedVersion.value = null
   if (value) {
     products.value = Array.isArray(allProducts.value)
-      ? allProducts.value.filter(p => p.sourceId === value)
+      ? allProducts.value.filter((p) => p.sourceId === value)
       : []
   } else {
-    products.value = Array.isArray(allProducts.value)
-      ? allProducts.value
-      : []
+    products.value = Array.isArray(allProducts.value) ? allProducts.value : []
   }
 }
 
@@ -314,14 +377,14 @@ const handleProductChange = (value: number) => {
   // 清空版本相关的系统架构映射
   versionSystemMap.value.clear()
   versionArchMap.value.clear()
-  
+
   // 获取当前产品的所有版本并设置最高版本
   if (value) {
     const versions = softwareVersions.value
-      .filter(v => v.softwareId === value)
-      .map(v => v.version)
+      .filter((v) => v.softwareId === value)
+      .map((v) => v.version)
       .sort((a, b) => b.localeCompare(a))
-    
+
     if (versions.length > 0) {
       selectedVersion.value = versions[0]
       // 初始化最高版本的系统架构映射
@@ -360,12 +423,19 @@ const copyDockerCommand = () => {
 }
 
 const getDownloadUrl = async (): Promise<string> => {
-  if (!currentProduct.value || !selectedVersion.value || !currentSystem.value || !currentArch.value) return '#'
+  if (
+    !currentProduct.value ||
+    !selectedVersion.value ||
+    !currentSystem.value ||
+    !currentArch.value
+  )
+    return '#'
   const version = softwareVersions.value.find(
-    v => v.softwareId === currentProduct.value?.id && 
-         v.version === selectedVersion.value && 
-         v.os === currentSystem.value && 
-         v.arch === currentArch.value
+    (v) =>
+      v.softwareId === currentProduct.value?.id &&
+      v.version === selectedVersion.value &&
+      v.os === currentSystem.value &&
+      v.arch === currentArch.value,
   )
   return version?.downloadUrl || '#'
 }
@@ -387,7 +457,7 @@ const handleCopyDownloadUrl = async () => {
 
 // 时间格式化
 const formatTime = (isoString: string) => {
-  const date = new Date(isoString);
+  const date = new Date(isoString)
   return date.toLocaleString('zh-CN', {
     year: 'numeric',
     month: '2-digit',
@@ -395,64 +465,80 @@ const formatTime = (isoString: string) => {
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
-    hour12: false
-  });
-};
+    hour12: false,
+  })
+}
 
 // 产品总览表格相关
 const versionColumns: DataTableColumns<any> = [
-  { 
-    title: '版本号', 
-    key: 'version', 
+  {
+    title: '版本号',
+    key: 'version',
     width: 100,
     render(row: any) {
       return h(
         NTag,
         { type: 'success', size: 'small', round: true },
-        { default: () => `v${row.version}` }
+        { default: () => `v${row.version}` },
       )
-    }
+    },
   },
-  { 
-    title: '系统', 
-    key: 'os', 
+  {
+    title: '系统',
+    key: 'os',
     width: 100,
     render(row: any) {
       return h(
         NTag,
         { type: 'info', size: 'small', round: true },
-        { default: () => row.os }
+        { default: () => row.os },
       )
-    }
+    },
   },
-  { 
-    title: '架构', 
-    key: 'arch', 
+  {
+    title: '架构',
+    key: 'arch',
     width: 100,
     render(row: any) {
       return h(
         NTag,
         { type: 'warning', size: 'small', round: true },
-        { default: () => row.arch }
+        { default: () => row.arch },
       )
-    }
+    },
   },
-  { title: '发布时间', key: 'created_at', width: 160, render(row: any) {
-      return h(NText, { type: 'secondary' }, { default: () => formatTime(row.created_at) })
-    }
+  {
+    title: '发布时间',
+    key: 'created_at',
+    width: 160,
+    render(row: any) {
+      return h(
+        NText,
+        { type: 'secondary' },
+        { default: () => formatTime(row.created_at) },
+      )
+    },
   },
-  { title: '下载链接', key: 'downloadUrl', width: 200, render(row: any) {
-      return h(NButton, {
-        size: 'small',
-        type: 'primary',
-        onClick: () => window.open(row.downloadUrl, '_blank')
-      }, { default: () => '下载' })
-    }
-  }
+  {
+    title: '下载链接',
+    key: 'downloadUrl',
+    width: 200,
+    render(row: any) {
+      return h(
+        NButton,
+        {
+          size: 'small',
+          type: 'primary',
+          onClick: () => window.open(row.downloadUrl, '_blank'),
+        },
+        { default: () => '下载' },
+      )
+    },
+  },
 ]
 
 function getVersionsByProduct(productId: number) {
-  return softwareVersions.value.filter(v => v.softwareId === productId)
+  return softwareVersions.value.filter((v) => v.softwareId === productId)
 }
 
 const overviewColumns: DataTableColumns<any> = [
@@ -473,37 +559,41 @@ const overviewColumns: DataTableColumns<any> = [
               style: {
                 background: '#fafbfc',
                 borderRadius: '8px',
-                margin: '8px 16px'
-              }
-            })
-        }
+                margin: '8px 16px',
+              },
+            }),
+        },
       )
-    }
+    },
   },
   { title: '产品名称', key: 'name', width: 180 },
   { title: '标识', key: 'code', width: 120 },
   { title: '描述', key: 'description', width: 300 },
   { title: '所属源', key: 'sourceName', width: 120 },
-  { title: '最新版本', key: 'latestVersion', width: 120 }
+  { title: '最新版本', key: 'latestVersion', width: 120 },
 ]
 
 const overviewData = computed(() => {
   return Array.isArray(allProducts.value)
     ? allProducts.value
-      .map(product => {
-        const versions = softwareVersions.value.filter(v => v.softwareId === product.id)
-        if (versions.length === 0) return null // 没有版本的产品直接隐藏
-        const latestVersion = versions
-          .map(v => v.version)
-          .sort((a, b) => b.localeCompare(a))[0]
-        const source = downloadSources.value.find(s => s.id === product.sourceId)
-        return {
-          ...product,
-          sourceName: source?.name || '',
-          latestVersion
-        }
-      })
-      .filter((item): item is NonNullable<typeof item> => !!item)
+        .map((product) => {
+          const versions = softwareVersions.value.filter(
+            (v) => v.softwareId === product.id,
+          )
+          if (versions.length === 0) return null // 没有版本的产品直接隐藏
+          const latestVersion = versions
+            .map((v) => v.version)
+            .sort((a, b) => b.localeCompare(a))[0]
+          const source = downloadSources.value.find(
+            (s) => s.id === product.sourceId,
+          )
+          return {
+            ...product,
+            sourceName: source?.name || '',
+            latestVersion,
+          }
+        })
+        .filter((item): item is NonNullable<typeof item> => !!item)
     : []
 })
 
@@ -514,7 +604,9 @@ watch(showAllProducts, (val) => {
   if (val) {
     products.value = allProducts.value
   } else if (selectedSource.value) {
-    products.value = allProducts.value.filter(p => p.sourceId === selectedSource.value)
+    products.value = allProducts.value.filter(
+      (p) => p.sourceId === selectedSource.value,
+    )
   } else {
     products.value = allProducts.value
   }
@@ -572,16 +664,20 @@ watch(expandedRowKeys, (val) => {
 .version-tag {
   display: inline-flex;
   align-items: center;
-  
+
   :deep(.n-tag) {
     font-weight: 500;
     padding: 0 12px;
     height: 24px;
     line-height: 24px;
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color) 100%);
+    background: linear-gradient(
+      135deg,
+      var(--primary-color) 0%,
+      var(--primary-color) 100%
+    );
     border: none;
     box-shadow: 0 2px 4px rgba(24, 160, 88, 0.1);
-    
+
     .n-icon {
       margin-right: 4px;
       font-size: 14px;

@@ -4,13 +4,14 @@
   "title2": "凌云FRP",
   "github": "https://github.com/YCLY-IT",
   "ycly": "https://www.ycly.net",
-  "version": "0.2.13",
+  "version": "0.2.14",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "format": "npx prettier . --write"
   },
   "dependencies": {
     "@types/highlight.js": "^9.12.4",
@@ -39,6 +40,7 @@
     "@vitejs/plugin-vue-jsx": "5.0.0",
     "husky": "^9.1.7",
     "naive-ui": "2.42.0",
+    "prettier": "3.6.2",
     "typescript": "5.8.3",
     "unplugin-auto-import": "^19.3.0",
     "unplugin-vue-components": "^28.7.0",

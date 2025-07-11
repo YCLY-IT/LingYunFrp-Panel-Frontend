@@ -12,7 +12,7 @@
               运行中
             </n-tag>
           </template>
-          
+
           <n-descriptions :column="2" bordered>
             <n-descriptions-item label="面板版本">
               <n-tag type="info">v{{ packageData.version }}</n-tag>
@@ -88,10 +88,10 @@
         <!-- 更新日志 -->
         <n-card title="更新日志" hoverable>
           <template #header-extra>
-            <n-button 
-              size="small" 
-              type="primary" 
-              ghost 
+            <n-button
+              size="small"
+              type="primary"
+              ghost
               @click="fetchGetGitHubCommits"
               :loading="loading"
             >
@@ -101,7 +101,7 @@
               刷新
             </n-button>
           </template>
-          
+
           <n-spin :show="loading">
             <n-timeline v-if="commits.length > 0">
               <n-timeline-item
@@ -113,11 +113,11 @@
                 :time="formatDate(commit.commit.author.date)"
               >
                 <template #icon>
-                  <n-avatar 
-                    :src="commit.author.avatar_url" 
+                  <n-avatar
+                    :src="commit.author.avatar_url"
                     :alt="commit.author.login"
                     :style="{ width: 'auto', height: 'auto' }"
-                    style="transform: scale(1.9);"
+                    style="transform: scale(1.9)"
                   />
                 </template>
                 <template #footer>
@@ -125,9 +125,9 @@
                     <n-tag size="small" type="info">
                       {{ commit.author.login }}
                     </n-tag>
-                    <n-button 
-                      size="tiny" 
-                      text 
+                    <n-button
+                      size="tiny"
+                      text
                       type="primary"
                       @click="openCommit(commit.html_url)"
                     >
@@ -137,26 +137,26 @@
                 </template>
               </n-timeline-item>
             </n-timeline>
-            
-            <n-empty 
-              v-else-if="!loading" 
+
+            <n-empty
+              v-else-if="!loading"
               description="暂无更新记录"
-              style="margin: 40px 0;"
+              style="margin: 40px 0"
             />
-            
+
             <div v-if="!loading && commits.length > 0" class="text-center mt-4">
               <n-space justify="center">
-                <n-button 
-                  v-if="visibleCount > 5" 
-                  @click="showLess" 
-                  type="warning" 
+                <n-button
+                  v-if="visibleCount > 5"
+                  @click="showLess"
+                  type="warning"
                   ghost
                 >
                   收回
                 </n-button>
-                <n-button 
-                  v-if="visibleCount < commits.length" 
-                  @click="showMore" 
+                <n-button
+                  v-if="visibleCount < commits.length"
+                  @click="showMore"
                   type="primary"
                 >
                   显示更多...
@@ -178,12 +178,16 @@
                   <template #header>邮箱地址</template>
                   <template #description>1263115878@qq.com</template>
                 </n-thing>
-                <n-thing style="margin-top: 16px;">
+                <n-thing style="margin-top: 16px">
                   <template #avatar>
                     <n-icon size="24" color="#d03050"><MessageCircle /></n-icon>
                   </template>
                   <template #header>QQ 群</template>
-                  <template #description><n-text @click="handleAddQQGroup" style="color: aquamarine;">882670857</n-text></template>
+                  <template #description
+                    ><n-text @click="handleAddQQGroup" style="color: aquamarine"
+                      >882670857</n-text
+                    ></template
+                  >
                 </n-thing>
               </n-space>
             </n-grid-item>
@@ -196,7 +200,7 @@
                   <template #header>官方网站</template>
                   <template #description>{{ packageData.ycly }}</template>
                 </n-thing>
-                <n-thing style="margin-top: 16px;">
+                <n-thing style="margin-top: 16px">
                   <template #avatar>
                     <n-icon size="24" color="#2080f0"><Github /></n-icon>
                   </template>
@@ -216,7 +220,7 @@
             </template>
             本项目基于 AGPL 3.0 许可证开源
           </n-alert>
-          <br>
+          <br />
           <div class="mt-4">
             <n-space>
               <n-button type="primary" ghost @click="viewLicense">
@@ -253,7 +257,7 @@ import {
   NSpin,
   NEmpty,
   NText,
-  useMessage
+  useMessage,
 } from 'naive-ui'
 import {
   CheckCircle,
@@ -265,7 +269,7 @@ import {
   Globe,
   Github,
   FileText,
-  RefreshCw
+  RefreshCw,
 } from 'lucide-vue-next'
 
 import packageData from '../../../../package.json'
@@ -281,13 +285,19 @@ const loading = ref(false)
 
 const buildDate = typeof __BUILD_DATE__ !== 'undefined' ? __BUILD_DATE__ : ''
 const formattedBuildDate = computed(() => {
-  if (!buildDate) return '未知';
-  return new Date(buildDate).toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' })
+  if (!buildDate) return '未知'
+  return new Date(buildDate).toLocaleDateString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  })
 })
 
 const handleAddQQGroup = () => {
   message.info('正在跳转 QQ 群...')
-  window.open('http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=lKysMDnalZOkdAPhOoar-F6fnMVatr9A&authKey=ahTVSjZZdthWiZZwGJzuy6BwJFaljsB%2FIfxeVyrehz2zr8GlovYdGfU99Tq5tq0m&noverify=0&group_code=882670857')
+  window.open(
+    'http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=lKysMDnalZOkdAPhOoar-F6fnMVatr9A&authKey=ahTVSjZZdthWiZZwGJzuy6BwJFaljsB%2FIfxeVyrehz2zr8GlovYdGfU99Tq5tq0m&noverify=0&group_code=882670857',
+  )
 }
 
 const viewLicense = () => {
@@ -311,7 +321,7 @@ const formatDate = (dateString: string) => {
     month: '2-digit',
     day: '2-digit',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   })
 }
 
@@ -319,14 +329,15 @@ const getCommitType = (message: string) => {
   if (message.startsWith('feat')) return 'success'
   if (message.startsWith('fix')) return 'error'
   if (message.startsWith('docs')) return 'info'
-  if (message.startsWith('style') || message.startsWith('refactor')) return 'warning'
+  if (message.startsWith('style') || message.startsWith('refactor'))
+    return 'warning'
   return 'default'
 }
 
 const getCommitTitle = (message: string) => {
   const lines = message.split('\n')
   const firstLine = lines[0]
-  
+
   // 提取类型和描述
   const match = firstLine.match(/^(\w+)(?:\([^)]*\))?: (.+)$/)
   if (match) {
@@ -339,16 +350,19 @@ const getCommitTitle = (message: string) => {
       refactor: '♻️ 重构',
       perf: '⚡ 性能',
       test: '✅ 测试',
-      chore: '🔧 构建'
+      chore: '🔧 构建',
     }
     return `${typeMap[type] || '📦 更新'}: ${description}`
   }
-  
+
   return firstLine
 }
 
 const getCommitContent = (message: string) => {
-  const lines = message.split('\n').slice(1).filter(line => line.trim())
+  const lines = message
+    .split('\n')
+    .slice(1)
+    .filter((line) => line.trim())
   return lines.length > 0 ? lines.join(' ') : '查看提交详情了解更多信息'
 }
 

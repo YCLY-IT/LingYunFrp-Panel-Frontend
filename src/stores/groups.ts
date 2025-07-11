@@ -19,13 +19,13 @@ export const useGroupsStore = defineStore('groups', () => {
       const data = await adminApi.getGroupList()
       if (data.code === 0) {
         // 过滤掉 traffic 和 proxies 组
-        const filteredGroups = data.data.groups.filter((group: any) => 
-          !['traffic', 'proxies'].includes(group.name)
+        const filteredGroups = data.data.groups.filter(
+          (group: any) => !['traffic', 'proxies'].includes(group.name),
         )
-        
+
         groupOptions.value = filteredGroups.map((group: any) => ({
           label: group.friendlyName,
-          value: group.name
+          value: group.name,
         }))
       } else {
         message?.error(data.message || '获取用户组列表失败')
@@ -47,9 +47,9 @@ export const useGroupsStore = defineStore('groups', () => {
     // 状态
     groupOptions,
     loading,
-    
+
     // Actions
     fetchUserGroups,
-    resetState
+    resetState,
   }
-}) 
+})

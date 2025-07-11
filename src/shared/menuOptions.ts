@@ -1,18 +1,19 @@
 import { h, Component, ref } from 'vue'
-import { HomeOutline, 
-  AddCircleOutline, 
-  AppsOutline, 
-  DownloadOutline, 
-  IdCardOutline, 
-  StatsChartOutline, 
+import {
+  HomeOutline,
+  AddCircleOutline,
+  AppsOutline,
+  DownloadOutline,
+  IdCardOutline,
+  StatsChartOutline,
   PeopleOutline,
-  CloudyOutline, 
-  ConstructOutline, 
-  WalletOutline, 
-  BuildOutline, 
-  SettingsOutline, 
-  ListOutline, 
-  CubeOutline
+  CloudyOutline,
+  ConstructOutline,
+  WalletOutline,
+  BuildOutline,
+  SettingsOutline,
+  ListOutline,
+  CubeOutline,
 } from '@vicons/ionicons5'
 import { NIcon, type MenuOption } from 'naive-ui'
 import { SaveIcon } from 'lucide-vue-next'
@@ -29,19 +30,19 @@ const baseMenuOptions: MenuOption[] = [
     icon: renderIcon(AppsOutline),
     key: 'tunnel-section',
     children: [
-        {
-          label: '创建隧道',
-          icon: renderIcon(AddCircleOutline),
-          key: 'create-tunnel',
-          link: '/dashboard/proxy/create',
-        },
-        {
-          label: '隧道列表',
-          icon: renderIcon(ListOutline),
-          key: 'proxy-list',
-          link: '/dashboard/proxy/list',
-        }
-    ]
+      {
+        label: '创建隧道',
+        icon: renderIcon(AddCircleOutline),
+        key: 'create-tunnel',
+        link: '/dashboard/proxy/create',
+      },
+      {
+        label: '隧道列表',
+        icon: renderIcon(ListOutline),
+        key: 'proxy-list',
+        link: '/dashboard/proxy/list',
+      },
+    ],
   },
   {
     label: '节点状态',
@@ -84,8 +85,8 @@ const baseMenuOptions: MenuOption[] = [
         icon: renderIcon(CubeOutline),
         link: '/dashboard/more/about',
       },
-    ]
-  }
+    ],
+  },
 ]
 
 const adminMenuOptions: MenuOption = {
@@ -97,39 +98,39 @@ const adminMenuOptions: MenuOption = {
       label: '用户管理',
       key: 'admin-users',
       link: '/dashboard/admin/users',
-      icon: renderIcon(PeopleOutline)
+      icon: renderIcon(PeopleOutline),
     },
     {
       label: '节点管理',
       key: 'admin-nodes',
       link: '/dashboard/admin/nodes',
-      icon: renderIcon(CloudyOutline)
+      icon: renderIcon(CloudyOutline),
     },
     {
       label: '隧道管理',
       key: 'admin-proxies',
       link: '/dashboard/admin/proxies',
-      icon: renderIcon(AppsOutline)
+      icon: renderIcon(AppsOutline),
     },
     {
       label: '软件管理',
       key: 'admin-software',
       link: '/dashboard/admin/software',
-      icon: renderIcon(SaveIcon)
+      icon: renderIcon(SaveIcon),
     },
     {
       label: '产品管理',
       key: 'admin-products',
       link: '/dashboard/admin/products',
-      icon: renderIcon(BuildOutline)
+      icon: renderIcon(BuildOutline),
     },
     {
       label: '系统管理',
       key: 'admin-system',
       link: '/dashboard/admin/system',
-      icon: renderIcon(SettingsOutline)
-    }
-  ]
+      icon: renderIcon(SettingsOutline),
+    },
+  ],
 }
 
 export function getMenuOptions(): MenuOption[] {
@@ -143,10 +144,11 @@ export function getMenuOptions(): MenuOption[] {
 }
 
 export function renderIcon(icon: Component) {
-  return () => h(NIcon, {
-    component: icon,
-    size: 22
-  })
+  return () =>
+    h(NIcon, {
+      component: icon,
+      size: 22,
+    })
 }
 
 export const defaultExpandedKeys = ref<string[]>(['more'])

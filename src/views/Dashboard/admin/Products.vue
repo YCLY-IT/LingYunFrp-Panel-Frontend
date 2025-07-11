@@ -3,9 +3,28 @@
     <NCard title="产品管理">
       <NSpace vertical>
         <div class="product-sort-row">
-          <n-select v-model:value="sortOptions.key" :options="sortFieldOptions" placeholder="排序字段" clearable class="product-sort-item" @update:value="handleSortFieldChange" />
-          <n-select v-model:value="sortOptions.order" :options="sortOrderOptions" placeholder="排序方式" clearable class="product-sort-item" @update:value="handleSortOrderChange" />
-          <n-button type="primary" @click="openAddModal" class="product-sort-btn" size="medium">
+          <n-select
+            v-model:value="sortOptions.key"
+            :options="sortFieldOptions"
+            placeholder="排序字段"
+            clearable
+            class="product-sort-item"
+            @update:value="handleSortFieldChange"
+          />
+          <n-select
+            v-model:value="sortOptions.order"
+            :options="sortOrderOptions"
+            placeholder="排序方式"
+            clearable
+            class="product-sort-item"
+            @update:value="handleSortOrderChange"
+          />
+          <n-button
+            type="primary"
+            @click="openAddModal"
+            class="product-sort-btn"
+            size="medium"
+          >
             添加产品
           </n-button>
         </div>
@@ -21,12 +40,17 @@
       </NSpace>
     </NCard>
 
-    <NModal v-model:show="showAddModal" preset="dialog" title="添加产品" :style="modalStyle">
+    <NModal
+      v-model:show="showAddModal"
+      preset="dialog"
+      title="添加产品"
+      :style="modalStyle"
+    >
       <NForm
         ref="addFormRef"
         :model="formValue"
         :rules="productRules"
-        style="padding-top: 12px; padding-bottom: 12px;"
+        style="padding-top: 12px; padding-bottom: 12px"
       >
         <NFormItem label="分组" path="type">
           <NSelect
@@ -42,10 +66,16 @@
           <NInput v-model:value="formValue.desc" placeholder="请输入产品描述" />
         </NFormItem>
         <NFormItem label="价格" path="price">
-          <NInputNumber v-model:value="formValue.price" placeholder="请输入产品价格" />
+          <NInputNumber
+            v-model:value="formValue.price"
+            placeholder="请输入产品价格"
+          />
         </NFormItem>
         <NFormItem label="积分价格" path="pointPrice">
-          <NInputNumber v-model:value="formValue.pointPrice" placeholder="请输入积分价格" />
+          <NInputNumber
+            v-model:value="formValue.pointPrice"
+            placeholder="请输入积分价格"
+          />
         </NFormItem>
         <NFormItem label="是否为永久" path="isPermanent">
           <NSwitch v-model:value="formValue.isPermanent">
@@ -68,12 +98,17 @@
       </template>
     </NModal>
 
-    <NModal v-model:show="showEditModal" preset="dialog" title="编辑产品" :style="modalStyle">
+    <NModal
+      v-model:show="showEditModal"
+      preset="dialog"
+      title="编辑产品"
+      :style="modalStyle"
+    >
       <NForm
         ref="editFormRef"
         :model="formValue"
         :rules="productRules"
-        style="padding-top: 12px; padding-bottom: 12px;"
+        style="padding-top: 12px; padding-bottom: 12px"
       >
         <NFormItem label="分组" path="type">
           <NSelect
@@ -89,10 +124,16 @@
           <NInput v-model:value="formValue.desc" placeholder="请输入产品描述" />
         </NFormItem>
         <NFormItem label="价格" path="price">
-          <NInputNumber v-model:value="formValue.price" placeholder="请输入产品价格" />
+          <NInputNumber
+            v-model:value="formValue.price"
+            placeholder="请输入产品价格"
+          />
         </NFormItem>
         <NFormItem label="积分价格" path="pointPrice">
-          <NInputNumber v-model:value="formValue.pointPrice" placeholder="请输入积分价格" />
+          <NInputNumber
+            v-model:value="formValue.pointPrice"
+            placeholder="请输入积分价格"
+          />
         </NFormItem>
         <NFormItem label="是否为永久" path="isPermanent">
           <NSwitch v-model:value="formValue.isPermanent">
@@ -119,12 +160,24 @@
 
 <script lang="ts" setup>
 import { h, onMounted, ref, watch, computed } from 'vue'
-import { 
-  NButton, NCard, NDataTable, NForm, NFormItem, NInput, NInputNumber, 
-  NModal, NSelect, NSpace, NCheckbox, NCheckboxGroup, NTag, useMessage, 
+import {
+  NButton,
+  NCard,
+  NDataTable,
+  NForm,
+  NFormItem,
+  NInput,
+  NInputNumber,
+  NModal,
+  NSelect,
+  NSpace,
+  NCheckbox,
+  NCheckboxGroup,
+  NTag,
+  useMessage,
   DataTableColumns,
   FormInst,
-  FormRules
+  FormRules,
 } from 'naive-ui'
 import { adminApi } from '@/net'
 import { Group, Product } from '@/types'
@@ -146,7 +199,7 @@ const formValue = ref<Product>({
   payMethods: [],
   payMethod: '',
   isPoint: false,
-  selectedAmount: 0
+  selectedAmount: 0,
 })
 
 const mode = ref<'add' | 'edit'>('add')
@@ -161,7 +214,7 @@ const modalStyle = computed(() => {
   const isMobile = window.innerWidth <= 768
   return {
     width: isMobile ? '95vw' : '600px',
-    maxWidth: '95vw'
+    maxWidth: '95vw',
   }
 })
 
@@ -171,11 +224,11 @@ const sortFieldOptions = [
   { label: '名称', value: 'name' },
   { label: '价格', value: 'price' },
   { label: '积分价格', value: 'pointPrice' },
-  { label: '支付方式', value: 'payMethod' }
+  { label: '支付方式', value: 'payMethod' },
 ]
 const sortOrderOptions = [
   { label: '升序', value: 'asc' },
-  { label: '降序', value: 'desc' }
+  { label: '降序', value: 'desc' },
 ]
 const sortOptions = ref({ key: 'id', order: 'asc' })
 
@@ -185,13 +238,32 @@ const sortedProductsData = computed(() => {
     sorted = sorted.sort((a, b) => {
       let aValue: any, bValue: any
       switch (sortOptions.value.key) {
-        case 'id': aValue = a.id; bValue = b.id; break
-        case 'type': aValue = a.type; bValue = b.type; break
-        case 'name': aValue = a.name; bValue = b.name; break
-        case 'price': aValue = a.price; bValue = b.price; break
-        case 'pointPrice': aValue = a.pointPrice; bValue = b.pointPrice; break
-        case 'payMethod': aValue = a.payMethod; bValue = b.payMethod; break
-        default: return 0
+        case 'id':
+          aValue = a.id
+          bValue = b.id
+          break
+        case 'type':
+          aValue = a.type
+          bValue = b.type
+          break
+        case 'name':
+          aValue = a.name
+          bValue = b.name
+          break
+        case 'price':
+          aValue = a.price
+          bValue = b.price
+          break
+        case 'pointPrice':
+          aValue = a.pointPrice
+          bValue = b.pointPrice
+          break
+        case 'payMethod':
+          aValue = a.payMethod
+          bValue = b.payMethod
+          break
+        default:
+          return 0
       }
       // 主字段相同用ID次级排序
       if (aValue === bValue) {
@@ -211,40 +283,56 @@ const handleSortFieldChange = () => {}
 const handleSortOrderChange = () => {}
 
 // 过滤分组（排除 user 和 admin）
-watch(groupsData, (newGroups) => {
-  groupsOptions.value = newGroups
-    .filter(group => !['user', 'admin'].includes(group.name))
-    .map(group => ({
-      label: group.friendlyName,
-      value: group.name
-    }))
-}, { immediate: true })
+watch(
+  groupsData,
+  (newGroups) => {
+    groupsOptions.value = newGroups
+      .filter((group) => !['user', 'admin'].includes(group.name))
+      .map((group) => ({
+        label: group.friendlyName,
+        value: group.name,
+      }))
+  },
+  { immediate: true },
+)
 
 // 表单验证规则
 // 将原有 productRules 替换为：
 const productRules: FormRules = {
-  type: { required: true, message: '请选择产品分组', trigger: ['blur', 'change'] },
-  name: { required: true, message: '请输入产品名称', trigger: ['blur', 'input'] },
-  desc: { required: true, message: '请输入产品描述', trigger: ['blur', 'input'] },
-  price: { 
+  type: {
+    required: true,
+    message: '请选择产品分组',
+    trigger: ['blur', 'change'],
+  },
+  name: {
+    required: true,
+    message: '请输入产品名称',
+    trigger: ['blur', 'input'],
+  },
+  desc: {
+    required: true,
+    message: '请输入产品描述',
+    trigger: ['blur', 'input'],
+  },
+  price: {
     required: true,
     type: 'number' as const,
     message: '请输入产品价格',
-    trigger: ['blur', 'input']
+    trigger: ['blur', 'input'],
   },
   pointPrice: {
     required: true,
     type: 'number' as const,
     message: '请输入积分价格',
-    trigger: ['blur', 'input']
+    trigger: ['blur', 'input'],
   },
   payMethods: {
     required: true,
     type: 'array' as const,
     message: '请选择至少一种支付方式',
-    trigger: ['blur', 'change']
-  }
-} satisfies FormRules;
+    trigger: ['blur', 'change'],
+  },
+} satisfies FormRules
 
 // 表格列定义
 const productColumns: DataTableColumns<Product> = [
@@ -252,95 +340,92 @@ const productColumns: DataTableColumns<Product> = [
   { title: '分组', key: 'type' },
   { title: '名称', key: 'name' },
   { title: '描述', key: 'desc' },
-  { 
-    title: '价格', 
-    key: 'price', 
-    render: row => h('span', `${row.price} 元`) 
+  {
+    title: '价格',
+    key: 'price',
+    render: (row) => h('span', `${row.price} 元`),
   },
-  { 
-    title: '积分价格', 
-    key: 'pointPrice', 
-    render: row => h('span', `${row.pointPrice} 积分`) 
+  {
+    title: '积分价格',
+    key: 'pointPrice',
+    render: (row) => h('span', `${row.pointPrice} 积分`),
   },
   {
     title: '支付方式',
     key: 'pay_method',
-    render: row => {
-      if (!row.payMethod) return h('span', '无支付方式');
-      
-      const methods = row.payMethod.split(';');
+    render: (row) => {
+      if (!row.payMethod) return h('span', '无支付方式')
+
+      const methods = row.payMethod.split(';')
       const colorMap = {
         points: {
           color: '#4caf50',
           textColor: '#fff',
-          borderColor: '#4caf50'
+          borderColor: '#4caf50',
         },
         money: {
           color: '#2196f3',
           textColor: '#fff',
-          borderColor: '#2196f3'
-        }
-      };
+          borderColor: '#2196f3',
+        },
+      }
 
       return h(
         NSpace,
         { wrap: true },
         {
-          default: () => methods.map(method => {
-            const tagType = method === 'points' ? '积分支付' : '金钱支付';
-            const tagColor = colorMap[method] || colorMap.points;
+          default: () =>
+            methods.map((method) => {
+              const tagType = method === 'points' ? '积分支付' : '金钱支付'
+              const tagColor = colorMap[method] || colorMap.points
 
-            return h(
-              NTag,
-              {
-                style: {
-                  marginRight: '8px',
-                  marginBottom: '8px',
-                  padding: '4px 8px',
-                  borderRadius: '4px',
-                  fontSize: '12px'
+              return h(
+                NTag,
+                {
+                  style: {
+                    marginRight: '8px',
+                    marginBottom: '8px',
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                  },
+                  color: tagColor,
                 },
-                color: tagColor
-              },
-              { default: () => tagType }
-            );
-          })
-        }
-      );
-    }
+                { default: () => tagType },
+              )
+            }),
+        },
+      )
+    },
   },
   {
     title: '操作',
     key: 'actions',
     render: (row) => {
-      return h(
-        NSpace,
-        null,
-        {
-          default: () => [
-            h(
-              NButton,
-              {
-                size: 'small',
-                type: 'primary',
-                onClick: () => openEditModal(row)
-              },
-              { default: () => '修改' }
-            ),
-            h(
-              NButton,
-              {
-                size: 'small',
-                type: 'error',
-                onClick: () => handleDeleteProduct(row.id!)
-              },
-              { default: () => '删除' }
-            )
-          ]
-        }
-      )
-    }
-  }
+      return h(NSpace, null, {
+        default: () => [
+          h(
+            NButton,
+            {
+              size: 'small',
+              type: 'primary',
+              onClick: () => openEditModal(row),
+            },
+            { default: () => '修改' },
+          ),
+          h(
+            NButton,
+            {
+              size: 'small',
+              type: 'error',
+              onClick: () => handleDeleteProduct(row.id!),
+            },
+            { default: () => '删除' },
+          ),
+        ],
+      })
+    },
+  },
 ]
 
 // 关闭模态框
@@ -367,7 +452,7 @@ const resetForm = () => {
     payMethods: [],
     payMethod: '',
     isPoint: false,
-    selectedAmount: 0
+    selectedAmount: 0,
   }
 }
 
@@ -390,7 +475,7 @@ const openEditModal = (product: Product) => {
 const handleSubmit = async () => {
   try {
     await addFormRef.value?.validate()
-    
+
     const formMode = mode.value
     const formData = {
       type: formValue.value.type,
@@ -399,7 +484,7 @@ const handleSubmit = async () => {
       isPermanent: formValue.value.isPermanent,
       price: formValue.value.price,
       pointPrice: formValue.value.pointPrice,
-      payMethod: formValue.value.payMethods.join(';')
+      payMethod: formValue.value.payMethods.join(';'),
     }
 
     if (formMode === 'add') {
@@ -415,7 +500,7 @@ const handleSubmit = async () => {
       if (!currentProduct.value?.id) return
       const data = await adminApi.updateProduct({
         id: currentProduct.value.id,
-        ...formData
+        ...formData,
       })
       if (data.code === 0) {
         message.success('修改产品成功')
@@ -451,11 +536,11 @@ const fetchProductsInfo = async () => {
   try {
     const data = await adminApi.getProductList()
     if (data.code === 0) {
-      productsData.value = data.data.products.map(product => ({
+      productsData.value = data.data.products.map((product) => ({
         ...product,
         payMethods: product.payMethod ? product.payMethod.split(';') : [],
         isPoint: false,
-        selectedAmount: 0
+        selectedAmount: 0,
       }))
     } else {
       message.error(data.message || '获取产品列表失败')
@@ -510,7 +595,8 @@ onMounted(() => {
   }
   :deep(.n-data-table) {
     font-size: 12px;
-    .n-data-table-th, .n-data-table-td {
+    .n-data-table-th,
+    .n-data-table-td {
       padding: 8px 4px;
     }
   }

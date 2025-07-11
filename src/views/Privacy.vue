@@ -41,7 +41,7 @@ onMounted(async () => {
 
 const renderedNotice = computed(() => {
   if (!notice.value) return ''
-  
+
   try {
     return DOMPurify.sanitize(marked.parse(notice.value) as string)
   } catch (err) {
@@ -62,7 +62,7 @@ const renderedNotice = computed(() => {
   transform: translateY(-10px);
   font-size: 14px;
   line-height: 1.7;
-  
+
   :deep(h1) {
     font-size: 1.8em;
     margin: 1em 0;
@@ -86,7 +86,7 @@ const renderedNotice = computed(() => {
 }
 .markdown-content a {
   color: inherit;
-  text-decoration: none; 
+  text-decoration: none;
 }
 .markdown-content a:hover {
   text-decoration: underline;

@@ -7,15 +7,24 @@
           <h1>LINGYUNFRP</h1>
           <span>后台管理系统</span>
         </div>
-        <br>
-        <hr>
+        <br />
+        <hr />
       </div>
       <NForm ref="formRef" :model="formValue" :rules="rules">
         <NFormItem path="email" label="邮箱">
           <NInputGroup>
-            <NInput v-model:value="formValue.email" placeholder="请输入邮箱" :disabled="emailCodeCountdown > 0"/>
-            <NButton type="info" ghost :disabled="isEmailCodeSending || emailCodeCountdown > 0"
-                     @click="handleSendEmailCode" :loading="isEmailCodeSending">
+            <NInput
+              v-model:value="formValue.email"
+              placeholder="请输入邮箱"
+              :disabled="emailCodeCountdown > 0"
+            />
+            <NButton
+              type="info"
+              ghost
+              :disabled="isEmailCodeSending || emailCodeCountdown > 0"
+              @click="handleSendEmailCode"
+              :loading="isEmailCodeSending"
+            >
               <template #icon>
                 <NIcon :component="MailOutline" />
               </template>
@@ -24,32 +33,35 @@
           </NInputGroup>
         </NFormItem>
         <NFormItem path="emailCode" label="验证码">
-          <NInput v-model:value="formValue.emailCode" placeholder="请输入邮箱验证码" />
+          <NInput
+            v-model:value="formValue.emailCode"
+            placeholder="请输入邮箱验证码"
+          />
         </NFormItem>
 
         <NFormItem path="password" label="密码">
           <NInput
-              v-model:value="formValue.password"
-              type="password"
-              placeholder="请输入密码"
-              show-password-on="click"
+            v-model:value="formValue.password"
+            type="password"
+            placeholder="请输入密码"
+            show-password-on="click"
           />
         </NFormItem>
         <NFormItem path="confirmPassword" label="确认密码">
           <NInput
-              v-model:value="formValue.confirmPassword"
-              type="password"
-              placeholder="请再次输入密码"
-              show-password-on="click"
+            v-model:value="formValue.confirmPassword"
+            type="password"
+            placeholder="请再次输入密码"
+            show-password-on="click"
           />
         </NFormItem>
         <NButton
-            type="primary"
-            block
-            secondary
-            strong
-            @click="onForgetButtonClick"
-            :loading="isSubmitting"
+          type="primary"
+          block
+          secondary
+          strong
+          @click="onForgetButtonClick"
+          :loading="isSubmitting"
         >
           {{ isSubmitting ? '提交中...' : '提交' }}
         </NButton>
@@ -65,11 +77,22 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { NForm, NFormItem, NInput, NButton, NCard, NIcon, NInputGroup, type FormRules, useMessage, type FormInst } from 'naive-ui'
-import {PersonAddOutline, MailOutline} from '@vicons/ionicons5'
-import {userApi} from "@/net";
-import { GeetestService, loadGeetest } from '@/utils/captcha';
-import packageData from "@/../package.json";
+import {
+  NForm,
+  NFormItem,
+  NInput,
+  NButton,
+  NCard,
+  NIcon,
+  NInputGroup,
+  type FormRules,
+  useMessage,
+  type FormInst,
+} from 'naive-ui'
+import { PersonAddOutline, MailOutline } from '@vicons/ionicons5'
+import { userApi } from '@/net'
+import { GeetestService, loadGeetest } from '@/utils/captcha'
+import packageData from '@/../package.json'
 import { BING_BG_URL } from '@/constants/bing'
 
 const router = useRouter()
@@ -90,7 +113,7 @@ const formValue = ref({
   email: '',
   emailCode: '',
   password: '',
-  confirmPassword: ''
+  confirmPassword: '',
 })
 
 const emailCodeButtonText = computed(() => {
@@ -104,26 +127,28 @@ const rules: FormRules = {
     required: true,
     message: '请输入邮箱',
     trigger: 'blur',
-    type: 'email'
+    type: 'email',
   },
   emailCode: {
     required: true,
     message: '请输入验证码',
-    trigger: 'blur'
+    trigger: 'blur',
   },
   password: {
     required: true,
     message: '请输入密码',
-    trigger: 'blur'
+    trigger: 'blur',
   },
   confirmPassword: {
     required: true,
     message: '请再次输入密码',
     trigger: 'blur',
     validator: (_rule: any, value: string) => {
-      return value === formValue.value.password || new Error('两次输入的密码不一致')
-    }
-  }
+      return (
+        value === formValue.value.password || new Error('两次输入的密码不一致')
+      )
+    },
+  },
 }
 
 const startEmailCodeCountdown = () => {
@@ -154,12 +179,16 @@ const handleSendEmailCode = async () => {
     if (result) {
       geetestResult = result
       captchaVerified.value = true
-      
+
       // 人机验证通过后发送邮件验证码
       isEmailCodeSending.value = true
       try {
         const url = `?lotNumber=${result.lot_number}&passToken=${result.pass_token}&genTime=${result.gen_time}&captchaOutput=${result.captcha_output}`
-        const data = await userApi.sendEmailCode(formValue.value.email, "forget", url)
+        const data = await userApi.sendEmailCode(
+          formValue.value.email,
+          'forget',
+          url,
+        )
         if (data.code === 0) {
           message.success(data.message)
           startEmailCodeCountdown()
@@ -190,7 +219,7 @@ const onForgetButtonClick = async () => {
     message.error('验证信息已过期，请重新验证')
     return
   }
-  
+
   try {
     await formRef.value?.validate()
     isSubmitting.value = true
@@ -208,13 +237,13 @@ const handleSubmit = async (geetestResult: GeetestResult) => {
       email: formValue.value.email,
       password: formValue.value.password,
       code: formValue.value.emailCode,
-      url: `?lotNumber=${geetestResult.lot_number}&passToken=${geetestResult.pass_token}&genTime=${geetestResult.gen_time}&captchaOutput=${geetestResult.captcha_output}`
+      url: `?lotNumber=${geetestResult.lot_number}&passToken=${geetestResult.pass_token}&genTime=${geetestResult.gen_time}&captchaOutput=${geetestResult.captcha_output}`,
     })
     if (data.code === 0) {
       message.success(data.message)
       setTimeout(() => {
-        router.push('/login');
-      }, 1200);
+        router.push('/login')
+      }, 1200)
     } else {
       message.error(data.message || '重置密码失败')
       captchaVerified.value = false
@@ -245,7 +274,6 @@ onMounted(async () => {
 
 .forget {
   display: flex;
-
 }
 .auth-card {
   background-color: transparent;
@@ -255,6 +283,6 @@ onMounted(async () => {
 .title-with-icon {
   display: flex;
   align-items: center;
-  gap: 0px;; // 调整这个值来改变间距
+  gap: 0px; // 调整这个值来改变间距
 }
 </style>

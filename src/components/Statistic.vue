@@ -1,38 +1,49 @@
 <template>
-    <div class="statistic">
-      <n-grid style="margin-top: 15px" cols="1 s:2 m:4" responsive="screen" :x-gap="15" :y-gap="20">
-        <n-gi v-for="(card, index) in cards" :key="index">
-          <n-card :title="card.title" size="small">
-            <n-flex justify="space-between">
-              <n-icon style="margin-top: 5px;" size="32">
-                <component :is="card.icon" />
-              </n-icon>
-                <n-statistic tabular-nums>
-                <template #default>
-                    <n-number-animation 
-                    :from="0"
-                    :to="card.value"
-                    :precision="card.precision"
-                    show-separator
-                    />
-                </template>
-                <template v-if="card.unit" #suffix>
-                    {{ card.unit }}
-                </template>
-                </n-statistic>
-            </n-flex>
-          </n-card>
-        </n-gi>
-      </n-grid>
-    </div>
+  <div class="statistic">
+    <n-grid
+      style="margin-top: 15px"
+      cols="1 s:2 m:4"
+      responsive="screen"
+      :x-gap="15"
+      :y-gap="20"
+    >
+      <n-gi v-for="(card, index) in cards" :key="index">
+        <n-card :title="card.title" size="small">
+          <n-flex justify="space-between">
+            <n-icon style="margin-top: 5px" size="32">
+              <component :is="card.icon" />
+            </n-icon>
+            <n-statistic tabular-nums>
+              <template #default>
+                <n-number-animation
+                  :from="0"
+                  :to="card.value"
+                  :precision="card.precision"
+                  show-separator
+                />
+              </template>
+              <template v-if="card.unit" #suffix>
+                {{ card.unit }}
+              </template>
+            </n-statistic>
+          </n-flex>
+        </n-card>
+      </n-gi>
+    </n-grid>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { userApi } from '@/net';
-import { TrafficType } from '@/types';
-import { ArrowDownCircleOutline, BarChartOutline, CalendarOutline, GlobeOutline } from '@vicons/ionicons5';
-import { useMessage } from 'naive-ui';
-import { computed, markRaw, onMounted, ref } from 'vue';
+import { userApi } from '@/net'
+import { TrafficType } from '@/types'
+import {
+  ArrowDownCircleOutline,
+  BarChartOutline,
+  CalendarOutline,
+  GlobeOutline,
+} from '@vicons/ionicons5'
+import { useMessage } from 'naive-ui'
+import { computed, markRaw, onMounted, ref } from 'vue'
 
 const traffic = ref<TrafficType>({} as TrafficType)
 
@@ -78,7 +89,7 @@ const cards = computed(() => [
     value: props.signRemainder ? props.signRemainder : 0,
     unit: '次',
     precision: 0,
-  }
+  },
 ])
 
 // 获取用户流量
@@ -92,14 +103,12 @@ const getUserTraffic = async (): Promise<void> => {
 }
 
 defineExpose({
-  getUserTraffic
+  getUserTraffic,
 })
 
 onMounted(() => {
-    getUserTraffic()
+  getUserTraffic()
 })
 </script>
 
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>

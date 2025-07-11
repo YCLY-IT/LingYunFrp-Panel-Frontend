@@ -1,4 +1,4 @@
-import {createRouter, createWebHistory} from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import { unauthorized } from '@/net/token'
 import packageData from '../../package.json'
 
@@ -19,7 +19,7 @@ const router = createRouter({
       component: () => import('@/views/Login.vue'),
       meta: {
         title: '登录',
-      }
+      },
     },
     {
       path: '/register',
@@ -27,15 +27,15 @@ const router = createRouter({
       component: () => import('@/views/Register.vue'),
       meta: {
         title: '注册',
-      }
+      },
     },
     {
-          path: '/forget',
-          name: 'ResetPassword',
-          component: () => import('@/views/ResetPassword.vue'),
-          meta: {
-              title: '重置密码',
-          }
+      path: '/forget',
+      name: 'ResetPassword',
+      component: () => import('@/views/ResetPassword.vue'),
+      meta: {
+        title: '重置密码',
+      },
     },
     {
       path: '/terms',
@@ -43,7 +43,7 @@ const router = createRouter({
       component: () => import('@/views/Terms.vue'),
       meta: {
         title: '服务条款',
-      }
+      },
     },
     {
       path: '/privacy',
@@ -51,7 +51,7 @@ const router = createRouter({
       component: () => import('@/views/Privacy.vue'),
       meta: {
         title: '隐私政策',
-      }
+      },
     },
     {
       path: '/dashboard',
@@ -68,7 +68,7 @@ const router = createRouter({
           component: () => import('../views/Dashboard/Index.vue'),
           meta: {
             title: '首页',
-          }
+          },
         },
         {
           path: 'proxy',
@@ -78,28 +78,30 @@ const router = createRouter({
             {
               path: 'create',
               name: 'create-tunnel',
-              component: () => import('../views/Dashboard/proxies/CreateTunnel.vue'),
+              component: () =>
+                import('../views/Dashboard/proxies/CreateTunnel.vue'),
               meta: {
                 title: '创建隧道',
-              }
+              },
             },
             {
               path: 'list',
               name: 'proxy-list',
-              component: () => import('../views/Dashboard/proxies/ManagerTunnel.vue'),
+              component: () =>
+                import('../views/Dashboard/proxies/ManagerTunnel.vue'),
               meta: {
                 title: '隧道列表',
-              } 
-            } 
-          ]
+              },
+            },
+          ],
         },
         {
           path: 'profile',
           name: 'profile',
           component: () => import('../views/Dashboard/Profile.vue'),
           meta: {
-              title: '用户中心',
-          }
+            title: '用户中心',
+          },
         },
         {
           path: 'downloads',
@@ -107,7 +109,7 @@ const router = createRouter({
           component: () => import('../views/Dashboard/Downloads.vue'),
           meta: {
             title: '下载',
-          }
+          },
         },
         {
           path: 'node-status',
@@ -115,7 +117,7 @@ const router = createRouter({
           component: () => import('../views/Dashboard/Status.vue'),
           meta: {
             title: '节点状态',
-          }
+          },
         },
         {
           path: 'cash',
@@ -123,7 +125,7 @@ const router = createRouter({
           component: () => import('../views/Dashboard/Cash.vue'),
           meta: {
             title: '增值服务',
-          }
+          },
         },
         {
           path: 'more',
@@ -135,9 +137,9 @@ const router = createRouter({
               component: () => import('../views/Dashboard/more/About.vue'),
               meta: {
                 title: '关于面板',
-              }
+              },
             },
-          ]
+          ],
         },
         {
           path: 'admin',
@@ -150,8 +152,8 @@ const router = createRouter({
               component: () => import('../views/Dashboard/admin/Users.vue'),
               meta: {
                 title: '用户管理',
-                requiresAdmin: true
-              }
+                requiresAdmin: true,
+              },
             },
             {
               path: 'nodes',
@@ -159,8 +161,8 @@ const router = createRouter({
               component: () => import('../views/Dashboard/admin/Nodes.vue'),
               meta: {
                 title: '节点管理',
-                requiresAdmin: true
-              }
+                requiresAdmin: true,
+              },
             },
             {
               path: 'proxies',
@@ -168,8 +170,8 @@ const router = createRouter({
               component: () => import('../views/Dashboard/admin/Proxies.vue'),
               meta: {
                 title: '隧道管理',
-                requiresAdmin: true
-              }
+                requiresAdmin: true,
+              },
             },
             {
               path: 'system',
@@ -177,8 +179,8 @@ const router = createRouter({
               component: () => import('../views/Dashboard/admin/System.vue'),
               meta: {
                 title: '系统管理',
-                requiresAdmin: true
-              }
+                requiresAdmin: true,
+              },
             },
             {
               path: 'software',
@@ -186,8 +188,8 @@ const router = createRouter({
               component: () => import('../views/Dashboard/admin/Software.vue'),
               meta: {
                 title: '软件管理',
-                requiresAdmin: true
-              }
+                requiresAdmin: true,
+              },
             },
             {
               path: 'products',
@@ -195,36 +197,41 @@ const router = createRouter({
               component: () => import('@/views/Dashboard/admin/Products.vue'),
               meta: {
                 title: '产品管理',
-                requiresAdmin: true
-              }
+                requiresAdmin: true,
+              },
             },
-          ]
+          ],
         },
-      ]
-    }
+      ],
+    },
   ],
 })
 
 router.beforeEach((to, _from, next) => {
   // 需要登录的路由校验
-  if (to.matched.some(record => record.meta.requiresAuth)) {
+  if (to.matched.some((record) => record.meta.requiresAuth)) {
     if (unauthorized()) {
       next({
         name: 'login',
-        query: { redirect: to.fullPath } // 携带跳转路径参数
+        query: { redirect: to.fullPath }, // 携带跳转路径参数
       })
     } else {
       next()
     }
   }
   // 已登录用户禁止访问登录/注册页
-  else if ((to.name === 'login' || to.name === 'register' || to.name === 'ResetPassword') && !unauthorized()) {
+  else if (
+    (to.name === 'login' ||
+      to.name === 'register' ||
+      to.name === 'ResetPassword') &&
+    !unauthorized()
+  ) {
     next({ name: 'dashboard' })
   }
   // 其他情况直接放行
   else if (to.matched.length === 0) {
-    next("/dashboard")
-  }else {
+    next('/dashboard')
+  } else {
     next()
   }
 })

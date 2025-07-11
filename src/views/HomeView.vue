@@ -1,22 +1,32 @@
 <template>
   <n-config-provider>
     <div class="landing-page">
-
       <!-- 英雄区域 -->
       <section class="hero">
         <div class="container">
           <div class="hero-content">
             <div class="hero-text">
-              <h1 class="hero-title">
-                快速可靠的内网穿透解决方案
-              </h1>
+              <h1 class="hero-title">快速可靠的内网穿透解决方案</h1>
               <p class="hero-description">
-                {{ packageData.title }} 是一个专注于内网穿透的高性能的反向代理应用，支持 TCP、UDP、HTTP、HTTPS 多种协议，让您轻松实现内网服务的外网访问。
+                {{ packageData.title }}
+                是一个专注于内网穿透的高性能的反向代理应用，支持
+                TCP、UDP、HTTP、HTTPS 多种协议，让您轻松实现内网服务的外网访问。
               </p>
               <div class="hero-actions">
                 <n-space :vertical="isMobile" :size="isMobile ? 12 : 16">
-                  <n-button type="primary" :size="isMobile ? 'medium' : 'large'" block @click="handleLogin">立即登录</n-button>
-                  <n-button :size="isMobile ? 'medium' : 'large'" block @click="scrollToFeatures">了解更多</n-button>
+                  <n-button
+                    type="primary"
+                    :size="isMobile ? 'medium' : 'large'"
+                    block
+                    @click="handleLogin"
+                    >立即登录</n-button
+                  >
+                  <n-button
+                    :size="isMobile ? 'medium' : 'large'"
+                    block
+                    @click="scrollToFeatures"
+                    >了解更多</n-button
+                  >
                 </n-space>
               </div>
             </div>
@@ -36,7 +46,12 @@
               我们提供简单易用、安全可靠的内网穿透服务，满足您的各种需求
             </p>
           </div>
-          <n-grid :cols="gridCols" responsive="screen" :x-gap="isMobile ? 16 : 24" :y-gap="isMobile ? 16 : 24">
+          <n-grid
+            :cols="gridCols"
+            responsive="screen"
+            :x-gap="isMobile ? 16 : 24"
+            :y-gap="isMobile ? 16 : 24"
+          >
             <n-grid-item v-for="feature in features" :key="feature.title">
               <n-card class="feature-card">
                 <div class="feature-icon">
@@ -62,7 +77,12 @@
             </p>
           </div>
           <n-timeline>
-            <n-timeline-item v-for="(useCase, index) in useCases" :key="index" :type="useCase.type" :title="useCase.title">
+            <n-timeline-item
+              v-for="(useCase, index) in useCases"
+              :key="index"
+              :type="useCase.type"
+              :title="useCase.title"
+            >
               <n-card>
                 <div class="use-case-content">
                   <div class="use-case-text">
@@ -84,9 +104,18 @@
               选择最适合您需求的方案，开始使用我们的服务
             </p>
           </div>
-          <n-grid :cols="pricingCols" responsive="screen" :x-gap="isMobile ? 16 : 24" :y-gap="isMobile ? 16 : 24">
+          <n-grid
+            :cols="pricingCols"
+            responsive="screen"
+            :x-gap="isMobile ? 16 : 24"
+            :y-gap="isMobile ? 16 : 24"
+          >
             <n-grid-item v-for="plan in pricingPlans" :key="plan.title">
-              <n-card class="pricing-card" :bordered="false" :class="{ 'pricing-card-highlighted': plan.highlighted }">
+              <n-card
+                class="pricing-card"
+                :bordered="false"
+                :class="{ 'pricing-card-highlighted': plan.highlighted }"
+              >
                 <div class="pricing-header">
                   <h3 class="pricing-title">{{ plan.title }}</h3>
                   <div class="pricing-price">
@@ -106,7 +135,12 @@
                   </li>
                 </ul>
                 <div class="pricing-action">
-                  <n-button block :type="plan.highlighted ? 'primary' : 'default'" @click="handleLogin" :strong="plan.highlighted">
+                  <n-button
+                    block
+                    :type="plan.highlighted ? 'primary' : 'default'"
+                    @click="handleLogin"
+                    :strong="plan.highlighted"
+                  >
                     {{ plan.buttonText }}
                   </n-button>
                 </div>
@@ -121,12 +155,15 @@
         <div class="container">
           <div class="section-header">
             <h2 class="section-title">常见问题</h2>
-            <p class="section-description">
-              了解更多关于我们服务的信息
-            </p>
+            <p class="section-description">了解更多关于我们服务的信息</p>
           </div>
           <n-collapse>
-            <n-collapse-item v-for="(item, index) in faqItems" :key="index" :title="item.question" :name="index">
+            <n-collapse-item
+              v-for="(item, index) in faqItems"
+              :key="index"
+              :title="item.question"
+              :name="index"
+            >
               {{ item.answer }}
             </n-collapse-item>
           </n-collapse>
@@ -140,11 +177,18 @@
             <div class="contact-text">
               <h2 class="section-title">准备好开始了吗？</h2>
               <p class="section-description">
-                立即注册，开始使用我们的 {{ packageData.title }} 服务，享受高速稳定的内网穿透体验。
+                立即注册，开始使用我们的
+                {{ packageData.title }} 服务，享受高速稳定的内网穿透体验。
               </p>
             </div>
             <div class="contact-action">
-              <n-button type="primary" @click="handleLogin" :size="isMobile ? 'medium' : 'large'" :block="isMobile">立即登录</n-button>
+              <n-button
+                type="primary"
+                @click="handleLogin"
+                :size="isMobile ? 'medium' : 'large'"
+                :block="isMobile"
+                >立即登录</n-button
+              >
             </div>
           </div>
         </div>
@@ -155,18 +199,24 @@
         <div class="container">
           <div class="footer-content">
             <div class="footer-logo">
-              <n-gradient-text type="primary" :size="isMobile ? 20 : 24">{{ packageData.title }}</n-gradient-text>
-              <p class="footer-description">
-                专业的内网穿透服务提供商
-              </p>
+              <n-gradient-text type="primary" :size="isMobile ? 20 : 24">{{
+                packageData.title
+              }}</n-gradient-text>
+              <p class="footer-description">专业的内网穿透服务提供商</p>
             </div>
-            <div class="footer-links">
-            </div>
+            <div class="footer-links"></div>
           </div>
           <div class="footer-bottom">
             <div class="footer-copyright">
-              © {{ new Date().getFullYear() }} {{ packageData.title }} 服务. 保留所有权利.<br />
-              Powered By  <a class="section-description" :href="packageData.ycly" target="_blank">云创联跃IT</a>
+              © {{ new Date().getFullYear() }} {{ packageData.title }} 服务.
+              保留所有权利.<br />
+              Powered By
+              <a
+                class="section-description"
+                :href="packageData.ycly"
+                target="_blank"
+                >云创联跃IT</a
+              >
             </div>
             <div class="footer-social">
               <a :href="packageData.github" class="social-link">
@@ -180,7 +230,7 @@
         </div>
       </footer>
     </div>
-    
+
     <!-- 统计组件 - 固定定位在底部中间 -->
     <La />
   </n-config-provider>
@@ -199,16 +249,18 @@ import {
   DatabaseIcon,
   CheckIcon,
   GithubIcon,
-  CloudIcon
+  CloudIcon,
 } from 'lucide-vue-next'
-import router from "@/router";
+import router from '@/router'
 import La from '@/components/La.vue'
 
 // 响应式断点检测
 const windowWidth = ref(window.innerWidth)
 
 const isMobile = computed(() => windowWidth.value < 768)
-const isTablet = computed(() => windowWidth.value >= 768 && windowWidth.value < 1024)
+const isTablet = computed(
+  () => windowWidth.value >= 768 && windowWidth.value < 1024,
+)
 
 // 网格列数响应式配置
 const gridCols = computed(() => {
@@ -240,33 +292,36 @@ const features = [
   {
     icon: ZapIcon,
     title: '高性能',
-    description: '基于高效的网络库实现，支持高并发连接，保证数据传输的稳定性和速度。'
+    description:
+      '基于高效的网络库实现，支持高并发连接，保证数据传输的稳定性和速度。',
   },
   {
     icon: ShieldIcon,
     title: '安全可靠',
-    description: '支持 TLS 加密传输，保护您的数据安全，防止中间人攻击和数据泄露。'
+    description:
+      '支持 TLS 加密传输，保护您的数据安全，防止中间人攻击和数据泄露。',
   },
   {
     icon: SettingsIcon,
     title: '简单易用',
-    description: '提供简洁的界面，轻松配置和管理您的内网穿透服务。'
+    description: '提供简洁的界面，轻松配置和管理您的内网穿透服务。',
   },
   {
     icon: MonitorIcon,
     title: '实时监控',
-    description: '提供详细的流量统计和连接状态监控，让您随时了解服务运行情况。'
+    description: '提供详细的流量统计和连接状态监控，让您随时了解服务运行情况。',
   },
   {
     icon: ServerIcon,
     title: '多协议支持',
-    description: '支持 TCP、UDP、HTTP、HTTPS 等多种协议，满足不同场景的需求。'
+    description: '支持 TCP、UDP、HTTP、HTTPS 等多种协议，满足不同场景的需求。',
   },
   {
     icon: DatabaseIcon,
     title: '多平台兼容',
-    description: '支持 Windows、Linux、macOS 等多种操作系统，无需担心平台兼容问题。'
-  }
+    description:
+      '支持 Windows、Linux、macOS 等多种操作系统，无需担心平台兼容问题。',
+  },
 ]
 
 // 使用场景
@@ -279,7 +334,8 @@ const useCases = [
   {
     type: 'info',
     title: '开发测试',
-    description: '将本地开发环境暴露到公网，方便团队协作测试和演示，加速开发流程。',
+    description:
+      '将本地开发环境暴露到公网，方便团队协作测试和演示，加速开发流程。',
   },
   {
     type: 'warning',
@@ -290,7 +346,7 @@ const useCases = [
     type: 'error',
     title: '游戏联机',
     description: `使用 ${packageData.title} 服务，您可以轻松搭建游戏服务器，与朋友一起享受游戏乐趣。`,
-  }
+  },
 ]
 
 // 价格方案
@@ -299,61 +355,52 @@ const pricingPlans = [
     title: '基础版',
     price: '0',
     description: '适合个人用户和小型项目',
-    features: [
-      '2个隧道',
-      '12Mbps带宽',
-      '99.9%可用性保证',
-    ],
+    features: ['2个隧道', '12Mbps带宽', '99.9%可用性保证'],
     buttonText: '立即登录',
   },
   {
     title: 'VIP版',
     price: '10',
     description: '适合中小型企业和团队',
-    features: [
-      '10个隧道',
-      '24Mbps带宽',
-      '99.95%可用性保证',
-    ],
+    features: ['10个隧道', '24Mbps带宽', '99.95%可用性保证'],
     buttonText: '立即登录',
-    highlighted: true
+    highlighted: true,
   },
   {
     title: 'SVIP版',
     price: '20',
     description: '适合大型企业和高要求场景',
-    features: [
-      '20个限隧道',
-      '36Mbps带宽',
-      '99.99%可用性保证',
-    ],
+    features: ['20个限隧道', '36Mbps带宽', '99.99%可用性保证'],
     buttonText: '立即登录',
-    highlighted: false
-  }
+    highlighted: false,
+  },
 ]
 
 // 常见问题
 const faqItems = [
   {
     question: 'FRP 是什么？',
-    answer: 'FRP（Fast Reverse Proxy）是一个可用于内网穿透的高性能的反向代理应用，支持 TCP、UDP、HTTP、HTTPS 等多种协议。通过在具有公网 IP 的节点上部署 frps 服务端，可以轻松地将内网服务穿透到公网，使得外网用户可以访问内网资源。'
+    answer:
+      'FRP（Fast Reverse Proxy）是一个可用于内网穿透的高性能的反向代理应用，支持 TCP、UDP、HTTP、HTTPS 等多种协议。通过在具有公网 IP 的节点上部署 frps 服务端，可以轻松地将内网服务穿透到公网，使得外网用户可以访问内网资源。',
   },
   {
     question: `如何开始使用 ${packageData.title} 服务？`,
-    answer: '注册账号后，您可以在控制面板中创建隧道，选择协议类型和端口，然后下载客户端配置文件，按照指引在您的设备上运行客户端即可完成配置。'
+    answer:
+      '注册账号后，您可以在控制面板中创建隧道，选择协议类型和端口，然后下载客户端配置文件，按照指引在您的设备上运行客户端即可完成配置。',
   },
   {
     question: `${packageData.title} 服务支持哪些操作系统？`,
-    answer: `${packageData.title} 客户端支持 Windows、Linux、macOS 等主流操作系统，您可以根据自己的需求选择合适的版本。`
+    answer: `${packageData.title} 客户端支持 Windows、Linux、macOS 等主流操作系统，您可以根据自己的需求选择合适的版本。`,
   },
   {
     question: `使用 ${packageData.title} 服务是否安全？`,
-    answer: `我们的 ${packageData.title}服务支持 TLS 加密传输，可以有效保护您的数据安全。同时，我们还提供了多种安全配置选项，如认证、访问控制等，进一步增强服务的安全性。`
+    answer: `我们的 ${packageData.title}服务支持 TLS 加密传输，可以有效保护您的数据安全。同时，我们还提供了多种安全配置选项，如认证、访问控制等，进一步增强服务的安全性。`,
   },
   {
     question: '如何获取技术支持？',
-    answer: '您可以通过控制面板中的"支持"页面提交工单，或者加入QQ群获取技术支持。专业版和企业版用户可以获得优先响应。'
-  }
+    answer:
+      '您可以通过控制面板中的"支持"页面提交工单，或者加入QQ群获取技术支持。专业版和企业版用户可以获得优先响应。',
+  },
 ]
 
 const handleLogin = () => {
@@ -361,9 +408,9 @@ const handleLogin = () => {
 }
 
 const scrollToFeatures = () => {
-  const featuresSection = document.getElementById('features-section');
+  const featuresSection = document.getElementById('features-section')
   if (featuresSection) {
-    featuresSection.scrollIntoView({ behavior: 'smooth' });
+    featuresSection.scrollIntoView({ behavior: 'smooth' })
   }
 }
 
@@ -380,7 +427,9 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .landing-page {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+    Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   color: var(--n-text-color);
   background-color: var(--n-color);
 
@@ -729,7 +778,7 @@ onMounted(() => {
       flex-direction: column;
       text-align: center;
       gap: 12px;
-      
+
       .footer-social {
         order: 1;
         margin: 8px 0;
@@ -780,7 +829,6 @@ onMounted(() => {
     &:active {
       color: #1c6ea4;
     }
-
 
     &:after {
       content: '';

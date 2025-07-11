@@ -1,55 +1,55 @@
 @use '../variables' as *;
 
 .user-info-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
 }
 
 .user-info-item {
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    padding: 2px;
-    gap: 8px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding: 2px;
+  gap: 8px;
 }
 .user-info-item-right {
-    // 右边再往右边移
-    margin-left: 20px;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    padding: 2px;
-    gap: 8px;
+  // 右边再往右边移
+  margin-left: 20px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding: 2px;
+  gap: 8px;
 }
 
 .full-width {
-    grid-column: 1 / -1;
+  grid-column: 1 / -1;
 }
 
 .user-info-label {
-    font-size: 14px;
-    color: $text-color-2;
+  font-size: 14px;
+  color: $text-color-2;
 }
 
 .user-info-value {
-    // 禁止文本换行
-    white-space: nowrap;
-    font-size: 14px;
-    color: $text-color;
+  // 禁止文本换行
+  white-space: nowrap;
+  font-size: 14px;
+  color: $text-color;
 }
 
 .sign-section {
-    user-select: none;
-    margin-top: 10px;
-    display: flex;
-    justify-content: flex-start;
+  user-select: none;
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-start;
 }
 .token-section {
-    justify-self: start;
-    display: flex;
-    position: relative;
-    margin-top: 3px;
+  justify-self: start;
+  display: flex;
+  position: relative;
+  margin-top: 3px;
 }
 
 @media (max-width: 600px) {
