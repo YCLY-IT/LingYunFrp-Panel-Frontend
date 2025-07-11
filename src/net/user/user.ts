@@ -320,3 +320,15 @@ export async function submitRealname(
     },
   })
 }
+
+export async function resetToken(): Promise<any> {
+  return await post(
+    '/user/reset/token',
+    {},
+    {
+      headers: {
+        Authorization: getToken(),
+      },
+    },
+  )
+}

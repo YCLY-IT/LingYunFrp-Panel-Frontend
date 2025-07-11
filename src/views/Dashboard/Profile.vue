@@ -82,6 +82,16 @@
                 <p class="setting-desc">点击这里可以实人认证哦</p>
               </div>
             </div>
+            <!-- 重置Token -->
+            <div class="setting-item" @click="showModal('changeResetToken')">
+              <div class="setting-icon">
+                <KeyIcon style="width: 50px; height: 50px; margin-top: 25px" />
+              </div>
+              <div class="setting-content">
+                <h3 class="setting-title">重置Token</h3>
+                <p class="setting-desc">点击这里可以重置您的Token (退出登录)</p>
+              </div>
+            </div>
           </div>
         </n-card>
       </div>
@@ -194,7 +204,17 @@
           label-width="auto"
           :show-feedback="false"
         >
-          <n-form-item label="新的昵称">
+          <n-alert type="info" title="提示">
+            在我们称呼你时将会使用该昵称。
+          </n-alert>
+          <n-form-item label="当前昵称" style="margin-top: 20px">
+            <n-input
+              v-model:value="UserInfo.nickname"
+              readonly
+              style="cursor: default"
+            />
+          </n-form-item>
+          <n-form-item label="新的昵称" style="margin-top: 20px">
             <n-input
               v-model:value="forms.nickname.newNickname"
               placeholder="请输入新的昵称"
@@ -458,6 +478,24 @@
           </div>
         </n-form>
       </n-modal>
+
+      <n-modal
+        v-model:show="modals.changeResetToken"
+        type="warning"
+        preset="dialog"
+        title="重置密钥"
+        style="width: 500px"
+      >
+        <div style="margin-bottom: 24px">
+          此操作将重置您的Token（密钥），这将可能导致你的服务全部中断，并会导致当前账号强制退出登录。请确认是否继续？
+        </div>
+        <div class="modal-actions">
+          <n-button @click="modals.changeResetToken = false">取消</n-button>
+          <n-button type="error" @click="handleResetToken" :loading="loading"
+            >确认重置</n-button
+          >
+        </div>
+      </n-modal>
     </div>
   </div>
 </template>
@@ -475,12 +513,14 @@ import {
   NTabPane,
   NUpload,
   UploadFileInfo,
+  useDialog,
 } from 'naive-ui'
 import {
   UserIcon,
   ImageUpIcon,
   LockIcon,
   BadgeCheckIcon,
+  KeyIcon,
 } from 'lucide-vue-next'
 import userInfo from '../../components/UserInfo.vue'
 import { userApi } from '../../net'
@@ -491,12 +531,13 @@ import 'vue-advanced-cropper/dist/style.css'
 import md5 from 'blueimp-md5'
 import { GeetestService, loadGeetest } from '@/utils/captcha'
 import packageData from '@/../package.json'
+import router from '@/router'
 
 const userInfoRef = ref<InstanceType<typeof userInfo>>()
 
 // 消息提示
 const message = useMessage()
-
+const dialog = useDialog()
 // 用户信息
 const UserInfo = reactive({
   username: localStorage.getItem('username') || '',
@@ -514,6 +555,7 @@ const modals = reactive({
   changeEmail: false,
   changeNickname: false,
   changeRealname: false,
+  changeResetToken: false,
 })
 
 // 表单数据
@@ -1010,6 +1052,24 @@ const handleSendPhoneCode = async () => {
   }
 }
 
+const handleResetToken = async () => {
+  loading.value = true
+  const data = await userApi.resetToken()
+  if (data.code === 0) {
+    loading.value = false
+    modals.changeResetToken = false
+    dialog.success({
+      title: '重置成功',
+      content: '令牌重置成功，请重新登录',
+      positiveText: '确定',
+      onPositiveClick: () => {
+        removeToken()
+        router.push('/login')
+      },
+      closable: false,
+    })
+  }
+}
 // 组件卸载时清理
 onMounted(async () => {
   // 加载极验脚本
@@ -1328,5 +1388,11 @@ $transition-normal: all 0.2s ease;
 :deep(.cropper-view-box) {
   outline: 0;
   box-shadow: 0 0 0 1px #39f;
+}
+
+.nickname-disabled-input :deep(.n-input__input) {
+  color: #333 !important;
+  background: #f5f5f5 !important;
+  opacity: 1 !important;
 }
 </style>

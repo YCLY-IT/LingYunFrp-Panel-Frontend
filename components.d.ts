@@ -12,6 +12,7 @@ declare module 'vue' {
     HomeMenu: typeof import('./src/components/HomeMenu.vue')['default']
     La: typeof import('./src/components/La.vue')['default']
     LeftMenu: typeof import('./src/components/LeftMenu.vue')['default']
+    NAlert: typeof import('naive-ui')['NAlert']
     NButton: typeof import('naive-ui')['NButton']
     NCard: typeof import('naive-ui')['NCard']
     NCheckbox: typeof import('naive-ui')['NCheckbox']
