@@ -129,6 +129,7 @@ import {
   NSpace,
   NText,
   NAlert,
+  useDialog,
 } from 'naive-ui'
 import { CalendarOutline } from '@vicons/ionicons5'
 import { userApi } from '@/net'
@@ -140,6 +141,7 @@ import { storeUserInfo } from '@/utils/user'
 const emit = defineEmits<{
   (e: 'update'): void
 }>()
+const dialog = useDialog()
 const message = useMessage()
 const loading = ref(true)
 const signLoading = ref(false)
@@ -213,7 +215,16 @@ const signIn = async (geetestResult: GeetestResult) => {
     const url = `?lotNumber=${geetestResult.lot_number}&passToken=${geetestResult.pass_token}&genTime=${geetestResult.gen_time}&captchaOutput=${geetestResult.captcha_output}`
     const data = await userApi.sign(url)
     if (data.code === 0) {
-      message.success('签到成功')
+      dialog.success({
+        title: data.message,
+        content: `获得 ${data.data.point} 积分, ${data.data.traffic} 流量`,
+        positiveText: '确定',
+        onPositiveClick: () => {
+          isSignAvailable.value = false
+          emit('update')
+          fetchUserInfo()
+        },
+      })
       isSignAvailable.value = false
       emit('update')
       fetchUserInfo()
