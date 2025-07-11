@@ -2,7 +2,9 @@
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.15s, transform 0.15s;
+  transition:
+    opacity 0.15s,
+    transform 0.15s;
 }
 
 .fade-enter-from,

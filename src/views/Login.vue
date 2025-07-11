@@ -7,22 +7,36 @@
           <h1>{{ packageData.title }}</h1>
           <span>后台管理系统</span>
         </div>
-        <br>
-        <hr>
+        <br />
+        <hr />
       </div>
       <NForm ref="formRef" :model="formValue" :rules="rules">
         <NFormItem path="username" label="用户名/邮箱">
-          <NInput v-model:value="formValue.username" placeholder="请输入用户名或邮箱" />
+          <NInput
+            v-model:value="formValue.username"
+            placeholder="请输入用户名或邮箱"
+          />
         </NFormItem>
         <NFormItem path="password" label="密码">
-          <NInput v-model:value="formValue.password" type="password" placeholder="请输入密码" 
-                  show-password-on="click" />
+          <NInput
+            v-model:value="formValue.password"
+            type="password"
+            placeholder="请输入密码"
+            show-password-on="click"
+          />
         </NFormItem>
         <div class="checkbox-forgot">
           <NCheckbox v-model:checked="formValue.remember">记住密码</NCheckbox>
           <router-link to="/forget" class="forgot-link">忘记密码？</router-link>
         </div>
-        <NButton :loading="loading" type="primary" block secondary strong @click="onLoginButtonClick">
+        <NButton
+          :loading="loading"
+          type="primary"
+          block
+          secondary
+          strong
+          @click="onLoginButtonClick"
+        >
           登录
         </NButton>
         <div class="form-footer register-link">
@@ -37,7 +51,17 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { NForm, NFormItem, NInput, NButton, NCard, NIcon, type FormRules, useMessage, type FormInst } from 'naive-ui'
+import {
+  NForm,
+  NFormItem,
+  NInput,
+  NButton,
+  NCard,
+  NIcon,
+  type FormRules,
+  useMessage,
+  type FormInst,
+} from 'naive-ui'
 import { LogInOutline } from '@vicons/ionicons5'
 import { userApi } from '@/net'
 import { BING_BG_URL } from '@/constants/bing'
@@ -50,20 +74,20 @@ const loading = ref(false)
 const formValue = ref({
   username: '',
   password: '',
-  remember: false
+  remember: false,
 })
 
 const rules: FormRules = {
   username: {
     required: true,
     message: '请输入用户名/邮箱',
-    trigger: 'blur'
+    trigger: 'blur',
   },
   password: {
     required: true,
     message: '请输入密码',
-    trigger: 'blur'
-  }
+    trigger: 'blur',
+  },
 }
 
 // 登录按钮逻辑
@@ -85,7 +109,7 @@ const handleSubmit = async () => {
       username: formValue.value.username,
       password: formValue.value.password,
       remember: formValue.value.remember,
-      url: ''
+      url: '',
     })
     localStorage.setItem('username', data.data.username)
     localStorage.setItem('nickname', data.data.nickname)
@@ -94,7 +118,7 @@ const handleSubmit = async () => {
     message.success(data.message)
     loading.value = false
     setTimeout(() => {
-      router.push('/dashboard');
+      router.push('/dashboard')
     }, 1200)
   } catch (error: any) {
     message.error(error.message || '登录失败')
@@ -135,6 +159,6 @@ onMounted(() => {
 .title-with-icon {
   display: flex;
   align-items: center;
-  gap: 0px;; // 调整这个值来改变间距
+  gap: 0px; // 调整这个值来改变间距
 }
 </style>

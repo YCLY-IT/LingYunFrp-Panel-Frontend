@@ -1,6 +1,6 @@
 export * from './proxy'
 export * from './User'
-import type { DialogApi, MessageApi, } from 'naive-ui'
+import type { DialogApi, MessageApi } from 'naive-ui'
 
 declare global {
   interface Window {
@@ -12,8 +12,8 @@ declare global {
     $message?: MessageApi
     $dialog?: DialogApi
     $notification?: any
-    initGeetest?: (config: any, callback: (captcha: any) => void) => void;
-    gt?: string;
-    challenge?: string;
+    initGeetest?: (config: any, callback: (captcha: any) => void) => void
+    gt?: string
+    challenge?: string
   }
 }

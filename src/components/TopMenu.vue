@@ -1,8 +1,17 @@
 <template>
-  <NLayoutHeader bordered position="absolute" style="height: 64px; z-index: 999; user-select: none">
+  <NLayoutHeader
+    bordered
+    position="absolute"
+    style="height: 64px; z-index: 999; user-select: none"
+  >
     <div class="header-content">
       <div class="left">
-        <NPopover trigger="click" placement="bottom-start" :show="showMenu" @update:show="showMenu = $event">
+        <NPopover
+          trigger="click"
+          placement="bottom-start"
+          :show="showMenu"
+          @update:show="showMenu = $event"
+        >
           <template #trigger>
             <NButton text class="menu-trigger">
               <NIcon size="24">
@@ -12,21 +21,40 @@
           </template>
           <div class="mobile-menu">
             <NScrollbar style="max-height: 500px">
-              <NMenu :options="menuOptions" :value="currentKey" @update:value="handleMenuSelect"
-                     :default-expanded-keys="defaultExpandedKeys" />
+              <NMenu
+                :options="menuOptions"
+                :value="currentKey"
+                @update:value="handleMenuSelect"
+                :default-expanded-keys="defaultExpandedKeys"
+              />
             </NScrollbar>
           </div>
         </NPopover>
-        <h2 class="logo" style="background: transparent; 
-        -webkit-background-clip: text; color: transparent; 
-        background-image: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);">{{ packageData.title }}</h2>
+        <h2
+          class="logo"
+          style="
+            background: transparent;
+            -webkit-background-clip: text;
+            color: transparent;
+            background-image: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+          "
+        >
+          {{ packageData.title }}
+        </h2>
       </div>
       <div class="right">
-        <NDropdown :options="options" @select="handleUserMenuSelect" trigger="hover">
+        <NDropdown
+          :options="options"
+          @select="handleUserMenuSelect"
+          trigger="hover"
+        >
           <NButton text>
             <template #icon>
               <NIcon>
-                <div class="avatar" style="transform: translateY(-6px) translateX(-20px)">
+                <div
+                  class="avatar"
+                  style="transform: translateY(-6px) translateX(-20px)"
+                >
                   <img :src="avatarUrl" alt="avatar" />
                 </div>
               </NIcon>
@@ -50,12 +78,37 @@
 import packageData from '../../package.json'
 import { h, ref, inject, computed, Ref, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { NLayoutHeader, NIcon, NButton, NDropdown, useDialog, useMessage, NSwitch, NPopover, NMenu, MenuOption, NDrawer, NDrawerContent, NScrollbar } from 'naive-ui'
-import { PersonCircleOutline, LogOutOutline, SunnyOutline, MoonOutline, MenuOutline, HomeOutline } from '@vicons/ionicons5'
+import {
+  NLayoutHeader,
+  NIcon,
+  NButton,
+  NDropdown,
+  useDialog,
+  useMessage,
+  NSwitch,
+  NPopover,
+  NMenu,
+  MenuOption,
+  NDrawer,
+  NDrawerContent,
+  NScrollbar,
+} from 'naive-ui'
+import {
+  PersonCircleOutline,
+  LogOutOutline,
+  SunnyOutline,
+  MoonOutline,
+  MenuOutline,
+  HomeOutline,
+} from '@vicons/ionicons5'
 import { switchButtonRailStyle } from '../constants/theme.ts'
-import { getMenuOptions, renderIcon, defaultExpandedKeys } from '../shared/menuOptions.ts'
+import {
+  getMenuOptions,
+  renderIcon,
+  defaultExpandedKeys,
+} from '../shared/menuOptions.ts'
 import LeftMenu from './LeftMenu.vue'
-import { userApi } from "@/net";
+import { userApi } from '@/net'
 import { removeToken } from '@/net/token.ts'
 
 const router = useRouter()
@@ -79,53 +132,66 @@ const { isDarkMode, toggleTheme } = inject('theme') as {
 
 // 渲染下拉菜单中的主题切换选项
 const renderThemeOption = () => {
-  return h('div', {
-    style: 'display: flex; align-items: center; padding: 8px 12px; height: 20px;'
-  }, [
-    h('span', {
-      style: 'flex: 1; margin-right: 12px; font-size: 14px;'
-    }, '主题切换'),
-    h(NSwitch, {
-      value: isDarkMode.value,
-      'onUpdate:value': handleThemeChange,
-      railStyle: switchButtonRailStyle,
-      size: 'small'
-    }, {
-      checked: () => h(NIcon, null, { default: () => h(MoonOutline) }),
-      unchecked: () => h(NIcon, null, { default: () => h(SunnyOutline) })
-    })
-  ])
+  return h(
+    'div',
+    {
+      style:
+        'display: flex; align-items: center; padding: 8px 12px; height: 20px;',
+    },
+    [
+      h(
+        'span',
+        {
+          style: 'flex: 1; margin-right: 12px; font-size: 14px;',
+        },
+        '主题切换',
+      ),
+      h(
+        NSwitch,
+        {
+          value: isDarkMode.value,
+          'onUpdate:value': handleThemeChange,
+          railStyle: switchButtonRailStyle,
+          size: 'small',
+        },
+        {
+          checked: () => h(NIcon, null, { default: () => h(MoonOutline) }),
+          unchecked: () => h(NIcon, null, { default: () => h(SunnyOutline) }),
+        },
+      ),
+    ],
+  )
 }
 
 const options = [
   {
     key: 'theme',
     type: 'render',
-    render: renderThemeOption
+    render: renderThemeOption,
   },
   {
     type: 'divider',
-    key: 'd1'
+    key: 'd1',
   },
   {
     label: '返回首页',
     key: 'home',
-    icon: renderIcon(HomeOutline)
+    icon: renderIcon(HomeOutline),
   },
   {
     type: 'divider',
-    key: 'd2'
+    key: 'd2',
   },
   {
     label: '个人资料',
     key: 'profile',
-    icon: renderIcon(PersonCircleOutline)
+    icon: renderIcon(PersonCircleOutline),
   },
   {
     label: '退出登录',
     key: 'logout',
-    icon: renderIcon(LogOutOutline)
-  }
+    icon: renderIcon(LogOutOutline),
+  },
 ]
 
 // 处理主题切换
@@ -156,7 +222,7 @@ const handleUserMenuSelect = (key: string) => {
           router.push('/login').then(() => {
             window.location.reload()
           })
-        }
+        },
       })
       break
     case 'profile':
@@ -203,7 +269,6 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
 }
-
 
 .avatar img {
   width: 100%;

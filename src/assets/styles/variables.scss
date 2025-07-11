@@ -1,10 +1,10 @@
 $border-color: #e0e0e0;
 $divider-color: #dcdcdc;
 // 主色调
-$primary-color: #2196F3;
-$primary-hover: #42A5F5;
-$primary-pressed: #1976D2;
-$primary-suppl: #90CAF9;
+$primary-color: #2196f3;
+$primary-hover: #42a5f5;
+$primary-pressed: #1976d2;
+$primary-suppl: #90caf9;
 
 // 渐变
 $primary-gradient: linear-gradient(45deg, $primary-color, $primary-hover);
@@ -35,4 +35,4 @@ $box-shadow-focus: var(--n-box-shadow-focus);
 $box-shadow-active: var(--n-box-shadow-active);
 
 // 过渡
-$transition-all: all 0.2s ease-in; 
+$transition-all: all 0.2s ease-in;

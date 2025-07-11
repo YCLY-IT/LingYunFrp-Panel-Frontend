@@ -18,7 +18,7 @@ export const useDownloadStore = defineStore('download', () => {
     await Promise.all([
       fetchProducts(),
       fetchDownloadSources(),
-      fetchSoftwareVersions()
+      fetchSoftwareVersions(),
     ])
     loading.value = false
     loaded.value = true
@@ -80,7 +80,13 @@ export const useDownloadStore = defineStore('download', () => {
   }
 
   return {
-    products, allProducts, softwareVersions, downloadSources, loading, loaded,
-    fetchAll, refreshAll
+    products,
+    allProducts,
+    softwareVersions,
+    downloadSources,
+    loading,
+    loaded,
+    fetchAll,
+    refreshAll,
   }
 })

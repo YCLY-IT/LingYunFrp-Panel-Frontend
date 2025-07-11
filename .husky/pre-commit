@@ -1,5 +1,8 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
+npx prettier . --write
+git add .
+
 node ./auto-version.cjs
 git add package.json 

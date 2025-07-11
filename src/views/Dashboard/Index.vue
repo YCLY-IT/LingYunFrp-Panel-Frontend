@@ -1,9 +1,7 @@
 <template>
   <div class="home gradient-bg">
     <!-- 欢迎横幅 -->
-    <div class="welcome-banner">
-      欢迎回来, {{ nickname }}
-    </div>
+    <div class="welcome-banner">欢迎回来, {{ nickname }}</div>
 
     <!-- 用户卡片 -->
     <div class="content-info">
@@ -24,24 +22,36 @@
               }"
             />
           </div>
-          <div style="margin-left: 16px; text-align: left; margin-top: 5px;">
-            <h3 style="margin: 0px;">{{ forTime }}{{ greetEmoji }}，{{ nickname }}</h3>
-            <n-skeleton style="margin: 8px 0px 0px; width: 500px;" v-if="loading" />
-            <p style="margin: 5px 0px 0px;">{{ textHitokoto }}</p>
+          <div style="margin-left: 16px; text-align: left; margin-top: 5px">
+            <h3 style="margin: 0px">
+              {{ forTime }}{{ greetEmoji }}，{{ nickname }}
+            </h3>
+            <n-skeleton
+              style="margin: 8px 0px 0px; width: 500px"
+              v-if="loading"
+            />
+            <p style="margin: 5px 0px 0px">{{ textHitokoto }}</p>
           </div>
         </n-space>
       </n-card>
     </div>
 
     <!-- 内容面板 -->
-    <div style="margin-top: 20px;" class="content-grid">
+    <div style="margin-top: 20px" class="content-grid">
       <div class="left-column">
         <!-- 用户信息卡片 -->
         <NCard title="用户信息" class="info-card">
-          <NAlert v-if="IsRealname === false" type="warning" title="未实名认证" style="margin-bottom: 16px">
+          <NAlert
+            v-if="IsRealname === false"
+            type="warning"
+            title="未实名认证"
+            style="margin-bottom: 16px"
+          >
             您的账户尚未完成实名认证, 请尽快完成实名认证。
-            <br>
-            <NButton text type="primary" @click="goToRealname">立即前往</NButton>
+            <br />
+            <NButton text type="primary" @click="goToRealname"
+              >立即前往</NButton
+            >
           </NAlert>
           <UserInfo ref="userInfoRef" @update="handleUserUpdate" />
         </NCard>
@@ -55,7 +65,7 @@
     </div>
 
     <!-- 统计卡片 -->
-    <div style="margin-top: 20px;">
+    <div style="margin-top: 20px">
       <Traffic />
     </div>
   </div>
@@ -67,8 +77,8 @@ import { ref, onMounted, computed, Ref } from 'vue'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import { useRouter } from 'vue-router'
-import { userApi } from "@/net"
-import UserInfo from "@/components/UserInfo.vue"
+import { userApi } from '@/net'
+import UserInfo from '@/components/UserInfo.vue'
 import Traffic from '@/components/Traffic.vue'
 import { TrafficType } from '@/types'
 
@@ -78,14 +88,17 @@ const notices = ref('')
 const nickname = localStorage.getItem('nickname') || ''
 
 // 用户信息引用
-const userInfoRef = ref<{ userInfo: { isRealname: boolean; avatar: string; signRemainder: number; } } | null>(null)
-const statisticRef = ref<{ 
-  getUserTraffic: () => Promise<void>;
-  traffic: Ref<TrafficType>;
+const userInfoRef = ref<{
+  userInfo: { isRealname: boolean; avatar: string; signRemainder: number }
+} | null>(null)
+const statisticRef = ref<{
+  getUserTraffic: () => Promise<void>
+  traffic: Ref<TrafficType>
 } | null>()
 // 是否实名认证
-const IsRealname = computed(() => userInfoRef.value?.userInfo.isRealname ?? true)
-
+const IsRealname = computed(
+  () => userInfoRef.value?.userInfo.isRealname ?? true,
+)
 
 // 一言和流量数据
 const textHitokoto = ref('')
@@ -110,13 +123,29 @@ const forTime = computed(() => {
 })
 
 // 问候 emoji
-const emojiList = ['🌞', '🌈', '😃', '✨', '🥳', '🎉', '🦄', '🍀', '😺', '🚀', '🌸', '🍉', '🧸', '🎈', '😎']
+const emojiList = [
+  '🌞',
+  '🌈',
+  '😃',
+  '✨',
+  '🥳',
+  '🎉',
+  '🦄',
+  '🍀',
+  '😺',
+  '🚀',
+  '🌸',
+  '🍉',
+  '🧸',
+  '🎈',
+  '😎',
+]
 const greetEmoji = ref('')
 
 // 配置 marked
 marked.setOptions({
   gfm: true,
-  breaks: true
+  breaks: true,
 })
 
 // 前往实名认证
@@ -140,7 +169,6 @@ const renderedNotice = computed(() => {
   }
 })
 
-
 // 获取通知
 const fetchNotice = async (): Promise<void> => {
   // 开始获取通知，显示加载状态
@@ -157,11 +185,11 @@ const fetchNotice = async (): Promise<void> => {
 // 获取一言
 const getHitokoto = async (): Promise<void> => {
   loading.value = true
-  try{
+  try {
     const data = await userApi.getHitokoto()
     textHitokoto.value = data
     loading.value = false
-  }catch(err: any){
+  } catch (err: any) {
     message.error('获取一言失败:' + err.message)
   }
 }
@@ -196,7 +224,8 @@ onMounted(() => {
 .content-grid {
   display: flex;
   gap: 24px;
-  .left-column, .notice-card {
+  .left-column,
+  .notice-card {
     flex: 1;
     min-width: 0;
   }
@@ -207,7 +236,9 @@ onMounted(() => {
     flex-direction: column;
     gap: 16px;
   }
-  .user-card, .info-card, .notice-card {
+  .user-card,
+  .info-card,
+  .notice-card {
     width: 100% !important;
     max-width: 100%;
     min-width: 0;
@@ -248,7 +279,8 @@ onMounted(() => {
       background-position: center !important;
       display: block !important;
     }
-    h3, p {
+    h3,
+    p {
       text-align: left !important;
       word-break: break-all;
     }

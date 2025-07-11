@@ -3,11 +3,11 @@
     <n-card title="流量趋势分析">
       <template #header-extra>
         <n-space>
-           <n-select
-            v-model:value="days" 
-            :options="dayOptions" 
-            style="width: 120px" 
-            @update:value="fetchData" 
+          <n-select
+            v-model:value="days"
+            :options="dayOptions"
+            style="width: 120px"
+            @update:value="fetchData"
           />
           <n-button type="primary" @click="fetchData" :loading="loading">
             <template #icon>
@@ -17,18 +17,26 @@
           </n-button>
         </n-space>
       </template>
-      
+
       <n-spin :show="loading">
-        <div ref="chartContainer" style="width: 100%; height: 400px;"></div>
+        <div ref="chartContainer" style="width: 100%; height: 400px"></div>
       </n-spin>
-      
+
       <template #footer>
         <n-space justify="space-between">
           <n-statistic label="总入站流量" :value="totalInTraffic" suffix="MB" />
-          <n-statistic label="总出站流量" :value="totalOutTraffic" suffix="MB" />
-          <n-statistic label="总流量使用量" :value="totalAllTraffic" suffix="MB" />
+          <n-statistic
+            label="总出站流量"
+            :value="totalOutTraffic"
+            suffix="MB"
+          />
+          <n-statistic
+            label="总流量使用量"
+            :value="totalAllTraffic"
+            suffix="MB"
+          />
         </n-space>
-        <p style="color: #999; font-size: 12px;">数据可能会延迟十分钟</p>
+        <p style="color: #999; font-size: 12px">数据可能会延迟十分钟</p>
       </template>
     </n-card>
   </div>
@@ -36,15 +44,15 @@
 
 <script lang="ts" setup>
 import { ref, onMounted, nextTick, computed, onUnmounted } from 'vue'
-import { 
-  NCard,  
-  NButton, 
-  NIcon, 
-  NSpin, 
-  NSpace, 
+import {
+  NCard,
+  NButton,
+  NIcon,
+  NSpin,
+  NSpace,
   NStatistic,
   NSelect,
-  useMessage 
+  useMessage,
 } from 'naive-ui'
 import { Refresh as RefreshIcon } from '@vicons/ionicons5'
 import * as echarts from 'echarts'
@@ -54,7 +62,7 @@ import { TrafficData } from '@/types'
 // 响应式数据
 const days = ref(7)
 const loading = ref(false)
-const chartData = ref<TrafficData[]>([]);
+const chartData = ref<TrafficData[]>([])
 const chartContainer = ref(null)
 const message = useMessage()
 
@@ -70,15 +78,24 @@ const formatTraffic = (traffic: number) => {
 }
 // 计算属性
 const totalInTraffic = computed(() => {
-  return formatTraffic(chartData.value.reduce((sum, item) => sum + item.inTraffic, 0))
+  return formatTraffic(
+    chartData.value.reduce((sum, item) => sum + item.inTraffic, 0),
+  )
 })
 
 const totalOutTraffic = computed(() => {
-  return formatTraffic(chartData.value.reduce((sum, item) => sum + item.outTraffic, 0))
+  return formatTraffic(
+    chartData.value.reduce((sum, item) => sum + item.outTraffic, 0),
+  )
 })
 
 const totalAllTraffic = computed(() => {
-  return formatTraffic(chartData.value.reduce((sum, item) => sum + item.inTraffic + item.outTraffic, 0)) 
+  return formatTraffic(
+    chartData.value.reduce(
+      (sum, item) => sum + item.inTraffic + item.outTraffic,
+      0,
+    ),
+  )
 })
 
 // 天数选项
@@ -97,7 +114,9 @@ const fetchData = async () => {
     if (data.code === 1) {
       return
     }
-    chartData.value = (data.data || []).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    chartData.value = (data.data || []).sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+    )
     await nextTick()
     updateChart()
   } catch (error) {
@@ -111,7 +130,7 @@ const fetchData = async () => {
 const initChart = () => {
   if (chartContainer.value) {
     chartInstance = echarts.init(chartContainer.value)
-    
+
     // 监听窗口大小变化
     window.addEventListener('resize', () => {
       chartInstance?.resize()
@@ -123,110 +142,112 @@ const initChart = () => {
 const updateChart = () => {
   if (!chartInstance || !chartData.value.length) return
 
-  const dates = chartData.value.map(item => item.date)
-  const inTrafficData = chartData.value.map(item => item.inTraffic)
-  const outTrafficData = chartData.value.map(item => item.outTraffic)
+  const dates = chartData.value.map((item) => item.date)
+  const inTrafficData = chartData.value.map((item) => item.inTraffic)
+  const outTrafficData = chartData.value.map((item) => item.outTraffic)
 
   const option = {
     title: {
-        text: '流量趋势图',
-        left: 'center',
-        textStyle: {
-            fontSize: 16,
-            fontWeight: 'normal'
-        }
+      text: '流量趋势图',
+      left: 'center',
+      textStyle: {
+        fontSize: 16,
+        fontWeight: 'normal',
+      },
     },
     tooltip: {
-        trigger: 'axis',
-        axisPointer: {
-            type: 'cross',
-            label: {
-                backgroundColor: '#6a7985'
-            }
+      trigger: 'axis',
+      axisPointer: {
+        type: 'cross',
+        label: {
+          backgroundColor: '#6a7985',
         },
-        formatter: function(params) {
-            let result = `<div style="margin-bottom: 5px;">${params[0].axisValue}</div>`;
-            params.forEach(param => {
-                result += `<div style="display: flex; align-items: center; margin-bottom: 3px;">
+      },
+      formatter: function (params) {
+        let result = `<div style="margin-bottom: 5px;">${params[0].axisValue}</div>`
+        params.forEach((param) => {
+          result += `<div style="display: flex; align-items: center; margin-bottom: 3px;">
                     <span style="display: inline-block; width: 10px; height: 10px; background-color: ${param.color}; border-radius: 50%; margin-right: 8px;"></span>
                     <span style="margin-right: 20px;">${param.seriesName}:</span>
                     <span style="font-weight: bold;">${param.value} MB</span>
-                </div>`;
-            });
-            return result;
-        }
+                </div>`
+        })
+        return result
+      },
     },
     legend: {
-        data: ['入站流量', '出站流量'],
-        top: 30
+      data: ['入站流量', '出站流量'],
+      top: 30,
     },
     grid: {
-        left: '3%',
-        right: '4%',
-        bottom: '3%',
-        top: '15%',
-        containLabel: true
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      top: '15%',
+      containLabel: true,
     },
     xAxis: {
-        type: 'category',
-        boundaryGap: false,
-        data: dates,
-        axisLabel: {
-            formatter: function(value) {
-                return value.substring(5); // 只显示月-日
-            }
-        }
+      type: 'category',
+      boundaryGap: false,
+      data: dates,
+      axisLabel: {
+        formatter: function (value) {
+          return value.substring(5) // 只显示月-日
+        },
+      },
     },
     yAxis: {
-        type: 'value',
-        axisLabel: {
-            formatter: '{value} MB'
-        }
+      type: 'value',
+      axisLabel: {
+        formatter: '{value} MB',
+      },
     },
     series: [
-                  // 入站流量配置修改
-            {
-                name: '入站流量',
-                type: 'line',
-                stack: 'Total',
-                emphasis: {
-                    focus: 'series'
-                },
-                data: inTrafficData,
-                smooth: true,
-                itemStyle: {
-                    color: '#18a058'
-                },
-                areaStyle: { // 合并后的areaStyle
-                    opacity: 0.6,
-                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                        { offset: 0, color: 'rgba(24, 160, 88, 0.8)' },
-                        { offset: 1, color: 'rgba(24, 160, 88, 0.1)' }
-                    ])
-                }
-            },
-            {
-                name: '出站流量',
-                type: 'line',
-                stack: 'Total',
-                emphasis: {
-                    focus: 'series'
-                },
-                data: outTrafficData,
-                smooth: true,
-                itemStyle: {
-                    color: '#2080f0'
-                },
-                areaStyle: { // 合并后的areaStyle
-                    opacity: 0.6,
-                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                        { offset: 0, color: 'rgba(32, 128, 240, 0.8)' },
-                        { offset: 1, color: 'rgba(32, 128, 240, 0.1)' }
-                    ])
-                }
-            }
-    ]
-};
+      // 入站流量配置修改
+      {
+        name: '入站流量',
+        type: 'line',
+        stack: 'Total',
+        emphasis: {
+          focus: 'series',
+        },
+        data: inTrafficData,
+        smooth: true,
+        itemStyle: {
+          color: '#18a058',
+        },
+        areaStyle: {
+          // 合并后的areaStyle
+          opacity: 0.6,
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: 'rgba(24, 160, 88, 0.8)' },
+            { offset: 1, color: 'rgba(24, 160, 88, 0.1)' },
+          ]),
+        },
+      },
+      {
+        name: '出站流量',
+        type: 'line',
+        stack: 'Total',
+        emphasis: {
+          focus: 'series',
+        },
+        data: outTrafficData,
+        smooth: true,
+        itemStyle: {
+          color: '#2080f0',
+        },
+        areaStyle: {
+          // 合并后的areaStyle
+          opacity: 0.6,
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: 'rgba(32, 128, 240, 0.8)' },
+            { offset: 1, color: 'rgba(32, 128, 240, 0.1)' },
+          ]),
+        },
+      },
+    ],
+  }
 
   chartInstance.setOption(option)
 }
@@ -272,7 +293,9 @@ onUnmounted(() => {
   .content-info {
     margin-bottom: 8px;
   }
-  .notice-card, .info-card, .user-card {
+  .notice-card,
+  .info-card,
+  .user-card {
     padding: 8px !important;
     margin-bottom: 8px !important;
   }

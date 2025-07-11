@@ -1,6 +1,14 @@
 <template>
-  <NMenu :collapsed-width="64" :collapsed-icon-size="24" :options="menuOptions" :value="currentKey" :icon-size="22"
-    @update:value="handleMenuSelect" style="user-select: none" :default-expanded-keys="defaultExpandedKeys" />
+  <NMenu
+    :collapsed-width="64"
+    :collapsed-icon-size="24"
+    :options="menuOptions"
+    :value="currentKey"
+    :icon-size="22"
+    @update:value="handleMenuSelect"
+    style="user-select: none"
+    :default-expanded-keys="defaultExpandedKeys"
+  />
 </template>
 
 <script setup lang="ts">
@@ -22,6 +30,4 @@ const handleMenuSelect = (_: any, item: MenuOption) => {
 const currentKey = computed(() => {
   return route.name as string
 })
-
 </script>
-

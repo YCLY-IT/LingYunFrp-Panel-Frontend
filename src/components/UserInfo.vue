@@ -11,14 +11,17 @@
           <div class="user-info-item">
             <div class="user-info-label">用户昵称</div>
             <div class="user-info-value">
-                {{ userInfo.nickname }}
+              {{ userInfo.nickname }}
             </div>
           </div>
 
           <div class="user-info-item-right">
             <div class="user-info-label">实名认证</div>
             <div class="user-info-value">
-              <NTag :type="userInfo.isRealname ? 'success' : 'default'" size="small">
+              <NTag
+                :type="userInfo.isRealname ? 'success' : 'default'"
+                size="small"
+              >
                 {{ userInfo.isRealname ? '已实名' : '未实名' }}
               </NTag>
             </div>
@@ -45,17 +48,19 @@
 
           <div class="user-info-item-right">
             <div class="user-info-label">隧道数量</div>
-            <div class="user-info-value">{{ userInfo.usedProxies }} / {{ userInfo.maxProxies }}</div>
+            <div class="user-info-value">
+              {{ userInfo.usedProxies }} / {{ userInfo.maxProxies }}
+            </div>
           </div>
           <div class="user-info-item">
             <div class="user-info-label">剩余流量</div>
             <div class="user-info-value">
-              {{ formattedTraffic }} </div>
+              {{ formattedTraffic }}
+            </div>
           </div>
           <div class="user-info-item-right">
             <div class="user-info-label">剩余积分</div>
-            <div class="user-info-value">
-              {{ userInfo.point }} 分</div>
+            <div class="user-info-value">{{ userInfo.point }} 分</div>
           </div>
           <div class="user-info-item">
             <div class="user-info-label">入站带宽</div>
@@ -64,23 +69,36 @@
 
           <div class="user-info-item-right">
             <div class="user-info-label">出站带宽</div>
-            <div class="user-info-value">{{ userInfo.outlimit / 128 }} Mbps</div>
+            <div class="user-info-value">
+              {{ userInfo.outlimit / 128 }} Mbps
+            </div>
           </div>
           <div class="user-info-item">
             <div class="user-info-value">
               <NSpace class="token-section">
-                <NButton text type="primary" size="small" @click="handleCopyToken">
+                <NButton
+                  text
+                  type="primary"
+                  size="small"
+                  @click="handleCopyToken"
+                >
                   <template #icon>
                     <CopyPlusIcon />
                   </template>
-                  <div style="font-size: 14px;">复制令牌</div>
+                  <div style="font-size: 14px">复制令牌</div>
                 </NButton>
               </NSpace>
             </div>
           </div>
         </template>
         <NSpace class="user-info-item-right" vertical :size="4">
-          <NButton text type="primary" :loading="signLoading" :disabled="!isSignAvailable" @click="onSignButtonClick">
+          <NButton
+            text
+            type="primary"
+            :loading="signLoading"
+            :disabled="!isSignAvailable"
+            @click="onSignButtonClick"
+          >
             <template #icon>
               <NIcon>
                 <CalendarOutline />
@@ -91,23 +109,34 @@
         </NSpace>
       </div>
     </div>
-    <br>
+    <br />
     <NAlert class="user-info-item" type="info" show-icon>
-      <NText depth="3" style="font-size: 13px;">签到可以获得 10-50 积分 和 1-5GB 流量 </NText>
+      <NText depth="3" style="font-size: 13px"
+        >签到可以获得 10-50 积分 和 1-5GB 流量
+      </NText>
     </NAlert>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { NTag, useMessage, NSkeleton, NButton, NIcon, NSpace, NText, NAlert } from 'naive-ui'
+import {
+  NTag,
+  useMessage,
+  NSkeleton,
+  NButton,
+  NIcon,
+  NSpace,
+  NText,
+  NAlert,
+} from 'naive-ui'
 import { CalendarOutline } from '@vicons/ionicons5'
-import {userApi} from "@/net";
+import { userApi } from '@/net'
 import packageData from '@/../package.json'
-import { CopyPlusIcon } from 'lucide-vue-next';
-import { GeetestService, loadGeetest } from '@/utils/captcha';
-import { UserInfoData} from '@/net/user/type';
-import { storeUserInfo } from '@/utils/user';
+import { CopyPlusIcon } from 'lucide-vue-next'
+import { GeetestService, loadGeetest } from '@/utils/captcha'
+import { UserInfoData } from '@/net/user/type'
+import { storeUserInfo } from '@/utils/user'
 const emit = defineEmits<{
   (e: 'update'): void
 }>()
@@ -135,10 +164,10 @@ const userInfo = ref<UserInfoData>({
   point: 0,
   regTime: '',
   usedProxies: 0,
-  token: ''
+  token: '',
 })
 const formatTime = (isoString: string) => {
-  const date = new Date(isoString);
+  const date = new Date(isoString)
   return date.toLocaleString('zh-CN', {
     year: 'numeric',
     month: '2-digit',
@@ -146,10 +175,9 @@ const formatTime = (isoString: string) => {
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
-    hour12: false
-  });
-};
-
+    hour12: false,
+  })
+}
 
 const formatTraffic = (traffic: number) => {
   const value = traffic
@@ -162,54 +190,56 @@ const formatTraffic = (traffic: number) => {
 
 const formattedRegTime = computed(() => formatTime(userInfo.value.regTime))
 const formattedTraffic = computed(() => formatTraffic(userInfo.value.traffic))
-const signButtonText = computed(() => signLoading.value ? '签到中...' : (isSignAvailable.value ? '签到' : '已签到'))
+const signButtonText = computed(() =>
+  signLoading.value ? '签到中...' : isSignAvailable.value ? '签到' : '已签到',
+)
 
 const onSignButtonClick = async () => {
   signLoading.value = true
-  try{
-    const geetestService = new GeetestService(packageData.captcha.Captcha_Id_Sign);
-    const result = await geetestService.initAndShowCaptchaForBind();
+  try {
+    const geetestService = new GeetestService(packageData.captcha.Captcha)
+    const result = await geetestService.initAndShowCaptchaForBind()
     if (result) {
       signIn(result)
-    }else{
+    } else {
       signLoading.value = false
     }
-  }catch (e){
+  } catch (e) {
     message.error('验证码加载失败')
   }
 }
 const signIn = async (geetestResult: GeetestResult) => {
-    try {
-      const url = `?lotNumber=${geetestResult.lot_number}&passToken=${geetestResult.pass_token}&genTime=${geetestResult.gen_time}&captchaOutput=${geetestResult.captcha_output}`
-      const data = await userApi.sign(url)
-      if (data.code === 0) {
-        message.success('签到成功')
-        isSignAvailable.value = false
-        emit('update')
-        fetchUserInfo()
-      } else {
-        message.error(data.message || '签到失败')
-      }
-      signLoading.value = false
-    } catch (error: any) {
-      message.error(error.message || '签到失败')
+  try {
+    const url = `?lotNumber=${geetestResult.lot_number}&passToken=${geetestResult.pass_token}&genTime=${geetestResult.gen_time}&captchaOutput=${geetestResult.captcha_output}`
+    const data = await userApi.sign(url)
+    if (data.code === 0) {
+      message.success('签到成功')
+      isSignAvailable.value = false
+      emit('update')
+      fetchUserInfo()
+    } else {
+      message.error(data.message || '签到失败')
     }
+    signLoading.value = false
+  } catch (error: any) {
+    message.error(error.message || '签到失败')
+  }
 }
 
 const handleCopyToken = async () => {
   try {
-    await window.navigator.clipboard.writeText(userInfo.value.token);
-    message.success('Token 已复制到剪贴板');
+    await window.navigator.clipboard.writeText(userInfo.value.token)
+    message.success('Token 已复制到剪贴板')
   } catch (err) {
-    message.error('复制失败，请手动复制');
+    message.error('复制失败，请手动复制')
   }
-};
+}
 
 const fetchUserInfo = async () => {
-    loading.value = true
-  try{
+  loading.value = true
+  try {
     const data = await userApi.getUserInfo()
-    if (data.code === 0){
+    if (data.code === 0) {
       userInfo.value = data.data
       storeUserInfo(data.data)
       isSignAvailable.value = !data.data.sign
@@ -227,7 +257,6 @@ onMounted(async () => {
 defineExpose({
   userInfo,
 })
-
 </script>
 
 <style lang="scss" scoped>

@@ -5,11 +5,19 @@
         <n-space>
           <n-button @click="toggleView" secondary size="small">
             <template #icon>
-              <component :is="viewMode === 'table' ? GridOutline : ListOutline" />
+              <component
+                :is="viewMode === 'table' ? GridOutline : ListOutline"
+              />
             </template>
             {{ viewMode === 'table' ? '卡片视图' : '表格视图' }}
           </n-button>
-          <n-button @click="refreshData" secondary circle size="small" :loading="loading">
+          <n-button
+            @click="refreshData"
+            secondary
+            circle
+            size="small"
+            :loading="loading"
+          >
             <template #icon>
               <RefreshOutline />
             </template>
@@ -55,9 +63,14 @@
           </n-gi>
           <n-gi>
             <n-card embedded class="stat-card">
-              <n-statistic label="今日上传流量" :value="formatTrafficValue(todayInTraffic)">
+              <n-statistic
+                label="今日上传流量"
+                :value="formatTrafficValue(todayInTraffic)"
+              >
                 <template #suffix>
-                  <n-text depth="3">{{ getTrafficUnit(todayInTraffic) }}</n-text>
+                  <n-text depth="3">{{
+                    getTrafficUnit(todayInTraffic)
+                  }}</n-text>
                 </template>
                 <template #prefix>
                   <n-icon color="#d03050">
@@ -69,9 +82,14 @@
           </n-gi>
           <n-gi>
             <n-card embedded class="stat-card">
-              <n-statistic label="今日下载流量" :value="formatTrafficValue(todayOutTraffic)">
+              <n-statistic
+                label="今日下载流量"
+                :value="formatTrafficValue(todayOutTraffic)"
+              >
                 <template #suffix>
-                  <n-text depth="3">{{ getTrafficUnit(todayOutTraffic) }}</n-text>
+                  <n-text depth="3">{{
+                    getTrafficUnit(todayOutTraffic)
+                  }}</n-text>
                 </template>
                 <template #prefix>
                   <n-icon color="#36ad6a">
@@ -98,7 +116,7 @@
             />
           </div>
         </div>
-        
+
         <div v-else>
           <!-- 卡片视图 -->
           <n-grid :cols="3" :x-gap="16" :y-gap="16" responsive="screen">
@@ -107,39 +125,49 @@
                 <template #header>
                   <n-space justify="space-between" align="center">
                     <n-text strong>{{ node.node_name }}</n-text>
-                    <n-tag :type="node.isOnline ? 'success' : 'error'" :bordered="false" size="small">
+                    <n-tag
+                      :type="node.isOnline ? 'success' : 'error'"
+                      :bordered="false"
+                      size="small"
+                    >
                       {{ node.isOnline ? '在线' : '离线' }}
                     </n-tag>
                   </n-space>
                 </template>
-                
+
                 <n-space vertical size="small">
                   <n-grid :cols="2" :x-gap="12">
                     <n-gi>
                       <div class="metric-item">
                         <n-text depth="3" class="metric-label">客户端数</n-text>
-                        <n-text strong class="metric-value">{{ node.client_counts }}</n-text>
+                        <n-text strong class="metric-value">{{
+                          node.client_counts
+                        }}</n-text>
                       </div>
                     </n-gi>
                     <n-gi>
                       <div class="metric-item">
                         <n-text depth="3" class="metric-label">隧道数</n-text>
-                        <n-text strong class="metric-value">{{ node.tunnel_counts }}</n-text>
+                        <n-text strong class="metric-value">{{
+                          node.tunnel_counts
+                        }}</n-text>
                       </div>
                     </n-gi>
                   </n-grid>
-                  
-                  <n-divider style="margin: 8px 0;" />
-                  
+
+                  <n-divider style="margin: 8px 0" />
+
                   <div class="traffic-section">
                     <n-text depth="2" class="section-title">今日流量</n-text>
-                    <n-grid :cols="2" :x-gap="12" style="margin-top: 8px;">
+                    <n-grid :cols="2" :x-gap="12" style="margin-top: 8px">
                       <n-gi>
                         <div class="traffic-item">
                           <n-icon color="#d03050" size="16">
                             <ArrowUpOutline />
                           </n-icon>
-                          <n-text class="traffic-value">{{ formatTraffic(node.today_in_traffic) }}</n-text>
+                          <n-text class="traffic-value">{{
+                            formatTraffic(node.today_in_traffic)
+                          }}</n-text>
                         </div>
                       </n-gi>
                       <n-gi>
@@ -147,23 +175,27 @@
                           <n-icon color="#36ad6a" size="16">
                             <ArrowDownOutline />
                           </n-icon>
-                          <n-text class="traffic-value">{{ formatTraffic(node.today_out_traffic) }}</n-text>
+                          <n-text class="traffic-value">{{
+                            formatTraffic(node.today_out_traffic)
+                          }}</n-text>
                         </div>
                       </n-gi>
                     </n-grid>
                   </div>
-                  
-                  <n-divider style="margin: 8px 0;" />
-                  
+
+                  <n-divider style="margin: 8px 0" />
+
                   <div class="traffic-section">
                     <n-text depth="2" class="section-title">总流量</n-text>
-                    <n-grid :cols="2" :x-gap="12" style="margin-top: 8px;">
+                    <n-grid :cols="2" :x-gap="12" style="margin-top: 8px">
                       <n-gi>
                         <div class="traffic-item">
                           <n-icon color="#d03050" size="16">
                             <ArrowUpOutline />
                           </n-icon>
-                          <n-text class="traffic-value">{{ formatTraffic(node.total_traffic_in) }}</n-text>
+                          <n-text class="traffic-value">{{
+                            formatTraffic(node.total_traffic_in)
+                          }}</n-text>
                         </div>
                       </n-gi>
                       <n-gi>
@@ -171,7 +203,9 @@
                           <n-icon color="#36ad6a" size="16">
                             <ArrowDownOutline />
                           </n-icon>
-                          <n-text class="traffic-value">{{ formatTraffic(node.total_traffic_out) }}</n-text>
+                          <n-text class="traffic-value">{{
+                            formatTraffic(node.total_traffic_out)
+                          }}</n-text>
                         </div>
                       </n-gi>
                     </n-grid>
@@ -180,7 +214,7 @@
               </n-card>
             </n-gi>
           </n-grid>
-          
+
           <!-- 卡片视图分页 -->
           <n-pagination
             v-if="nodeData.length > cardsPerPage"
@@ -190,7 +224,7 @@
             show-size-picker
             :page-sizes="[6, 9, 12, 15]"
             @update:page-size="handlePageSizeChange"
-            style="margin-top: 16px; justify-content: center;"
+            style="margin-top: 16px; justify-content: center"
           />
         </div>
       </n-space>
@@ -213,7 +247,7 @@ import {
   NIcon,
   NDivider,
   NPagination,
-  useMessage
+  useMessage,
 } from 'naive-ui'
 import {
   RefreshOutline,
@@ -223,7 +257,7 @@ import {
   ArrowUpOutline,
   ArrowDownOutline,
   GridOutline,
-  ListOutline
+  ListOutline,
 } from '@vicons/ionicons5'
 import { userApi } from '@/net'
 
@@ -239,28 +273,28 @@ const cardsPerPage = ref(9)
 const nodeData = ref([])
 const loading = ref(false)
 const pagination = ref({
-  pageSize: 10
+  pageSize: 10,
 })
 
 // 计算属性
-const onlineNodesCount = computed(() => 
-  nodeData.value.filter(node => node.isOnline).length
+const onlineNodesCount = computed(
+  () => nodeData.value.filter((node) => node.isOnline).length,
 )
 
-const totalClients = computed(() => 
-  nodeData.value.reduce((sum, node) => sum + (node.client_counts || 0), 0)
+const totalClients = computed(() =>
+  nodeData.value.reduce((sum, node) => sum + (node.client_counts || 0), 0),
 )
 
-const totalTunnels = computed(() => 
-  nodeData.value.reduce((sum, node) => sum + (node.tunnel_counts || 0), 0)
+const totalTunnels = computed(() =>
+  nodeData.value.reduce((sum, node) => sum + (node.tunnel_counts || 0), 0),
 )
 
-const todayInTraffic = computed(() => 
-  nodeData.value.reduce((sum, node) => sum + (node.today_in_traffic || 0), 0)
+const todayInTraffic = computed(() =>
+  nodeData.value.reduce((sum, node) => sum + (node.today_in_traffic || 0), 0),
 )
 
-const todayOutTraffic = computed(() => 
-  nodeData.value.reduce((sum, node) => sum + (node.today_out_traffic || 0), 0)
+const todayOutTraffic = computed(() =>
+  nodeData.value.reduce((sum, node) => sum + (node.today_out_traffic || 0), 0),
 )
 
 // 卡片视图分页数据
@@ -313,55 +347,63 @@ const columns = [
     key: 'node_name',
     width: 150,
     ellipsis: {
-      tooltip: true
-    }
+      tooltip: true,
+    },
   },
   {
     title: '状态',
     key: 'isOnline',
     width: 100,
     render: (row) => {
-      return row.isOnline ? 
-        h(NTag, { type: 'success', bordered: false, size: 'small' }, () => '在线') : 
-        h(NTag, { type: 'error', bordered: false, size: 'small' }, () => '离线')
-    }
+      return row.isOnline
+        ? h(
+            NTag,
+            { type: 'success', bordered: false, size: 'small' },
+            () => '在线',
+          )
+        : h(
+            NTag,
+            { type: 'error', bordered: false, size: 'small' },
+            () => '离线',
+          )
+    },
   },
   {
     title: '客户端数',
     key: 'client_counts',
     width: 100,
-    render: (row) => row.client_counts || 0
+    render: (row) => row.client_counts || 0,
   },
   {
     title: '隧道数',
     key: 'tunnel_counts',
     width: 100,
-    render: (row) => row.tunnel_counts || 0
+    render: (row) => row.tunnel_counts || 0,
   },
   {
     title: '今日流入',
     key: 'today_in_traffic',
     width: 120,
-    render: (row) => formatTraffic(row.today_in_traffic)
+    render: (row) => formatTraffic(row.today_in_traffic),
   },
   {
     title: '今日流出',
     key: 'today_out_traffic',
     width: 120,
-    render: (row) => formatTraffic(row.today_out_traffic)
+    render: (row) => formatTraffic(row.today_out_traffic),
   },
   {
     title: '总流入',
     key: 'total_traffic_in',
     width: 120,
-    render: (row) => formatTraffic(row.total_traffic_in)
+    render: (row) => formatTraffic(row.total_traffic_in),
   },
   {
     title: '总流出',
     key: 'total_traffic_out',
     width: 120,
-    render: (row) => formatTraffic(row.total_traffic_out)
-  }
+    render: (row) => formatTraffic(row.total_traffic_out),
+  },
 ]
 
 // 获取节点数据
@@ -478,7 +520,6 @@ $gap-small: 8px;
   border-radius: $radius-inner;
   overflow: hidden;
 }
-
 
 @media (max-width: 768px) {
   // 统计卡片区域：一行只显示1个

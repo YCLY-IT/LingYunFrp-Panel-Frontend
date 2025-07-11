@@ -20,16 +20,18 @@ import {
   NDialogProvider,
   NNotificationProvider,
   NLoadingBarProvider,
-  darkTheme
+  darkTheme,
 } from 'naive-ui'
 import { themeOverrides } from './constants/theme'
 import AppContent from './components/AppContent.vue'
 
 // 从localStorage读取主题状态，默认跟随系统
-const isDarkMode = ref(localStorage.getItem('theme') === 'dark' || 
-  window.matchMedia('(prefers-color-scheme: dark)').matches)
+const isDarkMode = ref(
+  localStorage.getItem('theme') === 'dark' ||
+    window.matchMedia('(prefers-color-scheme: dark)').matches,
+)
 
-const theme = computed(() => isDarkMode.value ? darkTheme : null)
+const theme = computed(() => (isDarkMode.value ? darkTheme : null))
 
 // 监听系统主题变化
 const prefersDark = window.matchMedia('(prefers-color-scheme: dark)')
@@ -57,26 +59,29 @@ onMounted(() => {
 provide('theme', {
   isDarkMode,
   theme,
-  toggleTheme
+  toggleTheme,
 })
-
 </script>
 
 <style lang="scss">
-@use "./assets/styles/transitions.scss";
-input, textarea, select {
+@use './assets/styles/transitions.scss';
+input,
+textarea,
+select {
   font-size: 16px !important;
 }
 
 @media screen and (max-width: 768px) {
-  input, textarea, select {
+  input,
+  textarea,
+  select {
     font-size: 16px !important;
   }
 }
 </style>
 
 <style lang="scss">
-@use "./assets/styles/index.scss";
+@use './assets/styles/index.scss';
 body {
   margin: 0;
   padding: 0;
