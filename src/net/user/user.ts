@@ -43,12 +43,14 @@ export async function getHitokoto(): Promise<string> {
     return await get<string>("https://v1.hitokoto.cn/?c=i&encode=text");
 }
 
-export async function sendEmailCode(email: string, module: string): Promise<CodeResponse> {
-    return await post<CodeResponse>(`/user/code/${module}`, { email });
+export async function sendEmailCode(email: string, module: string, url?: string): Promise<CodeResponse> {
+    const endpoint = url ? `/user/code/${module}${url}` : `/user/code/${module}`;
+    return await post<CodeResponse>(endpoint, { email });
 }
 
-export async function sendSmsCode(phone: string, module: string): Promise<CodeResponse> {
-    return await post<CodeResponse>(`/user/code/${module}`, { phone },{
+export async function sendSmsCode(phone: string, module: string, url?: string): Promise<CodeResponse> {
+    const endpoint = url ? `/user/code/${module}${url}` : `/user/code/${module}`;
+    return await post<CodeResponse>(endpoint, { phone },{
       headers: {
         Authorization: getToken()
       }

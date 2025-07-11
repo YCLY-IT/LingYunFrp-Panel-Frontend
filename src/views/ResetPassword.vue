@@ -27,19 +27,6 @@
           <NInput v-model:value="formValue.emailCode" placeholder="请输入邮箱验证码" />
         </NFormItem>
 
-        <!-- 新增人机验证按钮 -->
-        <NFormItem>
-          <NButton
-            type="primary"
-            @click="onCaptchaButtonClick"
-            :loading="captchaLoading"
-            :disabled="captchaVerified"
-            block
-          >
-            {{ captchaVerified ? '已验证' : '进行人机验证' }}
-          </NButton>
-        </NFormItem>
-
         <NFormItem path="password" label="密码">
           <NInput
               v-model:value="formValue.password"
@@ -81,7 +68,7 @@ import { useRouter } from 'vue-router'
 import { NForm, NFormItem, NInput, NButton, NCard, NIcon, NInputGroup, type FormRules, useMessage, type FormInst } from 'naive-ui'
 import {PersonAddOutline, MailOutline} from '@vicons/ionicons5'
 import {userApi} from "@/net";
-import { GeetestService } from '@/utils/captcha';
+import { GeetestService, loadGeetest } from '@/utils/captcha';
 import packageData from "@/../package.json";
 import { BING_BG_URL } from '@/constants/bing'
 
@@ -92,6 +79,11 @@ const formRef = ref<FormInst | null>(null)
 const isSubmitting = ref(false)
 const isEmailCodeSending = ref(false)
 const emailCodeCountdown = ref(0)
+
+// 新增验证状态
+const captchaLoading = ref(false)
+const captchaVerified = ref(false)
+let geetestResult: GeetestResult | null = null
 
 const formValue = ref({
   username: '',
@@ -154,39 +146,35 @@ const handleSendEmailCode = async () => {
     return
   }
 
-  isEmailCodeSending.value = true
-  try {
-    const data = await userApi.sendEmailCode(formValue.value.email, "forget")
-    if (data.code === 0) {
-      message.success(data.message)
-      startEmailCodeCountdown()
-      formValue.value.emailCode = ''
-    } else {
-      message.error(data.message || '验证码发送失败')
-    }
-  } catch (error: any) {
-    message.error(error.message || '验证码发送失败')
-  } finally {
-    isEmailCodeSending.value = false
-  }
-}
-// 新增验证状态
-const captchaLoading = ref(false)
-const captchaVerified = ref(false)
-let geetestResult: GeetestResult | null = null
-
-// 独立人机验证方法
-const onCaptchaButtonClick = async () => {
+  // 先进行人机验证
   captchaLoading.value = true
   try {
-    const geetestService = new GeetestService(packageData.captcha.Captcha_Id_Login)
+    const geetestService = new GeetestService(packageData.captcha.Captcha)
     const result = await geetestService.initAndShowCaptchaForBind()
     if (result) {
       geetestResult = result
       captchaVerified.value = true
+      
+      // 人机验证通过后发送邮件验证码
+      isEmailCodeSending.value = true
+      try {
+        const url = `?lotNumber=${result.lot_number}&passToken=${result.pass_token}&genTime=${result.gen_time}&captchaOutput=${result.captcha_output}`
+        const data = await userApi.sendEmailCode(formValue.value.email, "forget", url)
+        if (data.code === 0) {
+          message.success(data.message)
+          startEmailCodeCountdown()
+          formValue.value.emailCode = ''
+        } else {
+          message.error(data.message || '验证码发送失败')
+        }
+      } catch (error: any) {
+        message.error(error.message || '验证码发送失败')
+      } finally {
+        isEmailCodeSending.value = false
+      }
     }
   } catch (error) {
-    message.error('验证失败，请重试')
+    message.error('人机验证失败，请重试')
   } finally {
     captchaLoading.value = false
   }
@@ -239,7 +227,9 @@ const handleSubmit = async (geetestResult: GeetestResult) => {
     isSubmitting.value = false
   }
 }
-onMounted(() => {
+onMounted(async () => {
+  // 加载极验脚本
+  await loadGeetest()
   const bgUrl = BING_BG_URL
   const loginEl = document.querySelector('.forget') as HTMLElement
   if (loginEl) {

@@ -37,8 +37,7 @@
 <script lang="ts" setup>
 import { ref, onMounted, nextTick, computed, onUnmounted } from 'vue'
 import { 
-  NCard, 
-  NInputNumber, 
+  NCard,  
   NButton, 
   NIcon, 
   NSpin, 
