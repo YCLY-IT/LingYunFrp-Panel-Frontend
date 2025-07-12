@@ -102,68 +102,82 @@
             </n-button>
           </template>
 
-          <n-spin :show="loading">
-            <n-timeline v-if="commits.length > 0">
-              <n-timeline-item
-                v-for="(commit, _index) in visibleCommits"
-                :key="commit.sha"
-                :type="getCommitType(commit.commit.message)"
-                :title="getCommitTitle(commit.commit.message)"
-                :content="getCommitContent(commit.commit.message)"
-                :time="formatDate(commit.commit.author.date)"
-              >
-                <template #icon>
-                  <n-avatar
-                    :src="commit.author.avatar_url"
-                    :alt="commit.author.login"
-                    :style="{ width: 'auto', height: 'auto' }"
-                    style="transform: scale(1.9)"
-                  />
-                </template>
-                <template #footer>
-                  <n-space size="small">
-                    <n-tag size="small" type="info">
-                      {{ commit.author.login }}
-                    </n-tag>
-                    <n-button
-                      size="tiny"
-                      text
-                      type="primary"
-                      @click="openCommit(commit.html_url)"
-                    >
-                      查看详情
-                    </n-button>
-                  </n-space>
-                </template>
-              </n-timeline-item>
-            </n-timeline>
+          <div style="min-height: 200px; position: relative">
+            <n-spin
+              :show="loading"
+              style="
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+              "
+            >
+              <div style="height: 200px"></div>
+            </n-spin>
 
-            <n-empty
-              v-else-if="!loading"
-              description="暂无更新记录"
-              style="margin: 40px 0"
-            />
+            <div v-if="!loading">
+              <n-timeline v-if="commits.length > 0">
+                <n-timeline-item
+                  v-for="(commit, _index) in visibleCommits"
+                  :key="commit.sha"
+                  :type="getCommitType(commit.commit.message)"
+                  :title="getCommitTitle(commit.commit.message)"
+                  :content="getCommitContent(commit.commit.message)"
+                  :time="formatDate(commit.commit.author.date)"
+                >
+                  <template #icon>
+                    <n-avatar
+                      :src="commit.author.avatar_url"
+                      :alt="commit.author.login"
+                      :style="{ width: 'auto', height: 'auto' }"
+                      style="transform: scale(1.9)"
+                    />
+                  </template>
+                  <template #footer>
+                    <n-space size="small">
+                      <n-tag size="small" type="info">
+                        {{ commit.author.login }}
+                      </n-tag>
+                      <n-button
+                        size="tiny"
+                        text
+                        type="primary"
+                        @click="openCommit(commit.html_url)"
+                      >
+                        查看详情
+                      </n-button>
+                    </n-space>
+                  </template>
+                </n-timeline-item>
+              </n-timeline>
 
-            <div v-if="!loading && commits.length > 0" class="text-center mt-4">
-              <n-space justify="center">
-                <n-button
-                  v-if="visibleCount > 5"
-                  @click="showLess"
-                  type="warning"
-                  ghost
-                >
-                  收回
-                </n-button>
-                <n-button
-                  v-if="visibleCount < commits.length"
-                  @click="showMore"
-                  type="primary"
-                >
-                  显示更多...
-                </n-button>
-              </n-space>
+              <n-empty
+                v-else
+                description="暂无更新记录"
+                style="margin: 40px 0"
+              />
+
+              <div v-if="commits.length > 0" class="text-center mt-4">
+                <n-space justify="center">
+                  <n-button
+                    v-if="visibleCount > 5"
+                    @click="showLess"
+                    type="warning"
+                    ghost
+                  >
+                    收回
+                  </n-button>
+                  <n-button
+                    v-if="visibleCount < commits.length"
+                    @click="showMore"
+                    type="primary"
+                  >
+                    显示更多...
+                  </n-button>
+                </n-space>
+              </div>
             </div>
-          </n-spin>
+          </div>
         </n-card>
 
         <!-- 联系信息 -->

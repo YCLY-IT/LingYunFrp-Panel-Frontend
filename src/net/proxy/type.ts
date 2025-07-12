@@ -32,6 +32,8 @@ export interface CreateTunnelParams {
   proxyProtocolVersion: string
   useEncryption: boolean
   useCompression: boolean
+  ipLimitIn?: number
+  ipLimitOut?: number
 }
 
 export interface UpdateTunnelParams extends CreateTunnelParams {
@@ -58,6 +60,12 @@ export interface ProxyData {
   isDisabled: boolean
   username: string
   location: string
+  ipLimitIn?: number
+  /** 前端显示单位，不提交到服务端 */
+  ipLimitInUnit?: string
+  ipLimitOut?: number
+  /** 前端显示单位，不提交到服务端 */
+  ipLimitOutUnit?: string
 }
 
 export interface ProxyConfigData {

@@ -157,7 +157,7 @@
 </template>
 
 <script setup lang="ts">
-import { NCard, NButton, NInputNumber, NIcon, NSpin } from 'naive-ui' // 添加 NSpin 导入
+import { NCard, NButton, NInputNumber, NIcon, NSpin } from 'naive-ui'
 import { ref, onMounted } from 'vue'
 import {
   CheckmarkCircle,
@@ -171,7 +171,7 @@ import { Product } from '@/net/user/type'
 const message = useMessage()
 const dialog = useDialog()
 const products = ref<Product[]>([])
-const loading = ref(false) // 新增加载状态
+const loading = ref(false)
 
 // 判断是否应该使用用户选择的数量
 const shouldUseSelectedAmount = (product: Product) => {
@@ -202,7 +202,7 @@ const fetchProducts = async () => {
         }
       })
     } else {
-      // 当没有产品时，显示空数组
+      // 当没有产品时，显示空数组j
       products.value = []
       if (data.code !== 0) {
         message.warning(data.message || '暂无产品')

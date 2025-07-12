@@ -12,6 +12,8 @@ export interface CreateProxyArgs {
   proxyProtocolVersion?: string
   useEncryption: boolean
   useCompression: boolean
+  ipLimitIn?: number
+  ipLimitOut?: number
 }
 export interface Proxy {
   proxyId: number
@@ -39,6 +41,12 @@ export interface Proxy {
   useEncryption: boolean
   useCompression: boolean
   proxyProtocolVersion: string
+  ipLimitIn?: number
+  /** 前端显示单位，不提交到服务端 */
+  ipLimitInUnit?: string
+  ipLimitOut?: number
+  /** 前端显示单位，不提交到服务端 */
+  ipLimitOutUnit?: string
 }
 export interface UserNodeName {
   nodeId: number
