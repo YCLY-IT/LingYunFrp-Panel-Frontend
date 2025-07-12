@@ -1,17 +1,17 @@
-name: Vue项目手动构建 (Node.js 22)
+name: Vue Project Build (Node.js 22 + pnpm 10)
 
 on:
   workflow_dispatch:
     inputs:
       build_env:
-        description: '构建环境'
+        description: 'Build Environment'
         required: true
         default: 'production'
         options:
           - production
           - development
       output_dir:
-        description: '输出目录'
+        description: 'Output Directory'
         required: false
         default: 'dist'
 
@@ -20,63 +20,64 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 检出代码
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: 设置Node.js 22环境
-        uses: actions/setup-node@v3
+      # 调整顺序：先安装pnpm再设置Node.js
+      - name: Install pnpm 10
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10
+          run_install: true
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
         with:
           node-version: '22.x'
-          cache: 'npm'
-          registry-url: 'https://registry.npmjs.org/'
+          cache: 'pnpm'
 
-      - name: 清除旧依赖
+      - name: Verify Environment
         run: |
-          rm -rf node_modules package-lock.json
-          echo "旧依赖已清除"
+          echo "Node.js $(node -v)"
+          echo "PNPM $(pnpm -v) at $(which pnpm)"
 
-      - name: 安装依赖（解决可选依赖问题）
+      - name: Install Dependencies
         run: |
-          npm install --no-audit --production=false --force
-          # 手动安装Rollup二进制依赖（Linux x64）
-          if [ "$(uname -m)" == "x86_64" ]; then
-            if [ ! -d "node_modules/@rollup/rollup-linux-x64-gnu" ]; then
-              npm install @rollup/rollup-linux-x64-gnu --no-save
-              echo "已手动安装Rollup二进制"
-            fi
-          fi
-          # 验证依赖安装
-          npm list rollup
+          pnpm install --frozen-lockfile --prod=false
+          # 添加跨平台Rollup支持
+          pnpm add @rollup/rollup-wasm --no-save || true
         env:
-          NODE_OPTIONS: --openssl-legacy-provider
-          npm_config_force: true
+          NODE_OPTIONS: --openssl-legacy-provider  # 修正拼写错误
+          PNPM_FORCE: true
 
-      - name: 构建项目
+      - name: Build Project
         run: |
-          if [ "${{ github.event.inputs.build_env }}" == "development" ]; then
-            npm run build:dev || npm run build
+          if [ "${{ inputs.build_env }}" = "development" ]; then
+            echo "Building in development mode"
+            pnpm run build:dev || pnpm run build
           else
-            npm run build
+            echo "Building in production mode"
+            NODE_ENV=production pnpm run build
           fi
         env:
-          NODE_ENV: ${{ github.event.inputs.build_env }}
-          NODE_V8_COMPAT: 1 # 启用V8兼容模式
+          NODE_V8_COMPAT: 1
 
-      - name: 验证输出目录
+      - name: Verify Output
+        id: output_check
         run: |
-          dir=$(echo ${{ github.event.inputs.output_dir }})
-          if [ -d "$dir" ]; then
-            echo "构建目录存在: $dir"
-            ls -la "$dir"
-          else
-            echo "警告: 构建目录不存在，使用默认dist目录"
-            mkdir -p dist
+          dir="${INPUT_OUTPUT_DIR:-dist}"
+          if [ ! -d "$dir" ]; then
+            echo "::warning::Output directory '$dir' not found, using 'dist'"
+            dir="dist"
           fi
+          echo "Final output directory: $dir"
+          ls -la "$dir"
+          echo "dir=$dir" >> $GITHUB_OUTPUT
 
-      - name: 上传构建产物
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: vue-build-${{ github.event.inputs.build_env }}-node22
-          path: ${{ github.event.inputs.output_dir }}/
-          compression-level: 5 # 降低压缩级别，加速Node.js 22构建
-          retention-days: 14 # 产物保留14天
+          name: vue-build-${{ inputs.build_env }}-node22-pnpm10
+          path: ${{ steps.output_check.outputs.dir }}/
+          compression-level: 5
+          retention-days: 1
