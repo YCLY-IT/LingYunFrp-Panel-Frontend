@@ -186,6 +186,9 @@ export interface UpdateProxyParams {
   proxyProtocolVersion?: string
   // 还有 domain 字段
   domain?: string
+  // 速率限制字段 - 以KB为单位
+  ipLimitIn?: number
+  ipLimitOut?: number
 }
 
 // 产品管理相关类型

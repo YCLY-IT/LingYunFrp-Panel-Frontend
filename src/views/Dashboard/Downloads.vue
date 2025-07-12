@@ -557,7 +557,6 @@ const overviewColumns: DataTableColumns<any> = [
               size: 'small',
               pagination: false,
               style: {
-                background: '#fafbfc',
                 borderRadius: '8px',
                 margin: '8px 16px',
               },

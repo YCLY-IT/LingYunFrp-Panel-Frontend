@@ -99,118 +99,164 @@
         size="medium"
         style="padding-top: 12px"
       >
-        <NFormItem label="隧道名称" path="proxyName">
-          <NInput
-            v-model:value="editForm.proxyName"
-            placeholder="请输入隧道名称"
-          />
-        </NFormItem>
-        <NFormItem label="节点" path="nodeId">
-          <NSelect
-            v-model:value="editForm.nodeId"
-            :options="nodeOptions"
-            placeholder="请选择节点"
-          />
-        </NFormItem>
-        <NFormItem label="本地地址" path="localIp">
-          <NInput
-            v-model:value="editForm.localIp"
-            placeholder="请输入本地地址"
-          />
-        </NFormItem>
-        <NFormItem label="本地端口" path="localPort">
-          <NInputNumber
-            v-model:value="editForm.localPort"
-            :min="1"
-            :max="65535"
-            placeholder="请输入本地端口"
-          />
-        </NFormItem>
-        <NFormItem label="协议类型" path="proxyType">
-          <NSelect
-            v-model:value="editForm.proxyType"
-            :options="proxyTypeOptions"
-            placeholder="请选择协议类型"
-          />
-        </NFormItem>
-        <NFormItem
-          v-if="editForm.proxyType === 'http' || editForm.proxyType === 'https'"
-          label="绑定域名"
-          path="domain"
+        <NCollapse
+          v-model:expanded-names="editFormCollapse"
+          style="margin-bottom: 24px"
+          :on-update:expanded-names="handleEditFormCollapseUpdate"
         >
-          <NDynamicTags
-            v-model:value="domainTags"
-            :render-tag="renderDomainTag"
-          />
-        </NFormItem>
-        <NFormItem v-else label="远程端口" path="remotePort">
-          <div class="remote-port-container">
-            <NInputNumber
-              v-model:value="editForm.remotePort"
-              :min="1"
-              :max="65535"
-              placeholder="请输入远程端口"
-            />
-            <NButton
-              size="medium"
-              :loading="gettingFreePort"
-              @click="handleGetFreePortForEdit"
+          <NCollapseItem name="basic" title="基本设置">
+            <NFormItem label="隧道名称" path="proxyName">
+              <NInput
+                v-model:value="editForm.proxyName"
+                placeholder="请输入隧道名称"
+              />
+            </NFormItem>
+            <NFormItem label="节点" path="nodeId">
+              <NSelect
+                v-model:value="editForm.nodeId"
+                :options="nodeOptions"
+                placeholder="请选择节点"
+              />
+            </NFormItem>
+            <NFormItem label="本地地址" path="localIp">
+              <NInput
+                v-model:value="editForm.localIp"
+                placeholder="请输入本地地址"
+              />
+            </NFormItem>
+            <NFormItem label="本地端口" path="localPort">
+              <NInputNumber
+                v-model:value="editForm.localPort"
+                :min="1"
+                :max="65535"
+                placeholder="请输入本地端口"
+              />
+            </NFormItem>
+            <NFormItem label="协议类型" path="proxyType">
+              <NSelect
+                v-model:value="editForm.proxyType"
+                :options="proxyTypeOptions"
+                placeholder="请选择协议类型"
+              />
+            </NFormItem>
+            <NFormItem
+              v-if="
+                editForm.proxyType === 'http' || editForm.proxyType === 'https'
+              "
+              label="绑定域名"
+              path="domain"
             >
-              获取空闲端口
-            </NButton>
-          </div>
-        </NFormItem>
+              <NDynamicTags
+                v-model:value="domainTags"
+                :render-tag="renderDomainTag"
+              />
+            </NFormItem>
+            <NFormItem v-else label="远程端口" path="remotePort">
+              <div class="remote-port-container">
+                <NInputNumber
+                  v-model:value="editForm.remotePort"
+                  :min="1"
+                  :max="65535"
+                  placeholder="请输入远程端口"
+                />
+                <NButton
+                  size="medium"
+                  :loading="gettingFreePort"
+                  @click="handleGetFreePortForEdit"
+                >
+                  获取空闲端口
+                </NButton>
+              </div>
+            </NFormItem>
+          </NCollapseItem>
 
-        <NDivider>高级配置</NDivider>
+          <NCollapseItem name="advanced" title="高级配置">
+            <template #header-extra>
+              <NText depth="3" style="font-size: 12px; margin-left: 8px">
+                仅推荐技术用户使用
+              </NText>
+            </template>
 
-        <NFormItem label="访问密钥" path="accessKey">
-          <NInput
-            v-model:value="editForm.accessKey"
-            placeholder="访问密钥已不再支持"
-            :disabled="true"
-          />
-        </NFormItem>
-        <NFormItem label="Host Header Rewrite" path="hostHeaderRewrite">
-          <NInput
-            v-model:value="editForm.hostHeaderRewrite"
-            placeholder="请输入 Host 请求头重写值"
-          />
-        </NFormItem>
-        <NFormItem label="X-From-Where" path="headerXFromWhere">
-          <NInput
-            v-model:value="editForm.headerXFromWhere"
-            placeholder="请输入 X-From-Where 请求头值"
-          />
-        </NFormItem>
-        <NFormItem label="Proxy Protocol" path="proxyProtocolVersion">
-          <NSelect
-            v-model:value="editForm.proxyProtocolVersion"
-            :options="[
-              { label: '不启用', value: '' },
-              { label: 'v1', value: 'v1' },
-              { label: 'v2', value: 'v2' },
-            ]"
-            placeholder="Proxy Protocol Version"
-          />
-        </NFormItem>
-        <NFormItem label="其他选项">
-          <div class="switch-container">
-            <NSwitch
-              v-model:value="editForm.useEncryption"
-              :rail-style="switchButtonRailStyle"
-            >
-              <template #checked>启用加密</template>
-              <template #unchecked>禁用加密</template>
-            </NSwitch>
-            <NSwitch
-              v-model:value="editForm.useCompression"
-              :rail-style="switchButtonRailStyle"
-            >
-              <template #checked>启用压缩</template>
-              <template #unchecked>禁用压缩</template>
-            </NSwitch>
-          </div>
-        </NFormItem>
+            <NFormItem label="访问密钥" path="accessKey">
+              <NInput
+                v-model:value="editForm.accessKey"
+                placeholder="访问密钥已不再支持"
+                :disabled="true"
+              />
+            </NFormItem>
+            <NFormItem label="Host Header Rewrite" path="hostHeaderRewrite">
+              <NInput
+                v-model:value="editForm.hostHeaderRewrite"
+                placeholder="请输入 Host 请求头重写值"
+              />
+            </NFormItem>
+            <NFormItem label="X-From-Where" path="headerXFromWhere">
+              <NInput
+                v-model:value="editForm.headerXFromWhere"
+                placeholder="请输入 X-From-Where 请求头值"
+              />
+            </NFormItem>
+            <NFormItem label="Proxy Protocol" path="proxyProtocolVersion">
+              <NSelect
+                v-model:value="editForm.proxyProtocolVersion"
+                :options="[
+                  { label: '不启用', value: '' },
+                  { label: 'v1', value: 'v1' },
+                  { label: 'v2', value: 'v2' },
+                ]"
+                placeholder="Proxy Protocol Version"
+              />
+            </NFormItem>
+            <NFormItem label="每个IP最大下载速率" path="ipLimitIn">
+              <div class="speed-input-group">
+                <NInputNumber
+                  v-model:value="editForm.ipLimitIn"
+                  :min="0"
+                  placeholder="请输入最大下载速率"
+                  style="flex: 1"
+                />
+                <NSelect
+                  v-model:value="editForm.ipLimitInUnit"
+                  :options="speedUnitOptions"
+                  style="width: 100px"
+                />
+              </div>
+            </NFormItem>
+            <NFormItem label="每个IP最大上传速率" path="ipLimitOut">
+              <div class="speed-input-group">
+                <NInputNumber
+                  v-model:value="editForm.ipLimitOut"
+                  :min="0"
+                  placeholder="请输入最大上传速率"
+                  style="flex: 1"
+                />
+                <NSelect
+                  v-model:value="editForm.ipLimitOutUnit"
+                  :options="speedUnitOptions"
+                  style="width: 100px"
+                />
+              </div>
+            </NFormItem>
+            <NFormItem label="其他选项">
+              <div class="switch-container">
+                <NSwitch
+                  v-model:value="editForm.useEncryption"
+                  :rail-style="switchButtonRailStyle"
+                >
+                  <template #checked>启用加密</template>
+                  <template #unchecked>禁用加密</template>
+                </NSwitch>
+                <NSwitch
+                  v-model:value="editForm.useCompression"
+                  :rail-style="switchButtonRailStyle"
+                >
+                  <template #checked>启用压缩</template>
+                  <template #unchecked>禁用压缩</template>
+                </NSwitch>
+              </div>
+            </NFormItem>
+          </NCollapseItem>
+        </NCollapse>
       </NForm>
       <template #action>
         <NButton secondary size="small" @click="showEditModal = false"
@@ -341,10 +387,12 @@ import {
   NFormItem,
   NInputNumber,
   NDynamicTags,
-  NDivider,
   NSwitch,
   NDropdown,
   NIcon,
+  NCollapse,
+  NCollapseItem,
+  NText,
 } from 'naive-ui'
 import type {
   DataTableColumns,
@@ -441,6 +489,17 @@ const pagination = ref({
 const showEditModal = ref(false)
 const editFormRef = ref<FormInst | null>(null)
 const submitting = ref(false)
+const editFormCollapse = ref<string[]>(['basic']) // 默认展开基本设置
+
+// 处理编辑表单折叠面板的互斥逻辑
+const handleEditFormCollapseUpdate = (names: string[]) => {
+  // 如果尝试展开多个面板，只保留最后一个
+  if (names.length > 1) {
+    editFormCollapse.value = [names[names.length - 1]]
+  } else {
+    editFormCollapse.value = names
+  }
+}
 
 interface NodeOption extends SelectOption {
   id: number
@@ -472,9 +531,20 @@ const editForm = ref<Proxy>({
   useEncryption: false,
   useCompression: false,
   proxyProtocolVersion: '',
+  ipLimitIn: 0,
+  ipLimitInUnit: 'MB',
+  ipLimitOut: 0,
+  ipLimitOutUnit: 'MB',
 })
 
 const domainTags = ref<string[]>([])
+
+// 速率单位选项
+const speedUnitOptions = [
+  { label: 'KB', value: 'KB' },
+  { label: 'MB', value: 'MB' },
+  { label: 'Mbps', value: 'Mbps' },
+]
 
 const handleDomainsUpdate = (tags: string[]) => {
   domainTags.value = tags
@@ -493,7 +563,7 @@ const handleEdit = (proxy: Proxy) => {
       : '',
     useEncryption: proxy.useEncryption || false,
     useCompression: proxy.useCompression || false,
-    proxyProtocolVersion: proxy.proxyProtocolVersion || '',
+    proxyProtocolVersion: proxy.proxyProtocolVersion?.trim() || '',
     username: proxy.username || '',
   }
 
@@ -994,9 +1064,18 @@ const handleEditSubmit = async () => {
         headerXFromWhere: editForm.value.headerXFromWhere,
         useEncryption: editForm.value.useEncryption,
         useCompression: editForm.value.useCompression,
-        proxyProtocolVersion: editForm.value.proxyProtocolVersion,
+        proxyProtocolVersion: editForm.value.proxyProtocolVersion?.trim() || '',
         // 还有 domain 字段
         domain: editForm.value.domain,
+        // 速率限制字段 - 转换为KB后提交
+        ipLimitIn: convertSpeedToKB(
+          editForm.value.ipLimitIn || 0,
+          editForm.value.ipLimitInUnit || 'MB',
+        ),
+        ipLimitOut: convertSpeedToKB(
+          editForm.value.ipLimitOut || 0,
+          editForm.value.ipLimitOutUnit || 'MB',
+        ),
       })
       if (data.code === 0) {
         message.success('更新隧道成功')
@@ -1088,8 +1167,32 @@ const loadData = async () => {
         ),
         useEncryption: proxy.useEncryption ?? false,
         useCompression: proxy.useCompression ?? false,
-        proxyProtocolVersion: proxy.proxyProtocolVersion ?? '',
+        proxyProtocolVersion: proxy.proxyProtocolVersion?.trim() ?? '',
         location: proxy.location ?? '',
+        ...(() => {
+          const inKB = proxy.ipLimitIn ?? 0
+          const outKB = proxy.ipLimitOut ?? 0
+
+          // 根据KB值大小智能选择单位
+          const getDisplayUnit = (kbValue: number) => {
+            if (kbValue >= 1024) return 'MB'
+            if (kbValue >= 1) return 'KB'
+            return 'Mbps'
+          }
+
+          const inUnitResult = getDisplayUnit(inKB)
+          const outUnitResult = getDisplayUnit(outKB)
+
+          const inDisplay = convertKBToDisplay(inKB, inUnitResult)
+          const outDisplay = convertKBToDisplay(outKB, outUnitResult)
+
+          return {
+            ipLimitIn: inDisplay,
+            ipLimitInUnit: inUnitResult,
+            ipLimitOut: outDisplay,
+            ipLimitOutUnit: outUnitResult,
+          }
+        })(),
       }))
       pagination.value.pageCount = Math.ceil(
         data.data.pagination?.total / pagination.value.pageSize,
@@ -1154,6 +1257,38 @@ const renderDomainTag = (tag: string) => {
     },
     { default: () => tag },
   )
+}
+
+// 速率单位转换函数
+const convertSpeedToKB = (value: number, unit: string): number => {
+  if (!value || value <= 0) return 0
+
+  switch (unit) {
+    case 'KB':
+      return value
+    case 'MB':
+      return value * 1024
+    case 'Mbps':
+      return value * 125 // 1 Mbps = 125 KB/s
+    default:
+      return value
+  }
+}
+
+// 从KB转换回显示单位
+const convertKBToDisplay = (kbValue: number, unit: string): number => {
+  if (!kbValue || kbValue <= 0) return 0
+
+  switch (unit) {
+    case 'KB':
+      return kbValue
+    case 'MB':
+      return kbValue / 1024
+    case 'Mbps':
+      return kbValue / 125
+    default:
+      return kbValue
+  }
 }
 
 const gettingFreePort = ref(false)
@@ -1304,6 +1439,12 @@ onMounted(() => {
   flex-wrap: wrap;
 }
 
+.speed-input-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
 .filter-space {
   flex-wrap: wrap;
 }
@@ -1416,6 +1557,12 @@ onMounted(() => {
     .n-switch {
       width: 100% !important;
     }
+  }
+
+  .speed-input-group {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
   }
 
   .n-space {

@@ -42,7 +42,7 @@
         <!-- 用户信息卡片 -->
         <NCard title="用户信息" class="info-card">
           <NAlert
-            v-if="IsRealname === false"
+            v-if="!IsRealname"
             type="warning"
             title="未实名认证"
             style="margin-bottom: 16px"
@@ -97,7 +97,7 @@ const statisticRef = ref<{
 } | null>()
 // 是否实名认证
 const IsRealname = computed(
-  () => userInfoRef.value?.userInfo.isRealname ?? true,
+  () => userInfoRef.value?.userInfo.isRealname ?? false,
 )
 
 // 一言和流量数据
