@@ -23,60 +23,61 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 22
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22.x'
-          cache: 'pnpm'
-
+      # 调整顺序：先安装pnpm再设置Node.js
       - name: Install pnpm 10
         uses: pnpm/action-setup@v2
         with:
           version: 10
           run_install: true
 
-      - name: Verify pnpm Installation
-        run: |
-          echo "PNPM Path: $(which pnpm)"
-          pnpm --version
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: 'pnpm'
 
-      - name: Clear node_modules (if needed)
-        run: rm -rf node_modules
+      - name: Verify Environment
+        run: |
+          echo "Node.js $(node -v)"
+          echo "PNPM $(pnpm -v) at $(which pnpm)"
 
       - name: Install Dependencies
         run: |
           pnpm install --frozen-lockfile --prod=false
+          # 添加跨平台Rollup支持
           pnpm add @rollup/rollup-wasm --no-save || true
         env:
-          NODE_OPTIONS: --openssl-legacy-provider  # 解决 Node.js 22 可能的 OpenSSL 兼容性问题
+          NODE_OPTIONS: --openssl-legacy-provider  # 修正拼写错误
           PNPM_FORCE: true
 
       - name: Build Project
         run: |
-          if [ "${{ github.event.inputs.build_env }}" = "development" ]; then
+          if [ "${{ inputs.build_env }}" = "development" ]; then
+            echo "Building in development mode"
             pnpm run build:dev || pnpm run build
           else
+            echo "Building in production mode"
             NODE_ENV=production pnpm run build
           fi
         env:
-          NODE_V8_COMPAT: 1  # 确保 V8 引擎兼容性
+          NODE_V8_COMPAT: 1
 
-      - name: Verify Output Directory
-        id: check_output
+      - name: Verify Output
+        id: output_check
         run: |
-          dir="${{ github.event.inputs.output_dir || 'dist' }}"
+          dir="${INPUT_OUTPUT_DIR:-dist}"
           if [ ! -d "$dir" ]; then
-            echo "::warning::Build directory not found: $dir"
-            mkdir -p dist
+            echo "::warning::Output directory '$dir' not found, using 'dist'"
             dir="dist"
           fi
-          echo "output_dir=$dir" >> $GITHUB_OUTPUT
+          echo "Final output directory: $dir"
           ls -la "$dir"
+          echo "dir=$dir" >> $GITHUB_OUTPUT
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: vue-build-${{ github.event.inputs.build_env }}-node22-pnpm10
-          path: ${{ steps.check_output.outputs.output_dir }}/
+          name: vue-build-${{ inputs.build_env }}-node22-pnpm10
+          path: ${{ steps.output_check.outputs.dir }}/
           compression-level: 5
           retention-days: 1
