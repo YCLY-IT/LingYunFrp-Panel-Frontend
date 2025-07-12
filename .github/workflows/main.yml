@@ -79,4 +79,4 @@ jobs:
           name: vue-build-${{ github.event.inputs.build_env }}-node22
           path: ${{ github.event.inputs.output_dir }}/
           compression-level: 5 # 降低压缩级别，加速Node.js 22构建
-          retention-days: 14 # 产物保留14天
+          retention-days: 1 # 产物保留14天
