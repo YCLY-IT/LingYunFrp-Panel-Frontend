@@ -27,30 +27,22 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'pnpm'  # 切换为pnpm缓存
+          cache: 'pnpm'
 
       - name: 安装pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 10 # 使用最新稳定版pnpm
+          version: 10
           run_install: false
 
-      - name: 清除旧依赖
-        run: |
-          rm -rf node_modules pnpm-lock.yaml
-          echo "已清除旧依赖和pnpm锁文件"
+      - name: 清除node_modules
+        run: rm -rf node_modules
 
       - name: 安装依赖
         run: |
-          pnpm install --no-audit --force
-          # 处理Rollup平台依赖
-          if [ "$(uname -m)" = "x86_64" ]; then
-            pnpm add @rollup/rollup-linux-x64-gnu --no-save || true
-          else
-            pnpm add @rollup/rollup-linux-arm64-gnu --no-save || true
-          fi
-          # 验证依赖
-          pnpm list rollup || echo "Rollup验证警告"
+          pnpm install --frozen-lockfile --prod=false
+          # 使用WASM版本的Rollup作为跨平台解决方案
+          pnpm add @rollup/rollup-wasm --no-save || true
         env:
           NODE_OPTIONS: --openssl-legacy-provider
           PNPM_FORCE: true
@@ -58,37 +50,29 @@ jobs:
       - name: 构建项目
         run: |
           if [ "${{ github.event.inputs.build_env }}" = "development" ]; then
-            if pnpm run build:dev; then
-              echo "开发环境构建成功"
-            else
-              echo "尝试默认构建命令..."
-              pnpm run build
-            fi
+            pnpm run build:dev || pnpm run build
           else
-            pnpm run build
+            NODE_ENV=production pnpm run build
           fi
         env:
-          NODE_ENV: ${{ github.event.inputs.build_env }}
           NODE_V8_COMPAT: 1
 
       - name: 验证输出目录
         id: check_output
         run: |
-          dir="${{ github.event.inputs.output_dir }}"
-          if [ -d "$dir" ]; then
-            echo "构建目录存在: $dir"
-            ls -la "$dir"
-            echo "output_exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "警告: 构建目录不存在，使用默认dist目录"
+          dir="${{ github.event.inputs.output_dir || 'dist' }}"
+          if [ ! -d "$dir" ]; then
+            echo "::warning::构建目录不存在: $dir"
             mkdir -p dist
-            echo "output_exists=false" >> $GITHUB_OUTPUT
+            dir="dist"
           fi
+          echo "output_dir=$dir" >> $GITHUB_OUTPUT
+          ls -la "$dir"
 
       - name: 上传构建产物
         uses: actions/upload-artifact@v4
         with:
           name: vue-build-${{ github.event.inputs.build_env }}-node22-pnpm
-          path: ${{ steps.check_output.outputs.output_exists == 'true' ? github.event.inputs.output_dir : 'dist' }}/
+          path: ${{ steps.check_output.outputs.output_dir }}/
           compression-level: 5
           retention-days: 1
