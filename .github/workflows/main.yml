@@ -1,17 +1,17 @@
-name: Vue项目手动构建 (Node.js 22 + pnpm)
+name: Vue Project Build (Node.js 22 + pnpm 10)
 
 on:
   workflow_dispatch:
     inputs:
       build_env:
-        description: '构建环境'
+        description: 'Build Environment'
         required: true
         default: 'production'
         options:
           - production
           - development
       output_dir:
-        description: '输出目录'
+        description: 'Output Directory'
         required: false
         default: 'dist'
 
@@ -20,34 +20,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 检出代码
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: 设置Node.js 22环境
+      - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '22.x'
           cache: 'pnpm'
 
-      - name: 安装pnpm
+      - name: Install pnpm 10
         uses: pnpm/action-setup@v2
         with:
           version: 10
-          run_install: false
+          run_install: true
 
-      - name: 清除node_modules
+      - name: Verify pnpm Installation
+        run: |
+          echo "PNPM Path: $(which pnpm)"
+          pnpm --version
+
+      - name: Clear node_modules (if needed)
         run: rm -rf node_modules
 
-      - name: 安装依赖
+      - name: Install Dependencies
         run: |
           pnpm install --frozen-lockfile --prod=false
-          # 使用WASM版本的Rollup作为跨平台解决方案
           pnpm add @rollup/rollup-wasm --no-save || true
         env:
-          NODE_OPTIONS: --openssl-legacy-provider
+          NODE_OPTIONS: --openssl-legacy-provider  # 解决 Node.js 22 可能的 OpenSSL 兼容性问题
           PNPM_FORCE: true
 
-      - name: 构建项目
+      - name: Build Project
         run: |
           if [ "${{ github.event.inputs.build_env }}" = "development" ]; then
             pnpm run build:dev || pnpm run build
@@ -55,24 +59,24 @@ jobs:
             NODE_ENV=production pnpm run build
           fi
         env:
-          NODE_V8_COMPAT: 1
+          NODE_V8_COMPAT: 1  # 确保 V8 引擎兼容性
 
-      - name: 验证输出目录
+      - name: Verify Output Directory
         id: check_output
         run: |
           dir="${{ github.event.inputs.output_dir || 'dist' }}"
           if [ ! -d "$dir" ]; then
-            echo "::warning::构建目录不存在: $dir"
+            echo "::warning::Build directory not found: $dir"
             mkdir -p dist
             dir="dist"
           fi
           echo "output_dir=$dir" >> $GITHUB_OUTPUT
           ls -la "$dir"
 
-      - name: 上传构建产物
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: vue-build-${{ github.event.inputs.build_env }}-node22-pnpm
+          name: vue-build-${{ github.event.inputs.build_env }}-node22-pnpm10
           path: ${{ steps.check_output.outputs.output_dir }}/
           compression-level: 5
           retention-days: 1
