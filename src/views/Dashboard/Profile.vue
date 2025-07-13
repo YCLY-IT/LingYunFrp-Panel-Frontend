@@ -94,8 +94,10 @@
             </div>
           </div>
         </n-card>
+        <div class="welcome-card-container">
+          <WelcomeCard />
+        </div>
       </div>
-
       <div class="right-column">
         <!-- 账户详情区域 -->
         <n-card class="card account-details">
@@ -523,6 +525,7 @@ import {
   KeyIcon,
 } from 'lucide-vue-next'
 import userInfo from '../../components/UserInfo.vue'
+import WelcomeCard from '@/components/WelcomeCard.vue'
 import { userApi } from '../../net'
 import { removeToken } from '../../net/token'
 import Statistic from '@/components/Statistic.vue'

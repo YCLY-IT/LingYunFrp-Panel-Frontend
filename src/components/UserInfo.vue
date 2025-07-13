@@ -217,7 +217,7 @@ const signIn = async (geetestResult: GeetestResult) => {
     if (data.code === 0) {
       dialog.success({
         title: data.message,
-        content: `获得 ${data.data.point} 积分, ${data.data.traffic} 流量`,
+        content: `获得 ${data.data.point} 积分, ${data.data.traffic}GB 流量`,
         positiveText: '确定',
         onPositiveClick: () => {
           isSignAvailable.value = false

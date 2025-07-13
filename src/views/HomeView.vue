@@ -95,58 +95,72 @@
         </div>
       </section>
 
-      <!-- 价格方案 -->
-      <section class="pricing">
+      <!-- 服务优势 -->
+      <section class="advantages">
         <div class="container">
           <div class="section-header">
-            <h2 class="section-title">价格方案</h2>
+            <h2 class="section-title">服务优势</h2>
             <p class="section-description">
-              选择最适合您需求的方案，开始使用我们的服务
+              选择 {{ packageData.title }}，享受专业的内网穿透服务体验
             </p>
           </div>
           <n-grid
-            :cols="pricingCols"
+            :cols="gridCols"
             responsive="screen"
             :x-gap="isMobile ? 16 : 24"
             :y-gap="isMobile ? 16 : 24"
           >
-            <n-grid-item v-for="plan in pricingPlans" :key="plan.title">
-              <n-card
-                class="pricing-card"
-                :bordered="false"
-                :class="{ 'pricing-card-highlighted': plan.highlighted }"
-              >
-                <div class="pricing-header">
-                  <h3 class="pricing-title">{{ plan.title }}</h3>
-                  <div class="pricing-price">
-                    <span class="price-currency">¥</span>
-                    <span class="price-amount">{{ plan.price }}</span>
-                    <span class="price-period">/月</span>
-                  </div>
-                  <p class="pricing-description">{{ plan.description }}</p>
-                </div>
-                <n-divider />
-                <ul class="pricing-features">
-                  <li v-for="(feature, index) in plan.features" :key="index">
-                    <n-icon color="#36ad6a" class="feature-check">
-                      <CheckIcon />
-                    </n-icon>
-                    {{ feature }}
-                  </li>
-                </ul>
-                <div class="pricing-action">
-                  <n-button
-                    block
-                    :type="plan.highlighted ? 'primary' : 'default'"
-                    @click="handleLogin"
-                    :strong="plan.highlighted"
-                  >
-                    {{ plan.buttonText }}
-                  </n-button>
-                </div>
-              </n-card>
-            </n-grid-item>
           </n-grid>
+        </div>
+      </section>
+
+      <!-- 快速开始 -->
+      <section class="quick-start">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">快速开始</h2>
+            <p class="section-description">
+              只需几个简单步骤，即可开始使用 {{ packageData.title }} 服务
+            </p>
+          </div>
+          <div class="quick-start-grid">
+            <div
+              v-for="(step, index) in quickStartSteps"
+              :key="index"
+              class="step-card"
+              :class="{ 'step-card-active': index === 0 }"
+              :style="{ animationDelay: `${index * 0.2}s` }"
+            >
+              <div class="step-number">{{ index + 1 }}</div>
+              <div class="step-icon">
+                <n-icon :size="isMobile ? 32 : 40" :depth="3">
+                  <component :is="step.icon" />
+                </n-icon>
+              </div>
+              <div class="step-content">
+                <h3 class="step-title">{{ step.title }}</h3>
+                <p class="step-description">{{ step.description }}</p>
+              </div>
+              <div class="step-arrow" v-if="index < quickStartSteps.length - 1">
+                <n-icon :size="isMobile ? 20 : 24">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
+                  </svg>
+                </n-icon>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -247,9 +261,11 @@ import {
   MonitorIcon,
   ServerIcon,
   DatabaseIcon,
-  CheckIcon,
   GithubIcon,
   CloudIcon,
+  UserIcon,
+  DownloadIcon,
+  PlayIcon,
 } from 'lucide-vue-next'
 import router from '@/router'
 import La from '@/components/La.vue'
@@ -266,11 +282,6 @@ const isTablet = computed(
 const gridCols = computed(() => {
   if (isMobile.value) return 1
   if (isTablet.value) return 2
-  return 3
-})
-
-const pricingCols = computed(() => {
-  if (isMobile.value) return 1
   return 3
 })
 
@@ -349,30 +360,27 @@ const useCases = [
   },
 ]
 
-// 价格方案
-const pricingPlans = [
+// 快速开始步骤
+const quickStartSteps = [
   {
-    title: '基础版',
-    price: '0',
-    description: '适合个人用户和小型项目',
-    features: ['2个隧道', '12Mbps带宽', '99.9%可用性保证'],
-    buttonText: '立即登录',
+    icon: UserIcon,
+    title: '注册账号',
+    description: '创建您的账户，获取访问权限',
   },
   {
-    title: 'VIP版',
-    price: '10',
-    description: '适合中小型企业和团队',
-    features: ['10个隧道', '24Mbps带宽', '99.95%可用性保证'],
-    buttonText: '立即登录',
-    highlighted: true,
+    icon: SettingsIcon,
+    title: '创建隧道',
+    description: '在控制面板中配置您的隧道',
   },
   {
-    title: 'SVIP版',
-    price: '20',
-    description: '适合大型企业和高要求场景',
-    features: ['20个限隧道', '36Mbps带宽', '99.99%可用性保证'],
-    buttonText: '立即登录',
-    highlighted: false,
+    icon: DownloadIcon,
+    title: '下载客户端',
+    description: '下载并安装客户端软件',
+  },
+  {
+    icon: PlayIcon,
+    title: '开始使用',
+    description: '启动客户端，享受内网穿透服务',
   },
 ]
 
@@ -386,7 +394,7 @@ const faqItems = [
   {
     question: `如何开始使用 ${packageData.title} 服务？`,
     answer:
-      '注册账号后，您可以在控制面板中创建隧道，选择协议类型和端口，然后下载客户端配置文件，按照指引在您的设备上运行客户端即可完成配置。',
+      '注册账号后，您可以在控制面板中创建隧道，选择协议类型和端口，然后下载客户端，按照指引在您的设备上运行客户端即可完成配置。',
   },
   {
     question: `${packageData.title} 服务支持哪些操作系统？`,
@@ -398,8 +406,7 @@ const faqItems = [
   },
   {
     question: '如何获取技术支持？',
-    answer:
-      '您可以通过控制面板中的"支持"页面提交工单，或者加入QQ群获取技术支持。专业版和企业版用户可以获得优先响应。',
+    answer: '您可以加入QQ群获取技术支持。',
   },
 ]
 
@@ -562,84 +569,158 @@ onMounted(() => {
     }
   }
 
-  // 价格方案样式
-  .pricing {
+  // 快速开始样式
+  .quick-start {
+    padding: 60px 0;
+    background-color: var(--n-color-modal);
+
+    .quick-start-grid {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-top: 40px;
+    }
+
+    .step-card {
+      position: relative;
+      background: var(--n-color);
+      border: 2px solid var(--n-border-color);
+      border-radius: 16px;
+      padding: 32px 24px;
+      text-align: center;
+      min-width: 200px;
+      max-width: 280px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      animation: fadeInUp 0.6s ease forwards;
+      opacity: 0;
+      transform: translateY(30px);
+
+      &:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+        border-color: var(--n-primary-color);
+      }
+
+      &.step-card-active {
+        border-color: var(--n-primary-color);
+        background: linear-gradient(
+          135deg,
+          var(--n-primary-color) 0%,
+          rgba(var(--n-primary-color-rgb), 0.1) 100%
+        );
+        box-shadow: 0 8px 24px rgba(var(--n-primary-color-rgb), 0.2);
+
+        .step-number {
+          background: var(--n-color);
+          color: var(--n-primary-color);
+        }
+
+        .step-icon {
+          color: var(--n-color);
+        }
+
+        .step-title {
+          color: var(--n-color);
+        }
+
+        .step-description {
+          color: rgba(255, 255, 255, 0.8);
+        }
+      }
+
+      .step-number {
+        position: absolute;
+        top: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 32px;
+        height: 32px;
+        background: var(--n-primary-color);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 14px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      .step-icon {
+        margin-bottom: 20px;
+        color: var(--n-primary-color);
+        transition: all 0.3s ease;
+      }
+
+      .step-content {
+        .step-title {
+          font-size: clamp(16px, 2.5vw, 18px);
+          font-weight: 600;
+          margin-bottom: 12px;
+          color: var(--n-text-color);
+          transition: color 0.3s ease;
+        }
+
+        .step-description {
+          color: var(--n-text-color-3);
+          line-height: 1.6;
+          font-size: clamp(13px, 2vw, 14px);
+          transition: color 0.3s ease;
+        }
+      }
+
+      .step-arrow {
+        position: absolute;
+        right: -30px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--n-text-color-3);
+        z-index: 1;
+
+        @media (max-width: 767px) {
+          display: none;
+        }
+      }
+    }
+  }
+
+  // 服务优势样式
+  .advantages {
     padding: 40px 0;
     background-color: var(--n-color-modal);
 
-    .pricing-card {
+    .advantage-card {
       height: 100%;
       display: flex;
       flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 24px 16px;
       transition: transform 0.3s ease;
-      margin-bottom: 20px;
 
-      &.pricing-card-highlighted {
-        transform: scale(1.02);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        border: 2px solid var(--n-primary-color);
-      }
-
-      &:hover:not(.pricing-card-highlighted) {
+      &:hover {
         transform: translateY(-5px);
       }
 
-      .pricing-header {
-        text-align: center;
-        padding-bottom: 24px;
-
-        .pricing-title {
-          font-size: clamp(18px, 3vw, 24px);
-          font-weight: 600;
-          margin-bottom: 16px;
-          color: var(--n-text-color);
-        }
-
-        .pricing-price {
-          font-size: clamp(32px, 6vw, 48px);
-          font-weight: 700;
-          color: var(--n-text-color);
-          margin-bottom: 16px;
-
-          .price-currency {
-            font-size: clamp(18px, 3vw, 24px);
-            vertical-align: super;
-          }
-
-          .price-period {
-            font-size: clamp(12px, 2vw, 16px);
-            color: var(--n-text-color-3);
-          }
-        }
-
-        .pricing-description {
-          color: var(--n-text-color-3);
-          font-size: clamp(13px, 2vw, 15px);
-        }
+      .advantage-icon {
+        margin-bottom: 20px;
+        color: var(--n-primary-color);
       }
 
-      .pricing-features {
-        list-style: none;
-        padding: 0;
-        margin: 24px 0;
-        flex-grow: 1;
-
-        li {
-          display: flex;
-          align-items: center;
-          margin-bottom: 12px;
-          color: var(--n-text-color-2);
-          font-size: clamp(13px, 2vw, 15px);
-
-          .feature-check {
-            margin-right: 8px;
-            flex-shrink: 0;
-          }
-        }
+      .advantage-title {
+        font-size: clamp(16px, 2.5vw, 20px);
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: var(--n-text-color);
       }
 
-      .pricing-action {
-        margin-top: auto;
+      .advantage-description {
+        color: var(--n-text-color-3);
+        line-height: 1.6;
+        font-size: clamp(13px, 2vw, 15px);
       }
     }
   }
@@ -748,17 +829,32 @@ onMounted(() => {
 
     .features,
     .use-cases,
-    .pricing,
+    .advantages,
+    .quick-start,
     .faq,
     .contact {
       padding: 40px 0;
+    }
+
+    .quick-start {
+      .quick-start-grid {
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .step-card {
+        min-width: auto;
+        max-width: 100%;
+        padding: 24px 20px;
+      }
     }
 
     .section-header {
       margin-bottom: 30px;
     }
 
-    .feature-card {
+    .feature-card,
+    .advantage-card {
       padding: 20px 16px;
     }
 
@@ -786,10 +882,6 @@ onMounted(() => {
         max-width: 100%;
       }
     }
-
-    .pricing-card-highlighted {
-      transform: none;
-    }
   }
 
   @media (min-width: 768px) and (max-width: 1023px) {
@@ -807,10 +899,23 @@ onMounted(() => {
 
     .features,
     .use-cases,
-    .pricing,
+    .advantages,
+    .quick-start,
     .faq,
     .contact {
       padding: 50px 0;
+    }
+
+    .quick-start {
+      .quick-start-grid {
+        gap: 16px;
+      }
+
+      .step-card {
+        min-width: 180px;
+        max-width: 240px;
+        padding: 28px 20px;
+      }
     }
   }
 
@@ -843,6 +948,18 @@ onMounted(() => {
 
     &:hover::after {
       width: 100%;
+    }
+  }
+
+  // 动画关键帧
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
   }
 }
