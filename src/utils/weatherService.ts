@@ -40,20 +40,16 @@ class WeatherService {
         }
       }
 
-      // 使用ip-api.com获取位置信息（免费且无需密钥）
+      // 使用ipapi.co获取位置信息（免费且无需密钥）
       const data = await get<any>(
-        `http://ip-api.com/json/${targetIp}?lang=zh-CN`,
+        `https://ipapi.co/${targetIp}/json?lang=zh-CN`,
       )
 
-      if (data.status === 'success') {
-        return {
-          ip: targetIp,
-          province: data.regionName || '未知',
-          city: data.city || '未知',
-          adcode: data.city || '', // 使用城市名作为标识
-        }
-      } else {
-        throw new Error('位置信息获取失败')
+      return {
+        ip: targetIp,
+        province: data.region || '未知',
+        city: data.city || '未知',
+        adcode: data.city || '', // 使用城市名作为标识
       }
     } catch (error) {
       console.error('获取位置信息失败:', error)
@@ -106,9 +102,7 @@ class WeatherService {
             windDirMap[current.winddir16Point] ||
             current.winddir16Point ||
             '--',
-          windpower: current.windspeedKmph
-            ? `${current.windspeedKmph}级`
-            : '--',
+          windpower: current.windspeedKmph ? `${current.windspeedKmph}` : '--',
           reporttime: current.observation_time || new Date().toLocaleString(),
         }
       } else {
