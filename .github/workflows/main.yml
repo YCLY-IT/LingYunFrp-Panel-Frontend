@@ -47,7 +47,7 @@ jobs:
           # 添加跨平台Rollup支持
           pnpm add @rollup/rollup-wasm --no-save || true
         env:
-          NODE_OPTIONS: --openssl-legacy-provider  # 修正拼写错误
+          NODE_OPTIONS: --openssl-legacy-provider # 修正拼写错误
           PNPM_FORCE: true
 
       - name: Build Project

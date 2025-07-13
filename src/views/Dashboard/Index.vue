@@ -57,11 +57,24 @@
         </NCard>
       </div>
 
-      <!-- 通知卡片 -->
-      <!-- 添加 loading 绑定，控制加载状态显示 -->
-      <NCard title="通知内容" class="notice-card" :loading="isNoticeLoading">
-        <div class="markdown-content" v-html="renderedNotice" />
-      </NCard>
+      <div class="right-column">
+        <div class="notice-and-welcome">
+          <div class="welcome-card-container">
+            <WelcomeCard />
+          </div>
+          <NCard
+            title="通知内容"
+            class="notice-card"
+            :loading="isNoticeLoading"
+          >
+            <template #default>
+              <div class="notice-scroll">
+                <div v-html="renderedNotice" />
+              </div>
+            </template>
+          </NCard>
+        </div>
+      </div>
     </div>
 
     <!-- 统计卡片 -->
@@ -80,6 +93,7 @@ import { useRouter } from 'vue-router'
 import { userApi } from '@/net'
 import UserInfo from '@/components/UserInfo.vue'
 import Traffic from '@/components/Traffic.vue'
+import WelcomeCard from '@/components/WelcomeCard.vue'
 import { TrafficType } from '@/types'
 
 const router = useRouter()
@@ -224,25 +238,108 @@ onMounted(() => {
 .content-grid {
   display: flex;
   gap: 24px;
-  .left-column,
-  .notice-card {
-    flex: 1;
-    min-width: 0;
-  }
+  align-items: stretch;
+}
+
+.left-column,
+.right-column {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.right-column {
+  // 让右侧整体和左侧一样高
+  height: 100%;
+}
+
+.notice-and-welcome {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+.notice-card {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin-top: 12px;
+}
+
+.notice-card :deep(.n-card__content) {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0 16px 16px 16px;
+}
+
+.notice-scroll {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #e0e0e0 #fff;
+  max-height: 100%;
+}
+
+.welcome-card-container {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.card-container {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
 }
 
 @media (max-width: 768px) {
   .content-grid {
     flex-direction: column;
     gap: 16px;
+
+    .right-column {
+      gap: 16px;
+      height: auto !important;
+    }
   }
   .user-card,
   .info-card,
-  .notice-card {
+  .notice-card,
+  .welcome-card-container,
+  .right-column {
     width: 100% !important;
     max-width: 100%;
     min-width: 0;
   }
+
+  .notice-and-welcome {
+    height: auto !important;
+    min-height: auto !important;
+  }
+
+  .notice-card {
+    height: auto !important;
+    min-height: 200px !important;
+    flex: none !important;
+  }
+
+  .notice-card :deep(.n-card__content) {
+    flex: none !important;
+    min-height: 150px !important;
+  }
+
+  .notice-scroll {
+    min-height: 150px !important;
+    max-height: 300px !important;
+  }
+
   .welcome-banner {
     font-size: 1.2rem;
   }

@@ -42,6 +42,8 @@ declare module 'vue' {
     NSpace: typeof import('naive-ui')['NSpace']
     NSpin: typeof import('naive-ui')['NSpin']
     NStatistic: typeof import('naive-ui')['NStatistic']
+    NStep: typeof import('naive-ui')['NStep']
+    NSteps: typeof import('naive-ui')['NSteps']
     NSwitch: typeof import('naive-ui')['NSwitch']
     NTimeline: typeof import('naive-ui')['NTimeline']
     NTimelineItem: typeof import('naive-ui')['NTimelineItem']
@@ -53,5 +55,6 @@ declare module 'vue' {
     TopMenu: typeof import('./src/components/TopMenu.vue')['default']
     Traffic: typeof import('./src/components/Traffic.vue')['default']
     UserInfo: typeof import('./src/components/UserInfo.vue')['default']
+    WelcomeCard: typeof import('./src/components/WelcomeCard.vue')['default']
   }
 }
