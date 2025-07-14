@@ -28,8 +28,13 @@
           v-model:value="searchQuery"
           placeholder="搜索节点..."
           clearable
-          :prefix="() => h(NIcon, null, { default: () => h(SearchOutline) })"
-        />
+        >
+          <template #prefix>
+            <NIcon>
+              <SearchOutline />
+            </NIcon>
+          </template>
+        </NInput>
 
         <div class="filter-row" style="margin-top: 5px">
           <div class="group-filter">
@@ -1058,7 +1063,8 @@ const fetchNodes = async () => {
   nodeLoading.value = true
   try {
     const data = await userApi.getNodes()
-    nodeOptions.value = data.data.map((node: any) => {
+    const nodes = Array.isArray(data.data) ? data.data : []
+    nodeOptions.value = nodes.map((node: any) => {
       const [minPort, maxPort] = node.allowPort.split('-').map(Number)
       const allowedProtocols = node.allowType
         .split(';')

@@ -410,16 +410,10 @@ const columns = [
 const fetchNodeData = async () => {
   loading.value = true
   try {
-    // userApi.get('/proxy/status', accessHandle(), (data) => {
-    //   if (data.code === 0) {
-    //     nodeData.value = data.data?.nodes || []
-    //     message.success(data.message || '数据获取成功')
-    //   } else {
-    //     message.error(data.message || '获取节点数据失败')
-    //     nodeData.value = []
-    //   }
-    // })
     const data = await userApi.getStatus()
+    if (!data.data.nodes) {
+      return
+    }
     nodeData.value = data.data?.nodes
     message.success('数据获取成功')
   } catch (error) {
