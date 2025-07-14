@@ -211,10 +211,6 @@ const handleSendEmailCode = async () => {
 
 // 修改提交逻辑
 const onForgetButtonClick = async () => {
-  if (!captchaVerified.value) {
-    message.error('请先完成人机验证')
-    return
-  }
   if (!geetestResult) {
     message.error('验证信息已过期，请重新验证')
     return
@@ -223,13 +219,13 @@ const onForgetButtonClick = async () => {
   try {
     await formRef.value?.validate()
     isSubmitting.value = true
-    handleSubmit(geetestResult)
+    handleSubmit()
   } catch (error) {
     isSubmitting.value = false
   }
 }
 
-const handleSubmit = async (geetestResult: GeetestResult) => {
+const handleSubmit = async () => {
   await formRef.value?.validate()
   isSubmitting.value = true
   try {
@@ -237,7 +233,6 @@ const handleSubmit = async (geetestResult: GeetestResult) => {
       email: formValue.value.email,
       password: formValue.value.password,
       code: formValue.value.emailCode,
-      url: `?lotNumber=${geetestResult.lot_number}&passToken=${geetestResult.pass_token}&genTime=${geetestResult.gen_time}&captchaOutput=${geetestResult.captcha_output}`,
     })
     if (data.code === 0) {
       message.success(data.message)

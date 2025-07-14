@@ -18,7 +18,6 @@ import {
   useDialog,
   useNotification,
 } from 'naive-ui'
-import { Window } from '@/types'
 import HomeMenu from './HomeMenu.vue'
 
 // UI组件初始化（保持不变）

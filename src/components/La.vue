@@ -238,130 +238,81 @@ onMounted(async () => {
       color: rgba(240, 240, 240, 0.7) !important;
     }
   }
+}
+// 暗黑模式下的样式 - 使用媒体查询
 
-  // 暗黑模式下的样式 - 使用媒体查询
-  @media (prefers-color-scheme: dark) {
-    .statistic-bar {
-      background-color: #18181c !important;
-      border-color: rgba(255, 255, 255, 0.1) !important;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+.statistic-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  height: 100%;
 
-      &:hover {
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4) !important;
-      }
-
-      .loading,
-      .error {
-        color: rgba(240, 240, 240, 0.7) !important;
-      }
-
-      .statistic-items .statistic-item .statistic-title {
-        color: rgba(240, 240, 240, 0.7) !important;
-      }
-
-      .expand-indicator {
-        color: rgba(240, 240, 240, 0.7) !important;
-      }
-    }
-  }
-
-  // 暗黑模式下的样式 - 使用Naive UI的类名
-  :deep(.n-theme-dark) .statistic-bar {
-    background-color: #18181c !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-
-    &:hover {
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4) !important;
-    }
-
-    .loading,
-    .error {
-      color: rgba(240, 240, 240, 0.7) !important;
-    }
-
-    .statistic-items .statistic-item .statistic-title {
-      color: rgba(240, 240, 240, 0.7) !important;
-    }
-
-    .expand-indicator {
-      color: rgba(240, 240, 240, 0.7) !important;
-    }
-  }
-
-  .statistic-content {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    height: 100%;
-
-    .loading,
-    .error {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      color: #666666;
-      font-size: 14px;
-      height: 100%;
-    }
-
-    .statistic-items {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      height: 100%;
-      flex-wrap: wrap;
-
-      .statistic-item {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        height: 100%;
-        white-space: nowrap;
-
-        .statistic-title {
-          font-size: 13px;
-          color: #666666;
-          line-height: 1;
-        }
-
-        .statistic-value {
-          font-size: 13px;
-          font-weight: 600;
-          color: #73a6ff;
-          line-height: 1;
-        }
-      }
-    }
-  }
-
-  .statistic-footer {
+  .loading,
+  .error {
     display: flex;
     align-items: center;
     gap: 4px;
-    font-size: 12px;
-    color: #73a6ff;
-    margin-left: 16px;
-    white-space: nowrap;
+    color: #666666;
+    font-size: 14px;
+    height: 100%;
+  }
 
-    a {
-      color: #73a6ff;
-      text-decoration: none;
-      transition: color 0.2s ease;
+  .statistic-items {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    height: 100%;
+    flex-wrap: wrap;
 
-      &:hover {
-        color: #8caeff;
+    .statistic-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      height: 100%;
+      white-space: nowrap;
+
+      .statistic-title {
+        font-size: 13px;
+        color: #666666;
+        line-height: 1;
+      }
+
+      .statistic-value {
+        font-size: 13px;
+        font-weight: 600;
+        color: #73a6ff;
+        line-height: 1;
       }
     }
   }
+}
 
-  .expand-indicator {
-    display: flex;
-    align-items: center;
-    margin-left: 12px;
-    color: #999999;
-    transition: transform 0.3s ease;
+.statistic-footer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #73a6ff;
+  margin-left: 16px;
+  white-space: nowrap;
+
+  a {
+    color: #73a6ff;
+    text-decoration: none;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: #8caeff;
+    }
   }
+}
+
+.expand-indicator {
+  display: flex;
+  align-items: center;
+  margin-left: 12px;
+  color: #999999;
+  transition: transform 0.3s ease;
 }
 
 // 响应式设计

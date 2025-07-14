@@ -225,7 +225,7 @@ const handleSendEmailCode = async () => {
   }
 }
 
-const handleSubmit = async (geetestResult: GeetestResult) => {
+const handleSubmit = async () => {
   await formRef.value?.validate()
   isSubmitting.value = true
   try {
@@ -235,7 +235,6 @@ const handleSubmit = async (geetestResult: GeetestResult) => {
       password: formValue.value.password,
       email: formValue.value.email,
       code: formValue.value.emailCode,
-      url: `?lotNumber=${geetestResult.lot_number}&passToken=${geetestResult.pass_token}&genTime=${geetestResult.gen_time}&captchaOutput=${geetestResult.captcha_output}`,
     })
     if (data.code === 0) {
       message.success(data.message)
@@ -261,17 +260,13 @@ let geetestResult: GeetestResult | null = null
 
 // 修改注册提交逻辑
 const onRegisterButtonClick = async () => {
-  if (!captchaVerified.value) {
-    message.error('请先完成人机验证')
-    return
-  }
   if (!geetestResult) {
     message.error('验证信息已失效，请重新验证')
     return
   }
 
   try {
-    handleSubmit(geetestResult)
+    handleSubmit()
   } catch (error) {
     message.error('注册验证失败')
   }

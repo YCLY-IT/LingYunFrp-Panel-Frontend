@@ -18,14 +18,12 @@ export interface RegisterParams {
   password: string
   email: string
   code: string
-  url: string
 }
 
 export interface ForgetParams {
   email: string
   password: string
   code: string
-  url: string
 }
 
 export interface TrafficData {
