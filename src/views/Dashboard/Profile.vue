@@ -873,38 +873,35 @@ const handleCropConfirm = () => {
 }
 
 const handleChangeAvatar = async () => {
-  let params: any = { mode: forms.avatar.avatarMode }
-  if (forms.avatar.avatarMode === 'upload') {
-    if (!forms.avatar.avatarFile || forms.avatar.avatarFile.length === 0) {
-      message.error('请先上传头像')
-      return
-    }
-    const file = forms.avatar.avatarFile[0].file as File
-    if (!file) {
-      message.error('请先选择头像文件')
-      return
-    }
-    const formData = new FormData()
-    formData.append('mode', 'upload')
-    formData.append('avatar', file)
-    params = formData
-  } else if (forms.avatar.avatarMode === 'qq') {
-    if (!forms.avatar.qqNumber) {
-      message.error('请输入QQ号')
-      return
-    }
-    params = { mode: 'qq', qq: forms.avatar.qqNumber }
-  } else if (forms.avatar.avatarMode === 'cravatar') {
-    if (!UserInfo.email) {
-      message.error('未获取到邮箱，无法使用Cravatar')
-      return
-    }
-    params = { mode: 'cravatar', cravatar: md5(UserInfo.email) }
-  }
   loading.value = true
   try {
-    message.loading('正在上传头像...')
-    const data = await userApi.updateAvatar(params)
+    let data
+    if (forms.avatar.avatarMode === 'upload') {
+      if (!forms.avatar.avatarFile || forms.avatar.avatarFile.length === 0) {
+        message.error('请先上传头像')
+        return
+      }
+      const file = forms.avatar.avatarFile[0].file as File
+      if (!file) {
+        message.error('请先选择头像文件')
+        return
+      }
+      const formData = new FormData()
+      formData.append('avatar', file)
+      data = await userApi.updateAvatarUpload(formData)
+    } else if (forms.avatar.avatarMode === 'qq') {
+      if (!forms.avatar.qqNumber) {
+        message.error('请输入QQ号')
+        return
+      }
+      data = await userApi.updateAvatarQQ(forms.avatar.qqNumber)
+    } else if (forms.avatar.avatarMode === 'cravatar') {
+      if (!UserInfo.email) {
+        message.error('未获取到邮箱，无法使用Cravatar')
+        return
+      }
+      data = await userApi.updateAvatarCravatar(md5(UserInfo.email))
+    }
     if (data.code === 0) {
       localStorage.setItem('avatar', data.data)
       message.success(data.message)

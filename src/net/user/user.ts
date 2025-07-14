@@ -285,18 +285,50 @@ export async function updateNickname(
   )
 }
 
-// 更新头像
-export async function updateAvatar(data: any): Promise<UpdateAvatarResponse> {
-  let headers: Record<string, string> = {
-    Authorization: getToken() || '',
-  }
-  // 如果是 FormData，设置 multipart/form-data
-  if (data instanceof FormData) {
-    headers['Content-Type'] = 'multipart/form-data'
-  }
-  return await post<UpdateAvatarResponse>('/user/update/avatar', data, {
-    headers,
-  })
+// 上传图片
+export async function updateAvatarUpload(
+  formData: FormData,
+): Promise<UpdateAvatarResponse> {
+  return await post<UpdateAvatarResponse>(
+    '/user/update/avatar/uploads',
+    formData,
+    {
+      headers: {
+        Authorization: getToken() || '',
+        'Content-Type': 'multipart/form-data',
+      },
+    },
+  )
+}
+
+// QQ头像
+export async function updateAvatarQQ(
+  qq: string,
+): Promise<UpdateAvatarResponse> {
+  return await post<UpdateAvatarResponse>(
+    '/user/update/avatar/qq',
+    { qq },
+    {
+      headers: {
+        Authorization: getToken() || '',
+      },
+    },
+  )
+}
+
+// Cravatar
+export async function updateAvatarCravatar(
+  cravatar: string,
+): Promise<UpdateAvatarResponse> {
+  return await post<UpdateAvatarResponse>(
+    '/user/update/avatar/cravatar',
+    { cravatar },
+    {
+      headers: {
+        Authorization: getToken() || '',
+      },
+    },
+  )
 }
 
 // 更新密码

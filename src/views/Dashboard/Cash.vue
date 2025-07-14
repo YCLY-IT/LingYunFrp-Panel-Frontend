@@ -150,6 +150,11 @@
               </NButton>
             </NCard>
           </div>
+          <NEmpty
+            style="margin-top: 35px; margin-bottom: 45px"
+            v-if="products.length === 0"
+            description="暂无产品"
+          />
         </NCard>
       </div>
     </NSpin>
@@ -157,7 +162,7 @@
 </template>
 
 <script setup lang="ts">
-import { NCard, NButton, NInputNumber, NIcon, NSpin } from 'naive-ui'
+import { NCard, NButton, NInputNumber, NIcon, NSpin, NEmpty } from 'naive-ui'
 import { ref, onMounted } from 'vue'
 import {
   CheckmarkCircle,
