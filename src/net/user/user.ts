@@ -35,8 +35,8 @@ import type {
 } from './type'
 
 export async function forget(params: ForgetParams): Promise<CodeResponse> {
-  const { email, password, code, url } = params
-  return await post<CodeResponse>(`/user/forget${url}`, {
+  const { email, password, code } = params
+  return await post<CodeResponse>(`/user/forget`, {
     email,
     password,
     code,
@@ -74,8 +74,8 @@ export async function sendSmsCode(
 }
 
 export async function register(params: RegisterParams): Promise<CodeResponse> {
-  const { username, nickname, password, email, code, url } = params
-  return await post<CodeResponse>(`/user/register${url}`, {
+  const { username, nickname, password, email, code } = params
+  return await post<CodeResponse>(`/user/register`, {
     username,
     nickname,
     password,
