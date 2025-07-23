@@ -1145,6 +1145,25 @@ const rules: FormRules = {
   },
 }
 
+// 获取隧道列表
+const fetchProxyList = async () => {
+  try {
+    const data = await userApi.getProxyList()
+    if (data.code === 0) {
+      // 将 ProxyData[] 转换为 Proxy[]
+      proxies.value = data.data.map((item: any) => ({
+        ...item,
+        lastStartTime: item.lastStartTime || 0,
+        lastCloseTime: item.lastCloseTime || 0,
+      }))
+    } else {
+      message.warning(data.message || '获取隧道列表失败')
+    }
+  } catch (error: any) {
+    message.error(error.message || '获取隧道列表失败')
+  }
+}
+
 // 过滤隧道列表
 const filteredProxies = computed(() => {
   const search = searchText.value.toLowerCase()
@@ -1160,19 +1179,7 @@ const filteredProxies = computed(() => {
 const handleRefresh = async () => {
   loading.value = true
   try {
-    const data = await userApi.getProxyList()
-    if (data.code === 0) {
-      // 将 ProxyData[] 转换为 Proxy[]
-      proxies.value = data.data.map((item: any) => ({
-        ...item,
-        lastStartTime: item.lastStartTime || 0,
-        lastCloseTime: item.lastCloseTime || 0,
-      }))
-    } else {
-      message.warning(data.message || '获取隧道列表失败')
-    }
-  } catch (error: any) {
-    message.error(error.message || '获取隧道列表失败')
+    await Promise.all([fetchProxyList(), fetchNodes()])
   } finally {
     loading.value = false
   }
@@ -1207,7 +1214,6 @@ const getNodeLabel = (nodeId: number) => {
 }
 
 // 初始化数据
-fetchNodes()
 handleRefresh()
 
 const showToggleModal = ref(false)

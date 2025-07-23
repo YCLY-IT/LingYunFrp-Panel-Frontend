@@ -593,6 +593,8 @@ const protocolOptions = [
   { label: 'UDP', value: 'udp' },
   { label: 'HTTP', value: 'http' },
   { label: 'HTTPS', value: 'https' },
+  { label: 'STCP', value: 'stcp' },
+  { label: 'XTCP', value: 'xtcp' },
 ]
 
 const locationOptions = [

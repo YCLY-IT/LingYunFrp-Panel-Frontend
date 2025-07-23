@@ -169,16 +169,34 @@
                             >UDP</NTag
                           >
                           <NTag
-                            v-if="supportsHttp(node)"
+                            v-if="supportsHttp(node) && supportsHttps(node)"
+                            type="success"
+                            size="small"
+                            >HTTP(S)</NTag
+                          >
+                          <NTag
+                            v-else-if="supportsHttp(node)"
                             type="success"
                             size="small"
                             >HTTP</NTag
                           >
                           <NTag
-                            v-if="supportsHttps(node)"
+                            v-else-if="supportsHttps(node)"
                             type="success"
                             size="small"
                             >HTTPS</NTag
+                          >
+                          <NTag
+                            v-if="supportsStcp(node)"
+                            type="success"
+                            size="small"
+                            >STCP</NTag
+                          >
+                          <NTag
+                            v-if="supportsXtcp(node)"
+                            type="success"
+                            size="small"
+                            >XTCP</NTag
                           >
                         </NSpace>
                       </div>
@@ -274,6 +292,18 @@
                           size="small"
                           >HTTPS</NTag
                         >
+                        <NTag
+                          v-if="supportsStcp(node)"
+                          type="success"
+                          size="small"
+                          >STCP</NTag
+                        >
+                        <NTag
+                          v-if="supportsXtcp(node)"
+                          type="success"
+                          size="small"
+                          >XTCP</NTag
+                        >
                       </div>
                     </div>
                     <NText depth="3" style="font-size: 13px; margin: 6px 0">{{
@@ -312,16 +342,34 @@
                             >UDP</NTag
                           >
                           <NTag
-                            v-if="supportsHttp(node)"
+                            v-if="supportsHttp(node) && supportsHttps(node)"
+                            type="success"
+                            size="small"
+                            >HTTP(S)</NTag
+                          >
+                          <NTag
+                            v-else-if="supportsHttp(node)"
                             type="success"
                             size="small"
                             >HTTP</NTag
                           >
                           <NTag
-                            v-if="supportsHttps(node)"
+                            v-else-if="supportsHttps(node)"
                             type="success"
                             size="small"
                             >HTTPS</NTag
+                          >
+                          <NTag
+                            v-if="supportsStcp(node)"
+                            type="success"
+                            size="small"
+                            >STCP</NTag
+                          >
+                          <NTag
+                            v-if="supportsXtcp(node)"
+                            type="success"
+                            size="small"
+                            >XTCP</NTag
                           >
                         </NSpace>
                       </div>
@@ -418,6 +466,18 @@
                           size="small"
                           >HTTPS</NTag
                         >
+                        <NTag
+                          v-if="supportsStcp(node)"
+                          type="success"
+                          size="small"
+                          >STCP</NTag
+                        >
+                        <NTag
+                          v-if="supportsXtcp(node)"
+                          type="success"
+                          size="small"
+                          >XTCP</NTag
+                        >
                       </div>
                     </div>
                     <NText depth="3" style="font-size: 13px; margin: 6px 0">{{
@@ -456,16 +516,34 @@
                             >UDP</NTag
                           >
                           <NTag
-                            v-if="supportsHttp(node)"
+                            v-if="supportsHttp(node) && supportsHttps(node)"
+                            type="success"
+                            size="small"
+                            >HTTP(S)</NTag
+                          >
+                          <NTag
+                            v-else-if="supportsHttp(node)"
                             type="success"
                             size="small"
                             >HTTP</NTag
                           >
                           <NTag
-                            v-if="supportsHttps(node)"
+                            v-else-if="supportsHttps(node)"
                             type="success"
                             size="small"
                             >HTTPS</NTag
+                          >
+                          <NTag
+                            v-if="supportsStcp(node)"
+                            type="success"
+                            size="small"
+                            >STCP</NTag
+                          >
+                          <NTag
+                            v-if="supportsXtcp(node)"
+                            type="success"
+                            size="small"
+                            >XTCP</NTag
                           >
                         </NSpace>
                       </div>
@@ -561,6 +639,17 @@
             </NFormItem>
 
             <NFormItem
+              v-if="['stcp', 'xtcp'].includes(formValue.type)"
+              label="访问密钥"
+              path="accessKey"
+            >
+              <NInput
+                v-model:value="formValue.accessKey"
+                placeholder="请输入访问密钥"
+              />
+            </NFormItem>
+
+            <NFormItem
               v-if="formValue.type === 'http' || formValue.type === 'https'"
               label="绑定域名"
               path="domain"
@@ -571,7 +660,11 @@
               />
             </NFormItem>
 
-            <NFormItem v-else label="远程端口" path="remotePort">
+            <NFormItem
+              v-if="['tcp', 'udp'].includes(formValue.type)"
+              label="远程端口"
+              path="remotePort"
+            >
               <NSpace>
                 <NInputNumber
                   v-model:value="formValue.remotePort"
@@ -597,7 +690,11 @@
               </NText>
             </template>
 
-            <NFormItem label="访问密钥" path="accessKey">
+            <NFormItem
+              v-if="!['stcp', 'xtcp'].includes(formValue.type)"
+              label="访问密钥"
+              path="accessKey"
+            >
               <NInput
                 v-model:value="formValue.accessKey"
                 placeholder="请输入访问密钥"
@@ -735,7 +832,10 @@
             <span class="confirm-label">绑定域名：</span>
             <span>{{ domainTags.join(', ') }}</span>
           </div>
-          <div v-else class="confirm-item">
+          <div
+            v-if="['tcp', 'udp'].includes(formValue.type)"
+            class="confirm-item"
+          >
             <span class="confirm-label">远程端口：</span>
             <span>{{ formValue.remotePort }}</span>
           </div>
@@ -872,6 +972,8 @@ const protocolOptions = [
   { label: 'UDP', value: 'udp' },
   { label: 'HTTP', value: 'http' },
   { label: 'HTTPS', value: 'https' },
+  { label: 'STCP', value: 'stcp' },
+  { label: 'XTCP', value: 'xtcp' },
 ]
 
 // 速率单位选项
@@ -960,6 +1062,14 @@ const supportsHttps = (node: any) => {
   return node.allowedProtocols.includes('https')
 }
 
+const supportsStcp = (node: any) => {
+  return node.allowedProtocols.includes('stcp')
+}
+
+const supportsXtcp = (node: any) => {
+  return node.allowedProtocols.includes('xtcp')
+}
+
 const rules: FormRules = {
   nodeId: {
     required: true,
@@ -989,7 +1099,9 @@ const rules: FormRules = {
     message: '请输入远程端口',
     trigger: 'blur',
     validator: (_rule, value) => {
-      if (['http', 'https'].includes(formValue.value.type || '')) {
+      if (
+        ['http', 'https', 'stcp', 'xtcp'].includes(formValue.value.type || '')
+      ) {
         return true
       }
       if (typeof value !== 'number' || value < 1 || value > 65535) {
@@ -1007,6 +1119,15 @@ const rules: FormRules = {
     required: true,
     message: '请输入隧道名称',
     trigger: 'blur',
+  },
+  accessKey: {
+    validator: (_rule, value) => {
+      if (['stcp', 'xtcp'].includes(formValue.value.type) && !value) {
+        return new Error('使用 STCP/XTCP 协议时，访问密钥为必填项')
+      }
+      return true
+    },
+    trigger: ['blur', 'change'],
   },
   domain: {
     validator: (_rule, _value) => {
@@ -1065,13 +1186,16 @@ const fetchNodes = async () => {
     const data = await userApi.getNodes()
     const nodes = Array.isArray(data.data) ? data.data : []
     nodeOptions.value = nodes.map((node: any) => {
-      const [minPort, maxPort] = node.allowPort.split('-').map(Number)
-      const allowedProtocols = node.allowType
+      const [minPort, maxPort] = (node.allowPort || '0-0')
+        .split('-')
+        .map(Number)
+      const allowedProtocols = (node.allowType || '')
         .split(';')
         .map((type: string) => type.trim())
+        .filter((p) => p)
 
       // 确保allowGroup分割正确
-      const allowGroups = node.allowGroup
+      const allowGroups = (node.allowGroup || '')
         .split(';')
         .map((group: string) => group.trim())
         .filter((group: string) => group) // 过滤空值

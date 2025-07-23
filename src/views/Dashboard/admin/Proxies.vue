@@ -140,6 +140,16 @@
               />
             </NFormItem>
             <NFormItem
+              v-if="['stcp', 'xtcp'].includes(editForm.proxyType)"
+              label="访问密钥"
+              path="accessKey"
+            >
+              <NInput
+                v-model:value="editForm.accessKey"
+                placeholder="请输入访问密钥"
+              />
+            </NFormItem>
+            <NFormItem
               v-if="
                 editForm.proxyType === 'http' || editForm.proxyType === 'https'
               "
@@ -151,7 +161,11 @@
                 :render-tag="renderDomainTag"
               />
             </NFormItem>
-            <NFormItem v-else label="远程端口" path="remotePort">
+            <NFormItem
+              v-if="['tcp', 'udp'].includes(editForm.proxyType)"
+              label="远程端口"
+              path="remotePort"
+            >
               <div class="remote-port-container">
                 <NInputNumber
                   v-model:value="editForm.remotePort"
@@ -177,13 +191,6 @@
               </NText>
             </template>
 
-            <NFormItem label="访问密钥" path="accessKey">
-              <NInput
-                v-model:value="editForm.accessKey"
-                placeholder="访问密钥已不再支持"
-                :disabled="true"
-              />
-            </NFormItem>
             <NFormItem label="Host Header Rewrite" path="hostHeaderRewrite">
               <NInput
                 v-model:value="editForm.hostHeaderRewrite"
@@ -415,7 +422,7 @@ import { adminApi } from '@/net'
 
 const message = useMessage()
 const loading = ref(false)
-const proxies = ref<Proxy[]>([])
+const allProxies = ref<Proxy[]>([]) // 存储所有从后端获取的隧道
 
 const filters = ref<{
   search: string
@@ -436,6 +443,8 @@ const proxyTypeOptions: SelectOption[] = [
   { label: 'UDP', value: 'udp' },
   { label: 'HTTP', value: 'http' },
   { label: 'HTTPS', value: 'https' },
+  { label: 'STCP', value: 'stcp' },
+  { label: 'XTCP', value: 'xtcp' },
 ]
 
 const onlineOptions: SelectOption[] = [
@@ -477,12 +486,12 @@ const pagination = ref({
   },
   onUpdatePage: (page: number) => {
     pagination.value.page = page
-    loadData()
+    // loadData() // 改为前端分页，不再需要重新加载数据
   },
   onUpdatePageSize: (pageSize: number) => {
     pagination.value.pageSize = pageSize
     pagination.value.page = 1
-    loadData()
+    // loadData() // 改为前端分页，不再需要重新加载数据
   },
 })
 
@@ -615,7 +624,9 @@ const rules: FormRules = {
     message: '请输入远程端口',
     trigger: ['blur', 'input'],
     validator: (_rule, value) => {
-      if (['http', 'https'].includes(editForm.value.proxyType)) {
+      if (
+        ['http', 'https', 'stcp', 'xtcp'].includes(editForm.value.proxyType)
+      ) {
         return true
       }
       if (typeof value !== 'number' || value < 1 || value > 65535) {
@@ -647,6 +658,15 @@ const rules: FormRules = {
     type: 'number',
     required: true,
     message: '请选择节点',
+    trigger: ['blur', 'change'],
+  },
+  accessKey: {
+    validator: (_rule, value) => {
+      if (['stcp', 'xtcp'].includes(editForm.value.proxyType) && !value) {
+        return new Error('使用 STCP/XTCP 协议时，访问密钥为必填项')
+      }
+      return true
+    },
     trigger: ['blur', 'change'],
   },
 }
@@ -897,21 +917,28 @@ const columns: DataTableColumns<Proxy> = [
               ),
           },
         )
-      }
-      const node = nodeOptions.value.find((opt) => opt.id === row.nodeId)
-      return h(
-        NTag,
-        {
-          type: 'info',
-          style: 'max-width: 100%; cursor: pointer',
-          onClick: () => {
-            const text = `${node?.hostname}:${row.remotePort}`
-            navigator.clipboard.writeText(text)
-            message.success('已复制到剪贴板：' + text)
+      } else if (['tcp', 'udp'].includes(row.proxyType)) {
+        const node = nodeOptions.value.find((opt) => opt.id === row.nodeId)
+        return h(
+          NTag,
+          {
+            type: 'info',
+            style: 'max-width: 100%; cursor: pointer',
+            onClick: () => {
+              const text = `${node?.hostname}:${row.remotePort}`
+              navigator.clipboard.writeText(text)
+              message.success('已复制到剪贴板：' + text)
+            },
           },
-        },
-        { default: () => `${node?.hostname}:${row.remotePort}` },
-      )
+          { default: () => `${node?.hostname}:${row.remotePort}` },
+        )
+      } else {
+        return h(
+          NTag,
+          { type: 'info', style: 'max-width: 100%;' },
+          { default: () => 'N/A' },
+        )
+      }
     },
   },
   {
@@ -967,9 +994,58 @@ const columns: DataTableColumns<Proxy> = [
   },
 ]
 
+// 前端筛选
+const filteredProxies = computed(() => {
+  let tempProxies = [...allProxies.value]
+
+  // 协议筛选
+  if (filters.value.proxyType) {
+    tempProxies = tempProxies.filter(
+      (p) => p.proxyType === filters.value.proxyType,
+    )
+  }
+
+  // 在线状态筛选
+  if (filters.value.isOnline !== null) {
+    const isOnline = filters.value.isOnline === 'online'
+    tempProxies = tempProxies.filter((p) => p.isOnline === isOnline)
+  }
+
+  // 封禁状态筛选
+  if (filters.value.isBanned !== null) {
+    const isBanned = filters.value.isBanned === 'banned'
+    tempProxies = tempProxies.filter((p) => p.isBanned === isBanned)
+  }
+
+  // 节点筛选
+  if (filters.value.nodeId !== null) {
+    tempProxies = tempProxies.filter((p) => p.nodeId === filters.value.nodeId)
+  }
+
+  // 搜索筛选
+  if (filters.value.search) {
+    const keyword = filters.value.search.toLowerCase()
+    tempProxies = tempProxies.filter(
+      (p) =>
+        String(p.proxyId).toLowerCase().includes(keyword) ||
+        p.proxyName.toLowerCase().includes(keyword) ||
+        (p.username || '').toLowerCase().includes(keyword) ||
+        (p.domain && p.domain.toLowerCase().includes(keyword)),
+    )
+  }
+
+  // 更新分页总数
+  pagination.value.itemCount = tempProxies.length
+  pagination.value.pageCount = Math.ceil(
+    tempProxies.length / pagination.value.pageSize,
+  )
+
+  return tempProxies
+})
+
 const handlePageChange = (page: number) => {
   pagination.value.page = page
-  loadData()
+  // loadData() // 改为前端分页
 }
 
 let searchTimeout: ReturnType<typeof setTimeout> | null = null
@@ -980,13 +1056,13 @@ const handleSearch = () => {
   }
   searchTimeout = setTimeout(() => {
     pagination.value.page = 1
-    loadData()
+    // loadData() // 改为前端筛选
   }, 300)
 }
 
 const handleFilterChange = () => {
   pagination.value.page = 1
-  loadData()
+  // loadData() // 改为前端筛选
 }
 
 const handleBanProxy = async (proxy: Proxy) => {
@@ -1059,6 +1135,7 @@ const handleEditSubmit = async () => {
         localPort: editForm.value.localPort,
         remotePort: editForm.value.remotePort,
         nodeId: editForm.value.nodeId,
+        accessKey: editForm.value.accessKey,
         // 高级配置字段补全
         hostHeaderRewrite: editForm.value.hostHeaderRewrite,
         headerXFromWhere: editForm.value.headerXFromWhere,
@@ -1123,10 +1200,11 @@ const loadData = async () => {
   loading.value = true
   try {
     const params: FilterProxiesArgs = {
-      page: pagination.value.page,
-      limit: pagination.value.pageSize,
+      page: 1, // 获取所有数据
+      limit: 99999, // 获取所有数据
     }
 
+    /* 以下筛选改由前端处理
     if (filters.value.search) {
       params.keyword = filters.value.search
     }
@@ -1142,10 +1220,11 @@ const loadData = async () => {
     if (filters.value.nodeId !== null) {
       params.nodeId = filters.value.nodeId
     }
+    */
 
     const data = await adminApi.getProxyList(params)
     if (data.code === 0) {
-      proxies.value = data.data.proxies.map((proxy: any) => ({
+      allProxies.value = data.data.proxies.map((proxy: any) => ({
         proxyId: proxy.proxyId ?? proxy.id,
         proxyName: proxy.proxyName ?? proxy.name ?? '',
         nodeId: proxy.nodeId,
@@ -1194,10 +1273,12 @@ const loadData = async () => {
           }
         })(),
       }))
+      /* 后端分页信息不再需要
       pagination.value.pageCount = Math.ceil(
         data.data.pagination?.total / pagination.value.pageSize,
       )
       pagination.value.itemCount = data.data.pagination?.total
+      */
     } else {
       message.error(data.message || '获取数据失败')
     }
@@ -1347,7 +1428,7 @@ const sortOptions = ref({ key: 'proxyId', order: 'asc' })
 
 // 本地排序和分页
 const sortedProxies = computed(() => {
-  let sorted = [...proxies.value]
+  let sorted = [...filteredProxies.value]
   if (sortOptions.value.key && sortOptions.value.order) {
     sorted = sorted.sort((a, b) => {
       let aValue: any, bValue: any
