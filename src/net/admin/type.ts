@@ -184,6 +184,7 @@ export interface UpdateProxyParams {
   useEncryption?: boolean
   useCompression?: boolean
   proxyProtocolVersion?: string
+  accessKey?: string
   // 还有 domain 字段
   domain?: string
   // 速率限制字段 - 以KB为单位
