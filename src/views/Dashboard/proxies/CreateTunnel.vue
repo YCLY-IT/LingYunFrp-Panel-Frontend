@@ -1018,7 +1018,7 @@ const filteredNodes = computed(() => {
       // 协议多选筛选
       if (selectedProtocols.value.length > 0) {
         if (
-          !selectedProtocols.value.some((protocol) =>
+          !selectedProtocols.value.every((protocol) =>
             node.allowedProtocols.includes(protocol),
           )
         ) {
