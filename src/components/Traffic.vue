@@ -55,9 +55,28 @@ import {
   useMessage,
 } from 'naive-ui'
 import { Refresh as RefreshIcon } from '@vicons/ionicons5'
-import * as echarts from 'echarts'
+import { init, graphic } from 'echarts/core'
+import { use } from 'echarts/core'
+import { LineChart } from 'echarts/charts'
+import {
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  GridComponent,
+} from 'echarts/components'
+import { CanvasRenderer } from 'echarts/renderers'
 import { userApi } from '@/net'
 import { TrafficData } from '@/types'
+
+// 注册 ECharts 组件
+use([
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  GridComponent,
+  LineChart,
+  CanvasRenderer,
+])
 
 // 响应式数据
 const days = ref(7)
@@ -66,7 +85,7 @@ const chartData = ref<TrafficData[]>([])
 const chartContainer = ref(null)
 const message = useMessage()
 
-let chartInstance: echarts.ECharts | null = null
+let chartInstance: any = null
 
 const formatTraffic = (traffic: number) => {
   const value = traffic
@@ -129,7 +148,7 @@ const fetchData = async () => {
 // 初始化图表
 const initChart = () => {
   if (chartContainer.value) {
-    chartInstance = echarts.init(chartContainer.value)
+    chartInstance = init(chartContainer.value)
 
     // 监听窗口大小变化
     window.addEventListener('resize', () => {
@@ -219,7 +238,7 @@ const updateChart = () => {
         areaStyle: {
           // 合并后的areaStyle
           opacity: 0.6,
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+          color: new graphic.LinearGradient(0, 0, 0, 1, [
             { offset: 0, color: 'rgba(24, 160, 88, 0.8)' },
             { offset: 1, color: 'rgba(24, 160, 88, 0.1)' },
           ]),
@@ -240,7 +259,7 @@ const updateChart = () => {
         areaStyle: {
           // 合并后的areaStyle
           opacity: 0.6,
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+          color: new graphic.LinearGradient(0, 0, 0, 1, [
             { offset: 0, color: 'rgba(32, 128, 240, 0.8)' },
             { offset: 1, color: 'rgba(32, 128, 240, 0.1)' },
           ]),
