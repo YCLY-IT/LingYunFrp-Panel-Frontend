@@ -1,0 +1,33 @@
+User-agent: *
+Allow: /
+
+# 允许所有搜索引擎爬虫访问
+User-agent: Googlebot
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+User-agent: 360Spider
+Allow: /
+
+User-agent: Sogou spider
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# 禁止访问管理后台和API
+Disallow: /admin/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /static/
+
+# 允许访问静态资源
+Allow: /favicon.png
+
+# 网站地图
+Sitemap: https://www.lyfrp.cn/sitemap.xml
+
+# 爬取延迟（秒）
+Crawl-delay: 1 

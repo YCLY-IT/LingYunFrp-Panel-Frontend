@@ -20,7 +20,57 @@ export default defineConfig({
         entryFileNames: 'static/assets/js/[name]-[hash].js',
         assetFileNames: 'static/assets/[ext]/[name]-[hash].[ext]',
         manualChunks: (id: string) => {
+          // 过滤掉 Vue DevTools 相关的空文件
+          if (
+            id.includes('@vue/devtools') ||
+            id.includes('birpc') ||
+            id.includes('hookable') ||
+            id.includes('perfect-debounce') ||
+            id.includes('date-fns-tz')
+          ) {
+            return 'devtools'
+          }
+
           if (id.includes('node_modules')) {
+            // 对 naive-ui 按组件进行分割
+            if (id.includes('naive-ui')) {
+              // 只分割实际使用的组件，避免生成空文件
+              const match = id.match(/naive-ui\/es\/([^/]+)/)
+              if (match) {
+                const componentName = match[1]
+                // 只分割主要的组件，其他合并到 naive-ui
+                const mainComponents = [
+                  'button',
+                  'card',
+                  'form',
+                  'input',
+                  'select',
+                  'modal',
+                  'data-table',
+                  'layout',
+                  'icon',
+                  'space',
+                  'tag',
+                  'alert',
+                  'spin',
+                  'statistic',
+                  'switch',
+                  'checkbox',
+                  'collapse',
+                  'grid',
+                  'tabs',
+                  'drawer',
+                  'dropdown',
+                  'popover',
+                  'tooltip',
+                ]
+                if (mainComponents.includes(componentName)) {
+                  return `naive-ui-${componentName}`
+                }
+              }
+              return 'naive-ui'
+            }
+
             if (id.includes('.pnpm')) {
               return id
                 .toString()
@@ -66,6 +116,8 @@ export default defineConfig({
     }),
     Components({
       resolvers: [NaiveUiResolver()],
+      dts: true,
+      include: [/\.vue$/, /\.vue\?vue/, /\.tsx$/],
     }),
   ],
   base: `/`,
