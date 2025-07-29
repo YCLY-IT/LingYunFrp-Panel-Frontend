@@ -152,7 +152,7 @@
           </div>
           <NEmpty
             style="margin-top: 35px; margin-bottom: 45px"
-            v-if="products.length === 0"
+            v-if="products.length === 0 && !loading"
             description="暂无产品"
           />
         </NCard>
