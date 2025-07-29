@@ -54,6 +54,7 @@ import {
   updateProxy as updateAdminProxy,
   deleteProxy as deleteAdminProxy,
   toggleProxy as toggleAdminProxy,
+  banProxy,
   getProductList as getAdminProductList,
   createProduct,
   updateProduct,
@@ -76,8 +77,9 @@ import {
   createDownloadSource,
   updateDownloadSource,
   deleteDownloadSource,
-  updateSafetySetting,
-  banProxy,
+  updateSmtpSetting,
+  updateSetting,
+  updateSmsSetting,
 } from './admin/admin'
 
 const userApi = {
@@ -155,7 +157,9 @@ const adminApi = {
   getSoftwareVersions: getAdminSoftwareVersions,
   // 系统设置
   getSystemSettings,
-  updateSafetySetting,
+  updateSetting,
+  updateSmtpSetting,
+  updateSmsSetting,
   getBroadcastList,
   createBroadcast,
   // 用户组管理

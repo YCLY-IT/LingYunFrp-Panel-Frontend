@@ -80,6 +80,104 @@
           </NForm>
         </NTabPane>
 
+        <NTabPane name="smtp" tab="邮件">
+          <NForm
+            ref="smtpFormRef"
+            :model="smtpForm"
+            :rules="smtpRules"
+            label-placement="left"
+            label-width="auto"
+            require-mark-placement="right-hanging"
+          >
+            <NFormItem label="SMTP服务器" path="host">
+              <NInput
+                v-model:value="smtpForm.host"
+                placeholder="请输入SMTP服务器地址"
+              />
+            </NFormItem>
+            <NFormItem label="端口" path="port">
+              <NInputNumber
+                v-model:value="smtpForm.port"
+                :min="1"
+                :max="65535"
+                placeholder="请输入端口号"
+              />
+            </NFormItem>
+            <NFormItem label="加密方式" path="encryption">
+              <NSelect
+                v-model:value="smtpForm.encryption"
+                :options="encryptionOptions"
+                placeholder="请选择加密方式"
+              />
+            </NFormItem>
+            <NFormItem label="用户名" path="username">
+              <NInput
+                v-model:value="smtpForm.username"
+                placeholder="请输入邮箱用户名"
+              />
+            </NFormItem>
+            <NFormItem label="密码" path="password">
+              <NInput
+                v-model:value="smtpForm.password"
+                type="password"
+                placeholder="请输入邮箱密码或授权码"
+                show-password-on="click"
+              />
+            </NFormItem>
+            <NFormItem label="发件人邮箱" path="fromEmail">
+              <NInput
+                v-model:value="smtpForm.fromEmail"
+                placeholder="请输入发件人邮箱地址"
+              />
+            </NFormItem>
+            <NSpace justify="end">
+              <NButton type="primary" :loading="loading" @click="handleSaveSmtp"
+                >保存设置</NButton
+              >
+            </NSpace>
+          </NForm>
+        </NTabPane>
+
+        <NTabPane name="sms" tab="短信">
+          <NAlert style="margin-bottom: 20px" title="短信配置" type="info">
+            注意目前只支持短信宝
+          </NAlert>
+          <NForm
+            ref="smsFormRef"
+            :model="smsForm"
+            :rules="smsRules"
+            label-placement="left"
+            label-width="auto"
+            require-mark-placement="right-hanging"
+          >
+            <NFormItem label="APPID" path="appId">
+              <NInput v-model:value="smsForm.appId" placeholder="请输入APPID" />
+            </NFormItem>
+            <NFormItem label="TOKEN" path="smsToken">
+              <NInput
+                v-model:value="smsForm.smsToken"
+                type="password"
+                placeholder="请输入SecretKey"
+                show-password-on="click"
+              />
+            </NFormItem>
+            <NFormItem label="模板" path="template">
+              <NInput
+                v-model:value="smsForm.template"
+                placeholder="请输入短信模板"
+              />
+            </NFormItem>
+            <NSpace justify="end">
+              <NButton
+                type="primary"
+                :loading="smsLoading"
+                @click="handleSaveSms"
+                >保存设置</NButton
+              >
+            </NSpace>
+          </NForm>
+        </NTabPane>
+
         <NTabPane name="downloads" tab="下载">
           <div class="download-filter-row">
             <n-select
@@ -352,6 +450,7 @@ import {
   useMessage,
   NDataTable,
   NModal,
+  NSelect,
 } from 'naive-ui'
 import type { FormRules, FormInst, DataTableColumns } from 'naive-ui'
 import { switchButtonRailStyle } from '@/constants/theme.ts'
@@ -364,6 +463,8 @@ const message = useMessage()
 // 表单引用
 const basicFormRef = ref<FormInst | null>(null)
 const securityFormRef = ref<FormInst | null>(null)
+const smtpFormRef = ref<FormInst | null>(null)
+const smsFormRef = ref<FormInst | null>(null)
 const editSourceFormRef = ref<FormInst | null>(null)
 const addSourceFormRef = ref<FormInst | null>(null)
 const groupFormRef = ref<FormInst | null>(null)
@@ -384,10 +485,34 @@ const securityForm = ref({
   allowSms: true,
 })
 
+const smtpForm = ref({
+  host: '',
+  port: 587,
+  username: '',
+  password: '',
+  fromEmail: '',
+  encryption: 'tls' as 'none' | 'ssl' | 'tls',
+})
+
+const smsForm = ref({
+  appId: '',
+  smsToken: '',
+  template: '',
+})
+
+// 加密方式选项
+const encryptionOptions = [
+  { label: '无加密', value: 'none' },
+  { label: 'SSL', value: 'ssl' },
+  { label: 'TLS', value: 'tls' },
+]
+
 const downloadSourcesData = ref<DownloadSource[]>([])
 const groupsData = ref<Group[]>([])
 const filteredGroupsData = ref<Group[]>([])
 const SetUserGroup = ref(false)
+const loading = ref(false)
+const smsLoading = ref(false)
 
 // 模态框状态
 const showEditModal = ref(false)
@@ -464,6 +589,81 @@ const securityRules: FormRules = {
   allowSms: {
     required: true,
     type: 'boolean',
+  },
+}
+
+const smtpRules: FormRules = {
+  host: {
+    required: true,
+    message: '请输入SMTP服务器地址',
+    trigger: ['blur', 'input'],
+  },
+  port: {
+    required: true,
+    type: 'number',
+    min: 1,
+    max: 65535,
+    message: '请输入有效的端口号',
+    trigger: ['blur', 'input'],
+  },
+  username: {
+    required: true,
+    message: '请输入邮箱用户名',
+    trigger: ['blur', 'input'],
+  },
+  password: {
+    required: true,
+    message: '请输入邮箱密码或授权码',
+    trigger: ['blur', 'input'],
+  },
+  fromEmail: {
+    required: true,
+    type: 'email',
+    message: '请输入有效的邮箱地址',
+    trigger: ['blur', 'input'],
+  },
+  fromName: {
+    required: true,
+    message: '请输入发件人名称',
+    trigger: ['blur', 'input'],
+  },
+  encryption: {
+    required: true,
+    message: '请选择加密方式',
+    trigger: ['blur', 'change'],
+  },
+}
+
+const smsRules: FormRules = {
+  provider: {
+    required: true,
+    message: '请选择短信服务商',
+    trigger: ['blur', 'change'],
+  },
+  accessKey: {
+    required: true,
+    message: '请输入AccessKey',
+    trigger: ['blur', 'input'],
+  },
+  secretKey: {
+    required: true,
+    message: '请输入SecretKey',
+    trigger: ['blur', 'input'],
+  },
+  signName: {
+    required: true,
+    message: '请输入短信签名',
+    trigger: ['blur', 'input'],
+  },
+  templateId: {
+    required: true,
+    message: '请输入短信模板ID',
+    trigger: ['blur', 'input'],
+  },
+  region: {
+    required: true,
+    message: '请输入服务区域',
+    trigger: ['blur', 'input'],
   },
 }
 
@@ -715,7 +915,9 @@ const handleCancelSetUserGroup = () => {
 // 保存公告
 const handleSaveBasic = async () => {
   try {
-    const data = await adminApi.createBroadcast(basicForm.value.notice)
+    const data = await adminApi.updateSetting({
+      broadcast: basicForm.value.notice,
+    })
     if (data.code === 0) {
       message.success('保存公告成功')
     } else {
@@ -730,11 +932,11 @@ const handleSaveBasic = async () => {
 const handleSaveSecurity = async () => {
   try {
     await securityFormRef.value?.validate()
-    const data = await adminApi.updateSafetySetting({
+    const data = await adminApi.updateSetting({
       allowRegister: securityForm.value.allowRegister,
       allowRealname: securityForm.value.allowRealName,
       allowLogin: securityForm.value.allowLogin,
-      allowSendEmail: securityForm.value.allowEmail,
+      allowSendMail: securityForm.value.allowEmail,
       allowSendSms: securityForm.value.allowSms,
       allowSign: securityForm.value.allowSign,
     })
@@ -848,27 +1050,20 @@ const filterGroups = () => {
   filteredGroupsData.value = filtered
 }
 
-// 获取基础设置
-const fetchBasicSettings = async () => {
-  try {
-    const data = await adminApi.getBroadcastList()
-    if (data.code === 0) {
-      basicForm.value.notice = data.data[0].broadcast
-    } else {
-      message.error(data.message || '获取公告失败')
-    }
-  } catch (error) {
-    message.error('获取基础设置失败')
-  }
-}
-
-// 获取安全设置
-const fetchSecuritySettings = async () => {
+// 获取所有系统设置
+const fetchAllSystemSettings = async () => {
   try {
     const data = await adminApi.getSystemSettings()
     if (data.code === 0) {
       const configs = data.data
 
+      // 设置基础配置
+      const broadcastConfig = configs.find((c) => c.type === 'broadcast')
+      if (broadcastConfig) {
+        basicForm.value.notice = broadcastConfig.value
+      }
+
+      // 设置安全配置
       securityForm.value.allowRegister =
         configs.find((c) => c.type === 'allowRegister')?.value === 'true'
       securityForm.value.allowSign =
@@ -881,8 +1076,35 @@ const fetchSecuritySettings = async () => {
         configs.find((c) => c.type === 'allowSendMail')?.value === 'true'
       securityForm.value.allowSms =
         configs.find((c) => c.type === 'allowSendSms')?.value === 'true'
+
+      // 设置SMTP配置
+      smtpForm.value.host =
+        configs.find((c) => c.type === 'smtpServer')?.value || ''
+      smtpForm.value.port = parseInt(
+        configs.find((c) => c.type === 'smtpPort')?.value || '587',
+      )
+      smtpForm.value.username =
+        configs.find((c) => c.type === 'smtpUsername')?.value || ''
+      smtpForm.value.password =
+        configs.find((c) => c.type === 'smtpPassword')?.value || ''
+      smtpForm.value.fromEmail =
+        configs.find((c) => c.type === 'smtpFrom')?.value || ''
+      // 如果没有加密方式配置，默认使用TLS
+      smtpForm.value.encryption =
+        (configs.find((c) => c.type === 'smtpEncryption')?.value as
+          | 'none'
+          | 'ssl'
+          | 'tls') || 'tls'
+
+      // 设置短信配置
+      smsForm.value.appId =
+        configs.find((c) => c.type === 'smsAppId')?.value || ''
+      smsForm.value.smsToken =
+        configs.find((c) => c.type === 'smsToken')?.value || ''
+      smsForm.value.template =
+        configs.find((c) => c.type === 'smsTemplate')?.value || ''
     } else {
-      message.error(data.message || '获取安全设置失败')
+      message.error(data.message || '获取系统设置失败')
     }
   } catch (error) {
     message.error((error as ApiError).message)
@@ -1054,14 +1276,67 @@ const handleRemoveGroup = async (id: number) => {
   }
 }
 
+// 保存SMTP配置
+const handleSaveSmtp = async () => {
+  loading.value = true
+  try {
+    await smtpFormRef.value?.validate()
+    const data = await adminApi.updateSmtpSetting({
+      smtpServer: smtpForm.value.host,
+      smtpPort: smtpForm.value.port,
+      smtpUsername: smtpForm.value.username,
+      smtpPassword: smtpForm.value.password,
+      smtpFrom: smtpForm.value.fromEmail,
+      smtpEncryption: smtpForm.value.encryption,
+    })
+    if (data.code === 0) {
+      message.success(data.message || '保存SMTP配置成功')
+    } else {
+      message.error(data.message || '保存SMTP配置失败')
+    }
+  } catch (error) {
+    message.error('保存SMTP配置失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+// 保存短信配置
+const handleSaveSms = async () => {
+  smsLoading.value = true
+  try {
+    await smsFormRef.value?.validate()
+    const data = await adminApi.updateSmsSetting({
+      appId: smsForm.value.appId,
+      smsToken: smsForm.value.smsToken,
+      template: smsForm.value.template,
+    })
+    if (data.code === 0) {
+      message.success('保存短信配置成功')
+    } else {
+      message.error(data.message || '保存短信配置失败')
+    }
+  } catch (error) {
+    message.error('保存短信配置失败')
+  } finally {
+    smsLoading.value = false
+  }
+}
+
 // 切换标签时加载对应数据
 const handleTabUpdate = (tab: string) => {
   switch (tab) {
     case 'basic':
-      fetchBasicSettings()
+      // 基础设置已在初始化时获取，无需重新获取
       break
     case 'security':
-      fetchSecuritySettings()
+      // 安全设置已在初始化时获取，无需重新获取
+      break
+    case 'smtp':
+      // SMTP配置已在初始化时获取，无需重新获取
+      break
+    case 'sms':
+      // 短信配置已在初始化时获取，无需重新获取
       break
     case 'downloads':
       fetchDownloadSources()
@@ -1074,7 +1349,7 @@ const handleTabUpdate = (tab: string) => {
 
 // 生命周期钩子 - 初始化加载基础设置
 onMounted(() => {
-  fetchBasicSettings()
+  fetchAllSystemSettings()
 })
 </script>
 

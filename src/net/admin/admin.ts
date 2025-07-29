@@ -278,8 +278,20 @@ export async function getSystemSettings(): Promise<SystemSettingApiResponse> {
     headers: { Authorization: getToken() },
   })
 }
-export async function updateSafetySetting(params: any): Promise<CodeResponse> {
-  return await post<CodeResponse>('/admin/setting/safety', params, {
+export async function updateSmtpSetting(params: any): Promise<CodeResponse> {
+  return await post<CodeResponse>('/admin/setting/smtp', params, {
+    headers: { Authorization: getToken() },
+  })
+}
+
+export async function updateSmsSetting(params: any): Promise<CodeResponse> {
+  return await post<CodeResponse>('/admin/setting/sms', params, {
+    headers: { Authorization: getToken() },
+  })
+}
+
+export async function updateSetting(params: any): Promise<CodeResponse> {
+  return await post<CodeResponse>('/admin/setting', params, {
     headers: { Authorization: getToken() },
   })
 }
