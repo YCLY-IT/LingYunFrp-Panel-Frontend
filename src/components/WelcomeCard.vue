@@ -14,18 +14,20 @@
           <div class="weather-box">
             <img
               :src="weatherIconSrc"
-              :alt="weatherInfo.weather"
+              :alt="weatherStore.weatherInfo.weather"
               class="weather-icon"
             />
             <div class="weather-info">
-              <div>{{ weatherInfo.weather }}</div>
+              <div>{{ weatherStore.weatherInfo.weather }}</div>
               <div class="weather-detail">
-                <span>温度: {{ weatherInfo.temp }}℃</span>
-                <span>湿度: {{ weatherInfo.humidity }}%RH</span>
+                <span>温度: {{ weatherStore.weatherInfo.temp }}℃</span>
+                <span>湿度: {{ weatherStore.weatherInfo.humidity }}%RH</span>
               </div>
               <div class="weather-detail">
-                <span>风向: {{ weatherInfo.winddirection }}方</span>
-                <span>风力: {{ weatherInfo.windpower }}级</span>
+                <span
+                  >风向: {{ weatherStore.weatherInfo.winddirection }}方</span
+                >
+                <span>风力: {{ weatherStore.weatherInfo.windpower }}级</span>
               </div>
             </div>
           </div>
@@ -62,7 +64,7 @@
               <span>{{ currentDate }}</span>
             </div>
             <div class="info-item">
-              <span>更新时间: {{ weatherInfo.reporttime }}</span>
+              <span>更新时间: {{ weatherStore.weatherInfo.reporttime }}</span>
             </div>
           </div>
         </div>
@@ -74,9 +76,10 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useMessage } from 'naive-ui'
-import { weatherService } from '@/utils/weatherService'
+import { useWeatherStore } from '@/stores/weather'
 
 const message = useMessage()
+const weatherStore = useWeatherStore()
 
 // 响应式数据
 const cardRef = ref<HTMLElement>()
@@ -89,16 +92,6 @@ const visitorInfo = ref({
   browser: '',
   province: '',
   city: '',
-})
-
-// 天气信息
-const weatherInfo = ref({
-  weather: '未知',
-  temp: '--',
-  humidity: '--',
-  winddirection: '--',
-  windpower: '--',
-  reporttime: '--',
 })
 
 // 计算属性
@@ -117,7 +110,7 @@ const location = computed(() => {
 })
 
 const weatherIconSrc = computed(() => {
-  const weather = weatherInfo.value.weather
+  const weather = weatherStore.weatherInfo.weather
   if (weather.includes('晴')) return '/icon/weather/sunny.png'
   if (weather.includes('云')) return '/icon/weather/dyun.png'
   if (weather.includes('阴')) return '/icon/weather/yin.png'
@@ -195,7 +188,7 @@ const getOS = (): string => {
 // 获取访问者信息
 const getVisitorInfo = async () => {
   try {
-    const { location, weather } = await weatherService.getVisitorInfo()
+    const { location } = await weatherStore.getVisitorInfo()
 
     visitorInfo.value = {
       ip: location.ip,
@@ -204,8 +197,6 @@ const getVisitorInfo = async () => {
       province: location.province,
       city: location.city,
     }
-
-    weatherInfo.value = weather
   } catch (error) {
     console.error('获取访问者信息失败:', error)
     message.error('获取访问者信息失败')
