@@ -47,7 +47,7 @@
             </p>
           </div>
           <n-grid
-            :cols="gridCols"
+            :cols="quickStartGridCols"
             responsive="screen"
             :x-gap="isMobile ? 16 : 24"
             :y-gap="isMobile ? 16 : 24"
@@ -123,44 +123,43 @@
               只需几个简单步骤，即可开始使用 {{ packageData.title }} 服务
             </p>
           </div>
-          <div class="quick-start-grid">
-            <div
-              v-for="(step, index) in quickStartSteps"
-              :key="index"
-              class="step-card"
-              :class="{ 'step-card-active': index === 0 }"
-              :style="{ animationDelay: `${index * 0.2}s` }"
-            >
-              <div class="step-number">{{ index + 1 }}</div>
-              <div class="step-icon">
-                <n-icon :size="isMobile ? 32 : 40" :depth="3">
-                  <component :is="step.icon" />
-                </n-icon>
-              </div>
-              <div class="step-content">
-                <h3 class="step-title">{{ step.title }}</h3>
-                <p class="step-description">{{ step.description }}</p>
-              </div>
-              <div class="step-arrow" v-if="index < quickStartSteps.length - 1">
-                <n-icon :size="isMobile ? 20 : 24">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path d="M5 12h14" />
-                    <path d="m12 5 7 7-7 7" />
-                  </svg>
-                </n-icon>
-              </div>
-            </div>
-          </div>
+          <n-grid
+            :cols="gridCols"
+            responsive="screen"
+            :x-gap="isMobile ? 16 : 24"
+            :y-gap="isMobile ? 16 : 24"
+          >
+            <n-grid-item v-for="(step, index) in quickStartSteps" :key="index">
+              <n-card
+                class="step-card"
+                :class="{ 'step-card-active': index === 0 - 1 }"
+                :style="{ animationDelay: `${index * 0.2}s` }"
+              >
+                <template #header>
+                  <div class="step-header">
+                    <div class="step-number">{{ index + 1 }}</div>
+                    <div class="step-icon">
+                      <n-icon :size="isMobile ? 32 : 40" :depth="3">
+                        <component :is="step.icon" />
+                      </n-icon>
+                    </div>
+                  </div>
+                </template>
+                <div class="step-content">
+                  <h3 class="step-title">{{ step.title }}</h3>
+                  <p class="step-description">{{ step.description }}</p>
+                </div>
+                <div
+                  class="step-arrow"
+                  v-if="index < quickStartSteps.length - 1"
+                >
+                  <n-icon :size="isMobile ? 20 : 2">
+                    <ArrowRightIcon />
+                  </n-icon>
+                </div>
+              </n-card>
+            </n-grid-item>
+          </n-grid>
         </div>
       </section>
 
@@ -266,6 +265,7 @@ import {
   UserIcon,
   DownloadIcon,
   PlayIcon,
+  ArrowRightIcon,
 } from 'lucide-vue-next'
 import router from '@/router'
 import La from '@/components/La.vue'
@@ -280,6 +280,13 @@ const isTablet = computed(
 
 // 网格列数响应式配置
 const gridCols = computed(() => {
+  if (isMobile.value) return 1
+  if (isTablet.value) return 2
+  return 4
+})
+
+// 快速开始网格列数响应式配置
+const quickStartGridCols = computed(() => {
   if (isMobile.value) return 1
   if (isTablet.value) return 2
   return 3
@@ -433,6 +440,17 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .landing-page {
   font-family:
     -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
@@ -573,89 +591,75 @@ onMounted(() => {
   .quick-start {
     padding: 60px 0;
     background-color: var(--n-color-modal);
-
-    .quick-start-grid {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      flex-wrap: wrap;
-      margin-top: 40px;
-    }
+    margin-top: 40px;
 
     .step-card {
       position: relative;
-      background: var(--n-color);
-      border: 2px solid var(--n-border-color);
-      border-radius: 16px;
-      padding: 32px 24px;
       text-align: center;
-      min-width: 200px;
-      max-width: 280px;
       transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
       animation: fadeInUp 0.6s ease forwards;
       opacity: 0;
       transform: translateY(30px);
+      height: 100%;
+
+      .step-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+        padding-top: 20px;
+      }
 
       &:hover {
         transform: translateY(-8px);
-        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
-        border-color: var(--n-primary-color);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+
+        .step-icon {
+          transform: scale(1.1);
+        }
       }
 
       &.step-card-active {
-        border-color: var(--n-primary-color);
-        background: linear-gradient(
-          135deg,
-          var(--n-primary-color) 0%,
-          rgba(var(--n-primary-color-rgb), 0.1) 100%
-        );
-        box-shadow: 0 8px 24px rgba(var(--n-primary-color-rgb), 0.2);
+        border: 1px solid var(--n-primary-color);
 
         .step-number {
-          background: var(--n-color);
-          color: var(--n-primary-color);
+          background: var(--n-primary-color);
+          color: white;
         }
 
         .step-icon {
-          color: var(--n-color);
+          color: var(--n-primary-color);
         }
 
         .step-title {
-          color: var(--n-color);
-        }
-
-        .step-description {
-          color: rgba(255, 255, 255, 0.8);
+          color: var(--n-primary-color);
         }
       }
 
       .step-number {
-        position: absolute;
-        top: -12px;
-        left: 50%;
-        transform: translateX(-50%);
         width: 32px;
         height: 32px;
-        background: var(--n-primary-color);
-        color: white;
+        background: var(--n-color-modal);
+        color: var(--n-text-color);
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         font-weight: 700;
         font-size: 14px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 12px;
       }
 
       .step-icon {
-        margin-bottom: 20px;
+        margin-bottom: 16px;
         color: var(--n-primary-color);
         transition: all 0.3s ease;
       }
 
       .step-content {
+        padding: 8px 0;
+
         .step-title {
           font-size: clamp(16px, 2.5vw, 18px);
           font-weight: 600;
@@ -674,14 +678,35 @@ onMounted(() => {
 
       .step-arrow {
         position: absolute;
-        right: -30px;
+        right: -25px;
         top: 50%;
         transform: translateY(-50%);
-        color: var(--n-text-color-3);
+        color: var(--n-primary-color);
         z-index: 1;
 
         @media (max-width: 767px) {
           display: none;
+        }
+      }
+
+      @media (max-width: 767px) {
+        .step-number {
+          width: 28px;
+          height: 28px;
+          font-size: 12px;
+        }
+
+        .step-content {
+          padding: 4px 0;
+
+          .step-title {
+            font-size: 16px;
+            margin-bottom: 8px;
+          }
+
+          .step-description {
+            font-size: 13px;
+          }
         }
       }
     }
