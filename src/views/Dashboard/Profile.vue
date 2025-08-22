@@ -100,11 +100,7 @@
       </div>
       <div class="right-column">
         <!-- 账户详情区域 -->
-        <n-card class="card account-details">
-          <div class="card-header">
-            <h2 class="card-title">账户详情</h2>
-          </div>
-
+        <n-card class="card account-details" size="medium" title="账户详情">
           <div class="user-profile">
             <div class="user-avatar">
               <div
@@ -527,7 +523,7 @@ import {
 import userInfo from '../../components/UserInfo.vue'
 import WelcomeCard from '@/components/WelcomeCard.vue'
 import { userApi } from '../../net'
-import { removeToken } from '../../net/token'
+import { getToken, removeToken } from '../../net/token'
 import Statistic from '@/components/Statistic.vue'
 import { Cropper, CircleStencil } from 'vue-advanced-cropper'
 import 'vue-advanced-cropper/dist/style.css'
@@ -1074,7 +1070,7 @@ const handleResetToken = async () => {
 onMounted(async () => {
   // 加载极验脚本
   await loadGeetest()
-
+  clientLogin()
   return () => {
     if (cropperRef.value) {
       cropperRef.value.destroy()
@@ -1082,6 +1078,44 @@ onMounted(async () => {
     }
   }
 })
+
+const clientLogin = async () => {
+  const login = new URLSearchParams(location.search).get('login')
+  if (login === null) {
+    return
+  }
+  const result = check(login)
+  if (result) {
+    dialog.info({
+      title: '您确认要登陆吗',
+      content: '检测到客户端打开网页登录，是否继续？',
+      positiveText: '确认',
+      negativeText: '取消',
+      onPositiveClick: async () => {
+        window.open(`lyfrp://login?token=${getToken()}`, '_self')
+      },
+    })
+  } else {
+    dialog.error({
+      title: '登录失败',
+      content: '请重试一下试试',
+      positiveText: '确定',
+    })
+    return
+  }
+}
+// 后端 check
+function check(token) {
+  if (!/^\d{14}$/.test(token)) return false
+  const plain = [...token]
+    .map((c, i) => (+c - 7 * i - 23 + 140) % 10) // +140 保证正数再模 10
+    .join('')
+  const now = new Date(Math.floor(Date.now() / 20_000) * 20_000)
+    .toISOString()
+    .slice(0, 19)
+    .replace(/[-:T]/g, '')
+  return plain === now
+}
 </script>
 
 <style lang="scss" scoped>
@@ -1217,7 +1251,7 @@ $transition-normal: all 0.2s ease;
     display: flex;
     align-items: center;
     gap: $primary-spacing;
-    margin-bottom: 24px;
+    margin-bottom: 8px;
 
     @media (max-width: 768px) {
       gap: $mobile-spacing;
@@ -1258,10 +1292,7 @@ $transition-normal: all 0.2s ease;
 // 账户信息网格
 .account-info-grid {
   @media (min-width: 601px) {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: $primary-spacing;
-    padding: $primary-spacing;
+    padding: 10px;
   }
 
   @media (max-width: 600px) {
