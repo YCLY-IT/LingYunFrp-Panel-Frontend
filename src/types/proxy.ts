@@ -54,17 +54,6 @@ export interface UserNodeName {
   hostname: string
 }
 
-export interface FilterProxiesArgs {
-  page: number
-  limit: number
-  nodeId?: number
-  username?: string
-  proxyType?: string
-  isOnline?: boolean
-  isBanned?: boolean
-  keyword?: string
-}
-
 export interface UserNode {
   id: any
   name: string

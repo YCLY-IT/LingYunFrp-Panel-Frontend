@@ -915,9 +915,7 @@ const handleCancelSetUserGroup = () => {
 // 保存公告
 const handleSaveBasic = async () => {
   try {
-    const data = await adminApi.updateSetting({
-      broadcast: basicForm.value.notice,
-    })
+    const data = await adminApi.setBroadcast(basicForm.value.notice)
     if (data.code === 0) {
       message.success('保存公告成功')
     } else {

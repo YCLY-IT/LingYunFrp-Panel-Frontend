@@ -27,24 +27,8 @@ export interface User {
   lastLoginTime?: string
 }
 
-export interface UserListParams {
-  page: number
-  limit: number
-  group?: string
-  isRealname?: boolean
-  status?: number
-  keyword?: string
-  sortBy?: string
-  sortOrder?: 'asc' | 'desc'
-}
-
 export interface UserListResponse {
   users: User[]
-  pagination: {
-    total: number
-    page: number
-    limit: number
-  }
 }
 
 export interface UpdateUserParams {
@@ -96,20 +80,8 @@ export interface Node {
   todayTrafficIn: number
   todayTrafficOut: number
 }
-
-export interface NodeListParams {
-  page: number
-  limit: number
-  isOnline?: boolean
-  isDisabled?: boolean
-  keyword?: string
-}
-
 export interface NodeListResponse {
   nodes: Node[]
-  total: number
-  page: number
-  limit: number
 }
 
 export interface CreateNodeParams {
@@ -150,24 +122,8 @@ export interface Proxy {
   createdAt: string
   updatedAt: string
 }
-
-export interface ProxyListParams {
-  page: number
-  limit: number
-  type?: string
-  status?: number
-  nodeId?: number
-  userId?: number
-  keyword?: string
-}
-
 export interface ProxyListResponse {
   proxies: Proxy[]
-  pagination: {
-    total: number
-    page: number
-    limit: number
-  }
 }
 
 export interface UpdateProxyParams {
@@ -285,12 +241,6 @@ export interface SystemSetting {
   description: string
 }
 
-export interface Broadcast {
-  id: number
-  broadcast: string
-  createdAt: string
-}
-
 export interface Group {
   id: number
   name: string
@@ -330,7 +280,6 @@ export type SoftwareListApiResponse = ApiBaseResponse<SoftwareListResponse>
 export type SoftwareApiResponse = ApiBaseResponse<Software>
 export type SoftwareVersionApiResponse = ApiBaseResponse<SoftwareVersion>
 export type SystemSettingApiResponse = ApiBaseResponse<SystemSetting[]>
-export type BroadcastApiResponse = ApiBaseResponse<Broadcast[]>
 export type GroupListApiResponse = ApiBaseResponse<{ groups: Group[] }>
 export type GroupApiResponse = ApiBaseResponse<Group>
 export type DownloadSourceApiResponse = ApiBaseResponse<any[]>

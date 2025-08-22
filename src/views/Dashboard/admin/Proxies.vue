@@ -407,7 +407,7 @@ import type {
   FormRules,
   FormInst,
 } from 'naive-ui'
-import type { Proxy, FilterProxiesArgs } from '@/types'
+import type { Proxy } from '@/types'
 import { switchButtonRailStyle } from '@/constants/theme.ts'
 import {
   BanOutline,
@@ -1174,10 +1174,7 @@ const handleEditSubmit = async () => {
 // 获取节点列表
 const fetchNodes = async () => {
   try {
-    const data = await adminApi.getNodeList({
-      page: 1,
-      limit: 1000,
-    })
+    const data = await adminApi.getNodeList()
     if (data.code === 0) {
       const nodes = data.data.nodes
       nodeOptions.value = nodes.map((node: any) => ({
@@ -1199,11 +1196,6 @@ const fetchNodes = async () => {
 const loadData = async () => {
   loading.value = true
   try {
-    const params: FilterProxiesArgs = {
-      page: 1, // 获取所有数据
-      limit: 99999, // 获取所有数据
-    }
-
     /* 以下筛选改由前端处理
     if (filters.value.search) {
       params.keyword = filters.value.search
@@ -1222,7 +1214,7 @@ const loadData = async () => {
     }
     */
 
-    const data = await adminApi.getProxyList(params)
+    const data = await adminApi.getProxyList()
     if (data.code === 0) {
       allProxies.value = data.data.proxies.map((proxy: any) => ({
         proxyId: proxy.proxyId ?? proxy.id,
@@ -1377,15 +1369,10 @@ const gettingFreePort = ref(false)
 const handleGetFreePortForEdit = async () => {
   try {
     gettingFreePort.value = true
-    // 注意：这个API可能不在adminApi中，需要添加或使用其他方式
-    const data = await adminApi.getProxyList({
-      page: 1,
-      limit: 1,
-      nodeId: editForm.value.nodeId,
-    })
+    const data = await adminApi.getProxyList()
     if (data.code === 0) {
       // 这里需要根据实际API调整
-      editForm.value.remotePort = 8080 // 临时默认值
+      editForm.value.remotePort = 9417 // 94179 我是彩蛋
     } else {
       message.error(data.message || '获取空闲端口失败')
     }

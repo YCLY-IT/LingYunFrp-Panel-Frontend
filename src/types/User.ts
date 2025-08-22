@@ -42,14 +42,6 @@ export interface UpdateNodeArgs {
   location: string
 }
 
-export interface GetNodesArgs {
-  page: number
-  limit: number
-  isOnline?: boolean
-  isDisabled?: boolean
-  keyword?: string
-}
-
 export interface Node {
   port: number
   nodeId: number

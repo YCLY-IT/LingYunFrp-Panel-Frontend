@@ -1,16 +1,12 @@
 import { get, post } from '../request'
 import { getToken } from '../token'
 import {
-  UserListParams,
   UserListApiResponse,
-  UserApiResponse,
   UpdateUserParams,
   ToggleUserParams,
-  NodeListParams,
   NodeListApiResponse,
   CreateNodeParams,
   UpdateNodeParams,
-  ProxyListParams,
   ProxyListApiResponse,
   UpdateProxyParams,
   ProductListApiResponse,
@@ -21,7 +17,6 @@ import {
   UpdateSoftwareParams,
   CreateSoftwareVersionParams,
   SystemSettingApiResponse,
-  BroadcastApiResponse,
   GroupListApiResponse,
   CreateGroupParams,
   UpdateGroupParams,
@@ -32,16 +27,8 @@ import {
 import { ApiBaseResponse } from '../user/type'
 
 // 用户管理API
-export async function getUserList(
-  params: UserListParams,
-): Promise<UserListApiResponse> {
-  return await post<UserListApiResponse>('/admin/user/list', params, {
-    headers: { Authorization: getToken() },
-  })
-}
-
-export async function getUserById(id: number): Promise<UserApiResponse> {
-  return await get<UserApiResponse>(`/admin/user/get/${id}`, {
+export async function getUserList(): Promise<UserListApiResponse> {
+  return await get<UserListApiResponse>('/admin/user/list', {
     headers: { Authorization: getToken() },
   })
 }
@@ -63,10 +50,8 @@ export async function toggleUser(
 }
 
 // 节点管理API
-export async function getNodeList(
-  params: NodeListParams,
-): Promise<NodeListApiResponse> {
-  return await post<NodeListApiResponse>('/admin/node/list', params, {
+export async function getNodeList(): Promise<NodeListApiResponse> {
+  return await get<NodeListApiResponse>('/admin/node/list', {
     headers: { Authorization: getToken() },
   })
 }
@@ -117,10 +102,8 @@ export async function toggleNode(
 }
 
 // 代理管理API
-export async function getProxyList(
-  params: ProxyListParams,
-): Promise<ProxyListApiResponse> {
-  return await post<ProxyListApiResponse>('/admin/proxy/list', params, {
+export async function getProxyList(): Promise<ProxyListApiResponse> {
+  return await get<ProxyListApiResponse>('/admin/proxy/list', {
     headers: { Authorization: getToken() },
   })
 }
@@ -296,13 +279,7 @@ export async function updateSetting(params: any): Promise<CodeResponse> {
   })
 }
 
-export async function getBroadcastList(): Promise<BroadcastApiResponse> {
-  return await get<BroadcastApiResponse>('/user/info/broadcast', {
-    headers: { Authorization: getToken() },
-  })
-}
-
-export async function createBroadcast(content: string): Promise<CodeResponse> {
+export async function setBroadcast(content: string): Promise<CodeResponse> {
   return await post<CodeResponse>(
     '/admin/setting/Broadcast',
     { message: content },
