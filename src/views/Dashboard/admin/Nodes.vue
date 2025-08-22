@@ -629,7 +629,6 @@ const sortOrderOptions = [
 ]
 const sortOptions = ref({ key: 'id', order: 'asc' })
 
-// 2. 本地排序和分页
 const sortedNodes = computed(() => {
   let sorted = [...nodesStore.nodes]
   if (sortOptions.value.key && sortOptions.value.order) {
@@ -681,7 +680,6 @@ const sortedNodes = computed(() => {
   return sorted.slice(start, end)
 })
 
-// 3. 排序处理函数
 const handleSortFieldChange = () => {
   nodesStore.pagination.page = 1
 }

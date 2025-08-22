@@ -42,7 +42,6 @@ import {
 } from './user/user'
 import {
   getUserList,
-  getUserById,
   updateUser,
   toggleUser,
   getNodeList,
@@ -67,8 +66,7 @@ import {
   deleteSoftwareVersion,
   getSoftwareVersions as getAdminSoftwareVersions,
   getSystemSettings,
-  getBroadcastList,
-  createBroadcast,
+  setBroadcast,
   getGroupList,
   createGroup,
   updateGroup,
@@ -127,7 +125,6 @@ const userApi = {
 const adminApi = {
   // 用户管理
   getUserList,
-  getUserById,
   updateUser,
   toggleUser,
   // 节点管理
@@ -160,8 +157,7 @@ const adminApi = {
   updateSetting,
   updateSmtpSetting,
   updateSmsSetting,
-  getBroadcastList,
-  createBroadcast,
+  setBroadcast,
   // 用户组管理
   getGroupList,
   createGroup,
