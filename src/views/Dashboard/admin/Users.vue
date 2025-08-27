@@ -58,14 +58,22 @@
             :columns="columns"
             :data="pagedUsers"
             :loading="loading"
-            :pagination="pagination"
+            :pagination="false"
+          />
+        </div>
+
+        <!-- 独立的分页组件 -->
+        <div style="display: flex; justify-content: right">
+          <NPagination
+            v-model:page="pagination.page"
+            v-model:page-size="pagination.pageSize"
+            :item-count="filteredUsers.length"
+            :page-count="Math.ceil(filteredUsers.length / pagination.pageSize)"
+            :page-sizes="pagination.pageSizes"
+            show-size-picker
+            :prefix="pagination.prefix"
             @update:page="pagination.page = $event"
-            @update:page-size="
-              ($event) => {
-                pagination.pageSize = $event
-                pagination.page = 1
-              }
-            "
+            @update:page-size="handlePageSizeChange"
           />
         </div>
       </NSpace>
@@ -210,7 +218,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, h, computed, onMounted, nextTick, type Ref } from 'vue'
+import { ref, h, computed, onMounted, nextTick, type Ref, watch } from 'vue'
 import {
   NCard,
   NSpace,
@@ -230,6 +238,7 @@ import {
   type DataTableColumns,
   type FormInst,
   type FormRules,
+  NPagination,
 } from 'naive-ui'
 import { Search } from '@vicons/ionicons5'
 import { adminApi } from '@/net'
@@ -287,12 +296,17 @@ const sortOptions = ref<{ key: string; order: 'asc' | 'desc' }>({
 const pagination = ref({
   page: 1,
   pageSize: 20,
-  pageCount: 1,
-  itemCount: 0,
   showSizePicker: true,
-  pageSizes: [10, 20, 30, 40].map((v) => ({ label: `${v} 条 / 页`, value: v })),
+  pageSizes: [10, 20, 30, 40].map((v) => ({ label: `${v} 条/页`, value: v })),
   prefix({ itemCount }: { itemCount?: number }) {
     return `共 ${itemCount} 条`
+  },
+  onChange: (page: number) => {
+    pagination.value.page = page
+  },
+  onUpdatePageSize: (pageSize: number) => {
+    pagination.value.pageSize = pageSize
+    pagination.value.page = 1
   },
 })
 
@@ -413,10 +427,17 @@ const pagedUsers = computed(() => {
   const { page, pageSize } = pagination.value
   const start = (page - 1) * pageSize
   const slice = filteredUsers.value.slice(start, start + pageSize)
-  pagination.value.itemCount = filteredUsers.value.length
-  pagination.value.pageCount = Math.ceil(filteredUsers.value.length / pageSize)
   return slice
 })
+
+// 监听过滤条件变化，重置到第一页
+watch(
+  [filters, sortOptions],
+  () => {
+    pagination.value.page = 1
+  },
+  { deep: true },
+)
 
 /* ----------------- 编辑 / 封禁 / 解封 ----------------- */
 const showEditModal = ref(false)
@@ -582,6 +603,10 @@ const loadData = async () => {
         ...u,
         friendlyGroup: groupNameMap.value[u.group] || u.group,
       }))
+      // 手动触发分页更新
+      nextTick(() => {
+        // updatePagination() // This line is no longer needed as pagination is handled by NDataTable
+      })
     } else {
       message.error(data.message || '获取用户列表失败')
     }
@@ -598,6 +623,11 @@ const modalStyle = computed(() => ({
   width: window.innerWidth <= 768 ? '95vw' : '600px',
   maxWidth: '95vw',
 }))
+
+const handlePageSizeChange = (pageSize: number) => {
+  pagination.value.pageSize = pageSize
+  pagination.value.page = 1
+}
 </script>
 
 <style lang="scss" scoped>

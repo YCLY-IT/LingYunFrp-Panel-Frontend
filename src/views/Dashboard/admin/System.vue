@@ -982,6 +982,9 @@ const fetchDownloadSources = async () => {
   try {
     const data = await adminApi.getDownloadSources()
     if (data.code === 0) {
+      if (!data.data) {
+        return
+      }
       allDownloadSources.value = data.data
       filterDownloadSources()
     } else {
@@ -1074,33 +1077,6 @@ const fetchAllSystemSettings = async () => {
         configs.find((c) => c.type === 'allowSendMail')?.value === 'true'
       securityForm.value.allowSms =
         configs.find((c) => c.type === 'allowSendSms')?.value === 'true'
-
-      // 设置SMTP配置
-      smtpForm.value.host =
-        configs.find((c) => c.type === 'smtpServer')?.value || ''
-      smtpForm.value.port = parseInt(
-        configs.find((c) => c.type === 'smtpPort')?.value || '587',
-      )
-      smtpForm.value.username =
-        configs.find((c) => c.type === 'smtpUsername')?.value || ''
-      smtpForm.value.password =
-        configs.find((c) => c.type === 'smtpPassword')?.value || ''
-      smtpForm.value.fromEmail =
-        configs.find((c) => c.type === 'smtpFrom')?.value || ''
-      // 如果没有加密方式配置，默认使用TLS
-      smtpForm.value.encryption =
-        (configs.find((c) => c.type === 'smtpEncryption')?.value as
-          | 'none'
-          | 'ssl'
-          | 'tls') || 'tls'
-
-      // 设置短信配置
-      smsForm.value.appId =
-        configs.find((c) => c.type === 'smsAppId')?.value || ''
-      smsForm.value.smsToken =
-        configs.find((c) => c.type === 'smsToken')?.value || ''
-      smsForm.value.template =
-        configs.find((c) => c.type === 'smsTemplate')?.value || ''
     } else {
       message.error(data.message || '获取系统设置失败')
     }
@@ -1321,6 +1297,43 @@ const handleSaveSms = async () => {
   }
 }
 
+const fetchSmtpSetting = async () => {
+  try {
+    const data = await adminApi.getSmtpSetting()
+    if (data.code === 0) {
+      smtpForm.value = {
+        host: data.data.host,
+        port: data.data.port,
+        username: data.data.username,
+        password: data.data.password,
+        fromEmail: data.data.from,
+        encryption: data.data.encryption,
+      }
+    } else {
+      message.error(data.message || '获取SMTP配置失败')
+    }
+  } catch (error) {
+    message.error((error as ApiError).message)
+  }
+}
+
+const fetchSmsSetting = async () => {
+  try {
+    const data = await adminApi.getSmsSetting()
+    if (data.code === 0) {
+      smsForm.value = {
+        appId: data.data.app_id,
+        smsToken: data.data.token,
+        template: data.data.context,
+      }
+    } else {
+      message.error(data.message || '获取SMS配置失败')
+    }
+  } catch (error) {
+    message.error((error as ApiError).message)
+  }
+}
+
 // 切换标签时加载对应数据
 const handleTabUpdate = (tab: string) => {
   switch (tab) {
@@ -1331,10 +1344,10 @@ const handleTabUpdate = (tab: string) => {
       // 安全设置已在初始化时获取，无需重新获取
       break
     case 'smtp':
-      // SMTP配置已在初始化时获取，无需重新获取
+      fetchSmtpSetting()
       break
     case 'sms':
-      // 短信配置已在初始化时获取，无需重新获取
+      fetchSmsSetting()
       break
     case 'downloads':
       fetchDownloadSources()
