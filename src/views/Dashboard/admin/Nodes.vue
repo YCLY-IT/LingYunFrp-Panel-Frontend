@@ -75,13 +75,41 @@
           :columns="columns"
           :data="sortedNodes"
           :loading="nodesStore.loading"
-          :pagination="nodesStore.pagination"
+          :pagination="false"
           :row-class-name="rowClassName"
           :scroll-x="1200"
           :empty="nodesStore.emptySlot"
-          @update:page="nodesStore.handlePageChange"
           @update:sorter="handleSortChange"
         />
+
+        <!-- 独立的分页组件 -->
+        <div
+          v-if="nodesStore.shouldShowTable"
+          style="display: flex; justify-content: right"
+        >
+          <NPagination
+            v-model:page="nodesStore.pagination.page"
+            v-model:page-size="nodesStore.pagination.pageSize"
+            :item-count="nodesStore.pagination.itemCount"
+            :page-count="nodesStore.pagination.pageCount"
+            show-size-picker
+            :page-sizes="[
+              { label: '10 条/页', value: 10 },
+              { label: '20 条/页', value: 20 },
+              { label: '30 条/页', value: 30 },
+              { label: '40 条/页', value: 40 },
+            ]"
+            :prefix="nodesStore.pagination.prefix"
+            @update:page="nodesStore.handlePageChange"
+            @update:page-size="
+              (pageSize: number) => {
+                nodesStore.pagination.pageSize = pageSize
+                nodesStore.pagination.page = 1
+                nodesStore.handleFilterChange()
+              }
+            "
+          />
+        </div>
 
         <!-- 空状态显示 -->
         <div
@@ -534,6 +562,7 @@ import {
   NIcon,
   NSwitch,
   NEmpty,
+  NPagination,
 } from 'naive-ui'
 import {
   EllipsisHorizontalCircleOutline,

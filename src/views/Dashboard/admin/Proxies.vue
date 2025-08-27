@@ -65,7 +65,7 @@
             :columns="columns"
             :data="sortedProxies"
             :loading="loading"
-            :pagination="pagination"
+            :pagination="false"
             :style="{
               '.n-data-table-td': {
                 whiteSpace: 'nowrap',
@@ -74,8 +74,27 @@
                 maxWidth: '200px',
               },
             }"
-            @update:page="handlePageChange"
             @update:sorter="handleSortChange"
+          />
+        </div>
+
+        <!-- 独立的分页组件 -->
+        <div style="display: flex; justify-content: right">
+          <NPagination
+            v-model:page="pagination.page"
+            v-model:page-size="pagination.pageSize"
+            :item-count="pagination.itemCount"
+            :page-count="pagination.pageCount"
+            show-size-picker
+            :page-sizes="pagination.pageSizes"
+            :prefix="pagination.prefix"
+            @update:page="handlePageChange"
+            @update:page-size="
+              (pageSize: number) => {
+                pagination.pageSize = pageSize
+                pagination.page = 1
+              }
+            "
           />
         </div>
       </NSpace>
@@ -400,6 +419,7 @@ import {
   NCollapse,
   NCollapseItem,
   NText,
+  NPagination,
 } from 'naive-ui'
 import type {
   DataTableColumns,

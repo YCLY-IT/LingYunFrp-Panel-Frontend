@@ -78,6 +78,8 @@ import {
   updateSmtpSetting,
   updateSetting,
   updateSmsSetting,
+  getSmtpSetting,
+  getSmsSetting,
 } from './admin/admin'
 
 const userApi = {
@@ -154,6 +156,8 @@ const adminApi = {
   getSoftwareVersions: getAdminSoftwareVersions,
   // 系统设置
   getSystemSettings,
+  getSmtpSetting,
+  getSmsSetting,
   updateSetting,
   updateSmtpSetting,
   updateSmsSetting,

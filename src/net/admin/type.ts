@@ -238,7 +238,6 @@ export interface SoftwareListResponse {
 export interface SystemSetting {
   type: string
   value: string
-  description: string
 }
 
 export interface Group {
@@ -267,6 +266,21 @@ export interface UpdateGroupParams extends CreateGroupParams {
   setUserGroup?: string
 }
 
+export interface SmsSettingResponse {
+  app_id: string
+  token: string
+  context: string
+}
+
+export interface SmtpSettingResponse {
+  host: string
+  port: number
+  username: string
+  password: string
+  from: string
+  encryption: 'ssl' | 'tls' | 'none'
+}
+
 // 响应类型定义
 export type UserListApiResponse = ApiBaseResponse<UserListResponse>
 export type UserApiResponse = ApiBaseResponse<User>
@@ -284,3 +298,5 @@ export type GroupListApiResponse = ApiBaseResponse<{ groups: Group[] }>
 export type GroupApiResponse = ApiBaseResponse<Group>
 export type DownloadSourceApiResponse = ApiBaseResponse<any[]>
 export type CodeResponse = ApiBaseResponse<any>
+export type SmsSettingApiResponse = ApiBaseResponse<SmsSettingResponse>
+export type SmtpSettingApiResponse = ApiBaseResponse<SmtpSettingResponse>

@@ -23,6 +23,8 @@ import {
   DownloadSourceApiResponse,
   CodeResponse,
   SoftwareVersion,
+  SmtpSettingApiResponse,
+  SmsSettingApiResponse,
 } from './type'
 import { ApiBaseResponse } from '../user/type'
 
@@ -267,8 +269,20 @@ export async function updateSmtpSetting(params: any): Promise<CodeResponse> {
   })
 }
 
+export async function getSmtpSetting(): Promise<SmtpSettingApiResponse> {
+  return await get<SmtpSettingApiResponse>('/admin/setting/smtp', {
+    headers: { Authorization: getToken() },
+  })
+}
+
 export async function updateSmsSetting(params: any): Promise<CodeResponse> {
   return await post<CodeResponse>('/admin/setting/sms', params, {
+    headers: { Authorization: getToken() },
+  })
+}
+
+export async function getSmsSetting(): Promise<SmsSettingApiResponse> {
+  return await get<SmsSettingApiResponse>('/admin/setting/sms', {
     headers: { Authorization: getToken() },
   })
 }
