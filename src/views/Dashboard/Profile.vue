@@ -9,7 +9,7 @@
     <div class="page-container">
       <div class="left-column">
         <!-- 账户设置区域 -->
-        <n-card>
+        <n-card class="settings-card">
           <div class="card-header">
             <h2 class="card-title">账户设置</h2>
             <div class="tabs">
@@ -1136,7 +1136,7 @@ $transition-normal: all 0.2s ease;
   gap: $primary-spacing;
   padding: $primary-spacing;
   max-width: 1200px;
-  margin: 0 auto;
+  margin: 0;
 
   @media (max-width: 768px) {
     flex-direction: column;
