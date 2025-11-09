@@ -119,7 +119,7 @@ const handleSubmit = async () => {
     loading.value = false
     setTimeout(() => {
       router.push('/dashboard')
-    }, 1200)
+    }, 1000)
   } catch (error: any) {
     message.error(error.message || '登录失败')
     loading.value = false

@@ -216,12 +216,10 @@ const handleUserMenuSelect = (key: string) => {
         content: '确定要退出登录吗？',
         positiveText: '确定',
         negativeText: '取消',
-        onPositiveClick: () => {
-          userLogout()
+        onPositiveClick: async () => {
+          await userLogout()
           message.success('已退出登录')
-          router.push('/login').then(() => {
-            window.location.reload()
-          })
+          router.push('/login')
         },
       })
       break

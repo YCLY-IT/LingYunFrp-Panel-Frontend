@@ -16,6 +16,8 @@ export interface User {
   proxies: number
   outBound: number
   inBound: number
+  noCnOutBound: number
+  noCnInBound: number
   updated_at: string
   created_at: string
   friendlyGroup?: string
@@ -42,6 +44,8 @@ export interface UpdateUserParams {
   traffic?: number
   outBound?: number
   inBound?: number
+  noCnOutBound?: number
+  noCnInBound?: number
   point?: number
   isRealname?: boolean
   remainder?: number
@@ -241,6 +245,8 @@ export interface SystemSetting {
 }
 
 export interface Group {
+  no_cn_out_limit: number
+  no_cn_in_limit: number
   id: number
   name: string
   friendlyName: string
@@ -259,6 +265,8 @@ export interface CreateGroupParams {
   traffic: number
   out_limit: number
   in_limit: number
+  no_cn_out_limit: number
+  no_cn_in_limit: number
 }
 
 export interface UpdateGroupParams extends CreateGroupParams {

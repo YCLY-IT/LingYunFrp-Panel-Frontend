@@ -67,7 +67,6 @@ export const useWeatherStore = defineStore('weather', () => {
   const getVisitorInfo = async (forceRefresh = false) => {
     // 如果缓存有效且不是强制刷新，直接返回缓存数据
     if (!forceRefresh && isCacheValid.value && hasData.value) {
-      console.log('使用缓存的天气数据')
       return {
         location: locationInfo.value,
         weather: weatherInfo.value,
@@ -76,7 +75,6 @@ export const useWeatherStore = defineStore('weather', () => {
 
     // 如果正在加载中，等待加载完成
     if (isLoading.value) {
-      console.log('等待其他请求完成...')
       return new Promise<{ location: LocationInfo; weather: WeatherInfo }>(
         (resolve) => {
           const checkLoading = () => {
@@ -95,7 +93,6 @@ export const useWeatherStore = defineStore('weather', () => {
     }
 
     // 开始加载
-    console.log('开始获取天气数据...')
     isLoading.value = true
 
     try {
@@ -106,7 +103,6 @@ export const useWeatherStore = defineStore('weather', () => {
       weatherInfo.value = weather
       lastFetchTime.value = Date.now()
 
-      console.log('天气数据获取成功，已缓存')
       return { location, weather }
     } catch (error) {
       console.error('获取访问者信息失败:', error)
@@ -121,14 +117,12 @@ export const useWeatherStore = defineStore('weather', () => {
    */
   const clearCache = () => {
     lastFetchTime.value = 0
-    console.log('天气数据缓存已清除')
   }
 
   /**
    * 强制刷新数据
    */
   const refreshData = () => {
-    console.log('强制刷新天气数据')
     return getVisitorInfo(true)
   }
 

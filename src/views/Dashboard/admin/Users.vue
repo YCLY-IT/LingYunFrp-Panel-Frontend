@@ -91,65 +91,153 @@
         :model="editForm"
         :rules="rules"
         label-placement="left"
-        label-width="auto"
+        label-width="100px"
         require-mark-placement="right-hanging"
       >
-        <NFormItem label="用户名" path="username">
-          <NInput
-            v-model:value="editForm.username"
-            placeholder="请输入用户名"
-          />
-        </NFormItem>
-        <NFormItem label="邮箱" path="email">
-          <NInput v-model:value="editForm.email" placeholder="请输入邮箱" />
-        </NFormItem>
-        <NFormItem label="用户组" path="group">
-          <NSelect
-            v-model:value="editForm.group"
-            :options="groupOptions"
-            placeholder="请选择用户组"
-          />
-        </NFormItem>
-        <NFormItem label="账户状态" path="status">
-          <NSelect
-            v-model:value="editForm.status"
-            :options="statusOptions"
-            placeholder="请选择账户状态"
-          />
-        </NFormItem>
-        <NFormItem label="实名状态" path="isRealname">
-          <NSwitch v-model:value="editForm.is_realname" />
-        </NFormItem>
-        <NFormItem label="验证码次数" path="remainder">
-          <NSpace>
-            <NInputNumber v-model:value="editForm.remainder" :min="0" />
-            <span>次</span>
-          </NSpace>
-        </NFormItem>
-        <NFormItem label="流量限制" path="traffic">
-          <NSpace>
-            <NInputNumber v-model:value="editForm.traffic" :min="0" />
-            <span>GB</span>
-          </NSpace>
-        </NFormItem>
-        <NFormItem label="出站带宽" path="out_limit">
-          <NSpace>
-            <NInputNumber v-model:value="editForm.out_limit" :min="0" />
-            <span>Mbps</span>
-          </NSpace>
-        </NFormItem>
-        <NFormItem label="入站带宽" path="in_limit">
-          <NSpace>
-            <NInputNumber v-model:value="editForm.in_limit" :min="0" />
-            <span>Mbps</span>
-          </NSpace>
-        </NFormItem>
-        <NFormItem label="隧道数量" path="proxies">
-          <NSpace>
-            <NInputNumber v-model:value="editForm.proxies" :min="0" />
-            <span>个</span>
-          </NSpace>
-        </NFormItem>
+        <NGrid :cols="2" :x-gap="20" :y-gap="8" responsive="screen">
+          <NGridItem span="2">
+            <NFormItem label="用户名" path="username">
+              <NInput
+                v-model:value="editForm.username"
+                placeholder="请输入用户名"
+                clearable
+              />
+            </NFormItem>
+          </NGridItem>
+          <NGridItem>
+            <NFormItem label="邮箱" path="email">
+              <NInput
+                v-model:value="editForm.email"
+                placeholder="请输入邮箱"
+                clearable
+              />
+            </NFormItem>
+          </NGridItem>
+          <NGridItem>
+            <NFormItem label="用户组" path="group">
+              <NSelect
+                v-model:value="editForm.group"
+                :options="groupOptions"
+                placeholder="请选择用户组"
+                clearable
+              />
+            </NFormItem>
+          </NGridItem>
+          <NGridItem>
+            <NFormItem label="账户状态" path="status">
+              <NSelect
+                v-model:value="editForm.status"
+                :options="statusOptions"
+                placeholder="请选择账户状态"
+                clearable
+              />
+            </NFormItem>
+          </NGridItem>
+          <NGridItem>
+            <NFormItem label="实名状态" path="isRealname">
+              <NSwitch v-model:value="editForm.is_realname" />
+            </NFormItem>
+          </NGridItem>
+          <NGridItem>
+            <NFormItem label="验证码次数" path="remainder">
+              <NInputNumber
+                v-model:value="editForm.remainder"
+                :min="0"
+                placeholder="请输入验证码次数"
+                style="width: 100%"
+              >
+                <template #suffix>次</template>
+              </NInputNumber>
+            </NFormItem>
+          </NGridItem>
+          <NGridItem span="2">
+            <NDivider title-placement="left" style="margin: 16px 0"
+              >资源限制</NDivider
+            >
+          </NGridItem>
+          <NGridItem>
+            <NFormItem label="流量限制" path="traffic">
+              <NInputNumber
+                v-model:value="editForm.traffic"
+                :min="0"
+                placeholder="请输入流量限制"
+                style="width: 100%"
+              >
+                <template #suffix>GB</template>
+              </NInputNumber>
+            </NFormItem>
+          </NGridItem>
+          <NGridItem>
+            <NFormItem label="隧道数量" path="proxies">
+              <NInputNumber
+                v-model:value="editForm.proxies"
+                :min="0"
+                placeholder="请输入隧道数量"
+                style="width: 100%"
+              >
+                <template #suffix>个</template>
+              </NInputNumber>
+            </NFormItem>
+          </NGridItem>
+          <NGridItem span="2">
+            <NDivider title-placement="left" style="margin: 16px 0"
+              >带宽设置</NDivider
+            >
+          </NGridItem>
+          <NGridItem>
+            <NFormItem label="出站带宽" path="out_limit">
+              <NInputNumber
+                v-model:value="editForm.out_limit"
+                :min="0"
+                placeholder="请输入出站带宽"
+                style="width: 100%"
+              >
+                <template #suffix>Mbps</template>
+              </NInputNumber>
+            </NFormItem>
+          </NGridItem>
+          <NGridItem>
+            <NFormItem label="入站带宽" path="in_limit">
+              <NInputNumber
+                v-model:value="editForm.in_limit"
+                :min="0"
+                placeholder="请输入入站带宽"
+                style="width: 100%"
+              >
+                <template #suffix>Mbps</template>
+              </NInputNumber>
+            </NFormItem>
+          </NGridItem>
+          <NGridItem span="2">
+            <NDivider title-placement="left" style="margin: 16px 0"
+              >海外带宽设置</NDivider
+            >
+          </NGridItem>
+          <NGridItem>
+            <NFormItem label="海外出站" path="no_cn_out_limit">
+              <NInputNumber
+                v-model:value="editForm.no_cn_out_limit"
+                :min="0"
+                placeholder="请输入海外出站带宽"
+                style="width: 100%"
+              >
+                <template #suffix>Mbps</template>
+              </NInputNumber>
+            </NFormItem>
+          </NGridItem>
+          <NGridItem>
+            <NFormItem label="海外入站" path="no_cn_in_limit">
+              <NInputNumber
+                v-model:value="editForm.no_cn_in_limit"
+                :min="0"
+                placeholder="请输入海外入站带宽"
+                style="width: 100%"
+              >
+                <template #suffix>Mbps</template>
+              </NInputNumber>
+            </NFormItem>
+          </NGridItem>
+        </NGrid>
       </NForm>
 
       <template #footer>
@@ -455,6 +543,8 @@ const editForm = ref({
   traffic: 0,
   out_limit: 0,
   in_limit: 0,
+  no_cn_out_limit: 0,
+  no_cn_in_limit: 0,
   proxies: 0,
 })
 
@@ -518,6 +608,8 @@ const handleEdit = (row: User) => {
     traffic: row.traffic / 1024,
     out_limit: row.outBound / 128,
     in_limit: row.inBound / 128,
+    no_cn_out_limit: row.noCnOutBound / 128,
+    no_cn_in_limit: row.noCnInBound / 128,
     proxies: row.proxies,
   }
   showEditModal.value = true
@@ -553,6 +645,8 @@ const doEdit = async () => {
       traffic: editForm.value.traffic * 1024,
       outBound: editForm.value.out_limit * 128,
       inBound: editForm.value.in_limit * 128,
+      noCnOutBound: editForm.value.no_cn_out_limit * 128,
+      noCnInBound: editForm.value.no_cn_in_limit * 128,
       isRealname: editForm.value.is_realname,
       remainder: editForm.value.remainder,
       reason: editReason.value,

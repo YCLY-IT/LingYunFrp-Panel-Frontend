@@ -1135,13 +1135,15 @@ $transition-normal: all 0.2s ease;
   display: flex;
   gap: $primary-spacing;
   padding: $primary-spacing;
-  max-width: 1200px;
-  margin: 0;
+  margin: 0 20px;
+  width: calc(100% - 40px);
 
   @media (max-width: 768px) {
     flex-direction: column;
     padding: $mobile-spacing;
     gap: $mobile-spacing;
+    margin: 0 10px;
+    width: calc(100% - 20px);
   }
 }
 

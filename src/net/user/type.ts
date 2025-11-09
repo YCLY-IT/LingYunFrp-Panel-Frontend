@@ -75,6 +75,8 @@ export interface UserInfoData {
   status: string
   outlimit: number
   inlimit: number
+  noCNOutlimit: number
+  noCNInlimit: number
   traffic: number
   maxProxies: number
   username: string
