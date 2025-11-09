@@ -255,7 +255,14 @@ const handleBuy = async (product: Product) => {
     })
 
     if (data.code === 0) {
-      console.log(data)
+      if (!product.isPoint) {
+        window.open(
+          data.data.url,
+          'newWin',
+          'width=800,height=600,left=200,top=200,menubar=no,toolbar=no,location=no,status=no,resizable=yes',
+        )
+        return
+      }
       dialog.success({
         title: '购买成功',
         content: `您已成功购买：${product.name}${shouldUseSelectedAmount(product) ? `（数量：${amount}）` : ''}`,
@@ -275,6 +282,15 @@ const handleBuy = async (product: Product) => {
 
 // 在组件挂载时获取产品数据
 onMounted(() => {
+  // 获取当前Param code
+  const code = new URLSearchParams(window.location.search).get('code')
+  if (code === '200') {
+    dialog.success({
+      title: '购买成功',
+      content: `您已成功购买：${code}`,
+      positiveText: '确定',
+    })
+  }
   fetchProducts()
 })
 </script>

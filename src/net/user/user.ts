@@ -139,15 +139,11 @@ export async function getGitHubCommits(): Promise<GitHubCommitsResponse> {
 }
 
 export async function logout(): Promise<LogoutResponse> {
-  return await post<LogoutResponse>(
-    '/user/logout',
-    {
-      headers: {
-        Authorization: getToken(),
-      },
+  return await get<LogoutResponse>('/user/logout', {
+    headers: {
+      Authorization: getToken(),
     },
-    {},
-  )
+  })
 }
 
 export async function getTrafficTrend(

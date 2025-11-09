@@ -128,10 +128,7 @@ class WeatherService {
   private async getCurrentIP(): Promise<string> {
     try {
       // 只保留可用的IP查询服务
-      const services = [
-        'https://api.ipify.org?format=json',
-        'https://ipinfo.io/json',
-      ]
+      const services = ['https://ipinfo.io/json']
 
       for (const service of services) {
         try {
@@ -146,7 +143,7 @@ class WeatherService {
       }
 
       // 如果所有服务都失败，返回本地IP
-      console.warn('所有IP查询服务都失败，使用本地IP')
+      console.warn('所有IP查询服务都失败')
       return '127.0.0.1'
     } catch (error) {
       console.error('获取当前IP失败:', error)

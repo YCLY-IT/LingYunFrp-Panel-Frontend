@@ -72,6 +72,8 @@ export interface Group {
   traffic: number
   out_limit: number
   in_limit: number
+  no_cn_out_limit: number
+  no_cn_in_limit: number
 }
 
 export interface DownloadSource {

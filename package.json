@@ -4,7 +4,7 @@
   "title2": "凌云FRP",
   "github": "https://github.com/YCLY-IT",
   "ycly": "https://www.ycly.net",
-  "version": "0.2.31",
+  "version": "0.2.32",
   "private": true,
   "type": "module",
   "scripts": {
@@ -24,7 +24,6 @@
     "highlight.js": "^11.11.1",
     "lucide-vue-next": "0.511.0",
     "marked": "^15.0.12",
-    "moment": "^2.30.1",
     "pinia": "^3.0.3",
     "sass-embedded": "^1.93.2",
     "vue": "^3.5.22",

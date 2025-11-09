@@ -217,7 +217,6 @@
               }}</n-gradient-text>
               <p class="footer-description">专业的内网穿透服务提供商</p>
             </div>
-            <div class="footer-links"></div>
           </div>
           <div class="footer-bottom">
             <div class="footer-copyright">
@@ -782,15 +781,10 @@ onMounted(() => {
       display: flex;
       justify-content: space-between;
       margin-bottom: 30px;
-
-      .footer-logo {
-        max-width: 300px;
-
-        .footer-description {
-          margin-top: 16px;
-          color: var(--n-text-color-3);
-          font-size: clamp(13px, 2vw, 15px);
-        }
+      .footer-description {
+        margin-top: 16px;
+        color: var(--n-text-color-3);
+        font-size: clamp(13px, 2vw, 15px);
       }
     }
 
@@ -905,6 +899,8 @@ onMounted(() => {
         margin: 8px 0;
         min-width: 100%;
         max-width: 100%;
+        justify-content: center;
+        margin-bottom: 30px;
       }
     }
   }

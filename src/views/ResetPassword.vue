@@ -268,12 +268,15 @@ onMounted(async () => {
 @use '../assets/styles/register.scss';
 
 .forget {
+  height: 100vh;
   display: flex;
 }
 .auth-card {
   background-color: transparent;
   backdrop-filter: blur(8px);
   border-radius: 16px;
+  width: 100%;
+  max-width: 420px;
 }
 .title-with-icon {
   display: flex;

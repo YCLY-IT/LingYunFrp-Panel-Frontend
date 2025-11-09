@@ -63,14 +63,26 @@
             <div class="user-info-value">{{ userInfo.point }} 分</div>
           </div>
           <div class="user-info-item">
-            <div class="user-info-label">入站带宽</div>
+            <div class="user-info-label">国内入站带宽</div>
             <div class="user-info-value">{{ userInfo.inlimit / 128 }} Mbps</div>
           </div>
 
           <div class="user-info-item-right">
-            <div class="user-info-label">出站带宽</div>
+            <div class="user-info-label">国内出站带宽</div>
             <div class="user-info-value">
               {{ userInfo.outlimit / 128 }} Mbps
+            </div>
+          </div>
+          <div class="user-info-item">
+            <div class="user-info-label">海外出站带宽</div>
+            <div class="user-info-value">
+              {{ userInfo.noCNOutlimit / 128 }} Mbps
+            </div>
+          </div>
+          <div class="user-info-item-right">
+            <div class="user-info-label">海外入站带宽</div>
+            <div class="user-info-value">
+              {{ userInfo.noCNInlimit / 128 }} Mbps
             </div>
           </div>
           <div class="user-info-item">
@@ -157,6 +169,8 @@ const userInfo = ref<UserInfoData>({
   status: '',
   outlimit: 0,
   inlimit: 0,
+  noCNOutlimit: 0,
+  noCNInlimit: 0,
   traffic: 0,
   maxProxies: 0,
   username: '',
