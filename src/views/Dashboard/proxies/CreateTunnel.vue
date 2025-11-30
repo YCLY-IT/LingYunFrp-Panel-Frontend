@@ -106,7 +106,7 @@
                           >{{ node.name }}</NText
                         >
                       </div>
-                      <div class="node-tags">
+                      <!-- <div class="node-tags">
                         <NTag
                           v-if="supportsUdp(node)"
                           type="success"
@@ -131,7 +131,7 @@
                           size="small"
                           >HTTPS</NTag
                         >
-                      </div>
+                      </div> -->
                     </div>
                     <NText depth="3" style="font-size: 13px; margin: 6px 0">{{
                       node.description

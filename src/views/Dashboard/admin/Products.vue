@@ -63,7 +63,11 @@
           <NInput v-model:value="formValue.name" placeholder="请输入产品名称" />
         </NFormItem>
         <NFormItem label="描述" path="desc">
-          <NInput v-model:value="formValue.desc" placeholder="请输入产品描述" />
+          <NInput
+            type="textarea"
+            v-model:value="formValue.desc"
+            placeholder="请输入产品描述"
+          />
         </NFormItem>
         <NFormItem label="价格" path="price">
           <NInputNumber
@@ -121,7 +125,11 @@
           <NInput v-model:value="formValue.name" placeholder="请输入产品名称" />
         </NFormItem>
         <NFormItem label="描述" path="desc">
-          <NInput v-model:value="formValue.desc" placeholder="请输入产品描述" />
+          <NInput
+            type="textarea"
+            v-model:value="formValue.desc"
+            placeholder="请输入产品描述"
+          />
         </NFormItem>
         <NFormItem label="价格" path="price">
           <NInputNumber

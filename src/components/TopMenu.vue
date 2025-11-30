@@ -43,6 +43,26 @@
         </h2>
       </div>
       <div class="right">
+        <n-button
+          quaternary
+          style="font-size: 18px; transform: translateX(-30px)"
+          @click="ThemeSwitcherDrawer('right')"
+        >
+          <n-icon :component="SettingsOutline" style="cursor: pointer"></n-icon>
+        </n-button>
+        <n-button
+          quaternary
+          circle
+          size="small"
+          @click="toggleTheme"
+          class="theme-toggle-btn"
+          style="transform: translateX(-30px)"
+        >
+          <NIcon
+            size="20"
+            :component="themeStore.theme === 'dark' ? Sunny : Moon"
+          />
+        </n-button>
         <NDropdown
           :options="options"
           @select="handleUserMenuSelect"
@@ -72,11 +92,21 @@
       <LeftMenu @select="showMobileMenu = false" />
     </NDrawerContent>
   </NDrawer>
+  <n-drawer
+    v-model:show="themeSwitcherDrawer"
+    :placement="placement"
+    :default-width="320"
+    resizable
+  >
+    <n-drawer-content title="面板配置">
+      <ThemeSwitcher />
+    </n-drawer-content>
+  </n-drawer>
 </template>
 
 <script setup lang="ts">
 import packageData from '../../package.json'
-import { h, ref, inject, computed, Ref, onMounted, onUnmounted } from 'vue'
+import { ref, inject, computed, Ref, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import {
   NLayoutHeader,
@@ -85,23 +115,26 @@ import {
   NDropdown,
   useDialog,
   useMessage,
-  NSwitch,
   NPopover,
   NMenu,
   MenuOption,
   NDrawer,
   NDrawerContent,
   NScrollbar,
+  DrawerPlacement,
+  lightTheme,
+  darkTheme,
 } from 'naive-ui'
 import {
   PersonCircleOutline,
   LogOutOutline,
-  SunnyOutline,
-  MoonOutline,
+  Sunny,
+  Moon,
   MenuOutline,
   HomeOutline,
+  SettingsOutline,
 } from '@vicons/ionicons5'
-import { switchButtonRailStyle } from '../constants/theme.ts'
+
 import {
   getMenuOptions,
   renderIcon,
@@ -110,6 +143,7 @@ import {
 import LeftMenu from './LeftMenu.vue'
 import { userApi } from '@/net'
 import { removeToken } from '@/net/token.ts'
+import { useThemeStore } from '@/stores/theme.ts'
 
 const router = useRouter()
 const route = useRoute()
@@ -124,55 +158,30 @@ const isMobile = ref(window.innerWidth <= 768)
 // 从 localStorage 获取头像链接
 const avatarUrl = ref(localStorage.getItem('avatar') || '')
 
-// 注入主题相关函数
-const { isDarkMode, toggleTheme } = inject('theme') as {
-  isDarkMode: Ref<boolean>
-  toggleTheme: () => void
+// 主题切换函数
+const toggleTheme = () => {
+  themeStore.theme = themeStore.theme === 'dark' ? 'light' : 'dark'
+  themeStore.setTheme(themeStore.theme)
 }
 
-// 渲染下拉菜单中的主题切换选项
-const renderThemeOption = () => {
-  return h(
-    'div',
-    {
-      style:
-        'display: flex; align-items: center; padding: 8px 12px; height: 20px;',
-    },
-    [
-      h(
-        'span',
-        {
-          style: 'flex: 1; margin-right: 12px; font-size: 14px;',
-        },
-        '主题切换',
-      ),
-      h(
-        NSwitch,
-        {
-          value: isDarkMode.value,
-          'onUpdate:value': handleThemeChange,
-          railStyle: switchButtonRailStyle,
-          size: 'small',
-        },
-        {
-          checked: () => h(NIcon, null, { default: () => h(MoonOutline) }),
-          unchecked: () => h(NIcon, null, { default: () => h(SunnyOutline) }),
-        },
-      ),
-    ],
-  )
+const themeSwitcherDrawer = ref(false)
+const placement = ref<DrawerPlacement>('right')
+const themeStore = useThemeStore()
+const ThemeSwitcherDrawer = (place: DrawerPlacement) => {
+  themeSwitcherDrawer.value = true
+  placement.value = place
 }
 
 const options = [
-  {
-    key: 'theme',
-    type: 'render',
-    render: renderThemeOption,
-  },
-  {
-    type: 'divider',
-    key: 'd1',
-  },
+  // {
+  //   key: 'theme',
+  //   type: 'render',
+  //   render: renderThemeOption,
+  // },
+  // {
+  //   type: 'divider',
+  //   key: 'd1',
+  // },
   {
     label: '返回首页',
     key: 'home',
@@ -193,11 +202,6 @@ const options = [
     icon: renderIcon(LogOutOutline),
   },
 ]
-
-// 处理主题切换
-const handleThemeChange = () => {
-  toggleTheme()
-}
 
 const userLogout = async () => {
   try {
@@ -272,5 +276,15 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+.theme-toggle-btn {
+  transition: all 0.3s ease;
+  &:hover {
+    transform: rotate(30deg);
+    background-color: var(--n-color-hover);
+  }
+  .n-icon {
+    transition: all 0.3s ease;
+  }
 }
 </style>

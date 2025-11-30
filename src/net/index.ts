@@ -39,6 +39,7 @@ import {
   updatePassword,
   submitRealname,
   resetToken,
+  checkPaymentStatus,
 } from './user/user'
 import {
   getUserList,
@@ -122,6 +123,7 @@ const userApi = {
   updatePassword,
   submitRealname,
   resetToken,
+  checkPaymentStatus,
 }
 
 const adminApi = {

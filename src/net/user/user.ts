@@ -26,6 +26,7 @@ import {
 } from './type'
 import type {
   BroadcastResponse,
+  CheckPaymentStatusResponse,
   GitHubCommitsResponse,
   GroupResponse,
   SignResponse,
@@ -253,6 +254,20 @@ export async function buyProduct(
       Authorization: getToken(),
     },
   })
+}
+
+// 检查支付状态
+export async function checkPaymentStatus(
+  outTradeNo: string,
+): Promise<CheckPaymentStatusResponse> {
+  return await get<CheckPaymentStatusResponse>(
+    `/user/pay/status/${outTradeNo}`,
+    {
+      headers: {
+        Authorization: getToken(),
+      },
+    },
+  )
 }
 
 // 更新用户名
