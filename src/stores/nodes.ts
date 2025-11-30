@@ -124,7 +124,7 @@ export const useNodesStore = defineStore('nodes', () => {
   const addNode = async (nodeData: any, message?: any) => {
     submitting.value = true
     try {
-      const { data } = await adminApi.createNode(nodeData)
+      const data = await adminApi.createNode(nodeData)
       if (data.code === 0) {
         message?.success('添加节点成功')
         // 重新拉取全量
@@ -143,7 +143,7 @@ export const useNodesStore = defineStore('nodes', () => {
   const updateNode = async (nodeData: any, message?: any) => {
     submitting.value = true
     try {
-      const { data } = await adminApi.updateNode(nodeData)
+      const data = await adminApi.updateNode(nodeData)
       if (data.code === 0) {
         message?.success('更新节点成功')
         dataLoaded.value = false
@@ -161,7 +161,7 @@ export const useNodesStore = defineStore('nodes', () => {
   const deleteNode = async (nodeId: number, message?: any) => {
     submitting.value = true
     try {
-      const { data } = await adminApi.deleteNode(nodeId)
+      const data = await adminApi.deleteNode(nodeId)
       if (data.code === 0) {
         message?.success('删除节点成功')
         dataLoaded.value = false
@@ -183,7 +183,7 @@ export const useNodesStore = defineStore('nodes', () => {
   ) => {
     submitting.value = true
     try {
-      const { data } = await adminApi.toggleNode(nodeId, isDisabled)
+      const data = await adminApi.toggleNode(nodeId, isDisabled)
       if (data.code === 0) {
         message?.success(isDisabled ? '禁用成功' : '启用成功')
         dataLoaded.value = false

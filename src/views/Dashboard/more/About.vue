@@ -119,16 +119,16 @@
               <n-timeline v-if="commits.length > 0">
                 <n-timeline-item
                   v-for="(commit, _index) in visibleCommits"
-                  :key="commit.sha"
-                  :type="getCommitType(commit.commit.message)"
-                  :title="getCommitTitle(commit.commit.message)"
-                  :content="getCommitContent(commit.commit.message)"
-                  :time="formatDate(commit.commit.author.date)"
+                  :key="commit.sha || _index"
+                  :type="getCommitType(commit.commit?.message || '')"
+                  :title="getCommitTitle(commit.commit?.message || '')"
+                  :content="getCommitContent(commit.commit?.message || '')"
+                  :time="formatDate(commit.commit?.author?.date || '')"
                 >
                   <template #icon>
                     <n-avatar
-                      :src="commit.author.avatar_url"
-                      :alt="commit.author.login"
+                      :src="commit.author?.avatar_url || '/icon/github.png'"
+                      :alt="commit.author?.login || 'Unknown'"
                       :style="{ width: 'auto', height: 'auto' }"
                       style="transform: scale(1.9)"
                     />
@@ -136,13 +136,13 @@
                   <template #footer>
                     <n-space size="small">
                       <n-tag size="small" type="info">
-                        {{ commit.author.login }}
+                        {{ commit.author?.login || 'Unknown' }}
                       </n-tag>
                       <n-button
                         size="tiny"
                         text
                         type="primary"
-                        @click="openCommit(commit.html_url)"
+                        @click="openCommit(commit.html_url || '#')"
                       >
                         查看详情
                       </n-button>
@@ -329,17 +329,24 @@ const openCommit = (url: string) => {
 }
 
 const formatDate = (dateString: string) => {
-  const date = new Date(dateString)
-  return date.toLocaleDateString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
+  if (!dateString) return '未知时间'
+  try {
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) return '未知时间'
+    return date.toLocaleDateString('zh-CN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  } catch (error) {
+    return '未知时间'
+  }
 }
 
 const getCommitType = (message: string) => {
+  if (!message || typeof message !== 'string') return 'default'
   if (message.startsWith('feat')) return 'success'
   if (message.startsWith('fix')) return 'error'
   if (message.startsWith('docs')) return 'info'
@@ -349,27 +356,33 @@ const getCommitType = (message: string) => {
 }
 
 const getCommitTitle = (message: string) => {
-  const lines = message.split('\n')
-  const firstLine = lines[0]
+  if (!message || typeof message !== 'string') return '📦 更新: 未知提交'
 
-  // 提取类型和描述
-  const match = firstLine.match(/^(\w+)(?:\([^)]*\))?: (.+)$/)
-  if (match) {
-    const [, type, description] = match
-    const typeMap: Record<string, string> = {
-      feat: '✨ 新功能',
-      fix: '🐛 修复',
-      docs: '📝 文档',
-      style: '💄 样式',
-      refactor: '♻️ 重构',
-      perf: '⚡ 性能',
-      test: '✅ 测试',
-      chore: '🔧 构建',
+  try {
+    const lines = message.split('\n')
+    const firstLine = lines[0] || ''
+
+    // 提取类型和描述
+    const match = firstLine.match(/^(\w+)(?:\([^)]*\))?: (.+)$/)
+    if (match) {
+      const [, type, description] = match
+      const typeMap: Record<string, string> = {
+        feat: '✨ 新功能',
+        fix: '🐛 修复',
+        docs: '📝 文档',
+        style: '💄 样式',
+        refactor: '♻️ 重构',
+        perf: '⚡ 性能',
+        test: '✅ 测试',
+        chore: '🔧 构建',
+      }
+      return `${typeMap[type] || '📦 更新'}: ${description}`
     }
-    return `${typeMap[type] || '📦 更新'}: ${description}`
-  }
 
-  return firstLine
+    return firstLine || '📦 更新: 未知提交'
+  } catch (error) {
+    return '📦 更新: 未知提交'
+  }
 }
 
 const getCommitContent = (message: string) => {

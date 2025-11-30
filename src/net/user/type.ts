@@ -302,5 +302,6 @@ export type UpdateNicknameResponse = CodeResponse
 export type UpdatePasswordResponse = CodeResponse
 export type UpdateAvatarResponse = AvatarResponse
 export type SubmitRealnameResponse = CodeResponse
+export type CheckPaymentStatusResponse = CodeResponse
 export type StatisticResponse = ApiBaseResponse<StatisticData>
 export type NodeStatusResponse = ApiBaseResponse<NodeStatus[]>

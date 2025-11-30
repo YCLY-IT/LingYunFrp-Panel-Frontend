@@ -31,7 +31,10 @@
             @click="toggleTheme"
             class="theme-toggle-btn"
           >
-            <NIcon size="20" :component="isDarkMode ? Sunny : Moon" />
+            <NIcon
+              size="20"
+              :component="themeStore.theme === 'dark' ? Sunny : Moon"
+            />
           </NButton>
           <RouterLink to="/dashboard">
             <NButton secondary type="primary">管理面板</NButton>
@@ -101,7 +104,10 @@
             @click="toggleTheme"
             class="theme-toggle-btn"
           >
-            <NIcon size="20" :component="isDarkMode ? Sunny : Moon" />
+            <NIcon
+              size="20"
+              :component="themeStore.theme === 'dark' ? Sunny : Moon"
+            />
           </NButton>
           <RouterLink to="/dashboard">
             <NButton secondary type="primary">管理面板</NButton>
@@ -127,15 +133,16 @@ import {
 } from 'naive-ui'
 import { MenuOutline, Moon, Sunny } from '@vicons/ionicons5'
 import { HomeOutline, LogInOutline, PersonAddOutline } from '@vicons/ionicons5'
+import { useThemeStore } from '@/stores/theme'
 
 const showMenu = ref(false)
 const router = useRouter()
-const { isDarkMode, toggleTheme } = inject('theme', {
-  isDarkMode: ref(false),
-  toggleTheme: () => {},
-}) as {
-  isDarkMode: Ref<boolean>
-  toggleTheme: () => void
+const themeStore = useThemeStore()
+
+// 主题切换函数
+const toggleTheme = () => {
+  themeStore.theme = themeStore.theme === 'dark' ? 'light' : 'dark'
+  themeStore.setTheme(themeStore.theme)
 }
 
 function renderIcon(icon: any) {

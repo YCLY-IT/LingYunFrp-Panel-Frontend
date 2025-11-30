@@ -825,8 +825,7 @@
               </NScrollbar>
             </div>
             <div class="code-note">
-              Windows 用户如果启动失败，请尝试把 <NCode>lyfrpc</NCode> 换成
-              <NCode>.\lyfrpc.exe</NCode>。
+              此命令仅适用于 amd64 架构的 Windows 系统。
             </div>
           </NCollapseItem>
 
@@ -1248,7 +1247,7 @@ handleToken()
 const handleGenConfig = async (proxy: Proxy) => {
   selectedProxy.value = proxy
   openModal('config')
-  runArgs.value = `./lyfrpc -t ${token.value} -p ${proxy.proxyId}`
+  runArgs.value = `./LingYunfrpc_windows_amd64.exe -t ${token.value} -p ${proxy.proxyId}`
 
   try {
     loading.value = true

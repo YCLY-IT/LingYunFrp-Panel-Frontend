@@ -17,3 +17,150 @@
 .n-dialog {
   border-radius: 13px !important;
 }
+
+/* 对话框模糊效果 */
+.n-modal-mask {
+  backdrop-filter: blur(var(--modal-filter, 10px)) !important;
+  -webkit-backdrop-filter: blur(var(--modal-filter, 10px)) !important;
+}
+
+.n-dialog-mask {
+  backdrop-filter: blur(var(--modal-filter, 10px)) !important;
+  -webkit-backdrop-filter: blur(var(--modal-filter, 10px)) !important;
+}
+
+/* 色弱模式 */
+.color-blind-mode {
+  filter: var(--color-blind-filter, none) !important;
+}
+
+/* 高对比度模式 */
+.high-contrast-mode {
+  filter: contrast(1.2) saturate(1.2) !important;
+}
+
+.high-contrast-mode .n-card,
+.high-contrast-mode .n-button,
+.high-contrast-mode .n-input,
+.high-contrast-mode .n-select,
+.high-contrast-mode .n-switch {
+  border-width: 2px !important;
+  border-color: currentColor !important;
+}
+
+/* 背景图样式 */
+body {
+  background-image: var(--background-image, none);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: var(--background-image, none);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  filter: blur(var(--background-blur, 0px));
+  opacity: var(--background-opacity, 1);
+  z-index: -1;
+}
+
+/* 毛玻璃模式 */
+.frosted-glass-mode {
+  backdrop-filter: blur(var(--frosted-glass-blur, 10px));
+  background-color: rgba(var(--n-color-modal-rgb, 255, 255, 255), 0.1);
+  transition: var(--frosted-glass-transition, none);
+}
+
+/* 毛玻璃模式下的卡片样式 */
+.frosted-glass-mode .n-card {
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1.5));
+  background-color: rgba(
+    var(--n-color-modal-rgb, 255, 255, 255),
+    0.15
+  ) !important;
+  border: 1px solid rgba(var(--n-color-modal-rgb, 255, 255, 255), 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* 毛玻璃模式下的输入框和按钮 */
+.frosted-glass-mode .n-input,
+.frosted-glass-mode .n-button,
+.frosted-glass-mode .n-select,
+.frosted-glass-mode .n-switch {
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8));
+  background-color: rgba(
+    var(--n-color-modal-rgb, 255, 255, 255),
+    0.12
+  ) !important;
+  border: 1px solid rgba(var(--n-color-modal-rgb, 255, 255, 255), 0.15);
+}
+
+/* 毛玻璃模式下的模态框 */
+.frosted-glass-mode .n-modal .n-card {
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 2));
+  background-color: rgba(
+    var(--n-color-modal-rgb, 255, 255, 255),
+    0.2
+  ) !important;
+  border: 1px solid rgba(var(--n-color-modal-rgb, 255, 255, 255), 0.25);
+}
+
+/* 毛玻璃模式下的侧边栏 */
+.frosted-glass-mode .n-layout-sider {
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1.2));
+  background-color: rgba(
+    var(--n-color-modal-rgb, 255, 255, 255),
+    0.18
+  ) !important;
+  border-right: 1px solid rgba(var(--n-color-modal-rgb, 255, 255, 255), 0.2);
+}
+
+/* 深色主题下的毛玻璃效果 */
+.dark .frosted-glass-mode .n-card,
+.dark .frosted-glass-mode .n-input,
+.dark .frosted-glass-mode .n-button,
+.dark .frosted-glass-mode .n-select,
+.dark .frosted-glass-mode .n-switch {
+  background-color: rgba(0, 0, 0, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* 毛玻璃模式下的导航栏 */
+.frosted-glass-mode .n-menu {
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8));
+  background-color: rgba(
+    var(--n-color-modal-rgb, 255, 255, 255),
+    0.1
+  ) !important;
+}
+
+/* 毛玻璃模式下的表格 */
+.frosted-glass-mode .n-data-table {
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.5));
+  background-color: rgba(
+    var(--n-color-modal-rgb, 255, 255, 255),
+    0.08
+  ) !important;
+  border: 1px solid rgba(var(--n-color-modal-rgb, 255, 255, 255), 0.1);
+}
+
+/* 毛玻璃模式下的标签页 */
+.frosted-glass-mode .n-tabs {
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.6));
+  background-color: rgba(
+    var(--n-color-modal-rgb, 255, 255, 255),
+    0.09
+  ) !important;
+  border-radius: 8px;
+}
