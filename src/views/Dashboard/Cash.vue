@@ -289,6 +289,8 @@
             :value="qrCodeUrl"
             alt="支付二维码"
             class="qr-code-image"
+            :size="200"
+            error-correction-level="M"
           />
           <p class="qr-code-tip">请使用支付宝扫描二维码完成支付</p>
           <p class="countdown-tip">
@@ -673,12 +675,11 @@ onMounted(() => {
 }
 
 .qr-code-image {
-  width: 250px;
-  height: 250px;
   border: 2px solid #f0f0f0;
-  border-radius: 8px;
-  padding: 10px;
+  border-radius: 12px;
+  padding: 16px;
   background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .qr-code-tip {
