@@ -1,25 +1,5 @@
 <template>
   <div class="content-grid">
-    <!-- 实名认证提示弹窗 -->
-    <NModal
-      v-model:show="showRealnameModal"
-      preset="dialog"
-      title="未实名认证提示"
-      :show-icon="false"
-      style="width: 400px"
-    >
-      <div>您的账户尚未完成实名认证, 请尽快完成实名认证。<br /></div>
-      <div style="margin-top: 12px; text-align: right">
-        <NText depth="3">{{ countDown }}秒后自动关闭</NText>
-      </div>
-      <template #action>
-        <NButton size="small" @click="closeModal('realname')">关闭</NButton>
-        <NButton size="small" type="primary" @click="goToRealname"
-          >立即前往</NButton
-        >
-      </template>
-    </NModal>
-
     <!-- 搜索和区域筛选 -->
     <NCard title="筛选选项" class="filter-card">
       <NSpace vertical size="medium">
@@ -267,7 +247,7 @@
                           >{{ node.name }}</NText
                         >
                       </div>
-                      <div class="node-tags">
+                      <!-- <div class="node-tags">
                         <NTag
                           v-if="supportsUdp(node)"
                           type="success"
@@ -304,7 +284,7 @@
                           size="small"
                           >XTCP</NTag
                         >
-                      </div>
+                      </div> -->
                     </div>
                     <NText depth="3" style="font-size: 13px; margin: 6px 0">{{
                       node.description
@@ -441,7 +421,7 @@
                           >{{ node.name }}</NText
                         >
                       </div>
-                      <div class="node-tags">
+                      <!-- <div class="node-tags">
                         <NTag
                           v-if="supportsUdp(node)"
                           type="success"
@@ -478,7 +458,7 @@
                           size="small"
                           >XTCP</NTag
                         >
-                      </div>
+                      </div> -->
                     </div>
                     <NText depth="3" style="font-size: 13px; margin: 6px 0">{{
                       node.description
@@ -889,11 +869,9 @@ import {
 } from 'naive-ui'
 import { CloudUploadOutline, SearchOutline } from '@vicons/ionicons5'
 import { switchButtonRailStyle } from '@/constants/theme.ts'
-import { useRouter } from 'vue-router'
 import { userApi } from '@/net'
 import { CreateTunnelParams } from '@/net/proxy/type'
 
-const router = useRouter()
 const message = useMessage()
 const formRef = ref<FormInst | null>(null)
 const loading = ref(false)
@@ -903,13 +881,11 @@ const nodeLoading = ref(false)
 const modalStack = ref<string[]>([])
 
 function setModalVisible(name: string, visible: boolean) {
-  if (name === 'realname') showRealnameModal.value = visible
   if (name === 'config') showConfigModal.value = visible
   if (name === 'createConfirm') showCreateConfirmModal.value = visible
 }
 
 function getCurrentOpenModal(): string | null {
-  if (showRealnameModal.value) return 'realname'
   if (showConfigModal.value) return 'config'
   if (showCreateConfirmModal.value) return 'createConfirm'
   return null
@@ -1280,16 +1256,8 @@ const renderDomainTag = (tag: string) => {
 }
 
 // 修改所有弹窗的显示/隐藏逻辑
-// 实名认证弹窗
 const showRealnameModal = ref(false)
-const countDown = ref(10)
 let timer: number | null = null
-
-const goToRealname = () => {
-  router.push('/dashboard/profile')
-}
-
-// 隧道配置弹窗 - 已在上面定义
 
 // 修改节点选择逻辑
 const handleNodeSelect = (node: any) => {
@@ -1499,10 +1467,10 @@ const handleCreateFormCollapseUpdate = (names: string[]) => {
       gap: 8px;
     }
 
-    .node-tags {
-      display: flex;
-      gap: 4px;
-    }
+    // .node-tags {
+    //   display: flex;
+    //   gap: 4px;
+    // }
   }
 
   .info-item {
