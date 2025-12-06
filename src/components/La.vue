@@ -84,13 +84,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, inject, Ref } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import {
   AlertCircleIcon,
   ChevronUpIcon,
   ChevronDownIcon,
 } from 'lucide-vue-next'
 import { getLaStatistic } from '@/net/user/user'
+import { useThemeStore } from '@/stores/theme'
 
 // 组件属性定义
 interface Props {
@@ -103,6 +104,8 @@ interface Props {
   // 51LA的API地址
   apiUrl?: string
 }
+
+const themeStore = useThemeStore()
 
 const props = withDefaults(defineProps<Props>(), {
   showFooter: true,
@@ -120,13 +123,8 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 // 注入主题状态
-const { isDarkMode } = inject('theme', {
-  isDarkMode: ref(false),
-}) as {
-  isDarkMode: Ref<boolean>
-}
+const isDarkMode = computed(() => themeStore.theme === 'dark')
 
-const statisticContent = ref<HTMLElement>()
 const loading = ref(true)
 const error = ref(false)
 const statisticData = ref<string[]>([])
