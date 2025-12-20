@@ -31,7 +31,7 @@ const FROSTED_GLASS_INTENSITY_KEY = 'app-frosted-glass-intensity'
 export const useThemeStore = defineStore('theme', {
   state: (): ThemeState => ({
     theme: localStorage.getItem(THEME_KEY) || 'light',
-    primaryColor: localStorage.getItem(PRIMARY_COLOR_KEY) || '#722ed1',
+    primaryColor: localStorage.getItem(PRIMARY_COLOR_KEY) || '#2080F0FF',
     isAutoTheme:
       localStorage.getItem(AUTO_THEME_KEY) === 'true' ||
       localStorage.getItem(AUTO_THEME_KEY) === null,
