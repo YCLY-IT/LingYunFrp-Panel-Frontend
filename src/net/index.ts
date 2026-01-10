@@ -81,6 +81,7 @@ import {
   updateSmsSetting,
   getSmtpSetting,
   getSmsSetting,
+  updateSoftwareVersion,
 } from './admin/admin'
 
 const userApi = {
@@ -174,5 +175,6 @@ const adminApi = {
   createDownloadSource,
   updateDownloadSource,
   deleteDownloadSource,
+  updateSoftwareVersion,
 }
 export { userApi, adminApi }

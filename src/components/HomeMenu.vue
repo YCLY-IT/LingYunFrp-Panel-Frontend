@@ -4,18 +4,7 @@
     <div class="navbar-content">
       <div class="logo">
         <RouterLink to="/" class="logo-link">
-          <h2
-            style="
-              background: transparent;
-              -webkit-background-clip: text;
-              color: transparent;
-              background-image: linear-gradient(
-                -225deg,
-                #7de2fc 0%,
-                #b9b6e5 100%
-              );
-            "
-          >
+          <h2 :style="{ color: themeStore.primaryColor }">
             {{ packageData.title }}
           </h2>
         </RouterLink>
@@ -76,18 +65,7 @@
         <!-- logo -->
         <div class="logo" style="margin-left: 8px">
           <RouterLink to="/" class="logo-link">
-            <h2
-              style="
-                background: transparent;
-                -webkit-background-clip: text;
-                color: transparent;
-                background-image: linear-gradient(
-                  120deg,
-                  #84fab0 0%,
-                  #8fd3f4 100%
-                );
-              "
-            >
+            <h2 :style="{ color: themeStore.primaryColor }">
               {{ packageData.title }}
             </h2>
           </RouterLink>
@@ -120,7 +98,7 @@
 
 <script setup lang="ts">
 import packageData from '../../package.json'
-import { h, inject, Ref, ref } from 'vue'
+import { h, ref } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import {
   NLayoutHeader,

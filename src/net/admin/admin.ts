@@ -16,6 +16,7 @@ import {
   CreateSoftwareParams,
   UpdateSoftwareParams,
   CreateSoftwareVersionParams,
+  UpdateSoftwareVersionParams,
   SystemSettingApiResponse,
   GroupListApiResponse,
   CreateGroupParams,
@@ -251,6 +252,18 @@ export async function deleteSoftwareVersion(id: number): Promise<CodeResponse> {
   return await post<CodeResponse>(
     `/admin/software/version/delete/${id}`,
     {},
+    {
+      headers: { Authorization: getToken() },
+    },
+  )
+}
+
+export async function updateSoftwareVersion(
+  params: UpdateSoftwareVersionParams,
+): Promise<CodeResponse> {
+  return await post<CodeResponse>(
+    `/admin/software/version/update/${params.id}`,
+    params,
     {
       headers: { Authorization: getToken() },
     },

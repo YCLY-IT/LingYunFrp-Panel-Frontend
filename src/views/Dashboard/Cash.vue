@@ -377,20 +377,18 @@ const fetchProducts = async () => {
     const data = await userApi.getProducts()
     if (data.code === 0 && data.data && data.data.products) {
       products.value = data.data.products.map((product) => {
-        // 解析 pay_method 字段为数组
-        const payMethods = product.payMethod.split(';')
-        // 默认选中第一个可用的支付方式
+        const payMethod = product.payMethod || ''
+        const payMethods = payMethod.split(';')
         const isPoint =
           payMethods.includes('points') && payMethods[0] === 'points'
         return {
           ...product,
-          payMethods, // 存储支付方式数组
-          isPoint, // 默认选中第一个可用的支付方式
-          selectedAmount: 1, // 默认数量为1
+          payMethods,
+          isPoint,
+          selectedAmount: 1,
         }
       })
     } else {
-      // 当没有产品时，显示空数组j
       products.value = []
       if (data.code !== 0) {
         message.warning(data.message || '暂无产品')

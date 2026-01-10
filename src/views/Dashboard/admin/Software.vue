@@ -20,7 +20,7 @@
         />
         <n-button
           type="primary"
-          @click="showAddModal = true"
+          @click="handleAddSoftware"
           class="software-sort-btn"
           size="medium"
         >
@@ -90,7 +90,9 @@
       </n-form>
       <template #footer>
         <n-space justify="end" :size="[8, 8]">
-          <n-button @click="showAddModal = false" size="medium">取消</n-button>
+          <n-button @click="handleCloseSoftwareModal" size="medium"
+            >取消</n-button
+          >
           <n-button type="primary" @click="handleSubmit" size="medium"
             >确定</n-button
           >
@@ -107,12 +109,16 @@
       :mask-closable="false"
     >
       <n-space vertical :size="16">
-        <n-space justify="end">
-          <n-button
-            type="primary"
-            @click="showAddVersionModal = true"
-            size="small"
+        <n-space justify="space-between" align="center">
+          <n-alert
+            v-if="editingSoftware"
+            type="info"
+            :bordered="false"
+            style="flex: 1"
           >
+            当前软件: {{ editingSoftware.name }} (ID: {{ editingSoftware.id }})
+          </n-alert>
+          <n-button type="primary" @click="handleAddVersion" size="small">
             添加版本
           </n-button>
         </n-space>
@@ -126,12 +132,19 @@
           />
         </div>
       </n-space>
+      <template #footer>
+        <n-space justify="end" :size="[8, 8]">
+          <n-button @click="handleCloseVersionModal" size="small"
+            >关闭</n-button
+          >
+        </n-space>
+      </template>
     </n-modal>
 
-    <!-- 添加版本对话框 -->
+    <!-- 添加/编辑版本对话框 -->
     <n-modal
       v-model:show="showAddVersionModal"
-      title="添加版本"
+      :title="editingVersion ? '编辑版本' : '添加版本'"
       preset="card"
       :style="modalStyle"
       :mask-closable="false"
@@ -144,45 +157,60 @@
         label-width="auto"
         require-mark-placement="right-hanging"
       >
-        <n-form-item label="版本号" path="version">
+        <n-grid :cols="24" :x-gap="12">
+          <n-form-item-gi :span="12" label="版本号" path="version">
+            <n-input
+              v-model:value="versionForm.version"
+              placeholder="请输入版本号"
+            />
+          </n-form-item-gi>
+          <n-form-item-gi :span="12" label="文件大小(MB)" path="size">
+            <n-input-number
+              v-model:value="versionForm.size"
+              placeholder="请输入文件大小"
+              style="width: 100%"
+              :min="0"
+              :precision="2"
+            />
+          </n-form-item-gi>
+        </n-grid>
+
+        <n-form-item label="下载地址" path="download_url">
           <n-input
-            v-model:value="versionForm.version"
-            placeholder="请输入版本号"
-          />
-        </n-form-item>
-        <n-form-item label="下载地址" path="downloadUrl">
-          <n-input
-            v-model:value="versionForm.downloadUrl"
+            v-model:value="versionForm.download_url"
             placeholder="请输入下载地址"
           />
         </n-form-item>
-        <n-form-item label="操作系统" path="os">
-          <n-select
-            v-model:value="versionForm.os"
-            :options="osOptions"
-            placeholder="请选择操作系统"
-          />
-        </n-form-item>
-        <n-form-item label="架构" path="arch">
-          <n-select
-            v-model:value="versionForm.arch"
-            :options="archOptions"
-            placeholder="请选择架构"
-          />
-        </n-form-item>
-        <n-form-item label="文件大小(MB)" path="size">
-          <n-input-number
-            v-model:value="versionForm.size"
-            placeholder="请输入文件大小(MB)"
-            style="width: 100%"
-            :min="0"
-            :precision="2"
-          />
+
+        <n-grid :cols="24" :x-gap="12">
+          <n-form-item-gi :span="12" label="操作系统" path="os">
+            <n-select
+              v-model:value="versionForm.os"
+              :options="osOptions"
+              placeholder="请选择操作系统"
+            />
+          </n-form-item-gi>
+          <n-form-item-gi :span="12" label="架构" path="arch">
+            <n-select
+              v-model:value="versionForm.arch"
+              :options="archOptions"
+              placeholder="请选择架构"
+            />
+          </n-form-item-gi>
+        </n-grid>
+
+        <n-form-item label="强制更新" path="force_update">
+          <n-checkbox v-model:checked="versionForm.force_update">
+            是否强制更新到此版本
+          </n-checkbox>
+          <template #feedback>
+            开启后，用户打开部分软件时会强制更新到此版本
+          </template>
         </n-form-item>
       </n-form>
       <template #footer>
         <n-space justify="end" :size="[8, 8]">
-          <n-button @click="showAddVersionModal = false" size="small"
+          <n-button @click="handleCloseAddVersionModal" size="small"
             >取消</n-button
           >
           <n-button type="primary" @click="handleVersionSubmit" size="small"
@@ -195,8 +223,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, h, onMounted, computed } from 'vue'
-import { NButton, NSpace, useMessage } from 'naive-ui'
+import { ref, h, onMounted, onUnmounted, computed } from 'vue'
+import { NButton, NSpace, useMessage, NCheckbox } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 import { adminApi } from '@/net'
 import type { Software, SoftwareVersion } from '@/net/admin/type'
@@ -220,6 +248,10 @@ const downloadSources = ref<DownloadSource[]>([])
 const currentVersions = ref<SoftwareVersion[]>([])
 const allVersions = ref<SoftwareVersion[]>([])
 const initLoading = ref(true)
+
+const unregisterSoftwareModal = ref<(() => void) | undefined>(undefined)
+const unregisterVersionModal = ref<(() => void) | undefined>(undefined)
+const unregisterAddVersionModal = ref<(() => void) | undefined>(undefined)
 
 const sortFieldOptions = [
   { label: 'ID', value: 'id' },
@@ -301,11 +333,14 @@ const formValue = ref({
 
 const versionForm = ref({
   version: '',
-  downloadUrl: '',
+  download_url: '',
   os: '',
   arch: '',
   size: 0,
+  force_update: false,
 })
+
+const editingVersion = ref<SoftwareVersion | null>(null)
 
 const rules = {
   name: { required: true, message: '请输入软件名称', trigger: 'blur' },
@@ -316,7 +351,7 @@ const rules = {
 
 const versionRules = {
   version: { required: true, message: '请输入版本号', trigger: 'blur' },
-  downloadUrl: { required: true, message: '请输入下载地址', trigger: 'blur' },
+  download_url: { required: true, message: '请输入下载地址', trigger: 'blur' },
   os: { required: true, message: '请选择操作系统', trigger: 'blur' },
   arch: { required: true, message: '请选择架构', trigger: 'blur' },
   size: { required: true, message: '请输入文件大小', trigger: 'blur' },
@@ -424,6 +459,11 @@ const columns: DataTableColumns<Software> = [
 
 const versionColumns: DataTableColumns<SoftwareVersion> = [
   {
+    title: '软件ID',
+    key: 'software_id',
+    minWidth: 80,
+  },
+  {
     title: '版本号',
     key: 'version',
     minWidth: 80,
@@ -445,6 +485,12 @@ const versionColumns: DataTableColumns<SoftwareVersion> = [
     render: (row) => formatSize(row.size),
   },
   {
+    title: '强制更新',
+    key: 'force_update',
+    minWidth: 80,
+    render: (row) => (row.force_update ? '是' : '否'),
+  },
+  {
     title: '创建时间',
     key: 'created_at',
     minWidth: 120,
@@ -453,18 +499,29 @@ const versionColumns: DataTableColumns<SoftwareVersion> = [
   {
     title: '操作',
     key: 'actions',
-    width: 80,
-    minWidth: 80,
+    width: 150,
+    minWidth: 150,
     render: (row) => {
-      return h(
-        NButton,
-        {
-          size: 'small',
-          type: 'error',
-          onClick: () => handleDeleteVersion(row),
-        },
-        { default: () => '删除' },
-      )
+      return h('div', { style: { display: 'flex', gap: '8px' } }, [
+        h(
+          NButton,
+          {
+            size: 'small',
+            type: 'primary',
+            onClick: () => handleEditVersion(row),
+          },
+          { default: () => '编辑' },
+        ),
+        h(
+          NButton,
+          {
+            size: 'small',
+            type: 'error',
+            onClick: () => handleDeleteVersion(row),
+          },
+          { default: () => '删除' },
+        ),
+      ])
     },
   },
 ]
@@ -494,6 +551,56 @@ const formatDate = (dateString: string) => {
   })
 }
 
+const handleAddSoftware = () => {
+  editingSoftware.value = null
+  formValue.value = {
+    name: '',
+    code: '',
+    description: '',
+    sourceId: '',
+  }
+  window.$modalMutex?.open('software-modal')
+}
+
+const handleAddVersion = () => {
+  editingVersion.value = null
+  versionForm.value = {
+    version: '',
+    download_url: '',
+    os: '',
+    arch: '',
+    size: 0,
+    force_update: false,
+  }
+  window.$modalMutex?.open('add-version-modal')
+}
+
+const handleEditVersion = (row: SoftwareVersion) => {
+  editingVersion.value = row
+  versionForm.value = {
+    version: row.version,
+    download_url: row.download_url,
+    os: row.os,
+    arch: row.arch,
+    size: row.size,
+    force_update: row.force_update,
+  }
+  window.$modalMutex?.open('add-version-modal')
+}
+
+const handleCloseSoftwareModal = () => {
+  window.$modalMutex?.close('software-modal')
+}
+
+const handleCloseVersionModal = () => {
+  window.$modalMutex?.close('version-modal')
+}
+
+const handleCloseAddVersionModal = () => {
+  editingVersion.value = null
+  window.$modalMutex?.close('add-version-modal')
+}
+
 const handleEdit = (row: Software) => {
   editingSoftware.value = row
   formValue.value = {
@@ -502,15 +609,18 @@ const handleEdit = (row: Software) => {
     description: row.description,
     sourceId: row.sourceId,
   }
-  showAddModal.value = true
+  window.$modalMutex?.open('software-modal')
 }
 
 const handleVersionManage = (row: Software) => {
   editingSoftware.value = row
+  console.log('当前软件ID:', row.id)
+  console.log('所有版本:', allVersions.value)
   currentVersions.value = allVersions.value.filter(
-    (version) => version.softwareId === row.id,
+    (version) => version.software_id === row.id,
   )
-  showVersionModal.value = true
+  console.log('过滤后的版本:', currentVersions.value)
+  window.$modalMutex?.open('version-modal')
 }
 
 const handleDelete = async (row: Software) => {
@@ -566,8 +676,7 @@ const handleSubmit = async () => {
       })
       message.success(data.message)
     }
-    showAddModal.value = false
-    // 重置表单和编辑状态
+    window.$modalMutex?.close('software-modal')
     formValue.value = {
       name: '',
       code: '',
@@ -585,44 +694,61 @@ const handleVersionSubmit = async () => {
   if (!editingSoftware.value) return
   if (
     !versionForm.value.version ||
-    !versionForm.value.downloadUrl ||
+    !versionForm.value.download_url ||
     !versionForm.value.os ||
     !versionForm.value.arch ||
-    !versionForm.value.size
+    versionForm.value.size === undefined ||
+    versionForm.value.size === null
   ) {
     message.error('请填写完整')
     return
   }
 
-  // 只能包含0-9-.
   if (!/^[0-9.-]+$/.test(versionForm.value.version)) {
     message.error('版本号只能包含0-9-.')
     return
   }
 
   try {
-    const data = await adminApi.createSoftwareVersion({
-      name: versionForm.value.version,
-      version: versionForm.value.version,
-      downloadUrl: versionForm.value.downloadUrl,
-      os: versionForm.value.os,
-      arch: versionForm.value.arch,
-      size: versionForm.value.size,
-      softwareId: editingSoftware.value.id,
-    })
-    message.success(data.message)
-    showAddVersionModal.value = false
-    // 重置版本表单
+    if (editingVersion.value) {
+      const data = await adminApi.updateSoftwareVersion({
+        id: editingVersion.value.id,
+        name: versionForm.value.version,
+        version: versionForm.value.version,
+        downloadUrl: versionForm.value.download_url,
+        os: versionForm.value.os,
+        arch: versionForm.value.arch,
+        size: versionForm.value.size,
+        softwareId: editingSoftware.value.id,
+        forceUpdate: versionForm.value.force_update,
+      })
+      message.success(data.message)
+    } else {
+      const data = await adminApi.createSoftwareVersion({
+        name: versionForm.value.version,
+        version: versionForm.value.version,
+        downloadUrl: versionForm.value.download_url,
+        os: versionForm.value.os,
+        arch: versionForm.value.arch,
+        size: versionForm.value.size,
+        softwareId: editingSoftware.value.id,
+        forceUpdate: versionForm.value.force_update,
+      })
+      message.success(data.message)
+    }
+    window.$modalMutex?.close('add-version-modal')
     versionForm.value = {
       version: '',
-      downloadUrl: '',
+      download_url: '',
       os: '',
       arch: '',
       size: 0,
+      force_update: false,
     }
+    editingVersion.value = null
     await fetchSoftwareVersions()
   } catch (error: any) {
-    message.error(error?.response?.data?.message || '添加版本失败')
+    message.error(error?.response?.data?.message || '操作失败')
   }
 }
 
@@ -646,14 +772,13 @@ const fetchSoftwareList = async () => {
 
 const fetchSoftwareVersions = async () => {
   try {
-    // 使用专门的版本获取API
     const data = await adminApi.getSoftwareVersions()
     if (data.code === 0 && data.data) {
       allVersions.value = data.data
 
       if (editingSoftware.value) {
         currentVersions.value = allVersions.value.filter(
-          (version) => version.softwareId === editingSoftware.value?.id,
+          (version) => version.software_id === editingSoftware.value?.id,
         )
       }
     } else {
@@ -693,6 +818,30 @@ onMounted(async () => {
     fetchSoftwareVersions(),
   ])
   initLoading.value = false
+
+  unregisterSoftwareModal.value = window.$modalMutex?.register(
+    'software-modal',
+    () => (showAddModal.value = true),
+    () => (showAddModal.value = false),
+  )
+
+  unregisterVersionModal.value = window.$modalMutex?.register(
+    'version-modal',
+    () => (showVersionModal.value = true),
+    () => (showVersionModal.value = false),
+  )
+
+  unregisterAddVersionModal.value = window.$modalMutex?.register(
+    'add-version-modal',
+    () => (showAddVersionModal.value = true),
+    () => (showAddVersionModal.value = false),
+  )
+})
+
+onUnmounted(() => {
+  unregisterSoftwareModal.value?.()
+  unregisterVersionModal.value?.()
+  unregisterAddVersionModal.value?.()
 })
 </script>
 

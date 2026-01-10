@@ -9,9 +9,12 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AppContent: typeof import('./src/components/AppContent.vue')['default']
+    DialogMutexDemo: typeof import('./src/components/DialogMutexDemo.vue')['default']
     HomeMenu: typeof import('./src/components/HomeMenu.vue')['default']
     La: typeof import('./src/components/La.vue')['default']
     LeftMenu: typeof import('./src/components/LeftMenu.vue')['default']
+    ManagedModalExample: typeof import('./src/components/ManagedModalExample.vue')['default']
+    ModalMutexDemo: typeof import('./src/components/ModalMutexDemo.vue')['default']
     NAlert: typeof import('naive-ui')['NAlert']
     NButton: typeof import('naive-ui')['NButton']
     NCard: typeof import('naive-ui')['NCard']
@@ -25,6 +28,7 @@ declare module 'vue' {
     NFlex: typeof import('naive-ui')['NFlex']
     NForm: typeof import('naive-ui')['NForm']
     NFormItem: typeof import('naive-ui')['NFormItem']
+    NFormItemGi: typeof import('naive-ui')['NFormItemGi']
     NGi: typeof import('naive-ui')['NGi']
     NGradientText: typeof import('naive-ui')['NGradientText']
     NGrid: typeof import('naive-ui')['NGrid']

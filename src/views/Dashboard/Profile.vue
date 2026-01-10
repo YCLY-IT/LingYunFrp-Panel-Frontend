@@ -671,10 +671,6 @@ const rules = {
   },
 }
 
-// 表单引用
-const usernameFormRef = ref(null)
-const avatarFormRef = ref(null)
-const passwordFormRef = ref(null)
 const loading = ref(false)
 
 // 邮箱验证码相关状态
@@ -1128,15 +1124,15 @@ $transition-normal: all 0.2s ease;
 
 // 容器样式
 .statistic-container {
-  padding: 15px;
+  padding: $primary-spacing;
+  margin-bottom: $primary-spacing - 5px;
 }
 
 .page-container {
   display: flex;
   gap: $primary-spacing;
-  padding: $primary-spacing;
-  margin: 0 20px;
-  width: calc(100% - 40px);
+  margin: 0 15px;
+  width: calc(100% - 30px);
 
   @media (max-width: 768px) {
     flex-direction: column;

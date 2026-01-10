@@ -206,9 +206,10 @@ export interface SoftwareVersion {
   os: string
   arch: string
   version: string
-  softwareId: number
-  downloadUrl: string
+  software_id: number
+  download_url: string
   size: number
+  force_update: boolean
   created_at: string
   updated_at: string
 }
@@ -232,6 +233,12 @@ export interface CreateSoftwareVersionParams {
   softwareId: number
   downloadUrl: string
   size: number
+  forceUpdate: boolean
+}
+
+export interface UpdateSoftwareVersionParams
+  extends CreateSoftwareVersionParams {
+  id: number
 }
 
 export interface SoftwareListResponse {
