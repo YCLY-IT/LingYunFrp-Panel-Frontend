@@ -121,7 +121,12 @@
                   v-for="(commit, _index) in visibleCommits"
                   :key="commit.sha || _index"
                   :type="getCommitType(commit.commit?.message || '')"
-                  :title="getCommitTitle(commit.commit?.message || '')"
+                  :title="
+                    getCommitTitle(
+                      commit.commit?.message || '',
+                      commit.commit?.author?.date || '',
+                    )
+                  "
                   :content="getCommitContent(commit.commit?.message || '')"
                   :time="formatDate(commit.commit?.author?.date || '')"
                 >
@@ -142,7 +147,7 @@
                         size="tiny"
                         text
                         type="primary"
-                        @click="openCommit(commit.html_url || '#')"
+                        @click="showCommitDetail(commit)"
                       >
                         查看详情
                       </n-button>
@@ -248,6 +253,123 @@
         </n-card>
       </n-space>
     </div>
+
+    <n-modal
+      v-model:show="showCommitModal"
+      preset="card"
+      style="width: 800px; max-width: 95vw"
+      :bordered="false"
+      size="huge"
+      aria-modal="true"
+    >
+      <template #header>
+        <div class="modal-header">
+          <n-space align="center" :size="12">
+            <n-avatar
+              :src="currentCommit?.author?.avatar_url || '/icon/github.png'"
+              :size="40"
+              round
+            />
+            <div>
+              <n-text strong style="font-size: 16px">
+                {{ currentCommit?.author?.login || 'Unknown' }}
+              </n-text>
+              <div class="commit-sha">
+                <n-text code depth="3" style="font-size: 12px">
+                  {{ currentCommit?.sha?.substring(0, 7) || 'Unknown' }}
+                </n-text>
+              </div>
+            </div>
+          </n-space>
+        </div>
+      </template>
+
+      <n-tabs type="line" animated :tab-style="{ padding: '12px 24px' }">
+        <n-tab-pane name="message" tab="提交信息">
+          <div class="tab-content">
+            <div class="markdown-content" v-html="renderedCommitMessage" />
+          </div>
+        </n-tab-pane>
+
+        <n-tab-pane name="details" tab="提交详情">
+          <div class="tab-content">
+            <n-space vertical :size="20">
+              <div class="detail-item">
+                <div class="detail-label">
+                  <n-icon size="16">
+                    <Clock />
+                  </n-icon>
+                  <n-text strong>提交时间</n-text>
+                </div>
+                <div class="detail-value">
+                  <n-text>{{
+                    formatDate(currentCommit?.commit?.author?.date || '')
+                  }}</n-text>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <div class="detail-label">
+                  <n-icon size="16">
+                    <Hash />
+                  </n-icon>
+                  <n-text strong>完整 SHA</n-text>
+                </div>
+                <div class="detail-value">
+                  <n-text code>{{ currentCommit?.sha || 'Unknown' }}</n-text>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <div class="detail-label">
+                  <n-icon size="16">
+                    <Github />
+                  </n-icon>
+                  <n-text strong>提交链接</n-text>
+                </div>
+                <div class="detail-value">
+                  <n-button
+                    text
+                    type="primary"
+                    @click="openCommitUrl(currentCommit?.html_url || '#')"
+                  >
+                    {{ currentCommit?.html_url || 'Unknown' }}
+                  </n-button>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <div class="detail-label">
+                  <n-icon size="16">
+                    <Mail />
+                  </n-icon>
+                  <n-text strong>作者邮箱</n-text>
+                </div>
+                <div class="detail-value">
+                  <n-text>{{
+                    currentCommit?.commit?.author?.email || 'Unknown'
+                  }}</n-text>
+                </div>
+              </div>
+            </n-space>
+          </div>
+        </n-tab-pane>
+      </n-tabs>
+
+      <template #footer>
+        <n-button
+          type="primary"
+          block
+          size="large"
+          @click="openCommitUrl(currentCommit?.html_url || '#')"
+        >
+          <template #icon>
+            <n-icon><ExternalLink /></n-icon>
+          </template>
+          在 GitHub 中查看
+        </n-button>
+      </template>
+    </n-modal>
   </div>
 </template>
 
@@ -271,6 +393,9 @@ import {
   NSpin,
   NEmpty,
   NText,
+  NModal,
+  NTabs,
+  NTabPane,
   useMessage,
 } from 'naive-ui'
 import {
@@ -284,7 +409,12 @@ import {
   Github,
   FileText,
   RefreshCw,
+  Clock,
+  Hash,
+  ExternalLink,
 } from 'lucide-vue-next'
+import { marked } from 'marked'
+import DOMPurify from 'dompurify'
 
 import packageData from '../../../../package.json'
 import { getGitHubCommits } from '@/net/user/user'
@@ -296,6 +426,25 @@ const commits = ref<GitHubCommit[]>([])
 const visibleCommits = ref<GitHubCommit[]>([])
 const visibleCount = ref(3)
 const loading = ref(false)
+const showCommitModal = ref(false)
+const currentCommit = ref<GitHubCommit | null>(null)
+
+marked.use({
+  gfm: true,
+  breaks: true,
+})
+
+const renderedCommitMessage = computed(() => {
+  if (!currentCommit.value?.commit?.message) return ''
+  try {
+    return DOMPurify.sanitize(
+      marked.parse(currentCommit.value.commit.message) as string,
+    )
+  } catch (err) {
+    console.error('渲染Markdown时出错:', err)
+    return currentCommit.value.commit.message
+  }
+})
 
 const buildDate = typeof __BUILD_DATE__ !== 'undefined' ? __BUILD_DATE__ : ''
 const formattedBuildDate = computed(() => {
@@ -324,7 +473,12 @@ const downloadSource = () => {
   window.open(packageData.github + '/LingYunFrp-Panel-Frontend')
 }
 
-const openCommit = (url: string) => {
+const showCommitDetail = (commit: GitHubCommit) => {
+  currentCommit.value = commit
+  showCommitModal.value = true
+}
+
+const openCommitUrl = (url: string) => {
   window.open(url, '_blank')
 }
 
@@ -355,7 +509,7 @@ const getCommitType = (message: string) => {
   return 'default'
 }
 
-const getCommitTitle = (message: string) => {
+const getCommitTitle = (message: string, date?: string) => {
   if (!message || typeof message !== 'string') return '📦 更新: 未知提交'
 
   try {
@@ -376,7 +530,12 @@ const getCommitTitle = (message: string) => {
         test: '✅ 测试',
         chore: '🔧 构建',
       }
-      return `${typeMap[type] || '📦 更新'}: ${description}`
+      let title = `${typeMap[type] || '📦 更新'}: ${description}`
+      if (date) {
+        const formattedTime = formatDate(date)
+        title += ` (${formattedTime})`
+      }
+      return title
     }
 
     return firstLine || '📦 更新: 未知提交'
@@ -424,5 +583,194 @@ onMounted(() => {
 <style scoped>
 .n-card {
   margin-bottom: 16px;
+}
+
+.modal-header {
+  padding: 8px 0;
+}
+
+.commit-sha {
+  margin-top: 4px;
+}
+
+.tab-content {
+  padding: 20px 0;
+  min-height: 300px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  background: var(--n-color-modal);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  border: 1px solid var(--n-border-color);
+}
+
+.detail-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.detail-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.detail-value {
+  padding-left: 24px;
+  font-size: 14px;
+}
+
+.markdown-content {
+  font-size: 14px;
+  line-height: 1.8;
+  max-height: 450px;
+  overflow-y: auto;
+  padding: 20px;
+  background: var(--n-color-modal);
+  border: 1px solid var(--n-border-color);
+  border-radius: 12px;
+}
+
+.markdown-content :deep(h1),
+.markdown-content :deep(h2),
+.markdown-content :deep(h3),
+.markdown-content :deep(h4),
+.markdown-content :deep(h5),
+.markdown-content :deep(h6) {
+  margin: 20px 0 12px 0;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.markdown-content :deep(h1) {
+  font-size: 1.6em;
+  border-bottom: 2px solid var(--n-border-color);
+  padding-bottom: 10px;
+  margin-top: 0;
+}
+
+.markdown-content :deep(h2) {
+  font-size: 1.4em;
+  border-bottom: 1px solid var(--n-border-color);
+  padding-bottom: 8px;
+}
+
+.markdown-content :deep(h3) {
+  font-size: 1.2em;
+}
+
+.markdown-content :deep(p) {
+  margin: 12px 0;
+}
+
+.markdown-content :deep(ul),
+.markdown-content :deep(ol) {
+  margin: 12px 0;
+  padding-left: 28px;
+}
+
+.markdown-content :deep(li) {
+  margin: 6px 0;
+  line-height: 1.6;
+}
+
+.markdown-content :deep(code) {
+  background: var(--n-code-color);
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.9em;
+  border: 1px solid var(--n-border-color);
+}
+
+.markdown-content :deep(pre) {
+  background: var(--n-scrollbar-color);
+  padding: 20px;
+  border-radius: 12px;
+  overflow-x: auto;
+  margin: 16px 0;
+  border: 1px solid var(--n-border-color);
+}
+
+.markdown-content :deep(pre code) {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  border: none;
+}
+
+.markdown-content :deep(blockquote) {
+  border-left: 4px solid var(--n-primary-color);
+  padding: 16px 20px;
+  margin: 16px 0;
+  background: var(--n-color-modal);
+  border-radius: 8px;
+  border: 1px solid var(--n-border-color);
+  border-left-width: 4px;
+}
+
+.markdown-content :deep(a) {
+  color: var(--n-primary-color);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.markdown-content :deep(a:hover) {
+  text-decoration: underline;
+}
+
+.markdown-content :deep(table) {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.markdown-content :deep(th),
+.markdown-content :deep(td) {
+  border: 1px solid var(--n-border-color);
+  padding: 12px 16px;
+  text-align: left;
+}
+
+.markdown-content :deep(th) {
+  background: var(--n-color-modal);
+  font-weight: 600;
+}
+
+.markdown-content :deep(tr:nth-child(even)) {
+  background: var(--n-color-modal);
+}
+
+.markdown-content :deep(tr:hover) {
+  background: var(--n-color-hover);
+}
+
+.markdown-content :deep(hr) {
+  border: none;
+  border-top: 2px solid var(--n-border-color);
+  margin: 24px 0;
+}
+
+.markdown-content :deep(img) {
+  max-width: 100%;
+  border-radius: 8px;
+  margin: 12px 0;
+}
+
+.markdown-content :deep(strong) {
+  font-weight: 600;
+}
+
+.markdown-content :deep(em) {
+  font-style: italic;
 }
 </style>

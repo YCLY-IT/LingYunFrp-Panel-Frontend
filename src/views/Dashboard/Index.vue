@@ -69,7 +69,23 @@
           >
             <template #default>
               <div class="notice-scroll">
-                <div v-html="renderedNotice" />
+                <NCollapse v-if="notices.length > 0" accordion>
+                  <template v-for="(notice, index) in notices" :key="notice.id">
+                    <NCollapseItem :title="notice.title" :name="notice.id">
+                      <template #header-extra>
+                        <span class="notice-time">{{
+                          formatTime(notice.created_at)
+                        }}</span>
+                      </template>
+                      <div
+                        class="notice-content"
+                        v-html="renderNoticeContent(notice.message)"
+                      />
+                    </NCollapseItem>
+                    <NDivider style="margin: 8px 0" />
+                  </template>
+                </NCollapse>
+                <div v-else class="no-notice">暂无通知</div>
               </div>
             </template>
           </NCard>
@@ -85,12 +101,21 @@
 </template>
 
 <script setup lang="ts">
-import { NCard, NAlert, NButton, useMessage } from 'naive-ui'
+import {
+  NCard,
+  NAlert,
+  NButton,
+  NCollapse,
+  NCollapseItem,
+  NDivider,
+  useMessage,
+} from 'naive-ui'
 import { ref, onMounted, computed, Ref } from 'vue'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import { useRouter } from 'vue-router'
 import { userApi } from '@/net'
+import type { BroadcastData } from '@/net/user/type'
 import UserInfo from '@/components/UserInfo.vue'
 import Traffic from '@/components/Traffic.vue'
 import WelcomeCard from '@/components/WelcomeCard.vue'
@@ -98,7 +123,7 @@ import { TrafficType } from '@/types'
 
 const router = useRouter()
 const message = useMessage()
-const notices = ref('')
+const notices = ref<BroadcastData[]>([])
 const nickname = localStorage.getItem('nickname') || ''
 
 // 用户信息引用
@@ -172,16 +197,30 @@ const handleUserUpdate = () => {
   statisticRef.value?.getUserTraffic()
 }
 
-// 渲染通知
-const renderedNotice = computed(() => {
-  if (!notices.value) return ''
+// 渲染通知内容
+const renderNoticeContent = (message: string) => {
   try {
-    const html = marked.parse(notices.value) as string
+    const html = marked.parse(message) as string
     return DOMPurify.sanitize(html)
   } catch {
-    return ''
+    return message
   }
-})
+}
+
+// 格式化时间
+const formatTime = (timeStr: string) => {
+  const date = new Date(timeStr)
+  const now = new Date()
+  const diff = now.getTime() - date.getTime()
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+  const hours = Math.floor(diff / (1000 * 60 * 60))
+  const minutes = Math.floor(diff / (1000 * 60))
+
+  if (days > 0) return `${days}天前`
+  if (hours > 0) return `${hours}小时前`
+  if (minutes > 0) return `${minutes}分钟前`
+  return '刚刚'
+}
 
 // 获取通知
 const fetchNotice = async (): Promise<void> => {
@@ -189,7 +228,7 @@ const fetchNotice = async (): Promise<void> => {
   isNoticeLoading.value = true
   try {
     const data = await userApi.getBroadcast()
-    notices.value = data?.data[0].broadcast
+    notices.value = data?.data || []
     isNoticeLoading.value = false
   } catch (err: any) {
     isNoticeLoading.value = false
@@ -275,7 +314,6 @@ onMounted(() => {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  padding: 0 16px 16px 16px;
 }
 
 .notice-scroll {
@@ -285,6 +323,59 @@ onMounted(() => {
   scrollbar-width: thin;
   scrollbar-color: #e0e0e0 #fff;
   max-height: 100%;
+}
+
+.notice-scroll :deep(.n-collapse) {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.notice-scroll :deep(.n-collapse-item) {
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 0;
+}
+
+.notice-scroll :deep(.n-collapse-item__header) {
+  font-size: 18px;
+  font-weight: 500;
+  border-radius: 8px 8px 0 0;
+}
+
+.notice-scroll :deep(.n-collapse-item__header-main) {
+  flex: 1;
+  margin-top: 10px;
+}
+
+.notice-scroll :deep(.n-collapse-item__content-inner) {
+  padding: 10px !important;
+  min-height: 80px;
+}
+
+.notice-time {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--n-text-color-3);
+  font-weight: normal;
+}
+
+.notice-content {
+  line-height: 1.8;
+  color: var(--n-text-color);
+  font-size: 14px;
+  word-break: break-word;
+}
+
+.notice-content :deep(p) {
+  margin: 8px 0;
+}
+
+.no-notice {
+  text-align: center;
+  color: var(--n-text-color-3);
+  padding: 40px 0;
+  font-size: 14px;
 }
 
 .welcome-card-container {

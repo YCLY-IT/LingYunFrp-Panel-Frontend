@@ -18,6 +18,14 @@
   border-radius: 13px !important;
 }
 
+.n-button {
+  border-radius: 18px !important;
+}
+
+.n-base-selection {
+  border-radius: 18px !important;
+}
+
 /* 对话框模糊效果 */
 .n-modal-mask {
   backdrop-filter: blur(var(--modal-filter, 10px)) !important;

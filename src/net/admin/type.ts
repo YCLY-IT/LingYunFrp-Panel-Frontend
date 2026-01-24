@@ -296,6 +296,25 @@ export interface SmtpSettingResponse {
   encryption: 'ssl' | 'tls' | 'none'
 }
 
+export interface Broadcast {
+  id: number
+  title: string
+  message: string
+  top: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface CreateBroadcastParams {
+  title: string
+  message: string
+  top: boolean
+}
+
+export interface UpdateBroadcastParams extends CreateBroadcastParams {
+  id: number
+}
+
 // 响应类型定义
 export type UserListApiResponse = ApiBaseResponse<UserListResponse>
 export type UserApiResponse = ApiBaseResponse<User>
@@ -315,3 +334,5 @@ export type DownloadSourceApiResponse = ApiBaseResponse<any[]>
 export type CodeResponse = ApiBaseResponse<any>
 export type SmsSettingApiResponse = ApiBaseResponse<SmsSettingResponse>
 export type SmtpSettingApiResponse = ApiBaseResponse<SmtpSettingResponse>
+export type BroadcastListApiResponse = ApiBaseResponse<Broadcast[]>
+export type BroadcastApiResponse = ApiBaseResponse<Broadcast>

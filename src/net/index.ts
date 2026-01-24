@@ -82,6 +82,11 @@ import {
   getSmtpSetting,
   getSmsSetting,
   updateSoftwareVersion,
+  getBroadcastList,
+  createBroadcast,
+  updateBroadcast,
+  deleteBroadcast,
+  toggleBroadcastTop,
 } from './admin/admin'
 
 const userApi = {
@@ -176,5 +181,11 @@ const adminApi = {
   updateDownloadSource,
   deleteDownloadSource,
   updateSoftwareVersion,
+  // 通知管理
+  getBroadcastList,
+  createBroadcast,
+  updateBroadcast,
+  deleteBroadcast,
+  toggleBroadcastTop,
 }
 export { userApi, adminApi }

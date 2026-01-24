@@ -2,31 +2,6 @@
   <div>
     <NCard title="系统管理">
       <NTabs type="line" animated @update:value="handleTabUpdate">
-        <NTabPane name="basic" tab="基础">
-          <NForm
-            ref="basicFormRef"
-            :model="basicForm"
-            :rules="basicRules"
-            label-placement="left"
-            label-width="auto"
-            require-mark-placement="right-hanging"
-          >
-            <NFormItem label="公告内容" path="notice">
-              <NInput
-                v-model:value="basicForm.notice"
-                type="textarea"
-                placeholder="请输入公告内容"
-                :rows="15"
-              />
-            </NFormItem>
-            <NSpace justify="end">
-              <NButton type="primary" @click="handleSaveBasic"
-                >保存设置</NButton
-              >
-            </NSpace>
-          </NForm>
-        </NTabPane>
-
         <NTabPane name="security" tab="安全">
           <NForm
             ref="securityFormRef"
@@ -257,6 +232,48 @@
             <NDataTable
               :columns="groupColumns"
               :data="filteredGroupsData"
+              :bordered="false"
+            />
+          </NSpace>
+        </NTabPane>
+
+        <NTabPane name="broadcast" tab="通知管理">
+          <div class="broadcast-filter-row">
+            <n-select
+              v-model:value="broadcastFilterMode"
+              :options="broadcastFilterModeOptions"
+              placeholder="筛选方式"
+              class="broadcast-filter-item"
+              style="min-width: 100px"
+            />
+            <n-input
+              v-model:value="broadcastFilterKeyword"
+              placeholder="请输入关键词"
+              class="broadcast-filter-item"
+              clearable
+              @update:value="filterBroadcasts"
+            />
+            <n-select
+              v-model:value="broadcastSortOrder"
+              :options="broadcastSortOrderOptions"
+              placeholder="排序方式"
+              class="broadcast-filter-item"
+              style="min-width: 100px"
+              @update:value="filterBroadcasts"
+            />
+            <n-button
+              type="primary"
+              @click="showAddBroadcastModal = true"
+              class="broadcast-filter-btn"
+              size="small"
+            >
+              添加通知
+            </n-button>
+          </div>
+          <NSpace vertical>
+            <NDataTable
+              :columns="broadcastColumns"
+              :data="filteredBroadcastsData"
               :bordered="false"
             />
           </NSpace>
@@ -520,6 +537,82 @@
         <n-button type="primary" @click="handleSetUserGroup">确定</n-button>
       </template>
     </n-modal>
+
+    <!-- 添加通知模态框 -->
+    <NModal
+      v-model:show="showAddBroadcastModal"
+      preset="dialog"
+      title="添加通知"
+    >
+      <NForm
+        ref="addBroadcastFormRef"
+        :model="addBroadcastForm"
+        :rules="broadcastRules"
+      >
+        <NFormItem label="标题" path="title">
+          <NInput
+            v-model:value="addBroadcastForm.title"
+            placeholder="请输入通知标题"
+          />
+        </NFormItem>
+        <NFormItem label="内容" path="message">
+          <NInput
+            v-model:value="addBroadcastForm.message"
+            type="textarea"
+            placeholder="请输入通知内容"
+            :rows="5"
+          />
+        </NFormItem>
+        <NFormItem label="置顶" path="top">
+          <NSwitch
+            v-model:value="addBroadcastForm.top"
+            :rail-style="switchButtonRailStyle"
+          />
+        </NFormItem>
+      </NForm>
+      <template #action>
+        <NButton @click="showAddBroadcastModal = false">取消</NButton>
+        <NButton type="primary" @click="handleAddBroadcast">确定</NButton>
+      </template>
+    </NModal>
+
+    <!-- 编辑通知模态框 -->
+    <NModal
+      v-model:show="showEditBroadcastModal"
+      preset="dialog"
+      title="修改通知"
+    >
+      <NForm
+        ref="editBroadcastFormRef"
+        :model="editBroadcastForm"
+        :rules="broadcastRules"
+      >
+        <NFormItem label="标题" path="title">
+          <NInput
+            v-model:value="editBroadcastForm.title"
+            placeholder="请输入通知标题"
+          />
+        </NFormItem>
+        <NFormItem label="内容" path="message">
+          <NInput
+            v-model:value="editBroadcastForm.message"
+            type="textarea"
+            placeholder="请输入通知内容"
+            :rows="5"
+          />
+        </NFormItem>
+        <NFormItem label="置顶" path="top">
+          <NSwitch
+            v-model:value="editBroadcastForm.top"
+            :rail-style="switchButtonRailStyle"
+          />
+        </NFormItem>
+      </NForm>
+      <template #action>
+        <NButton @click="showEditBroadcastModal = false">取消</NButton>
+        <NButton type="primary" @click="handleEditBroadcast">确定</NButton>
+      </template>
+    </NModal>
   </div>
 </template>
 
@@ -547,13 +640,13 @@ import {
 import type { FormRules, FormInst, DataTableColumns } from 'naive-ui'
 import { switchButtonRailStyle } from '@/constants/theme.ts'
 import type { DownloadSource, Group } from '@/types'
+import type { Broadcast } from '@/net/admin/type'
 import { adminApi } from '@/net'
 import type { ApiError } from '@/net/request'
 
 const message = useMessage()
 
 // 表单引用
-const basicFormRef = ref<FormInst | null>(null)
 const securityFormRef = ref<FormInst | null>(null)
 const smtpFormRef = ref<FormInst | null>(null)
 const smsFormRef = ref<FormInst | null>(null)
@@ -561,13 +654,11 @@ const editSourceFormRef = ref<FormInst | null>(null)
 const addSourceFormRef = ref<FormInst | null>(null)
 const groupFormRef = ref<FormInst | null>(null)
 const editGroupFormRef = ref<FormInst | null>(null)
+const addBroadcastFormRef = ref<FormInst | null>(null)
+const editBroadcastFormRef = ref<FormInst | null>(null)
 const showSetUserGroupModal = ref(false)
 
 // 表单数据
-const basicForm = ref({
-  notice: '',
-})
-
 const securityForm = ref({
   allowRegister: true,
   allowLogin: true,
@@ -602,6 +693,8 @@ const encryptionOptions = [
 const downloadSourcesData = ref<DownloadSource[]>([])
 const groupsData = ref<Group[]>([])
 const filteredGroupsData = ref<Group[]>([])
+const broadcastsData = ref<Broadcast[]>([])
+const filteredBroadcastsData = ref<Broadcast[]>([])
 const SetUserGroup = ref(false)
 const loading = ref(false)
 const smsLoading = ref(false)
@@ -611,6 +704,8 @@ const showEditModal = ref(false)
 const showAddSourceModal = ref(false)
 const showAddGroupModal = ref(false)
 const showEditGroupModal = ref(false)
+const showAddBroadcastModal = ref(false)
+const showEditBroadcastModal = ref(false)
 
 // 表单数据
 const addSourceForm = ref<DownloadSource>({
@@ -651,16 +746,25 @@ const editGroupForm = ref<Group>({
   no_cn_in_limit: 0,
 })
 
-// 表单规则
-const basicRules: FormRules = {
-  notice: {
-    required: true,
-    type: 'string',
-    message: '请输入公告内容',
-    trigger: ['blur', 'input'],
-  },
-}
+const addBroadcastForm = ref<Broadcast>({
+  id: 0,
+  title: '',
+  message: '',
+  top: false,
+  created_at: '',
+  updated_at: '',
+})
 
+const editBroadcastForm = ref<Broadcast>({
+  id: 0,
+  title: '',
+  message: '',
+  top: false,
+  created_at: '',
+  updated_at: '',
+})
+
+// 表单规则
 const securityRules: FormRules = {
   allowRegister: {
     required: true,
@@ -795,6 +899,19 @@ const groupRules: FormRules = {
   name: {
     required: true,
     message: '请输入用户组名称',
+    trigger: ['blur', 'input'],
+  },
+}
+
+const broadcastRules: FormRules = {
+  title: {
+    required: true,
+    message: '请输入通知标题',
+    trigger: ['blur', 'input'],
+  },
+  message: {
+    required: true,
+    message: '请输入通知内容',
     trigger: ['blur', 'input'],
   },
 }
@@ -996,6 +1113,127 @@ const groupColumns: DataTableColumns<Group> = [
   },
 ]
 
+const broadcastColumns: DataTableColumns<Broadcast> = [
+  {
+    title: 'ID',
+    key: 'id',
+  },
+  {
+    title: '标题',
+    key: 'title',
+    render(row) {
+      return h(
+        'div',
+        {
+          style:
+            'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;',
+        },
+        row.title,
+      )
+    },
+  },
+  {
+    title: '内容',
+    key: 'message',
+    render(row) {
+      return h(
+        'div',
+        {
+          style:
+            'white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;',
+        },
+        row.message,
+      )
+    },
+  },
+  {
+    title: '置顶',
+    key: 'top',
+    render(row) {
+      return h(
+        'div',
+        {
+          style:
+            'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;',
+        },
+        row.top ? '是' : '否',
+      )
+    },
+  },
+  {
+    title: '创建时间',
+    key: 'created_at',
+    render(row) {
+      return h(
+        'div',
+        {
+          style:
+            'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;',
+        },
+        new Date(row.created_at).toLocaleString('zh-CN'),
+      )
+    },
+  },
+  {
+    title: '更新时间',
+    key: 'updated_at',
+    render(row) {
+      return h(
+        'div',
+        {
+          style:
+            'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;',
+        },
+        new Date(row.updated_at).toLocaleString('zh-CN'),
+      )
+    },
+  },
+  {
+    title: '操作',
+    key: 'actions',
+    render: (row) => {
+      return h(
+        NSpace,
+        {},
+        {
+          default: () => [
+            h(
+              NButton,
+              {
+                size: 'small',
+                type: 'warning',
+                onClick: () => handleToggleBroadcastTop(row.id, !row.top),
+              },
+              { default: () => (row.top ? '取消置顶' : '置顶') },
+            ),
+            h(
+              NButton,
+              {
+                size: 'small',
+                type: 'primary',
+                onClick: () => {
+                  editBroadcastForm.value = { ...row }
+                  showEditBroadcastModal.value = true
+                },
+              },
+              { default: () => '修改' },
+            ),
+            h(
+              NButton,
+              {
+                size: 'small',
+                type: 'error',
+                onClick: () => handleRemoveBroadcast(row.id),
+              },
+              { default: () => '删除' },
+            ),
+          ],
+        },
+      )
+    },
+  },
+]
+
 const handleSetUserGroup = async () => {
   SetUserGroup.value = true
   handleEditGroup()
@@ -1006,20 +1244,6 @@ const handleCancelSetUserGroup = () => {
   SetUserGroup.value = false
   showSetUserGroupModal.value = false
   handleEditGroup()
-}
-
-// 保存公告
-const handleSaveBasic = async () => {
-  try {
-    const data = await adminApi.setBroadcast(basicForm.value.notice)
-    if (data.code === 0) {
-      message.success('保存公告成功')
-    } else {
-      message.error(data.message || '保存公告失败')
-    }
-  } catch (error) {
-    message.error((error as ApiError).message)
-  }
 }
 
 // 保存安全设置
@@ -1069,6 +1293,19 @@ const groupSortOrderOptions = [
 const groupFilterMode = ref('name')
 const groupFilterKeyword = ref('')
 const groupSortOrder = ref('asc')
+
+// 通知筛选条件
+const broadcastFilterModeOptions = [
+  { label: '标题', value: 'title' },
+  { label: '内容', value: 'message' },
+]
+const broadcastSortOrderOptions = [
+  { label: '升序', value: 'asc' },
+  { label: '降序', value: 'desc' },
+]
+const broadcastFilterMode = ref('title')
+const broadcastFilterKeyword = ref('')
+const broadcastSortOrder = ref('asc')
 
 // 原始数据副本
 const allDownloadSources = ref<DownloadSource[]>([])
@@ -1147,18 +1384,45 @@ const filterGroups = () => {
   filteredGroupsData.value = filtered
 }
 
+// 通知过滤方法
+const filterBroadcasts = () => {
+  let filtered = broadcastsData.value
+  if (broadcastFilterKeyword.value) {
+    if (broadcastFilterMode.value === 'title') {
+      filtered = filtered.filter((item) =>
+        item.title
+          ?.toLowerCase()
+          .includes(broadcastFilterKeyword.value.trim().toLowerCase()),
+      )
+    } else if (broadcastFilterMode.value === 'message') {
+      filtered = filtered.filter((item) =>
+        item.message
+          ?.toLowerCase()
+          .includes(broadcastFilterKeyword.value.trim().toLowerCase()),
+      )
+    }
+  }
+  filtered.sort((a, b) => {
+    if (a.top !== b.top) {
+      return a.top ? -1 : 1
+    }
+    if (broadcastSortOrder.value === 'asc') {
+      if (a.id === b.id) return 0
+      return a.id - b.id
+    } else {
+      if (a.id === b.id) return 0
+      return b.id - a.id
+    }
+  })
+  filteredBroadcastsData.value = filtered
+}
+
 // 获取所有系统设置
 const fetchAllSystemSettings = async () => {
   try {
     const data = await adminApi.getSystemSettings()
     if (data.code === 0) {
       const configs = data.data
-
-      // 设置基础配置
-      const broadcastConfig = configs.find((c) => c.type === 'broadcast')
-      if (broadcastConfig) {
-        basicForm.value.notice = broadcastConfig.value
-      }
 
       // 设置安全配置
       securityForm.value.allowRegister =
@@ -1354,6 +1618,108 @@ const handleRemoveGroup = async (id: number) => {
   }
 }
 
+// 获取通知列表
+const fetchBroadcasts = async () => {
+  try {
+    const data = await adminApi.getBroadcastList()
+    if (data.code === 0) {
+      broadcastsData.value = data.data || []
+      filterBroadcasts()
+    } else {
+      message.error(data.message || '获取通知列表失败')
+    }
+  } catch (error) {
+    message.error((error as ApiError).message)
+  }
+}
+
+// 添加通知
+const handleAddBroadcast = async () => {
+  try {
+    const data = await adminApi.createBroadcast({
+      title: addBroadcastForm.value.title,
+      message: addBroadcastForm.value.message,
+      top: addBroadcastForm.value.top,
+    })
+    if (data.code === 0) {
+      message.success('添加通知成功')
+      showAddBroadcastModal.value = false
+      addBroadcastForm.value = {
+        id: 0,
+        title: '',
+        message: '',
+        top: false,
+        created_at: '',
+        updated_at: '',
+      }
+      await fetchBroadcasts()
+    } else {
+      message.error(data.message || '添加通知失败')
+    }
+  } catch (error) {
+    message.error((error as ApiError).message)
+  }
+}
+
+// 编辑通知
+const handleEditBroadcast = async () => {
+  try {
+    const data = await adminApi.updateBroadcast({
+      id: editBroadcastForm.value.id,
+      title: editBroadcastForm.value.title,
+      message: editBroadcastForm.value.message,
+      top: editBroadcastForm.value.top,
+    })
+    if (data.code === 0) {
+      message.success('修改通知成功')
+      showEditBroadcastModal.value = false
+      editBroadcastForm.value = {
+        id: 0,
+        title: '',
+        message: '',
+        top: false,
+        created_at: '',
+        updated_at: '',
+      }
+      await fetchBroadcasts()
+    } else {
+      message.error(data.message || '修改通知失败')
+    }
+  } catch (error) {
+    message.error((error as ApiError).message)
+  }
+}
+
+// 删除通知
+const handleRemoveBroadcast = async (id: number) => {
+  try {
+    const data = await adminApi.deleteBroadcast(id)
+    if (data.code === 0) {
+      message.success('删除通知成功')
+      await fetchBroadcasts()
+    } else {
+      message.error(data.message || '删除通知失败')
+    }
+  } catch (error) {
+    message.error((error as ApiError).message)
+  }
+}
+
+// 置顶/取消置顶通知
+const handleToggleBroadcastTop = async (id: number, top: boolean) => {
+  try {
+    const data = await adminApi.toggleBroadcastTop(id, top)
+    if (data.code === 0) {
+      message.success(top ? '置顶成功' : '取消置顶成功')
+      await fetchBroadcasts()
+    } else {
+      message.error(data.message || '操作失败')
+    }
+  } catch (error) {
+    message.error((error as ApiError).message)
+  }
+}
+
 // 保存SMTP配置
 const handleSaveSmtp = async () => {
   loading.value = true
@@ -1441,9 +1807,6 @@ const fetchSmsSetting = async () => {
 // 切换标签时加载对应数据
 const handleTabUpdate = (tab: string) => {
   switch (tab) {
-    case 'basic':
-      // 基础设置已在初始化时获取，无需重新获取
-      break
     case 'security':
       // 安全设置已在初始化时获取，无需重新获取
       break
@@ -1458,6 +1821,9 @@ const handleTabUpdate = (tab: string) => {
       break
     case 'groups':
       fetchGroups()
+      break
+    case 'broadcast':
+      fetchBroadcasts()
       break
   }
 }
@@ -1505,6 +1871,28 @@ onMounted(() => {
   align-items: center;
 }
 .group-filter-btn {
+  flex: none;
+  min-width: unset;
+  width: auto;
+  padding: 0 16px;
+  height: 32px;
+  align-self: center;
+}
+
+.broadcast-filter-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+  width: 100%;
+  align-items: stretch;
+}
+.broadcast-filter-item {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+.broadcast-filter-btn {
   flex: none;
   min-width: unset;
   width: auto;

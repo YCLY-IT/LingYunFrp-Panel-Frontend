@@ -57,7 +57,12 @@ export interface GitHubCommit {
 }
 
 export interface BroadcastData {
-  broadcast: string
+  id: number
+  title: string
+  message: string
+  top: boolean
+  created_at: string
+  updated_at: string
 }
 
 export interface UserInfoStore extends LoginInfo {

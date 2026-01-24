@@ -68,7 +68,6 @@
             v-model:page="pagination.page"
             v-model:page-size="pagination.pageSize"
             :item-count="filteredUsers.length"
-            :page-count="Math.ceil(filteredUsers.length / pagination.pageSize)"
             :page-sizes="pagination.pageSizes"
             show-size-picker
             :prefix="pagination.prefix"

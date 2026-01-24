@@ -26,6 +26,9 @@ import {
   SoftwareVersion,
   SmtpSettingApiResponse,
   SmsSettingApiResponse,
+  BroadcastListApiResponse,
+  CreateBroadcastParams,
+  UpdateBroadcastParams,
 } from './type'
 import { ApiBaseResponse } from '../user/type'
 
@@ -386,6 +389,55 @@ export async function deleteDownloadSource(id: number): Promise<CodeResponse> {
   return await post<CodeResponse>(
     `/admin/setting/download/delete/${id}`,
     {},
+    {
+      headers: { Authorization: getToken() },
+    },
+  )
+}
+
+export async function getBroadcastList(): Promise<BroadcastListApiResponse> {
+  return await get<BroadcastListApiResponse>('/user/info/broadcast', {
+    headers: { Authorization: getToken() },
+  })
+}
+
+export async function createBroadcast(
+  params: CreateBroadcastParams,
+): Promise<CodeResponse> {
+  return await post<CodeResponse>('/admin/setting/broadcast/create', params, {
+    headers: { Authorization: getToken() },
+  })
+}
+
+export async function updateBroadcast(
+  params: UpdateBroadcastParams,
+): Promise<CodeResponse> {
+  return await post<CodeResponse>(
+    `/admin/setting/broadcast/update/${params.id}`,
+    params,
+    {
+      headers: { Authorization: getToken() },
+    },
+  )
+}
+
+export async function deleteBroadcast(id: number): Promise<CodeResponse> {
+  return await post<CodeResponse>(
+    `/admin/setting/broadcast/delete/${id}`,
+    {},
+    {
+      headers: { Authorization: getToken() },
+    },
+  )
+}
+
+export async function toggleBroadcastTop(
+  id: number,
+  top: boolean,
+): Promise<CodeResponse> {
+  return await post<CodeResponse>(
+    `/admin/setting/broadcast/top/${id}`,
+    { top },
     {
       headers: { Authorization: getToken() },
     },
