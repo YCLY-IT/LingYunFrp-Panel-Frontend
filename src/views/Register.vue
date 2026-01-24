@@ -288,7 +288,6 @@ onMounted(async () => {
 @use '../assets/styles/register.scss';
 
 .register {
-  height: 100vh;
   display: flex;
 }
 .auth-card {
