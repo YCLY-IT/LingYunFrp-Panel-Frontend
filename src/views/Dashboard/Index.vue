@@ -69,13 +69,27 @@
           >
             <template #default>
               <div class="notice-scroll">
-                <NCollapse v-if="notices.length > 0" accordion>
-                  <template v-for="(notice, index) in notices" :key="notice.id">
+                <NCollapse v-if="sortedNotices.length > 0" accordion>
+                  <template
+                    v-for="(notice, index) in sortedNotices"
+                    :key="notice.id"
+                  >
                     <NCollapseItem :title="notice.title" :name="notice.id">
                       <template #header-extra>
-                        <span class="notice-time">{{
-                          formatTime(notice.created_at)
-                        }}</span>
+                        <div
+                          style="display: flex; align-items: center; gap: 8px"
+                        >
+                          <NTag
+                            v-if="notice.top"
+                            type="warning"
+                            size="small"
+                            :bordered="false"
+                            >置顶</NTag
+                          >
+                          <span class="notice-time">{{
+                            formatTime(notice.created_at)
+                          }}</span>
+                        </div>
                       </template>
                       <div
                         class="notice-content"
@@ -108,6 +122,7 @@ import {
   NCollapse,
   NCollapseItem,
   NDivider,
+  NTag,
   useMessage,
 } from 'naive-ui'
 import { ref, onMounted, computed, Ref } from 'vue'
@@ -125,6 +140,15 @@ const router = useRouter()
 const message = useMessage()
 const notices = ref<BroadcastData[]>([])
 const nickname = localStorage.getItem('nickname') || ''
+
+// 排序后的通知列表（置顶的在前）
+const sortedNotices = computed(() => {
+  return [...notices.value].sort((a, b) => {
+    if (a.top && !b.top) return -1
+    if (!a.top && b.top) return 1
+    return 0
+  })
+})
 
 // 用户信息引用
 const userInfoRef = ref<{
@@ -345,16 +369,13 @@ onMounted(() => {
 
 .notice-scroll :deep(.n-collapse-item__header-main) {
   flex: 1;
-  margin-top: 10px;
 }
 
 .notice-scroll :deep(.n-collapse-item__content-inner) {
   padding: 10px !important;
-  min-height: 80px;
 }
 
 .notice-time {
-  margin-top: 10px;
   font-size: 13px;
   color: var(--n-text-color-3);
   font-weight: normal;
