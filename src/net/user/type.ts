@@ -128,7 +128,9 @@ export interface Software extends DownloadSource {
   code: string
   name: string
   description: string
-  sourceId: number
+  source_id: number
+  created_at: string
+  updated_at: string
 }
 
 export interface SoftwareVersion {
@@ -137,8 +139,12 @@ export interface SoftwareVersion {
   os: string
   arch: string
   version: string
-  softwareId: number
-  downloadUrl: string
+  software_id: number
+  download_url: string
+  force_update: boolean
+  size: number
+  created_at: string
+  updated_at: string
 }
 
 export interface Product {

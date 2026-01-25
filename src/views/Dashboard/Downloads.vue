@@ -310,7 +310,7 @@ const systemOptions = computed<SelectOption[]>(() => {
   softwareVersions.value
     .filter(
       (v) =>
-        v.softwareId === currentProduct.value?.id &&
+        v.software_id === currentProduct.value?.id &&
         v.version === selectedVersion.value,
     )
     .forEach((v) => systems.add(v.os))
@@ -327,7 +327,7 @@ const archOptions = computed<SelectOption[]>(() => {
   softwareVersions.value
     .filter(
       (v) =>
-        v.softwareId === currentProduct.value?.id &&
+        v.software_id === currentProduct.value?.id &&
         v.version === selectedVersion.value &&
         v.os === currentSystem.value,
     )
@@ -347,7 +347,7 @@ const versionOptions = computed<SelectOption[]>(() => {
   if (!currentProduct.value) return []
   const versions = new Set<string>()
   softwareVersions.value
-    .filter((v) => v.softwareId === currentProduct.value?.id)
+    .filter((v) => v.software_id === currentProduct.value?.id)
     .forEach((v) => versions.add(v.version))
   return Array.from(versions)
     .sort((a, b) => b.localeCompare(a))
@@ -364,7 +364,7 @@ const handleSourceChange = (value: number) => {
   selectedVersion.value = null
   if (value) {
     products.value = Array.isArray(allProducts.value)
-      ? allProducts.value.filter((p) => p.sourceId === value)
+      ? allProducts.value.filter((p) => p.source_id === value)
       : []
   } else {
     products.value = Array.isArray(allProducts.value) ? allProducts.value : []
@@ -381,7 +381,7 @@ const handleProductChange = (value: number) => {
   // 获取当前产品的所有版本并设置最高版本
   if (value) {
     const versions = softwareVersions.value
-      .filter((v) => v.softwareId === value)
+      .filter((v) => v.software_id === value)
       .map((v) => v.version)
       .sort((a, b) => b.localeCompare(a))
 
@@ -432,12 +432,12 @@ const getDownloadUrl = async (): Promise<string> => {
     return '#'
   const version = softwareVersions.value.find(
     (v) =>
-      v.softwareId === currentProduct.value?.id &&
+      v.software_id === currentProduct.value?.id &&
       v.version === selectedVersion.value &&
       v.os === currentSystem.value &&
       v.arch === currentArch.value,
   )
-  return version?.downloadUrl || '#'
+  return version?.download_url || '#'
 }
 
 const handleDownload = async () => {
@@ -521,7 +521,7 @@ const versionColumns: DataTableColumns<any> = [
   },
   {
     title: '下载链接',
-    key: 'downloadUrl',
+    key: 'download_url',
     width: 200,
     render(row: any) {
       return h(
@@ -529,7 +529,7 @@ const versionColumns: DataTableColumns<any> = [
         {
           size: 'small',
           type: 'primary',
-          onClick: () => window.open(row.downloadUrl, '_blank'),
+          onClick: () => window.open(row.download_url, '_blank'),
         },
         { default: () => '下载' },
       )
@@ -538,7 +538,7 @@ const versionColumns: DataTableColumns<any> = [
 ]
 
 function getVersionsByProduct(productId: number) {
-  return softwareVersions.value.filter((v) => v.softwareId === productId)
+  return softwareVersions.value.filter((v) => v.software_id === productId)
 }
 
 const overviewColumns: DataTableColumns<any> = [
@@ -577,14 +577,14 @@ const overviewData = computed(() => {
     ? allProducts.value
         .map((product) => {
           const versions = softwareVersions.value.filter(
-            (v) => v.softwareId === product.id,
+            (v) => v.software_id === product.id,
           )
           if (versions.length === 0) return null // 没有版本的产品直接隐藏
           const latestVersion = versions
             .map((v) => v.version)
             .sort((a, b) => b.localeCompare(a))[0]
           const source = downloadSources.value.find(
-            (s) => s.id === product.sourceId,
+            (s) => s.id === product.source_id,
           )
           return {
             ...product,
@@ -604,7 +604,7 @@ watch(showAllProducts, (val) => {
     products.value = allProducts.value
   } else if (selectedSource.value) {
     products.value = allProducts.value.filter(
-      (p) => p.sourceId === selectedSource.value,
+      (p) => p.source_id === selectedSource.value,
     )
   } else {
     products.value = allProducts.value
