@@ -139,6 +139,15 @@ const router = createRouter({
                 title: '关于面板',
               },
             },
+            {
+              path: 'operation-log',
+              name: 'operation-log',
+              component: () =>
+                import('../views/Dashboard/more/OperationLog.vue'),
+              meta: {
+                title: '操作日志',
+              },
+            },
           ],
         },
         {
@@ -197,6 +206,16 @@ const router = createRouter({
               component: () => import('@/views/Dashboard/admin/Products.vue'),
               meta: {
                 title: '产品管理',
+                requiresAdmin: true,
+              },
+            },
+            {
+              path: 'operation-log',
+              name: 'admin-operation-log',
+              component: () =>
+                import('../views/Dashboard/admin/OperationLog.vue'),
+              meta: {
+                title: '操作日志',
                 requiresAdmin: true,
               },
             },

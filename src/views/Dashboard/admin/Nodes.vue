@@ -182,15 +182,15 @@
 
             <n-grid-item :span="1">
               <n-grid :cols="2" :x-gap="16">
-                <n-form-item-gi label="服务端口" path="servicePort">
+                <n-form-item-gi label="服务端口" path="port">
                   <n-input-number
-                    v-model:value="formModel.servicePort"
+                    v-model:value="formModel.port"
                     placeholder="请输入服务端口"
                   />
                 </n-form-item-gi>
-                <n-form-item-gi label="管理端口" path="adminPort">
+                <n-form-item-gi label="管理端口" path="admin_port">
                   <n-input-number
-                    v-model:value="formModel.adminPort"
+                    v-model:value="formModel.admin_port"
                     placeholder="请输入管理端口"
                   />
                 </n-form-item-gi>
@@ -199,9 +199,9 @@
 
             <n-grid-item :span="1">
               <n-grid :cols="2" :x-gap="16">
-                <n-form-item-gi label="管理密码" path="adminPass">
+                <n-form-item-gi label="管理密码" path="admin_pass">
                   <n-input
-                    v-model:value="formModel.adminPass"
+                    v-model:value="formModel.admin_pass"
                     type="password"
                     show-password-on="click"
                     placeholder="请输入管理密码"
@@ -220,9 +220,9 @@
                     </template>
                   </n-input>
                 </n-form-item-gi>
-                <n-form-item-gi label="带宽(Mbps)" path="bandWidth">
+                <n-form-item-gi label="带宽(Mbps)" path="bandwidth">
                   <n-input-number
-                    v-model:value="formModel.bandWidth"
+                    v-model:value="formModel.bandwidth"
                     placeholder="请输入带宽"
                   />
                 </n-form-item-gi>
@@ -245,13 +245,13 @@
               </n-grid>
             </n-grid-item>
 
-            <n-form-item-gi label="允许用户组" path="allowGroup">
+            <n-form-item-gi label="允许用户组" path="group">
               <div class="group-buttons">
                 <n-tag
                   v-for="group in groupsStore.groupOptions"
                   :key="group.value"
                   :type="
-                    formModel.allowGroup.includes(group.value)
+                    formModel.group.includes(group.value)
                       ? 'primary'
                       : 'default'
                   "
@@ -265,20 +265,20 @@
               </div>
             </n-form-item-gi>
 
-            <n-form-item-gi label="允许端口" path="allowPort">
+            <n-form-item-gi label="允许端口" path="allow_port">
               <n-input
-                v-model:value="formModel.allowPort"
+                v-model:value="formModel.allow_port"
                 placeholder="请输入允许的端口范围, 如: 10000-20000"
               />
             </n-form-item-gi>
 
-            <n-form-item-gi label="允许协议" path="allowType">
+            <n-form-item-gi label="允许协议" path="allow_type">
               <div class="protocol-buttons">
                 <n-tag
                   v-for="protocol in protocolOptions"
                   :key="protocol.value"
                   :type="
-                    formModel.allowType.includes(protocol.value)
+                    formModel.allow_type.includes(protocol.value)
                       ? 'primary'
                       : 'default'
                   "
@@ -363,15 +363,15 @@
 
             <n-grid-item :span="1">
               <n-grid :cols="2" :x-gap="16">
-                <n-form-item-gi label="服务端口" path="servicePort">
+                <n-form-item-gi label="服务端口" path="port">
                   <n-input-number
-                    v-model:value="formModel.servicePort"
+                    v-model:value="formModel.port"
                     placeholder="请输入服务端口"
                   />
                 </n-form-item-gi>
-                <n-form-item-gi label="管理端口" path="adminPort">
+                <n-form-item-gi label="管理端口" path="admin_port">
                   <n-input-number
-                    v-model:value="formModel.adminPort"
+                    v-model:value="formModel.admin_port"
                     placeholder="请输入管理端口"
                   />
                 </n-form-item-gi>
@@ -380,9 +380,9 @@
 
             <n-grid-item :span="1">
               <n-grid :cols="2" :x-gap="16">
-                <n-form-item-gi label="管理密码" path="adminPass">
+                <n-form-item-gi label="管理密码" path="admin_pass">
                   <n-input
-                    v-model:value="formModel.adminPass"
+                    v-model:value="formModel.admin_pass"
                     type="password"
                     show-password-on="click"
                     placeholder="请输入管理密码"
@@ -401,9 +401,9 @@
                     </template>
                   </n-input>
                 </n-form-item-gi>
-                <n-form-item-gi label="带宽(Mbps)" path="bandWidth">
+                <n-form-item-gi label="带宽(Mbps)" path="bandwidth">
                   <n-input-number
-                    v-model:value="formModel.bandWidth"
+                    v-model:value="formModel.bandwidth"
                     placeholder="请输入带宽"
                   />
                 </n-form-item-gi>
@@ -426,13 +426,13 @@
               </n-grid>
             </n-grid-item>
 
-            <n-form-item-gi label="允许用户组" path="allowGroup">
+            <n-form-item-gi label="允许用户组" path="group">
               <div class="group-buttons">
                 <n-tag
                   v-for="group in groupsStore.groupOptions"
                   :key="group.value"
                   :type="
-                    formModel.allowGroup.includes(group.value)
+                    formModel.group.includes(group.value)
                       ? 'primary'
                       : 'default'
                   "
@@ -446,20 +446,20 @@
               </div>
             </n-form-item-gi>
 
-            <n-form-item-gi label="允许端口" path="allowPort">
+            <n-form-item-gi label="允许端口" path="allow_port">
               <n-input
-                v-model:value="formModel.allowPort"
+                v-model:value="formModel.allow_port"
                 placeholder="请输入允许的端口范围, 如: 10000-20000"
               />
             </n-form-item-gi>
 
-            <n-form-item-gi label="允许协议" path="allowType">
+            <n-form-item-gi label="允许协议" path="allow_type">
               <div class="protocol-buttons">
                 <n-tag
                   v-for="protocol in protocolOptions"
                   :key="protocol.value"
                   :type="
-                    formModel.allowType.includes(protocol.value)
+                    formModel.allow_type.includes(protocol.value)
                       ? 'primary'
                       : 'default'
                   "
@@ -490,12 +490,12 @@
       <n-modal
         v-model:show="showToggleModal"
         preset="dialog"
-        :title="currentNode?.isDisabled ? '启用节点' : '禁用节点'"
+        :title="currentNode?.is_disabled ? '启用节点' : '禁用节点'"
         :style="{ width: '420px' }"
         :show-icon="false"
       >
         <div class="confirm-text">
-          确定要{{ currentNode?.isDisabled ? '启用' : '禁用' }}节点 "{{
+          确定要{{ currentNode?.is_disabled ? '启用' : '禁用' }}节点 "{{
             currentNode?.name
           }}" 吗？
         </div>
@@ -503,7 +503,7 @@
           <n-space justify="end">
             <n-button @click="showToggleModal = false">取消</n-button>
             <n-button
-              :type="currentNode?.isDisabled ? 'primary' : 'warning'"
+              :type="currentNode?.is_disabled ? 'primary' : 'warning'"
               :loading="nodesStore.submitting"
               @click="() => currentNode && handleToggleNode(currentNode)"
             >
@@ -605,14 +605,14 @@ const formModel = ref({
   ip: '',
   description: '',
   token: '',
-  servicePort: 7000,
-  adminPort: 7500,
-  adminPass: '',
-  allowGroup: [] as string[],
-  allowPort: '',
-  allowType: [] as string[],
+  port: 7000,
+  admin_port: 7500,
+  admin_pass: '',
+  group: [] as string[],
+  allow_port: '',
+  allow_type: [] as string[],
   need_realname: true,
-  bandWidth: 0,
+  bandwidth: 0,
   location: '',
 })
 
@@ -647,10 +647,10 @@ const statusOptions: SelectOption[] = [
 const sortFieldOptions = [
   { label: 'ID', value: 'id' },
   { label: '名称', value: 'name' },
-  { label: '服务端口', value: 'servicePort' },
-  { label: '管理端口', value: 'adminPort' },
+  { label: '服务端口', value: 'port' },
+  { label: '管理端口', value: 'admin_port' },
   { label: '实名', value: 'need_realname' },
-  { label: '用户组', value: 'allowGroup' },
+  { label: '用户组', value: 'group' },
 ]
 const sortOrderOptions = [
   { label: '升序', value: 'asc' },
@@ -672,21 +672,21 @@ const sortedNodes = computed(() => {
           aValue = a.name
           bValue = b.name
           break
-        case 'servicePort':
+        case 'port':
           aValue = a.port
           bValue = b.port
           break
-        case 'adminPort':
-          aValue = a.adminPort
-          bValue = b.adminPort
+        case 'admin_port':
+          aValue = a.admin_port
+          bValue = b.admin_port
           break
         case 'need_realname':
           aValue = a.need_realname ? 1 : 0
           bValue = b.need_realname ? 1 : 0
           break
-        case 'allowGroup':
-          aValue = a.allowGroup
-          bValue = b.allowGroup
+        case 'group':
+          aValue = a.group
+          bValue = b.group
           break
         default:
           return 0
@@ -751,7 +751,7 @@ const rules: FormRules = {
       return true
     },
   },
-  adminPort: {
+  admin_port: {
     required: true,
     message: '请输入管理端口',
     trigger: ['blur', 'input'],
@@ -762,7 +762,7 @@ const rules: FormRules = {
       return true
     },
   },
-  adminPass: {
+  admin_pass: {
     required: true,
     message: '请输入管理密码',
     trigger: ['blur', 'input'],
@@ -772,7 +772,7 @@ const rules: FormRules = {
     message: '请选择节点地区',
     trigger: ['change'],
   },
-  allowGroup: {
+  group: {
     required: true,
     message: '请选择允许的用户组',
     trigger: ['blur', 'input'],
@@ -783,7 +783,7 @@ const rules: FormRules = {
       return true
     },
   },
-  allowPort: {
+  allow_port: {
     required: true,
     message: '请输入允许的端口范围',
     trigger: ['blur', 'input'],
@@ -826,7 +826,7 @@ const rules: FormRules = {
       return true
     },
   },
-  allowType: {
+  allow_type: {
     required: true,
     message: '请选择允许的协议',
     trigger: ['blur', 'input'],
@@ -841,7 +841,7 @@ const rules: FormRules = {
 
 // 行样式
 const rowClassName = (row: Node) => {
-  return row.isDisabled ? 'disabled-row' : ''
+  return row.is_disabled ? 'disabled-row' : ''
 }
 
 // 渲染状态标签
@@ -879,7 +879,7 @@ const columns: DataTableColumns<Node> = [
         { align: 'center', wrap: false },
         {
           default: () => [
-            renderStatusTag(row.isOnline, '在线', '离线'),
+            renderStatusTag(row.is_online, '在线', '离线'),
             h(
               'span',
               {
@@ -913,15 +913,12 @@ const columns: DataTableColumns<Node> = [
   },
   {
     title: '服务端口',
-    key: 'servicePort',
+    key: 'port',
     width: 100,
-    render(row) {
-      return row.port
-    },
   },
   {
     title: '管理端口',
-    key: 'adminPort',
+    key: 'admin_port',
     width: 100,
   },
   {
@@ -934,10 +931,10 @@ const columns: DataTableColumns<Node> = [
   },
   {
     title: '用户组',
-    key: 'allowGroup',
+    key: 'group',
     width: 180,
     render(row) {
-      const groups = row.allowGroup.split(';')
+      const groups = row.group ? row.group.split(';') : []
       return h(
         NSpace,
         { wrap: true, justify: 'start' },
@@ -983,10 +980,10 @@ const columns: DataTableColumns<Node> = [
   },
   {
     title: '协议',
-    key: 'allowType',
+    key: 'allow_type',
     width: 180,
     render(row) {
-      const types = row.allowType.split(';')
+      const types = row.allow_type ? row.allow_type.split(';') : []
       return h(
         NSpace,
         { wrap: true, justify: 'start' },
@@ -1015,7 +1012,7 @@ const columns: DataTableColumns<Node> = [
     key: 'status',
     width: 100,
     render(row) {
-      return renderStatusTag(!row.isDisabled, '已启用', '已禁用')
+      return renderStatusTag(!row.is_disabled, '已启用', '已禁用')
     },
   },
   {
@@ -1063,7 +1060,7 @@ const dropdownOptions = (row: Node): DropdownOption[] => [
     icon: () => h(NIcon, null, { default: () => h(CreateOutline) }),
   },
   {
-    label: !row.isDisabled ? '禁用' : '启用',
+    label: !row.is_disabled ? '禁用' : '启用',
     key: 'toggle',
     disabled: false,
     icon: () => h(NIcon, null, { default: () => h(PowerOutline) }),
@@ -1079,26 +1076,26 @@ const dropdownOptions = (row: Node): DropdownOption[] => [
 // 用户组和协议切换
 const toggleGroup = (value: string) => {
   if (value === 'admin') {
-    if (!formModel.value.allowGroup.includes(value)) {
-      formModel.value.allowGroup.push(value)
+    if (!formModel.value.group.includes(value)) {
+      formModel.value.group.push(value)
     }
     return
   }
 
-  const index = formModel.value.allowGroup.indexOf(value)
+  const index = formModel.value.group.indexOf(value)
   if (index === -1) {
-    formModel.value.allowGroup.push(value)
+    formModel.value.group.push(value)
   } else {
-    formModel.value.allowGroup.splice(index, 1)
+    formModel.value.group.splice(index, 1)
   }
 }
 
 const toggleProtocol = (value: string) => {
-  const index = formModel.value.allowType.indexOf(value)
+  const index = formModel.value.allow_type.indexOf(value)
   if (index === -1) {
-    formModel.value.allowType.push(value)
+    formModel.value.allow_type.push(value)
   } else {
-    formModel.value.allowType.splice(index, 1)
+    formModel.value.allow_type.splice(index, 1)
   }
 }
 
@@ -1111,14 +1108,14 @@ const resetForm = () => {
     ip: '',
     description: '',
     token: '',
-    servicePort: 7000,
-    adminPort: 7500,
-    adminPass: '',
-    allowGroup: ['admin'],
-    allowPort: '',
-    allowType: [],
+    port: 7000,
+    admin_port: 7500,
+    admin_pass: '',
+    group: ['admin'],
+    allow_port: '',
+    allow_type: [],
     need_realname: true,
-    bandWidth: 0,
+    bandwidth: 0,
     location: '',
   })
 }
@@ -1133,14 +1130,14 @@ const handleEdit = (row: Node) => {
     ip: row.ip,
     description: row.description,
     token: row.token,
-    servicePort: row.port,
-    adminPort: row.adminPort,
-    adminPass: row.adminPass,
-    allowGroup: row.allowGroup.split(';'),
-    allowPort: row.allowPort,
-    allowType: row.allowType.split(';'),
+    port: row.port,
+    admin_port: row.admin_port,
+    admin_pass: row.admin_pass,
+    group: row.group ? row.group.split(';') : [],
+    allow_port: row.allow_port,
+    allow_type: row.allow_type ? row.allow_type.split(';') : [],
     need_realname: row.need_realname,
-    bandWidth: row.bandWidth,
+    bandwidth: row.bandwidth,
     location: row.location,
   }
   showEditModal.value = true
@@ -1160,14 +1157,14 @@ const handleEditNode = async () => {
       ip: formModel.value.ip,
       description: formModel.value.description,
       token: formModel.value.token,
-      port: formModel.value.servicePort,
-      adminPort: formModel.value.adminPort,
-      adminPass: formModel.value.adminPass,
-      group: formModel.value.allowGroup.join(';'),
-      allowPort: formModel.value.allowPort,
-      allowType: formModel.value.allowType.join(';'),
+      port: formModel.value.port,
+      admin_port: formModel.value.admin_port,
+      admin_pass: formModel.value.admin_pass,
+      group: formModel.value.group.join(';'),
+      allow_port: formModel.value.allow_port,
+      allow_type: formModel.value.allow_type.join(';'),
       need_realname: formModel.value.need_realname,
-      bandWidth: formModel.value.bandWidth,
+      bandwidth: formModel.value.bandwidth,
       location: formModel.value.location,
     }
 
@@ -1184,8 +1181,8 @@ const handleEditNode = async () => {
 
 // 添加节点提交
 const handleAddNode = async () => {
-  if (!formModel.value.allowGroup.includes('admin')) {
-    formModel.value.allowGroup.push('admin')
+  if (!formModel.value.group.includes('admin')) {
+    formModel.value.group.push('admin')
   }
 
   if (!formRef.value) return
@@ -1199,14 +1196,14 @@ const handleAddNode = async () => {
       ip: formModel.value.ip,
       description: formModel.value.description,
       token: formModel.value.token,
-      port: formModel.value.servicePort,
-      adminPort: formModel.value.adminPort,
-      adminPass: formModel.value.adminPass,
-      group: formModel.value.allowGroup.join(';'),
-      allowPort: formModel.value.allowPort,
-      allowType: formModel.value.allowType.join(';'),
+      port: formModel.value.port,
+      admin_port: formModel.value.admin_port,
+      admin_pass: formModel.value.admin_pass,
+      group: formModel.value.group.join(';'),
+      allow_port: formModel.value.allow_port,
+      allow_type: formModel.value.allow_type.join(';'),
       need_realname: formModel.value.need_realname,
-      bandWidth: formModel.value.bandWidth,
+      bandwidth: formModel.value.bandwidth,
       location: formModel.value.location,
     }
 
@@ -1225,7 +1222,7 @@ const handleAddNode = async () => {
 const handleToggleNode = async (node: Node) => {
   const success = await nodesStore.toggleNode(
     node.id,
-    !node.isDisabled,
+    !node.is_disabled,
     message,
   )
   if (success) {
@@ -1280,7 +1277,7 @@ const generateRandomPassword = (length = 12) => {
 }
 
 const handleRandomPassword = () => {
-  formModel.value.adminPass = generateRandomPassword()
+  formModel.value.admin_pass = generateRandomPassword()
 }
 
 init()

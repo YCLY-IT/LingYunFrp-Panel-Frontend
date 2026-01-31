@@ -67,22 +67,24 @@ export interface Node {
   description: string
   token: string
   port: number
-  adminPort: number
-  adminPass: string
+  admin_port: number
+  admin_pass: string
   group: string
-  allowPort: string
-  allowType: string
+  allow_port: string
+  allow_type: string
   need_realname: boolean
-  bandWidth: number
+  bandwidth: number
   location: string
-  isDisabled: boolean
-  isOnline: boolean
-  clientCount: number
-  tunnelCount: number
-  totalTrafficIn: number
-  totalTrafficOut: number
-  todayTrafficIn: number
-  todayTrafficOut: number
+  is_disabled: boolean
+  is_online: boolean
+  updated_at: string
+  created_at: string
+  clientCount?: number
+  tunnelCount?: number
+  totalTrafficIn?: number
+  totalTrafficOut?: number
+  todayTrafficIn?: number
+  todayTrafficOut?: number
 }
 export interface NodeListResponse {
   nodes: Node[]
@@ -95,13 +97,13 @@ export interface CreateNodeParams {
   description: string
   token: string
   port: number
-  adminPort: number
-  adminPass: string
+  admin_port: number
+  admin_pass: string
   group: string
-  allowPort: string
-  allowType: string
+  allow_port: string
+  allow_type: string
   need_realname: boolean
-  bandWidth: number
+  bandwidth: number
   location: string
 }
 
@@ -336,3 +338,22 @@ export type SmsSettingApiResponse = ApiBaseResponse<SmsSettingResponse>
 export type SmtpSettingApiResponse = ApiBaseResponse<SmtpSettingResponse>
 export type BroadcastListApiResponse = ApiBaseResponse<Broadcast[]>
 export type BroadcastApiResponse = ApiBaseResponse<Broadcast>
+
+// 用户操作日志相关类型
+export interface OperationLog {
+  id: number
+  user_id: number
+  user_name: string
+  operation_time: string
+  operation_ip: string
+  operation_type: string
+  operation_status: string
+  submit_content: Record<string, any> | null
+  before_status: Record<string, any> | null
+  after_status: Record<string, any> | null
+  operation_module: string
+  message: string
+  operation_duration: number
+}
+
+export type OperationLogListApiResponse = ApiBaseResponse<OperationLog[]>

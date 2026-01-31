@@ -29,6 +29,7 @@ import {
   BroadcastListApiResponse,
   CreateBroadcastParams,
   UpdateBroadcastParams,
+  OperationLogListApiResponse,
 } from './type'
 import { ApiBaseResponse } from '../user/type'
 
@@ -438,6 +439,42 @@ export async function toggleBroadcastTop(
   return await post<CodeResponse>(
     `/admin/setting/broadcast/top/${id}`,
     { top },
+    {
+      headers: { Authorization: getToken() },
+    },
+  )
+}
+
+// 用户操作日志API
+export async function getOperationLogList(): Promise<OperationLogListApiResponse> {
+  return await get<OperationLogListApiResponse>('/user/operationLog/list', {
+    headers: { Authorization: getToken() },
+  })
+}
+
+// 管理员操作日志API
+export async function getAdminOperationLogList(): Promise<OperationLogListApiResponse> {
+  return await get<OperationLogListApiResponse>('/admin/operationLog/list', {
+    headers: { Authorization: getToken() },
+  })
+}
+
+export async function deleteAdminOperationLog(
+  id: number,
+): Promise<CodeResponse> {
+  return await post<CodeResponse>(
+    `/admin/operationLog/delete/${id}`,
+    {},
+    {
+      headers: { Authorization: getToken() },
+    },
+  )
+}
+
+export async function clearAdminOperationLog(): Promise<CodeResponse> {
+  return await post<CodeResponse>(
+    '/admin/operationLog/clear',
+    {},
     {
       headers: { Authorization: getToken() },
     },

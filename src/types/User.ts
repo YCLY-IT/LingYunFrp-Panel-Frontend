@@ -43,25 +43,25 @@ export interface UpdateNodeArgs {
 }
 
 export interface Node {
-  port: number
-  nodeId: number
+  id: number
   name: string
   hostname: string
+  ip: string
   description: string
   token: string
-  servicePort: number
-  adminPort: number
-  adminPass: string
-  allowGroup: string
-  allowPort: string
-  allowType: string
-  isDisabled: boolean
-  isOnline: boolean
-  ip: string
+  port: number
+  admin_port: number
+  admin_pass: string
+  group: string
+  allow_port: string
+  allow_type: string
   need_realname: boolean
-  bandWidth: number
+  bandwidth: number
   location: string
-  id: number
+  is_disabled: boolean
+  is_online: boolean
+  updated_at: string
+  created_at: string
 }
 export interface Group {
   id: number
