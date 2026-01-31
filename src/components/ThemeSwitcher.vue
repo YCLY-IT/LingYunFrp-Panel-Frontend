@@ -17,6 +17,7 @@
           <n-switch
             size="large"
             v-model:value="isAutoTheme"
+            @change="handleThemeToggle"
             :checked-value="true"
             :unchecked-value="false"
           >
@@ -32,6 +33,7 @@
           <n-switch
             size="large"
             v-model:value="isDarkTheme"
+            @change="handleThemeToggle"
             :rail-style="railStyle"
             :checked-value="true"
             :unchecked-value="false"
@@ -297,6 +299,7 @@ import {
   WaterOutline,
   CheckmarkCircleOutline,
 } from '@vicons/ionicons5'
+import { useThemeTransition } from '@/utils/useThemeTransition'
 
 const themeStore = useThemeStore()
 const isDarkTheme = ref(themeStore.theme === 'dark')
@@ -325,6 +328,15 @@ const presetColors = [
   '#722ed1',
   '#2f54eb',
 ]
+
+const { toggleThemeWithDualCircle } = useThemeTransition()
+
+const handleThemeToggle = async (event: MouseEvent) => {
+  await toggleThemeWithDualCircle(event, {
+    duration: 600,
+    easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+  })
+}
 
 const changeTheme = (isDark: boolean) => {
   const theme = isDark ? 'dark' : 'light'

@@ -113,20 +113,29 @@ export interface UpdateNodeParams extends CreateNodeParams {
 
 // 代理管理相关类型
 export interface Proxy {
-  id: number
-  proxyId: number
-  name: string
-  type: string
-  localIp: string
-  localPort: number
-  remotePort: number
-  nodeId: number
-  nodeName: string
-  userId: number
+  proxy_id: number
   username: string
-  status: number
-  createdAt: string
-  updatedAt: string
+  proxy_name: string
+  proxy_type: string
+  is_disabled: boolean
+  is_online: boolean
+  is_banned: boolean | null
+  local_ip: string
+  local_port: number
+  use_encryption: boolean
+  use_compression: boolean
+  domain: string
+  locations: string
+  host_header_rewrite: string
+  remote_port: number
+  sk: string
+  header_x_from_where: string
+  node: number
+  ip_limit_in: number
+  ip_limit_out: number
+  proxy_protocol_version: string
+  updated_at: string
+  created_at: string
 }
 export interface ProxyListResponse {
   proxies: Proxy[]

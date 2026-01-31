@@ -54,7 +54,7 @@
           quaternary
           circle
           size="small"
-          @click="toggleTheme"
+          @click="handleThemeToggle"
           class="theme-toggle-btn"
           style="transform: translateX(-30px)"
         >
@@ -106,7 +106,7 @@
 
 <script setup lang="ts">
 import packageData from '../../package.json'
-import { ref, inject, computed, Ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import {
   NLayoutHeader,
@@ -122,8 +122,6 @@ import {
   NDrawerContent,
   NScrollbar,
   DrawerPlacement,
-  lightTheme,
-  darkTheme,
 } from 'naive-ui'
 import {
   PersonCircleOutline,
@@ -144,6 +142,7 @@ import LeftMenu from './LeftMenu.vue'
 import { userApi } from '@/net'
 import { removeToken } from '@/net/token.ts'
 import { useThemeStore } from '@/stores/theme.ts'
+import { useThemeTransition } from '@/utils/useThemeTransition.ts'
 
 const router = useRouter()
 const route = useRoute()
@@ -154,15 +153,17 @@ const message = useMessage()
 const nickname = localStorage.getItem('nickname')
 const showMobileMenu = ref(false)
 const isMobile = ref(window.innerWidth <= 768)
+const { toggleThemeWithDualCircle } = useThemeTransition()
+
+const handleThemeToggle = async (event: MouseEvent) => {
+  await toggleThemeWithDualCircle(event, {
+    duration: 600,
+    easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+  })
+}
 
 // 从 localStorage 获取头像链接
 const avatarUrl = ref(localStorage.getItem('avatar') || '')
-
-// 主题切换函数
-const toggleTheme = () => {
-  themeStore.theme = themeStore.theme === 'dark' ? 'light' : 'dark'
-  themeStore.setTheme(themeStore.theme)
-}
 
 const themeSwitcherDrawer = ref(false)
 const placement = ref<DrawerPlacement>('right')

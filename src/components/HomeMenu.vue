@@ -17,7 +17,7 @@
             quaternary
             circle
             size="small"
-            @click="toggleTheme"
+            @click="handleThemeToggle"
             class="theme-toggle-btn"
           >
             <NIcon
@@ -79,7 +79,7 @@
             quaternary
             circle
             size="small"
-            @click="toggleTheme"
+            @click="handleThemeToggle"
             class="theme-toggle-btn"
           >
             <NIcon
@@ -112,17 +112,20 @@ import {
 import { MenuOutline, Moon, Sunny } from '@vicons/ionicons5'
 import { HomeOutline, LogInOutline, PersonAddOutline } from '@vicons/ionicons5'
 import { useThemeStore } from '@/stores/theme'
+import { useThemeTransition } from '@/utils/useThemeTransition'
 
 const showMenu = ref(false)
 const router = useRouter()
 const themeStore = useThemeStore()
 
-// 主题切换函数
-const toggleTheme = () => {
-  themeStore.theme = themeStore.theme === 'dark' ? 'light' : 'dark'
-  themeStore.setTheme(themeStore.theme)
-}
+const { toggleThemeWithDualCircle } = useThemeTransition()
 
+const handleThemeToggle = async (event: MouseEvent) => {
+  await toggleThemeWithDualCircle(event, {
+    duration: 600,
+    easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+  })
+}
 function renderIcon(icon: any) {
   return () => h(NIcon, null, { default: () => h(icon) })
 }

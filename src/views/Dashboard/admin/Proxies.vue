@@ -440,9 +440,36 @@ import {
 import { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
 import { adminApi } from '@/net'
 
+// 前端使用的隧道数据接口（小驼峰格式）
+interface ProxyViewModel {
+  proxyId: number
+  proxyName: string
+  nodeId: number
+  localIp: string
+  localPort: number
+  remotePort: number
+  domain: string
+  proxyType: string
+  isOnline: boolean
+  isBanned: boolean | null
+  isDisabled: boolean
+  username: string
+  accessKey: string
+  hostHeaderRewrite: string
+  headerXFromWhere: string
+  useEncryption: boolean
+  useCompression: boolean
+  proxyProtocolVersion: string
+  location: string
+  ipLimitIn: number
+  ipLimitInUnit: string
+  ipLimitOut: number
+  ipLimitOutUnit: string
+}
+
 const message = useMessage()
 const loading = ref(false)
-const allProxies = ref<Proxy[]>([]) // 存储所有从后端获取的隧道
+const allProxies = ref<ProxyViewModel[]>([]) // 存储所有从后端获取的隧道
 
 const filters = ref<{
   search: string
@@ -1237,32 +1264,28 @@ const loadData = async () => {
     const data = await adminApi.getProxyList()
     if (data.code === 0) {
       allProxies.value = data.data.proxies.map((proxy: any) => ({
-        proxyId: proxy.proxyId ?? proxy.id,
-        proxyName: proxy.proxyName ?? proxy.name ?? '',
-        nodeId: proxy.nodeId,
-        localIp: proxy.localIp,
-        localPort: proxy.localPort,
-        remotePort: proxy.remotePort,
+        proxyId: proxy.proxy_id,
+        proxyName: proxy.proxy_name ?? '',
+        nodeId: proxy.node,
+        localIp: proxy.local_ip,
+        localPort: proxy.local_port,
+        remotePort: proxy.remote_port,
         domain: proxy.domain ?? '',
-        proxyType: proxy.proxyType ?? proxy.type ?? '',
-        isOnline: proxy.isOnline,
-        isBanned: proxy.isBanned,
-        isDisabled: proxy.isDisabled ?? false,
+        proxyType: proxy.proxy_type ?? '',
+        isOnline: proxy.is_online,
+        isBanned: proxy.is_banned,
+        isDisabled: proxy.is_disabled ?? false,
         username: proxy.username ?? '',
-        accessKey: proxy.accessKey ?? '',
-        lastStartTime: proxy.lastStartTime ?? 0,
-        lastCloseTime: proxy.lastCloseTime ?? 0,
-        hostHeaderRewrite: proxy.hostHeaderRewrite ?? '',
-        headerXFromWhere: String(
-          proxy.headerXFromWhere ?? proxy['header_X-From-Where'] ?? '',
-        ),
-        useEncryption: proxy.useEncryption ?? false,
-        useCompression: proxy.useCompression ?? false,
-        proxyProtocolVersion: proxy.proxyProtocolVersion?.trim() ?? '',
-        location: proxy.location ?? '',
+        accessKey: proxy.sk ?? '',
+        hostHeaderRewrite: proxy.host_header_rewrite ?? '',
+        headerXFromWhere: String(proxy.header_x_from_where ?? ''),
+        useEncryption: proxy.use_encryption ?? false,
+        useCompression: proxy.use_compression ?? false,
+        proxyProtocolVersion: proxy.proxy_protocol_version?.trim() ?? '',
+        location: proxy.locations ?? '',
         ...(() => {
-          const inKB = proxy.ipLimitIn ?? 0
-          const outKB = proxy.ipLimitOut ?? 0
+          const inKB = proxy.ip_limit_in ?? 0
+          const outKB = proxy.ip_limit_out ?? 0
 
           // 根据KB值大小智能选择单位
           const getDisplayUnit = (kbValue: number) => {
