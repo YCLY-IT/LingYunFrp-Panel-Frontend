@@ -144,31 +144,40 @@ body::before {
   border-color: rgba(255, 255, 255, 0.1);
 }
 
-// /* 毛玻璃模式下的导航栏 */
-// .frosted-glass-mode .n-menu {
-//   backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8));
-//   background-color: rgba(
-//     var(--n-color-modal-rgb, 255, 255, 255),
-//     0.1
-//   ) !important;
-// }
+/* 主题切换扩散动画 */
+.theme-transition-overlay {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition:
+    width 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+    height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-// /* 毛玻璃模式下的表格 */
-// .frosted-glass-mode .n-data-table {
-//   backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.5));
-//   background-color: rgba(
-//     var(--n-color-modal-rgb, 255, 255, 255),
-//     0.08
-//   ) !important;
-//   border: 1px solid rgba(var(--n-color-modal-rgb, 255, 255, 255), 0.1);
-// }
+/* View Transition API 主题切换动画 */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
 
-// /* 毛玻璃模式下的标签页 */
-// .frosted-glass-mode .n-tabs {
-//   backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.6));
-//   background-color: rgba(
-//     var(--n-color-modal-rgb, 255, 255, 255),
-//     0.09
-//   ) !important;
-//   border-radius: 8px;
-// }
+/* 默认层级：旧视图在下，新视图在上 */
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 9999;
+}
+
+/* 确保 View Transition 期间内容不可交互 */
+.view-transition-active {
+  pointer-events: none;
+}
+
+/* 优化 View Transition 性能 */
+::view-transition-group(root) {
+  animation-duration: 0.6s;
+}
