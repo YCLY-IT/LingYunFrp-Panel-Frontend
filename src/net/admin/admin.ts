@@ -305,7 +305,7 @@ export async function getSmsSetting(): Promise<SmsSettingApiResponse> {
 }
 
 export async function updateSetting(params: any): Promise<CodeResponse> {
-  return await post<CodeResponse>('/admin/setting', params, {
+  return await post<CodeResponse>('/admin/setting/safety', params, {
     headers: { Authorization: getToken() },
   })
 }

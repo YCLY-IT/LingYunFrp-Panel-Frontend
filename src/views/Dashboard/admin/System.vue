@@ -8,45 +8,78 @@
             :model="securityForm"
             :rules="securityRules"
             label-placement="left"
-            label-width="auto"
+            label-width="120px"
             require-mark-placement="right-hanging"
           >
-            <NFormItem label="注册开关" path="allowRegister">
-              <NSwitch
-                v-model:value="securityForm.allowRegister"
-                :rail-style="switchButtonRailStyle"
-              />
-            </NFormItem>
-            <NFormItem label="登录开关" path="allowLogin">
-              <NSwitch
-                v-model:value="securityForm.allowLogin"
-                :rail-style="switchButtonRailStyle"
-              />
-            </NFormItem>
-            <NFormItem label="实名认证" path="allowRealName">
-              <NSwitch
-                v-model:value="securityForm.allowRealName"
-                :rail-style="switchButtonRailStyle"
-              />
-            </NFormItem>
-            <NFormItem label="签到功能" path="allowSign">
-              <NSwitch
-                v-model:value="securityForm.allowSign"
-                :rail-style="switchButtonRailStyle"
-              />
-            </NFormItem>
-            <NFormItem label="邮箱发送" path="allowEmail">
-              <NSwitch
-                v-model:value="securityForm.allowEmail"
-                :rail-style="switchButtonRailStyle"
-              />
-            </NFormItem>
-            <NFormItem label="短信发送" path="allowSms">
-              <NSwitch
-                v-model:value="securityForm.allowSms"
-                :rail-style="switchButtonRailStyle"
-              />
-            </NFormItem>
+            <NGrid :cols="2" :x-gap="24" :y-gap="16" responsive="screen">
+              <NGridItem>
+                <NFormItem label="注册开关" path="allowRegister">
+                  <NSwitch
+                    v-model:value="securityForm.allowRegister"
+                    :rail-style="switchButtonRailStyle"
+                  >
+                    <template #checked>启用</template>
+                    <template #unchecked>禁用</template>
+                  </NSwitch>
+                </NFormItem>
+              </NGridItem>
+              <NGridItem>
+                <NFormItem label="登录开关" path="allowLogin">
+                  <NSwitch
+                    v-model:value="securityForm.allowLogin"
+                    :rail-style="switchButtonRailStyle"
+                  >
+                    <template #checked>启用</template>
+                    <template #unchecked>禁用</template>
+                  </NSwitch>
+                </NFormItem>
+              </NGridItem>
+              <NGridItem>
+                <NFormItem label="实名认证" path="allowRealName">
+                  <NSwitch
+                    v-model:value="securityForm.allowRealName"
+                    :rail-style="switchButtonRailStyle"
+                  >
+                    <template #checked>启用</template>
+                    <template #unchecked>禁用</template>
+                  </NSwitch>
+                </NFormItem>
+              </NGridItem>
+              <NGridItem>
+                <NFormItem label="签到功能" path="allowSign">
+                  <NSwitch
+                    v-model:value="securityForm.allowSign"
+                    :rail-style="switchButtonRailStyle"
+                  >
+                    <template #checked>启用</template>
+                    <template #unchecked>禁用</template>
+                  </NSwitch>
+                </NFormItem>
+              </NGridItem>
+              <NGridItem>
+                <NFormItem label="邮箱发送" path="allowEmail">
+                  <NSwitch
+                    v-model:value="securityForm.allowEmail"
+                    :rail-style="switchButtonRailStyle"
+                  >
+                    <template #checked>启用</template>
+                    <template #unchecked>禁用</template>
+                  </NSwitch>
+                </NFormItem>
+              </NGridItem>
+              <NGridItem>
+                <NFormItem label="短信发送" path="allowSms">
+                  <NSwitch
+                    v-model:value="securityForm.allowSms"
+                    :rail-style="switchButtonRailStyle"
+                  >
+                    <template #checked>启用</template>
+                    <template #unchecked>禁用</template>
+                  </NSwitch>
+                </NFormItem>
+              </NGridItem>
+            </NGrid>
+            <NDivider style="margin: 24px 0" />
             <NSpace justify="end">
               <NButton type="primary" @click="handleSaveSecurity"
                 >保存设置</NButton
@@ -61,50 +94,65 @@
             :model="smtpForm"
             :rules="smtpRules"
             label-placement="left"
-            label-width="auto"
+            label-width="120px"
             require-mark-placement="right-hanging"
           >
-            <NFormItem label="SMTP服务器" path="host">
-              <NInput
-                v-model:value="smtpForm.host"
-                placeholder="请输入SMTP服务器地址"
-              />
-            </NFormItem>
-            <NFormItem label="端口" path="port">
-              <NInputNumber
-                v-model:value="smtpForm.port"
-                :min="1"
-                :max="65535"
-                placeholder="请输入端口号"
-              />
-            </NFormItem>
-            <NFormItem label="加密方式" path="encryption">
-              <NSelect
-                v-model:value="smtpForm.encryption"
-                :options="encryptionOptions"
-                placeholder="请选择加密方式"
-              />
-            </NFormItem>
-            <NFormItem label="用户名" path="username">
-              <NInput
-                v-model:value="smtpForm.username"
-                placeholder="请输入邮箱用户名"
-              />
-            </NFormItem>
-            <NFormItem label="密码" path="password">
-              <NInput
-                v-model:value="smtpForm.password"
-                type="password"
-                placeholder="请输入邮箱密码或授权码"
-                show-password-on="click"
-              />
-            </NFormItem>
-            <NFormItem label="发件人邮箱" path="fromEmail">
-              <NInput
-                v-model:value="smtpForm.fromEmail"
-                placeholder="请输入发件人邮箱地址"
-              />
-            </NFormItem>
+            <NGrid :cols="2" :x-gap="24" :y-gap="16" responsive="screen">
+              <NGridItem>
+                <NFormItem label="SMTP服务器" path="host">
+                  <NInput
+                    v-model:value="smtpForm.host"
+                    placeholder="请输入SMTP服务器地址"
+                  />
+                </NFormItem>
+              </NGridItem>
+              <NGridItem>
+                <NFormItem label="端口" path="port">
+                  <NInputNumber
+                    v-model:value="smtpForm.port"
+                    :min="1"
+                    :max="65535"
+                    placeholder="请输入端口号"
+                  />
+                </NFormItem>
+              </NGridItem>
+              <NGridItem>
+                <NFormItem label="加密方式" path="encryption">
+                  <NSelect
+                    v-model:value="smtpForm.encryption"
+                    :options="encryptionOptions"
+                    placeholder="请选择加密方式"
+                  />
+                </NFormItem>
+              </NGridItem>
+              <NGridItem>
+                <NFormItem label="用户名" path="username">
+                  <NInput
+                    v-model:value="smtpForm.username"
+                    placeholder="请输入邮箱用户名"
+                  />
+                </NFormItem>
+              </NGridItem>
+              <NGridItem>
+                <NFormItem label="密码" path="password">
+                  <NInput
+                    v-model:value="smtpForm.password"
+                    type="password"
+                    placeholder="请输入邮箱密码或授权码"
+                    show-password-on="click"
+                  />
+                </NFormItem>
+              </NGridItem>
+              <NGridItem>
+                <NFormItem label="发件人邮箱" path="fromEmail">
+                  <NInput
+                    v-model:value="smtpForm.fromEmail"
+                    placeholder="请输入发件人邮箱地址"
+                  />
+                </NFormItem>
+              </NGridItem>
+            </NGrid>
+            <NDivider style="margin: 24px 0" />
             <NSpace justify="end">
               <NButton type="primary" :loading="loading" @click="handleSaveSmtp"
                 >保存设置</NButton
@@ -122,26 +170,38 @@
             :model="smsForm"
             :rules="smsRules"
             label-placement="left"
-            label-width="auto"
+            label-width="120px"
             require-mark-placement="right-hanging"
           >
-            <NFormItem label="APPID" path="appId">
-              <NInput v-model:value="smsForm.appId" placeholder="请输入APPID" />
-            </NFormItem>
-            <NFormItem label="TOKEN" path="smsToken">
-              <NInput
-                v-model:value="smsForm.smsToken"
-                type="password"
-                placeholder="请输入SecretKey"
-                show-password-on="click"
-              />
-            </NFormItem>
-            <NFormItem label="模板" path="template">
-              <NInput
-                v-model:value="smsForm.template"
-                placeholder="请输入短信模板"
-              />
-            </NFormItem>
+            <NGrid :cols="2" :x-gap="24" :y-gap="16" responsive="screen">
+              <NGridItem>
+                <NFormItem label="APPID" path="appId">
+                  <NInput
+                    v-model:value="smsForm.appId"
+                    placeholder="请输入APPID"
+                  />
+                </NFormItem>
+              </NGridItem>
+              <NGridItem>
+                <NFormItem label="TOKEN" path="smsToken">
+                  <NInput
+                    v-model:value="smsForm.smsToken"
+                    type="password"
+                    placeholder="请输入SecretKey"
+                    show-password-on="click"
+                  />
+                </NFormItem>
+              </NGridItem>
+              <NGridItem span="2">
+                <NFormItem label="模板" path="template">
+                  <NInput
+                    v-model:value="smsForm.template"
+                    placeholder="请输入短信模板"
+                  />
+                </NFormItem>
+              </NGridItem>
+            </NGrid>
+            <NDivider style="margin: 24px 0" />
             <NSpace justify="end">
               <NButton
                 type="primary"
@@ -290,8 +350,8 @@
       >
         <NFormItem label="Path" path="path">
           <NInput
-            v-model:value="editSourceForm.path"
-            placeholder="请输入下载源 Path"
+            v-model:value="editSourceForm.url"
+            placeholder="请输入下载源 URL"
           />
         </NFormItem>
         <NFormItem label="名称" path="name">
@@ -320,8 +380,8 @@
       >
         <NFormItem label="Path" path="path">
           <NInput
-            v-model:value="addSourceForm.path"
-            placeholder="请输入下载源 Path"
+            v-model:value="addSourceForm.url"
+            placeholder="请输入下载源 URL"
           />
         </NFormItem>
         <NFormItem label="名称" path="name">
@@ -636,6 +696,7 @@ import {
   NGrid,
   NGridItem,
   NDivider,
+  NAlert,
 } from 'naive-ui'
 import type { FormRules, FormInst, DataTableColumns } from 'naive-ui'
 import { switchButtonRailStyle } from '@/constants/theme.ts'
@@ -650,12 +711,6 @@ const message = useMessage()
 const securityFormRef = ref<FormInst | null>(null)
 const smtpFormRef = ref<FormInst | null>(null)
 const smsFormRef = ref<FormInst | null>(null)
-const editSourceFormRef = ref<FormInst | null>(null)
-const addSourceFormRef = ref<FormInst | null>(null)
-const groupFormRef = ref<FormInst | null>(null)
-const editGroupFormRef = ref<FormInst | null>(null)
-const addBroadcastFormRef = ref<FormInst | null>(null)
-const editBroadcastFormRef = ref<FormInst | null>(null)
 const showSetUserGroupModal = ref(false)
 
 // 表单数据
@@ -711,13 +766,13 @@ const showEditBroadcastModal = ref(false)
 const addSourceForm = ref<DownloadSource>({
   id: 0,
   name: '',
-  path: '',
+  url: '',
 })
 
 const editSourceForm = ref<DownloadSource>({
   id: 0,
   name: '',
-  path: '',
+  url: '',
 })
 
 const groupForm = ref<Group>({
@@ -943,7 +998,7 @@ const downloadSourceColumn: DataTableColumns<DownloadSource> = [
                 type: 'primary',
                 onClick: () => {
                   editSourceForm.value.id = row.id
-                  editSourceForm.value.path = row.path
+                  editSourceForm.value.url = row.url
                   editSourceForm.value.name = row.name
                   showEditModal.value = true
                 },
@@ -1469,7 +1524,7 @@ const fetchGroups = async () => {
 
 // 添加下载源
 const handleAddDownloadSource = async () => {
-  if (!addSourceForm.value.name || !addSourceForm.value.path) {
+  if (!addSourceForm.value.name || !addSourceForm.value.url) {
     message.error('请填写完整信息')
     return
   }
@@ -1477,12 +1532,12 @@ const handleAddDownloadSource = async () => {
   try {
     const data = await adminApi.createDownloadSource({
       name: addSourceForm.value.name,
-      path: addSourceForm.value.path,
+      path: addSourceForm.value.url,
     })
     if (data.code === 0) {
       message.success('添加成功')
       addSourceForm.value.name = ''
-      addSourceForm.value.path = ''
+      addSourceForm.value.url = ''
       showAddSourceModal.value = false
       await fetchDownloadSources()
     } else {
@@ -1495,7 +1550,7 @@ const handleAddDownloadSource = async () => {
 
 // 编辑下载源
 const handleEditSource = async () => {
-  if (!editSourceForm.value.name || !editSourceForm.value.path) {
+  if (!editSourceForm.value.name || !editSourceForm.value.url) {
     message.error('请填写完整信息')
     return
   }
@@ -1503,13 +1558,13 @@ const handleEditSource = async () => {
   try {
     const data = await adminApi.updateDownloadSource(editSourceForm.value.id, {
       name: editSourceForm.value.name,
-      path: editSourceForm.value.path,
+      path: editSourceForm.value.url,
     })
     if (data.code === 0) {
       message.success('修改成功')
       showEditModal.value = false
       editSourceForm.value.name = ''
-      editSourceForm.value.path = ''
+      editSourceForm.value.url = ''
       await fetchDownloadSources()
     } else {
       message.error(data.message || '修改失败')

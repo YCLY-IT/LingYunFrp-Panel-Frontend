@@ -42,6 +42,7 @@
             :loading="loading"
             :pagination="false"
             striped
+            :scroll-x="900"
           />
         </div>
 

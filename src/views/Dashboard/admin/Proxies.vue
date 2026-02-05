@@ -74,6 +74,7 @@
                 maxWidth: '200px',
               },
             }"
+            :scroll-x="900"
             @update:sorter="handleSortChange"
           />
         </div>
@@ -1533,10 +1534,6 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-.n-button {
-  margin-right: 8px;
-}
-
 .remote-port-container {
   display: flex;
   gap: 8px;
@@ -1570,13 +1567,6 @@ onMounted(() => {
 .proxy-sort-item {
   flex: 1 1 0;
   min-width: 0;
-}
-
-.table-container {
-  overflow-x: auto;
-  :deep(.n-data-table) {
-    min-width: 800px;
-  }
 }
 
 // 移动端适配

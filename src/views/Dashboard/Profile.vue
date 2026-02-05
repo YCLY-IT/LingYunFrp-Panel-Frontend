@@ -1193,7 +1193,7 @@ $transition-normal: all 0.2s ease;
   grid-template-columns: repeat(2, 1fr);
   gap: $primary-spacing;
 
-  @media (max-width: 992px) {
+  @media (max-width: 1200px) {
     grid-template-columns: 1fr;
   }
 }

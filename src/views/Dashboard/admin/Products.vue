@@ -35,6 +35,7 @@
             :data="sortedProductsData"
             :loading="loading"
             :pagination="{ pageSize: 10 }"
+            :scroll-x="900"
           />
         </div>
       </NSpace>
@@ -195,7 +196,6 @@ const loading = ref(false)
 
 // 表单相关
 const addFormRef = ref<FormInst | null>(null)
-const editFormRef = ref<FormInst | null>(null)
 const formValue = ref<Product>({
   id: 0,
   type: '',
@@ -581,12 +581,6 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-.table-container {
-  overflow-x: auto;
-  :deep(.n-data-table) {
-    min-width: 800px;
-  }
-}
 :deep(.n-input-number) {
   width: 100%;
 }

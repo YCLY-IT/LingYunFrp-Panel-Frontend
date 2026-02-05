@@ -59,6 +59,7 @@
             :data="pagedUsers"
             :loading="loading"
             :pagination="false"
+            :scroll-x="900"
           />
         </div>
 
@@ -724,12 +725,6 @@ const handlePageSizeChange = (pageSize: number) => {
 </script>
 
 <style lang="scss" scoped>
-.table-container {
-  overflow-x: auto;
-  :deep(.n-data-table) {
-    min-width: 800px;
-  }
-}
 :deep(.n-input-number) {
   width: 100%;
 }

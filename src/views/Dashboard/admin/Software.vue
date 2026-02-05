@@ -33,7 +33,7 @@
           :columns="columns"
           :data="sortedSoftwareList"
           :loading="initLoading"
-          :scroll-x="800"
+          :scroll-x="900"
           size="medium"
         />
       </div>
@@ -846,14 +846,6 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
-.table-container {
-  overflow-x: auto;
-
-  :deep(.n-data-table) {
-    min-width: 800px;
-  }
-}
-
 .version-table-container {
   overflow-x: auto;
 
