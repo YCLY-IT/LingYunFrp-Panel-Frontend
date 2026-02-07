@@ -69,37 +69,38 @@
           >
             <template #default>
               <div class="notice-scroll">
-                <NCollapse v-if="sortedNotices.length > 0" accordion>
-                  <template
-                    v-for="(notice, index) in sortedNotices"
-                    :key="notice.id"
-                  >
-                    <NCollapseItem :title="notice.title" :name="notice.id">
-                      <template #header-extra>
-                        <div
-                          style="display: flex; align-items: center; gap: 8px"
-                        >
-                          <NTag
-                            v-if="notice.top"
-                            type="warning"
-                            size="small"
-                            :bordered="false"
-                            >置顶</NTag
+                <NScrollbar :vertical-rail-style="{ right: '-15px' }">
+                  <NCollapse v-if="sortedNotices.length > 0" accordion>
+                    <template
+                      v-for="(notice, _index) in sortedNotices"
+                      :key="notice.id"
+                    >
+                      <NCollapseItem :title="notice.title" :name="notice.id">
+                        <template #header-extra>
+                          <div
+                            style="display: flex; align-items: center; gap: 8px"
                           >
-                          <span class="notice-time">{{
-                            formatTime(notice.created_at)
-                          }}</span>
-                        </div>
-                      </template>
-                      <div
-                        class="notice-content"
-                        v-html="renderNoticeContent(notice.message)"
-                      />
-                    </NCollapseItem>
-                    <NDivider style="margin: 8px 0" />
-                  </template>
-                </NCollapse>
-                <div v-else class="no-notice">暂无通知</div>
+                            <NTag
+                              v-if="notice.top"
+                              type="warning"
+                              size="small"
+                              :bordered="false"
+                              >置顶</NTag
+                            >
+                            <span class="notice-time">{{
+                              formatTime(notice.created_at)
+                            }}</span>
+                          </div>
+                        </template>
+                        <div
+                          class="notice-content"
+                          v-html="renderNoticeContent(notice.message)"
+                        />
+                      </NCollapseItem>
+                    </template>
+                  </NCollapse>
+                  <div v-else class="no-notice">暂无通知</div>
+                </NScrollbar>
               </div>
             </template>
           </NCard>
@@ -121,7 +122,6 @@ import {
   NButton,
   NCollapse,
   NCollapseItem,
-  NDivider,
   NTag,
   useMessage,
 } from 'naive-ui'
@@ -343,20 +343,15 @@ onMounted(() => {
 .notice-scroll {
   flex: 1 1 0;
   min-height: 0;
-  overflow: auto;
-  scrollbar-width: thin;
-  scrollbar-color: #e0e0e0 #fff;
   max-height: 100%;
+  margin-top: 10px;
 }
 
-.notice-scroll :deep(.n-collapse) {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+.notice-scroll :deep(.n-scrollbar) {
+  overflow: visible;
 }
 
 .notice-scroll :deep(.n-collapse-item) {
-  border-radius: 8px;
   overflow: hidden;
   margin-bottom: 0;
 }
