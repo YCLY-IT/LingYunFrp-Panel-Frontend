@@ -335,6 +335,7 @@
               :columns="broadcastColumns"
               :data="filteredBroadcastsData"
               :bordered="false"
+              :scroll-x="1000"
             />
           </NSpace>
         </NTabPane>
@@ -1176,15 +1177,9 @@ const broadcastColumns: DataTableColumns<Broadcast> = [
   {
     title: '标题',
     key: 'title',
-    render(row) {
-      return h(
-        'div',
-        {
-          style:
-            'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;',
-        },
-        row.title,
-      )
+    width: 200,
+    ellipsis: {
+      tooltip: true,
     },
   },
   {
@@ -1246,10 +1241,12 @@ const broadcastColumns: DataTableColumns<Broadcast> = [
   {
     title: '操作',
     key: 'actions',
+    width: 240,
+    fixed: 'right',
     render: (row) => {
       return h(
         NSpace,
-        {},
+        { wrap: false },
         {
           default: () => [
             h(

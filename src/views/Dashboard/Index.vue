@@ -98,6 +98,7 @@
                         />
                       </NCollapseItem>
                     </template>
+                    <NDivider style="margin: 0px 0px" />
                   </NCollapse>
                   <div v-else class="no-notice">暂无通知</div>
                 </NScrollbar>
@@ -123,6 +124,7 @@ import {
   NCollapse,
   NCollapseItem,
   NTag,
+  NDivider,
   useMessage,
 } from 'naive-ui'
 import { ref, onMounted, computed, Ref } from 'vue'
@@ -360,10 +362,22 @@ onMounted(() => {
   font-size: 18px;
   font-weight: 500;
   border-radius: 8px 8px 0 0;
+  display: flex !important;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .notice-scroll :deep(.n-collapse-item__header-main) {
-  flex: 1;
+  max-width: 50%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.notice-scroll :deep(.n-collapse-item__header-extra) {
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
 .notice-scroll :deep(.n-collapse-item__content-inner) {
