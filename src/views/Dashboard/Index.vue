@@ -98,7 +98,7 @@
                         />
                       </NCollapseItem>
                     </template>
-                    <NDivider style="margin: 0px 0px" />
+                    <NDivider style="margin: 15px 0px 0px 0px" />
                   </NCollapse>
                   <div v-else class="no-notice">暂无通知</div>
                 </NScrollbar>
