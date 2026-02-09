@@ -261,7 +261,9 @@
       preset="dialog"
       :title="isUnbanning ? '请输入解封原因' : '请输入封禁原因'"
     >
+      <n-text> 输入封禁/解封原因（该原因会发送邮件给用户） </n-text>
       <NInput
+        style="margin-top: 16px"
         v-model:value="banReason"
         type="textarea"
         :placeholder="isUnbanning ? '请填写解封原因' : '请填写封禁原因'"
@@ -642,11 +644,11 @@ const doEdit = async () => {
       group: editForm.value.group,
       status: editForm.value.status,
       maxProxies: editForm.value.proxies,
-      traffic: editForm.value.traffic * 1024,
-      outBound: editForm.value.out_limit * 128,
-      inBound: editForm.value.in_limit * 128,
-      noCnOutBound: editForm.value.no_cn_out_limit * 128,
-      noCnInBound: editForm.value.no_cn_in_limit * 128,
+      traffic: editForm.value.traffic,
+      outBound: editForm.value.out_limit,
+      inBound: editForm.value.in_limit,
+      noCnOutBound: editForm.value.no_cn_out_limit,
+      noCnInBound: editForm.value.no_cn_in_limit,
       isRealname: editForm.value.is_realname,
       remainder: editForm.value.remainder,
       reason: editReason.value,

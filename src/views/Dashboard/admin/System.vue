@@ -593,9 +593,12 @@
       preset="dialog"
       title="是否同步设置用户？"
     >
+      <n-text>
+        同步设置用户将使所有用户的流量、隧道数、带宽设置等与当前组一致。(除了修改过流量、隧道数、带宽设置的用户)
+      </n-text>
       <template #action>
-        <n-button @click="handleCancelSetUserGroup">取消</n-button>
-        <n-button type="primary" @click="handleSetUserGroup">确定</n-button>
+        <n-button @click="handleCancelSetUserGroup">不设置</n-button>
+        <n-button type="primary" @click="handleSetUserGroup">直接提交</n-button>
       </template>
     </n-modal>
 
