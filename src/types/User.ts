@@ -127,7 +127,10 @@ export interface TrafficType {
 }
 
 export interface TrafficData {
-  date: string
+  date: {
+    day: string
+    hour: number
+  }
   inTraffic: number
   outTraffic: number
   userId: number

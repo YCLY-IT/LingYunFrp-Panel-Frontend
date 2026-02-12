@@ -120,6 +120,14 @@ const router = createRouter({
           },
         },
         {
+          path: 'node/:id',
+          name: 'node-detail',
+          component: () => import('../views/Dashboard/NodeDetail.vue'),
+          meta: {
+            title: '节点详情',
+          },
+        },
+        {
           path: 'cash',
           name: 'cash',
           component: () => import('../views/Dashboard/Cash.vue'),

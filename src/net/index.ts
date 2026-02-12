@@ -1,4 +1,4 @@
-import { getNodes, getStatus } from './proxy/node'
+import { getNodes, getStatus, getNodeHistory } from './proxy/node'
 import {
   createTunnel,
   getProxyList,
@@ -103,6 +103,7 @@ const userApi = {
   getUserTraffic,
   sign,
   getStatus,
+  getNodeHistory,
   getNodes,
   getUserGroups,
   createTunnel,

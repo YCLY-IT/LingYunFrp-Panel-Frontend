@@ -134,7 +134,9 @@ const fetchData = async () => {
       return
     }
     chartData.value = (data.data || []).sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+      (a, b) =>
+        new Date(a.date.day + ' ' + a.date.hour + ':00:00').getTime() -
+        new Date(b.date.day + ' ' + b.date.hour + ':00:00').getTime(),
     )
     await nextTick()
     updateChart()
@@ -161,7 +163,9 @@ const initChart = () => {
 const updateChart = () => {
   if (!chartInstance || !chartData.value.length) return
 
-  const dates = chartData.value.map((item) => item.date)
+  const dates = chartData.value.map(
+    (item) => `${item.date.day} ${item.date.hour}:00`,
+  )
   const inTrafficData = chartData.value.map((item) => item.inTraffic)
   const outTrafficData = chartData.value.map((item) => item.outTraffic)
 

@@ -27,7 +27,10 @@ export interface ForgetParams {
 }
 
 export interface TrafficData {
-  date: string
+  date: {
+    day: string
+    hour: number
+  }
   inTraffic: number
   outTraffic: number
   userId: number
@@ -109,6 +112,14 @@ export interface StatusData {
   isOnline: boolean
   client_counts: number
   tunnel_counts: number
+  cpu_usage?: number
+  used_memory?: number
+  total_memory?: number
+  memory_used?: number
+  memory_total?: number
+  free_memory?: number
+  cur_rate_in_kb?: number
+  cur_rate_out_kb?: number
 }
 
 export interface UserTraffic {
@@ -201,7 +212,10 @@ export interface LoginResponse {
 
 export type GroupResponse = ApiBaseResponse<any>
 export type UserTrafficResponse = ApiBaseResponse<UserTraffic>
-export type StatusResponse = ApiBaseResponse<StatusData>
+export interface StatusDataWrapper {
+  nodes: StatusData[]
+}
+export type StatusResponse = ApiBaseResponse<StatusDataWrapper>
 export type SignResponse = ApiBaseResponse<SignData>
 export type UserInfoResponse = ApiBaseResponse<UserInfoData>
 export type BroadcastResponse = ApiBaseResponse<BroadcastData[]>
