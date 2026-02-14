@@ -158,6 +158,25 @@ export interface SoftwareVersion {
   updated_at: string
 }
 
+export interface DiscountDetail {
+  months: number
+  total_price: number
+  discount_rate: number
+  saved_amount: number
+  original_price: number
+  total_points: number
+  saved_points: number
+  original_points: number
+}
+
+export interface DiscountInfo {
+  has_discount: boolean
+  base_price: number
+  point_price: number
+  rules: Record<string, number>
+  details: DiscountDetail[]
+}
+
 export interface Product {
   id: number
   name: string
@@ -170,6 +189,7 @@ export interface Product {
   payMethods: string[]
   isPoint: boolean
   selectedAmount: number
+  discountInfo?: DiscountInfo
 }
 
 export interface BuyProductParams {

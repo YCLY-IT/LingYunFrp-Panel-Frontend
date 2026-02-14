@@ -399,49 +399,140 @@
     </NModal>
 
     <!-- 添加用户组模态框 -->
-    <NModal v-model:show="showAddGroupModal" preset="dialog" title="添加用户组">
-      <NForm ref="groupFormRef" :model="groupForm" :rules="groupRules">
-        <NFormItem label="组名" path="name">
-          <NInput
-            v-model:value="groupForm.name"
-            placeholder="请输入用户组名称"
-          />
-        </NFormItem>
-        <NFormItem label="显示名称" path="friendlyName">
-          <NInput
-            v-model:value="groupForm.friendlyName"
-            placeholder="请输入显示名称"
-          />
-        </NFormItem>
-        <NFormItem label="积分" path="point">
-          <NInputNumber
-            v-model:value="groupForm.point"
-            :min="0"
-            placeholder="请输入积分"
-          />
-        </NFormItem>
-        <NFormItem label="基础流量(MB)" path="traffic">
-          <NInputNumber v-model:value="groupForm.traffic" :min="0" />
-        </NFormItem>
-        <NFormItem label="最大隧道数" path="proxies">
-          <NInputNumber v-model:value="groupForm.proxies" :min="0" />
-        </NFormItem>
-        <NFormItem label="出站带宽" path="out_limit">
-          <NSpace>
-            <NInputNumber v-model:value="groupForm.out_limit" :min="0" />
-            <span>Mbps</span>
-          </NSpace>
-        </NFormItem>
-        <NFormItem label="入站带宽" path="in_limit">
-          <NSpace>
-            <NInputNumber v-model:value="groupForm.in_limit" :min="0" />
-            <span>Mbps</span>
-          </NSpace>
-        </NFormItem>
+    <NModal
+      v-model:show="showAddGroupModal"
+      preset="dialog"
+      title="添加用户组"
+      style="width: 600px; max-width: 90vw"
+    >
+      <NForm
+        ref="groupFormRef"
+        :model="groupForm"
+        :rules="groupRules"
+        label-placement="left"
+        label-width="100px"
+        style="margin-top: 20px"
+      >
+        <NGrid :cols="2" :x-gap="20" :y-gap="8" responsive="screen">
+          <NGridItem span="2">
+            <NFormItem label="组名" path="name">
+              <NInput
+                v-model:value="groupForm.name"
+                placeholder="请输入用户组名称"
+                clearable
+              />
+            </NFormItem>
+          </NGridItem>
+          <NGridItem>
+            <NFormItem label="显示名称" path="friendlyName">
+              <NInput
+                v-model:value="groupForm.friendlyName"
+                placeholder="请输入显示名称"
+                clearable
+              />
+            </NFormItem>
+          </NGridItem>
+          <NGridItem>
+            <NFormItem label="积分" path="point">
+              <NInputNumber
+                v-model:value="groupForm.point"
+                :min="0"
+                placeholder="请输入积分"
+                style="width: 100%"
+              />
+            </NFormItem>
+          </NGridItem>
+          <NGridItem>
+            <NFormItem label="基础流量" path="traffic">
+              <NInputNumber
+                v-model:value="groupForm.traffic"
+                :min="0"
+                placeholder="请输入基础流量"
+                style="width: 100%"
+              >
+                <template #suffix>MB</template>
+              </NInputNumber>
+            </NFormItem>
+          </NGridItem>
+          <NGridItem>
+            <NFormItem label="最大隧道数" path="proxies">
+              <NInputNumber
+                v-model:value="groupForm.proxies"
+                :min="0"
+                placeholder="请输入最大隧道数"
+                style="width: 100%"
+              />
+            </NFormItem>
+          </NGridItem>
+          <NGridItem span="2">
+            <NDivider title-placement="left" style="margin: 16px 0"
+              >带宽设置</NDivider
+            >
+          </NGridItem>
+          <NGridItem>
+            <NFormItem label="出站带宽" path="out_limit">
+              <NInputNumber
+                v-model:value="groupForm.out_limit"
+                :min="0"
+                placeholder="请输入出站带宽"
+                style="width: 100%"
+              >
+                <template #suffix>Mbps</template>
+              </NInputNumber>
+            </NFormItem>
+          </NGridItem>
+          <NGridItem>
+            <NFormItem label="入站带宽" path="in_limit">
+              <NInputNumber
+                v-model:value="groupForm.in_limit"
+                :min="0"
+                placeholder="请输入入站带宽"
+                style="width: 100%"
+              >
+                <template #suffix>Mbps</template>
+              </NInputNumber>
+            </NFormItem>
+          </NGridItem>
+          <NGridItem span="2">
+            <NDivider title-placement="left" style="margin: 16px 0"
+              >海外带宽设置</NDivider
+            >
+          </NGridItem>
+          <NGridItem>
+            <NFormItem label="海外出站" path="no_cn_out_limit">
+              <NInputNumber
+                v-model:value="groupForm.no_cn_out_limit"
+                :min="0"
+                placeholder="请输入海外出站带宽"
+                style="width: 100%"
+              >
+                <template #suffix>Mbps</template>
+              </NInputNumber>
+            </NFormItem>
+          </NGridItem>
+          <NGridItem>
+            <NFormItem label="海外入站" path="no_cn_in_limit">
+              <NInputNumber
+                v-model:value="groupForm.no_cn_in_limit"
+                :min="0"
+                placeholder="请输入海外入站带宽"
+                style="width: 100%"
+              >
+                <template #suffix>Mbps</template>
+              </NInputNumber>
+            </NFormItem>
+          </NGridItem>
+        </NGrid>
       </NForm>
       <template #action>
-        <NButton @click="showAddGroupModal = false">取消</NButton>
-        <NButton type="primary" @click="handleAddGroup">确定</NButton>
+        <NSpace justify="end" style="margin-top: 16px">
+          <NButton @click="showAddGroupModal = false" size="medium"
+            >取消</NButton
+          >
+          <NButton type="primary" @click="handleAddGroup" size="medium"
+            >确定</NButton
+          >
+        </NSpace>
       </template>
     </NModal>
 
@@ -594,7 +685,7 @@
       title="是否同步设置用户？"
     >
       <n-text>
-        同步设置用户将使所有用户的流量、隧道数、带宽设置等与当前组一致。(除了修改过流量、隧道数、带宽设置的用户)
+        同步设置用户将使所有用户的隧道数、带宽设置等与当前组一致。(除了修改过流量、隧道数、带宽设置的用户)
       </n-text>
       <template #action>
         <n-button @click="handleCancelSetUserGroup">不设置</n-button>
@@ -1600,10 +1691,10 @@ const handleAddGroup = async () => {
       point: groupForm.value.point,
       proxies: groupForm.value.proxies,
       traffic: groupForm.value.traffic,
-      out_limit: groupForm.value.out_limit,
-      in_limit: groupForm.value.in_limit,
-      no_cn_out_limit: groupForm.value.no_cn_out_limit,
-      no_cn_in_limit: groupForm.value.no_cn_in_limit,
+      out_limit: groupForm.value.out_limit * 128,
+      in_limit: groupForm.value.in_limit * 128,
+      no_cn_out_limit: groupForm.value.no_cn_out_limit * 128,
+      no_cn_in_limit: groupForm.value.no_cn_in_limit * 128,
     })
     if (data.code === 0) {
       message.success('添加用户组成功')

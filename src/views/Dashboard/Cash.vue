@@ -71,16 +71,78 @@
     </NSpin>
 
     <!-- 购买配置侧边栏 -->
-    <NDrawer
-      v-model:show="showPurchaseSidebar"
-      :width="400"
-      placement="right"
-      :show-mask="true"
-    >
-      <NDrawerContent :title="selectedProduct?.name || '购买配置'" closable>
+    <NDrawer v-model:show="showPurchaseSidebar" :width="400" placement="right">
+      <NDrawerContent
+        :title="selectedProduct?.name || '购买配置'"
+        closable
+        @close="showPurchaseSidebar = false"
+      >
         <div v-if="selectedProduct" class="purchase-sidebar-content">
-          <!-- 购买数量配置 -->
-          <NCard title="购买数量" size="small" class="config-card">
+          <!-- 购买时长/数量配置 -->
+          <NCard
+            title="购买时长"
+            size="small"
+            class="config-card"
+            v-if="
+              !selectedProduct.isPermanent &&
+              selectedProduct.discountInfo?.has_discount
+            "
+          >
+            <NRadioGroup
+              v-model:value="selectedProduct.selectedAmount"
+              vertical
+            >
+              <NSpace vertical>
+                <NRadio
+                  v-for="detail in selectedProduct.discountInfo.details"
+                  :key="detail.months"
+                  :value="detail.months"
+                  class="discount-option"
+                >
+                  <NSpace
+                    align="center"
+                    justify="space-between"
+                    style="width: 100%"
+                  >
+                    <span>{{ detail.months }} 个月</span>
+                    <NSpace>
+                      <NTag
+                        v-if="detail.discount_rate < 1"
+                        type="success"
+                        size="small"
+                      >
+                        {{ (detail.discount_rate * 10).toFixed(1) }}折
+                      </NTag>
+                      <span
+                        :class="{ 'original-price': detail.discount_rate < 1 }"
+                        style="text-decoration: line-through; color: #999"
+                      >
+                        {{
+                          selectedProduct.isPoint
+                            ? detail.original_points
+                            : detail.original_price.toFixed(2)
+                        }}
+                        {{ selectedProduct.isPoint ? '积分' : '元' }}
+                      </span>
+                      <span
+                        v-if="detail.discount_rate < 1"
+                        class="discounted-price"
+                        style="color: #f0a020; font-weight: bold"
+                      >
+                        {{
+                          selectedProduct.isPoint
+                            ? detail.total_points
+                            : detail.total_price.toFixed(2)
+                        }}
+                        {{ selectedProduct.isPoint ? '积分' : '元' }}
+                      </span>
+                    </NSpace>
+                  </NSpace>
+                </NRadio>
+              </NSpace>
+            </NRadioGroup>
+          </NCard>
+          <NCard title="购买数量" size="small" class="config-card" v-else>
             <!-- 流量和隧道类型始终显示输入框，其他永久产品不显示 -->
             <div
               v-if="
@@ -218,7 +280,10 @@
                 </NSpace>
               </NRadioGroup>
             </div>
-            <div class="payment-note" v-if="!selectedProduct.isPoint">
+            <div
+              class="payment-note"
+              v-if="!selectedProduct.payMethods.includes('points')"
+            >
               <NIcon><InformationCircle /></NIcon>
               <span>目前支付只支持支付宝</span>
             </div>
@@ -227,7 +292,10 @@
           <!-- 价格预览 -->
           <NCard title="价格预览" size="small" class="config-card">
             <div class="price-preview">
-              <div class="price-item">
+              <div
+                class="price-item"
+                v-if="!selectedProduct.discountInfo?.has_discount"
+              >
                 <span>单价：</span>
                 <span
                   >{{
@@ -238,41 +306,56 @@
                   {{ selectedProduct.isPoint ? '积分' : '元' }}</span
                 >
               </div>
-              <div class="price-item">
-                <span>数量：</span>
-                <span>{{
-                  shouldUseSelectedAmount(selectedProduct)
-                    ? selectedProduct.selectedAmount || 1
-                    : 1
-                }}</span>
+              <div class="price-item" v-if="!selectedProduct.isPermanent">
+                <span>时长：</span>
+                <span>{{ selectedProduct.selectedAmount || 1 }} 个月</span>
+              </div>
+              <div
+                class="price-item"
+                v-if="calculateSavedAmount(selectedProduct) > 0"
+              >
+                <span>原价：</span>
+                <span
+                  class="original-price"
+                  style="text-decoration: line-through; color: #999"
+                >
+                  {{ calculateOriginalPrice(selectedProduct) }}
+                  {{ selectedProduct.isPoint ? '积分' : '元' }}
+                </span>
+              </div>
+              <div
+                class="price-item"
+                v-if="calculateSavedAmount(selectedProduct) > 0"
+              >
+                <span>优惠：</span>
+                <span style="color: #18a058">
+                  -{{ calculateSavedAmount(selectedProduct) }}
+                  {{ selectedProduct.isPoint ? '积分' : '元' }}
+                </span>
               </div>
               <div class="price-item total">
                 <span>总计：</span>
-                <span class="total-price">
-                  {{
-                    selectedProduct.isPoint
-                      ? selectedProduct.pointPrice *
-                        (shouldUseSelectedAmount(selectedProduct)
-                          ? selectedProduct.selectedAmount || 1
-                          : 1)
-                      : selectedProduct.price *
-                        (shouldUseSelectedAmount(selectedProduct)
-                          ? selectedProduct.selectedAmount || 1
-                          : 1)
-                  }}
+                <span
+                  class="total-price"
+                  style="color: #f0a020; font-size: 18px; font-weight: bold"
+                >
+                  {{ calculateTotalPrice(selectedProduct) }}
                   {{ selectedProduct.isPoint ? '积分' : '元' }}
                 </span>
               </div>
             </div>
           </NCard>
-        </div>
 
-        <template #footer>
-          <NSpace justify="end">
-            <NButton @click="showPurchaseSidebar = false">取消</NButton>
-            <NButton type="primary" @click="confirmPurchase">确认购买</NButton>
-          </NSpace>
-        </template>
+          <!-- 操作按钮 -->
+          <div class="action-buttons" style="margin-top: 24px">
+            <NSpace justify="end">
+              <NButton @click="showPurchaseSidebar = false">取消</NButton>
+              <NButton type="primary" @click="confirmPurchase"
+                >确认购买</NButton
+              >
+            </NSpace>
+          </div>
+        </div>
       </NDrawerContent>
     </NDrawer>
 
@@ -322,6 +405,7 @@ import {
   NRadioGroup,
   NRadio,
   NSpace,
+  NTag,
 } from 'naive-ui'
 import { ref, onMounted, watch } from 'vue'
 import { InformationCircle, InfiniteOutline } from '@vicons/ionicons5'
@@ -370,22 +454,79 @@ const shouldUseSelectedAmount = (product: Product) => {
   )
 }
 
+// 获取当前选中的折扣详情
+const getSelectedDiscountDetail = (product: Product) => {
+  if (!product.discountInfo?.has_discount || !product.selectedAmount) {
+    return null
+  }
+  return product.discountInfo.details.find(
+    (d) => d.months === product.selectedAmount,
+  )
+}
+
+// 计算总价
+const calculateTotalPrice = (product: Product): number => {
+  const detail = getSelectedDiscountDetail(product)
+  if (detail) {
+    return product.isPoint ? detail.total_points : detail.total_price
+  }
+  const amount = shouldUseSelectedAmount(product)
+    ? product.selectedAmount || 1
+    : 1
+  return product.isPoint ? product.pointPrice * amount : product.price * amount
+}
+
+// 计算原价
+const calculateOriginalPrice = (product: Product): number => {
+  const detail = getSelectedDiscountDetail(product)
+  if (detail) {
+    return product.isPoint ? detail.original_points : detail.original_price
+  }
+  const amount = shouldUseSelectedAmount(product)
+    ? product.selectedAmount || 1
+    : 1
+  return product.isPoint ? product.pointPrice * amount : product.price * amount
+}
+
+// 计算节省金额
+const calculateSavedAmount = (product: Product): number => {
+  const detail = getSelectedDiscountDetail(product)
+  if (detail) {
+    return product.isPoint ? detail.saved_points : detail.saved_amount
+  }
+  return 0
+}
+
 // 从API获取产品数据
 const fetchProducts = async () => {
   loading.value = true
   try {
     const data = await userApi.getProducts()
     if (data.code === 0 && data.data && data.data.products) {
-      products.value = data.data.products.map((product) => {
-        const payMethod = product.payMethod || ''
+      products.value = data.data.products.map((product: any) => {
+        const payMethod = product.pay_method || ''
         const payMethods = payMethod.split(';')
         const isPoint =
           payMethods.includes('points') && payMethods[0] === 'points'
+
+        // 处理折扣信息
+        const discountInfo = product.discount_info || null
+
         return {
-          ...product,
+          id: product.id,
+          name: product.name,
+          desc: product.desc,
+          type: product.type,
+          price: product.price,
+          pointPrice: product.point_price,
+          isPermanent: product.is_permanent,
+          payMethod: product.pay_method,
+          createdAt: product.created_at,
+          updatedAt: product.updated_at,
           payMethods,
           isPoint,
           selectedAmount: 1,
+          discountInfo,
         }
       })
     } else {
@@ -541,13 +682,18 @@ const openPurchaseSidebar = (product: Product) => {
 
 // 确认购买
 const confirmPurchase = async () => {
-  if (!selectedProduct.value) return
+  if (!selectedProduct.value) {
+    return
+  }
+
+  // 先保存产品数据，再关闭侧边栏
+  const product = selectedProduct.value
 
   // 关闭侧边栏
   showPurchaseSidebar.value = false
 
   // 调用原来的购买逻辑
-  await handleBuy(selectedProduct.value)
+  await handleBuy(product)
 }
 
 // 在组件挂载时获取产品数据

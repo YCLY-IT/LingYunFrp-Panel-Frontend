@@ -4,6 +4,7 @@
       <NMessageProvider>
         <NNotificationProvider>
           <NLoadingBarProvider>
+            <GlobalEggs />
             <AppContent />
           </NLoadingBarProvider>
         </NNotificationProvider>
@@ -34,6 +35,7 @@ import {
   lightTheme,
 } from 'naive-ui'
 import AppContent from './components/AppContent.vue'
+import GlobalEggs from './components/GlobalEggs.vue'
 import { useThemeStore } from './stores/theme'
 
 const theme = computed(() =>

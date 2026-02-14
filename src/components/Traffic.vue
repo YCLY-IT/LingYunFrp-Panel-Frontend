@@ -63,6 +63,7 @@ import {
   TooltipComponent,
   LegendComponent,
   GridComponent,
+  DataZoomComponent,
 } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import { userApi } from '@/net'
@@ -74,6 +75,7 @@ use([
   TooltipComponent,
   LegendComponent,
   GridComponent,
+  DataZoomComponent,
   LineChart,
   CanvasRenderer,
 ])
@@ -209,6 +211,16 @@ const updateChart = () => {
       top: '15%',
       containLabel: true,
     },
+    dataZoom: [
+      {
+        type: 'inside',
+        start: 0,
+        end: 100,
+        zoomOnMouseWheel: true,
+        moveOnMouseWheel: true,
+        moveOnMouseMove: true,
+      },
+    ],
     xAxis: {
       type: 'category',
       boundaryGap: false,

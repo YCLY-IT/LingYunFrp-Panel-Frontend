@@ -118,6 +118,7 @@ export interface Product {
   payMethods: string[]
   isPoint: boolean
   selectedAmount: number
+  discountRules?: string
 }
 
 export interface TrafficType {

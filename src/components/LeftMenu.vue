@@ -28,6 +28,13 @@ const handleMenuSelect = (_: any, item: MenuOption) => {
 }
 
 const currentKey = computed(() => {
-  return route.name as string
+  const routeName = route.name as string
+
+  // 节点详情页时，高亮节点状态菜单
+  if (routeName === 'node-detail') {
+    return 'node-status'
+  }
+
+  return routeName
 })
 </script>

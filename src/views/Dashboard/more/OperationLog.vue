@@ -100,21 +100,37 @@
             }}</NDescriptionsItem>
           </NDescriptions>
         </NTabPane>
+        <NTabPane name="requestInfo" tab="请求信息">
+          <NDescriptions bordered :column="1">
+            <NDescriptionsItem label="请求方法">
+              <NTag type="info" size="small">{{
+                selectedLog.request_method
+              }}</NTag>
+            </NDescriptionsItem>
+            <NDescriptionsItem label="请求URL">
+              <code style="word-break: break-all">{{
+                selectedLog.request_url
+              }}</code>
+            </NDescriptionsItem>
+            <NDescriptionsItem label="操作IP">
+              {{ selectedLog.operation_ip }}
+            </NDescriptionsItem>
+            <NDescriptionsItem label="客户端类型 (User-Agent)">
+              <div style="word-break: break-all; font-size: 12px">
+                {{ selectedLog.client_type }}
+              </div>
+            </NDescriptionsItem>
+          </NDescriptions>
+        </NTabPane>
         <NTabPane name="request" tab="请求数据">
           <NDescriptions bordered :column="1">
             <NDescriptionsItem
               label="提交内容"
               v-if="selectedLog.submit_content"
             >
-              <pre
-                style="
-                  background: #f5f5f5;
-                  padding: 8px;
-                  border-radius: 4px;
-                  overflow-x: auto;
-                "
-                >{{ JSON.stringify(selectedLog.submit_content, null, 2) }}</pre
-              >
+              <pre style="overflow-x: auto">{{
+                JSON.stringify(selectedLog.submit_content, null, 2)
+              }}</pre>
             </NDescriptionsItem>
             <NDescriptionsItem v-if="!selectedLog.submit_content">
               无提交内容
@@ -127,15 +143,9 @@
               label="操作前状态"
               v-if="selectedLog.before_status"
             >
-              <pre
-                style="
-                  background: #f5f5f5;
-                  padding: 8px;
-                  border-radius: 4px;
-                  overflow-x: auto;
-                "
-                >{{ JSON.stringify(selectedLog.before_status, null, 2) }}</pre
-              >
+              <pre style="overflow-x: auto">{{
+                JSON.stringify(selectedLog.before_status, null, 2)
+              }}</pre>
             </NDescriptionsItem>
             <NDescriptionsItem v-if="!selectedLog.before_status">
               无操作前状态
@@ -144,15 +154,9 @@
               label="操作后状态"
               v-if="selectedLog.after_status"
             >
-              <pre
-                style="
-                  background: #f5f5f5;
-                  padding: 8px;
-                  border-radius: 4px;
-                  overflow-x: auto;
-                "
-                >{{ JSON.stringify(selectedLog.after_status, null, 2) }}</pre
-              >
+              <pre style="overflow-x: auto">{{
+                JSON.stringify(selectedLog.after_status, null, 2)
+              }}</pre>
             </NDescriptionsItem>
             <NDescriptionsItem v-if="!selectedLog.after_status">
               无操作后状态
@@ -321,6 +325,27 @@ const columns: DataTableColumns<OperationLog> = [
     width: 90,
     render(row) {
       return `${row.operation_duration}ms`
+    },
+  },
+  {
+    title: '请求URL',
+    key: 'request_url',
+    width: 200,
+    ellipsis: {
+      tooltip: true,
+    },
+  },
+  {
+    title: '请求方法',
+    key: 'request_method',
+    width: 100,
+  },
+  {
+    title: '客户端',
+    key: 'client_type',
+    width: 200,
+    ellipsis: {
+      tooltip: true,
     },
   },
   {

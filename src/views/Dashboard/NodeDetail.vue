@@ -484,6 +484,16 @@ const initCpuChart = () => {
       top: '10%',
       containLabel: true,
     },
+    dataZoom: [
+      {
+        type: 'inside',
+        start: 0,
+        end: 100,
+        zoomOnMouseWheel: true,
+        moveOnMouseWheel: true,
+        moveOnMouseMove: true,
+      },
+    ],
     xAxis: {
       type: 'category',
       boundaryGap: false,
@@ -562,6 +572,16 @@ const initMemoryChart = () => {
       top: '10%',
       containLabel: true,
     },
+    dataZoom: [
+      {
+        type: 'inside',
+        start: 0,
+        end: 100,
+        zoomOnMouseWheel: true,
+        moveOnMouseWheel: true,
+        moveOnMouseMove: true,
+      },
+    ],
     xAxis: {
       type: 'category',
       boundaryGap: false,
@@ -649,6 +669,16 @@ const initTrafficChart = () => {
       top: '15%',
       containLabel: true,
     },
+    dataZoom: [
+      {
+        type: 'inside',
+        start: 0,
+        end: 100,
+        zoomOnMouseWheel: true,
+        moveOnMouseWheel: true,
+        moveOnMouseMove: true,
+      },
+    ],
     xAxis: {
       type: 'category',
       boundaryGap: false,
@@ -732,6 +762,16 @@ const initClientChart = () => {
       top: '10%',
       containLabel: true,
     },
+    dataZoom: [
+      {
+        type: 'inside',
+        start: 0,
+        end: 100,
+        zoomOnMouseWheel: true,
+        moveOnMouseWheel: true,
+        moveOnMouseMove: true,
+      },
+    ],
     xAxis: {
       type: 'category',
       boundaryGap: false,

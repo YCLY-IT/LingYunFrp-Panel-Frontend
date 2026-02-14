@@ -7,7 +7,7 @@
     <div class="content-info">
       <n-card :loading="loading" class="user-card">
         <n-space>
-          <div class="user-card-avatar">
+          <div class="user-card-avatar" @click="handleAvatarClick">
             <div
               :style="{
                 backgroundImage: `url(${userInfoRef?.userInfo.avatar})`,
@@ -15,10 +15,12 @@
                 width: '62px',
                 height: '62px',
                 marginTop: '1px',
-                transform: 'scale(1.2)',
+                transform: `scale(1.2) rotate(${rotationDegree}deg)`,
+                transition: 'transform 0.5s ease',
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 display: 'block',
+                cursor: 'pointer',
               }"
             />
           </div>
@@ -164,6 +166,43 @@ const statisticRef = ref<{
 const IsRealname = computed(
   () => userInfoRef.value?.userInfo.isRealname ?? false,
 )
+
+// 彩蛋相关
+const easterEggClickCount = ref(0)
+const rotationDegree = ref(0)
+const easterEggTimer = ref<number | null>(null)
+
+// 彩蛋触发处理
+const handleAvatarClick = () => {
+  easterEggClickCount.value++
+
+  // 每次点击都旋转360度
+  rotationDegree.value += 360
+
+  // 清除之前的定时器
+  if (easterEggTimer.value) {
+    clearTimeout(easterEggTimer.value)
+  }
+
+  // 2秒内没有继续点击则重置计数和旋转
+  easterEggTimer.value = window.setTimeout(() => {
+    easterEggClickCount.value = 0
+    rotationDegree.value = 0
+  }, 2000)
+
+  // 连续点击5次触发彩蛋消息
+  if (easterEggClickCount.value >= 5) {
+    triggerEasterEgg()
+    easterEggClickCount.value = 0
+  }
+}
+
+// 触发彩蛋效果
+const triggerEasterEgg = () => {
+  if (easterEggTimer.value) {
+    clearTimeout(easterEggTimer.value)
+  }
+}
 
 // 一言和流量数据
 const textHitokoto = ref('')

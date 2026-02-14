@@ -173,6 +173,7 @@ export interface Product {
   price: number
   desc: string
   payMethod: string
+  discountRules?: string
   createdAt: string
   updatedAt: string
 }
@@ -192,6 +193,7 @@ export interface CreateProductParams {
   price: number
   desc: string
   payMethod: string
+  discountRules?: string
 }
 
 export interface UpdateProductParams extends CreateProductParams {
@@ -363,6 +365,9 @@ export interface OperationLog {
   operation_module: string
   message: string
   operation_duration: number
+  request_url: string
+  request_method: string
+  client_type: string
 }
 
 export type OperationLogListApiResponse = ApiBaseResponse<OperationLog[]>
