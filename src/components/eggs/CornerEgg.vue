@@ -35,7 +35,7 @@ const showEgg = ref(false)
 const cornerSequence = ref<number[]>([])
 
 const CORRECT_SEQUENCE = [0, 1, 2, 3]
-const CORNER_SIZE = 100
+const CORNER_SIZE = 30
 let lastClickTime = 0
 const TIMEOUT = 5000
 
