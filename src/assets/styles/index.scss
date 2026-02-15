@@ -134,6 +134,16 @@ body::before {
   border-right: 1px solid rgba(var(--n-color-modal-rgb, 255, 255, 255), 0.2);
 }
 
+/* 毛玻璃模式下的顶部栏 */
+.frosted-glass-mode .n-layout-header {
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 1px) * 1.2));
+  background-color: rgba(
+    var(--n-color-modal-rgb, 255, 255, 255),
+    0.18
+  ) !important;
+  border-bottom: 1px solid rgba(var(--n-color-modal-rgb, 255, 255, 255), 0.2);
+}
+
 /* 深色主题下的毛玻璃效果 */
 .dark .frosted-glass-mode .n-card,
 .dark .frosted-glass-mode .n-input,

@@ -469,8 +469,20 @@ onMounted(() => {
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      z-index: 0;
+    }
 
     .hero-content {
+      position: relative;
+      z-index: 1;
       display: flex;
       align-items: center;
       gap: 40px;
@@ -483,14 +495,72 @@ onMounted(() => {
           font-weight: 800;
           line-height: 1.2;
           margin-bottom: 24px;
-          color: var(--n-text-color);
+          background: linear-gradient(
+            135deg,
+            #55a8f7 0%,
+            #00ccff 50%,
+            #00e099 100%
+          );
+          background-size: 200% 200%;
+          -webkit-background-clip: text;
+          background-clip: text;
+          -webkit-text-fill-color: transparent;
+          animation: gradientText 5s ease infinite;
+          text-shadow: 0 0 30px rgba(37, 99, 235, 0.3);
         }
 
         .hero-description {
           font-size: clamp(16px, 2.5vw, 18px);
           line-height: 1.6;
           margin-bottom: 32px;
-          color: var(--n-text-color-3);
+          background: linear-gradient(
+            135deg,
+            #35aee6 0%,
+            #00ccff 50%,
+            #48ff00 100%
+          );
+          background-size: 200% 200%;
+          -webkit-background-clip: text;
+          background-clip: text;
+          -webkit-text-fill-color: transparent;
+          animation: gradientText 5s ease infinite;
+          padding: 16px 24px;
+          border: 2px solid transparent;
+          border-image: linear-gradient(135deg, #2563eb, #0891b2, #059669) 1;
+          background-attachment: fixed;
+          position: relative;
+          overflow: hidden;
+
+          &::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+              135deg,
+              rgba(37, 99, 235, 0.05),
+              rgba(8, 145, 178, 0.05),
+              rgba(5, 150, 105, 0.05)
+            );
+            z-index: -1;
+            border-radius: 8px;
+          }
+
+          &::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+              90deg,
+              transparent,
+              rgba(255, 255, 255, 0.2),
+              transparent
+            );
+            animation: shimmer 3s infinite;
+            z-index: -1;
+          }
         }
 
         .hero-actions {
@@ -526,7 +596,17 @@ onMounted(() => {
         font-size: clamp(24px, 4vw, 36px);
         font-weight: 700;
         margin-bottom: 16px;
-        color: var(--n-text-color);
+        background: linear-gradient(
+          135deg,
+          #dc2626 0%,
+          #ea580c 50%,
+          #ca8a04 100%
+        );
+        background-size: 200% 200%;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: gradientText 4s ease infinite;
       }
 
       .section-description {
@@ -545,15 +625,61 @@ onMounted(() => {
       align-items: center;
       text-align: center;
       padding: 24px 16px;
-      transition: transform 0.3s ease;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+      background: linear-gradient(
+        135deg,
+        rgba(37, 99, 235, 0.02),
+        rgba(8, 145, 178, 0.02),
+        rgba(5, 150, 105, 0.02)
+      );
+      position: relative;
+      overflow: hidden;
+
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        padding: 2px;
+        background: linear-gradient(135deg, #2563eb, #0891b2, #059669);
+        -webkit-mask:
+          linear-gradient(#fff 0 0) content-box,
+          linear-gradient(#fff 0 0);
+        mask:
+          linear-gradient(#fff 0 0) content-box,
+          linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        border-radius: inherit;
+        opacity: 0.6;
+        transition: opacity 0.3s ease;
+      }
 
       &:hover {
         transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);
+
+        &::before {
+          opacity: 1;
+        }
+
+        .feature-icon {
+          color: #2563eb;
+          filter: drop-shadow(0 0 10px rgba(37, 99, 235, 0.5));
+        }
+
+        .feature-title {
+          background: linear-gradient(135deg, #2563eb 0%, #0891b2 100%);
+          -webkit-background-clip: text;
+          background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
       }
 
       .feature-icon {
         margin-bottom: 20px;
         color: var(--n-primary-color);
+        transition: all 0.3s ease;
       }
 
       .feature-title {
@@ -561,6 +687,7 @@ onMounted(() => {
         font-weight: 600;
         margin-bottom: 12px;
         color: var(--n-text-color);
+        transition: all 0.3s ease;
       }
 
       .feature-description {
@@ -600,6 +727,33 @@ onMounted(() => {
       opacity: 0;
       transform: translateY(30px);
       height: 100%;
+      border: 2px solid transparent;
+      background: linear-gradient(
+        135deg,
+        rgba(220, 38, 38, 0.02),
+        rgba(234, 88, 12, 0.02),
+        rgba(202, 138, 4, 0.02)
+      );
+      overflow: hidden;
+
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        padding: 2px;
+        background: linear-gradient(135deg, #dc2626, #ea580c, #ca8a04);
+        -webkit-mask:
+          linear-gradient(#fff 0 0) content-box,
+          linear-gradient(#fff 0 0);
+        mask:
+          linear-gradient(#fff 0 0) content-box,
+          linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        border-radius: inherit;
+        opacity: 0.5;
+        transition: opacity 0.3s ease;
+      }
 
       .step-header {
         display: flex;
@@ -611,10 +765,22 @@ onMounted(() => {
 
       &:hover {
         transform: translateY(-8px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 8px 20px rgba(220, 38, 38, 0.3);
+
+        &::before {
+          opacity: 1;
+        }
 
         .step-icon {
-          transform: scale(1.1);
+          color: #dc2626;
+          filter: drop-shadow(0 0 10px rgba(220, 38, 38, 0.5));
+        }
+
+        .step-title {
+          background: linear-gradient(135deg, #dc2626 0%, #ea580c 100%);
+          -webkit-background-clip: text;
+          background-clip: text;
+          -webkit-text-fill-color: transparent;
         }
       }
 
@@ -981,6 +1147,27 @@ onMounted(() => {
     to {
       opacity: 1;
       transform: translateY(0);
+    }
+  }
+
+  @keyframes gradientText {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  @keyframes shimmer {
+    0% {
+      left: -100%;
+    }
+    100% {
+      left: 100%;
     }
   }
 }
