@@ -439,7 +439,7 @@ import {
   LogOutOutline,
 } from '@vicons/ionicons5'
 import { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
-import { adminApi } from '@/net'
+import { adminApi, userApi } from '@/net'
 
 // 前端使用的隧道数据接口（小驼峰格式）
 interface ProxyViewModel {
@@ -1411,12 +1411,23 @@ const convertKBToDisplay = (kbValue: number, unit: string): number => {
 const gettingFreePort = ref(false)
 
 const handleGetFreePortForEdit = async () => {
+  if (
+    editForm.value.proxyType !== 'tcp' &&
+    editForm.value.proxyType !== 'udp'
+  ) {
+    message.error('仅支持TCP和UDP协议')
+    return
+  }
   try {
     gettingFreePort.value = true
-    const data = await adminApi.getProxyList()
+
+    const data = await userApi.getFreePort({
+      nodeId: editForm.value.nodeId,
+      protocol: editForm.value.proxyType,
+    })
     if (data.code === 0) {
       // 这里需要根据实际API调整
-      editForm.value.remotePort = 9417 // 94179 我是彩蛋
+      editForm.value.remotePort = data.data || 0
     } else {
       message.error(data.message || '获取空闲端口失败')
     }
@@ -1486,10 +1497,10 @@ const sortedProxies = computed(() => {
           break
         case 'status':
           // 状态：在线>封禁>禁用>正常
-          const getStatus = (row: any) =>
+          const getProxyStats = (row: any) =>
             row.isOnline ? 3 : row.isBanned ? 2 : row.isDisabled ? 1 : 0
-          aValue = getStatus(a)
-          bValue = getStatus(b)
+          aValue = getProxyStats(a)
+          bValue = getProxyStats(b)
           break
         default:
           return 0

@@ -1734,7 +1734,7 @@ const handleEditGroup = async () => {
       in_limit: editGroupForm.value.in_limit,
       no_cn_out_limit: editGroupForm.value.no_cn_out_limit,
       no_cn_in_limit: editGroupForm.value.no_cn_in_limit,
-      setUserGroup: SetUserGroup.value ? 'true' : 'false',
+      setUserGroup: SetUserGroup.value,
     })
     if (data.code === 0) {
       message.success('更新用户组成功')

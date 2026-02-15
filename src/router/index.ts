@@ -73,7 +73,7 @@ const router = createRouter({
         {
           path: 'proxy',
           name: 'tunnel-section',
-          redirect: '/dashboard/proxy/list',
+          redirect: '/dashboard/proxies/list',
           children: [
             {
               path: 'create',

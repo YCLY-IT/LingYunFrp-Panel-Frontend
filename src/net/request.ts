@@ -9,7 +9,7 @@ export interface ApiError {
 const api = axios.create({
   baseURL: '/api',
   headers: {
-    'Content-Type': 'application/x-www-form-urlencoded',
+    'Content-Type': 'application/json',
   },
 })
 
@@ -75,6 +75,30 @@ export function post<T = any>(
   config?: AxiosRequestConfig,
 ): Promise<T> {
   return api.post(url, data, config).then((res) => res.data)
+}
+
+export function put<T = any>(
+  url: string,
+  data?: any,
+  config?: AxiosRequestConfig,
+): Promise<T> {
+  return api.put(url, data, config).then((res) => res.data)
+}
+
+export function patch<T = any>(
+  url: string,
+  data?: any,
+  config?: AxiosRequestConfig,
+): Promise<T> {
+  return api.patch(url, data, config).then((res) => res.data)
+}
+
+export function del<T = any>(
+  url: string,
+  data?: any,
+  config?: AxiosRequestConfig,
+): Promise<T> {
+  return api.delete(url, { ...config, data }).then((res) => res.data)
 }
 
 export default api

@@ -166,7 +166,7 @@
                 :disabled="emailCodeSending || emailCodeCountdown > 0"
                 @click="
                   sendEmailVerificationCode(
-                    'UpdateUsername',
+                    'username',
                     forms.username.emailCode,
                   )
                 "

@@ -499,7 +499,7 @@ const columns = [
 const fetchNodeData = async () => {
   loading.value = true
   try {
-    const data = await userApi.getStatus()
+    const data = await userApi.getProxyStats()
     if (!data.data.nodes) {
       return
     }

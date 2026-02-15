@@ -870,7 +870,7 @@ import {
 import { CloudUploadOutline, SearchOutline } from '@vicons/ionicons5'
 import { switchButtonRailStyle } from '@/constants/theme.ts'
 import { userApi } from '@/net'
-import { CreateTunnelParams } from '@/net/proxy/type'
+import { CreateTunnelParams } from '@/net/proxies/type'
 
 const message = useMessage()
 const formRef = ref<FormInst | null>(null)

@@ -206,8 +206,8 @@ export interface Software {
   code: string
   name: string
   description: string
-  sourceId: number
-  sourceName: string
+  source_id: number
+  source_name: string
   versions: SoftwareVersion[]
   created_at: string
   updated_at: string
@@ -291,7 +291,7 @@ export interface CreateGroupParams {
 
 export interface UpdateGroupParams extends CreateGroupParams {
   id: number
-  setUserGroup?: string
+  setUserGroup: boolean
 }
 
 export interface SmsSettingResponse {

@@ -1185,7 +1185,7 @@ const handleRefresh = async () => {
 }
 
 const createTunnel = () => {
-  router.push('/dashboard/proxy/create')
+  router.push('/dashboard/proxies/create')
 }
 
 // 获取节点列表
@@ -1469,10 +1469,10 @@ const handleDeleteConfirm = async () => {
       closeModal('delete')
       handleRefresh()
     } else {
-      message.error('删除隧道失败')
+      message.error(data.message)
     }
   } catch (error: any) {
-    message.error(error?.response?.data?.message || '删除隧道失败')
+    message.error(error.message)
   }
 }
 

@@ -1,4 +1,4 @@
-import { getNodes, getStatus, getNodeHistory } from './proxy/node'
+import { getNodes, getNodeHistory } from './proxies/node'
 import {
   createTunnel,
   getProxyList,
@@ -10,8 +10,8 @@ import {
   getFreePort,
   batchOperateProxies,
   getProxyStats,
-  searchProxies,
-} from './proxy/proxy'
+  reloadProxies,
+} from './proxies/proxy'
 import {
   forget,
   getBroadcast,
@@ -67,7 +67,6 @@ import {
   deleteSoftwareVersion,
   getSoftwareVersions as getAdminSoftwareVersions,
   getSystemSettings,
-  setBroadcast,
   getGroupList,
   createGroup,
   updateGroup,
@@ -102,7 +101,6 @@ const userApi = {
   getUserInfo,
   getUserTraffic,
   sign,
-  getStatus,
   getNodeHistory,
   getNodes,
   getUserGroups,
@@ -116,7 +114,7 @@ const userApi = {
   getFreePort,
   batchOperateProxies,
   getProxyStats,
-  searchProxies,
+  reloadProxies,
   getSoftwares,
   getDownloadSources,
   getSoftwareVersions,
@@ -170,7 +168,6 @@ const adminApi = {
   updateSetting,
   updateSmtpSetting,
   updateSmsSetting,
-  setBroadcast,
   // 用户组管理
   getGroupList,
   createGroup,

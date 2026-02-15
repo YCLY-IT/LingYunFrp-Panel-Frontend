@@ -1,6 +1,5 @@
 import { get } from '../request'
 import { getToken } from '../token'
-import { StatusResponse } from '../user/type'
 import { NodeResponse } from './type'
 
 export interface NodeHistoryItem {
@@ -16,20 +15,12 @@ export interface NodeHistoryItem {
   record_time: string
 }
 
-export async function getStatus(): Promise<StatusResponse> {
-  return await get<StatusResponse>('/proxy/status', {
-    headers: {
-      Authorization: getToken(),
-    },
-  })
-}
-
 export async function getNodeHistory(
   nodeId: number,
   hours: number = 1,
 ): Promise<NodeHistoryItem[]> {
   return await get<NodeHistoryItem[]>(
-    `/proxy/status?nodeId=${nodeId}&hours=${hours}`,
+    `/proxies/status?nodeId=${nodeId}&hours=${hours}`,
     {
       headers: {
         Authorization: getToken(),
@@ -39,7 +30,7 @@ export async function getNodeHistory(
 }
 
 export async function getNodes(): Promise<any> {
-  return await get<NodeResponse>('/proxy/node/list', {
+  return await get<NodeResponse>('/proxies/nodes', {
     headers: {
       Authorization: getToken(),
     },

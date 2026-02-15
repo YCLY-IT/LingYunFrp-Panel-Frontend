@@ -1,5 +1,5 @@
 import { storeLoginInfo } from '@/utils/user'
-import { get, post } from '../request'
+import { get, post, patch } from '../request'
 import { getToken, storeToken } from '../token'
 import {
   ForgetParams,
@@ -37,7 +37,7 @@ import type {
 
 export async function forget(params: ForgetParams): Promise<CodeResponse> {
   const { email, password, code } = params
-  return await post<CodeResponse>(`/user/forget`, {
+  return await post<CodeResponse>(`/auth/password/reset`, {
     email,
     password,
     code,
@@ -53,7 +53,7 @@ export async function sendEmailCode(
   module: string,
   url?: string,
 ): Promise<CodeResponse> {
-  const endpoint = url ? `/user/code/${module}${url}` : `/user/code/${module}`
+  const endpoint = url ? `/codes/${module}${url}` : `/codes/${module}`
   return await post<CodeResponse>(endpoint, { email })
 }
 
@@ -62,7 +62,7 @@ export async function sendSmsCode(
   module: string,
   url?: string,
 ): Promise<CodeResponse> {
-  const endpoint = url ? `/user/code/${module}${url}` : `/user/code/${module}`
+  const endpoint = url ? `/codes/${module}${url}` : `/codes/${module}`
   return await post<CodeResponse>(
     endpoint,
     { phone },
@@ -76,7 +76,7 @@ export async function sendSmsCode(
 
 export async function register(params: RegisterParams): Promise<CodeResponse> {
   const { username, nickname, password, email, code } = params
-  return await post<CodeResponse>(`/user/register`, {
+  return await post<CodeResponse>(`/auth/register`, {
     username,
     nickname,
     password,
@@ -91,7 +91,7 @@ export async function login({
   remember,
   url,
 }: LoginParams): Promise<LoginResponse> {
-  const data = await post<LoginResponse>(`/user/login${url}`, {
+  const data = await post<LoginResponse>(`/auth/login${url}`, {
     username,
     password,
   })
@@ -127,7 +127,7 @@ export async function getLaStatistic(apiUrl: string): Promise<string[] | null> {
 
 export async function getGitHubCommits(): Promise<GitHubCommitsResponse> {
   try {
-    const data = await get<GitHubCommitsResponse>('/user/info/githubCommits', {
+    const data = await get<GitHubCommitsResponse>('/info/github/commits', {
       headers: {
         Authorization: getToken(),
       },
@@ -140,11 +140,15 @@ export async function getGitHubCommits(): Promise<GitHubCommitsResponse> {
 }
 
 export async function logout(): Promise<LogoutResponse> {
-  return await get<LogoutResponse>('/user/logout', {
-    headers: {
-      Authorization: getToken(),
+  return await post<LogoutResponse>(
+    '/auth/logout',
+    {},
+    {
+      headers: {
+        Authorization: getToken(),
+      },
     },
-  })
+  )
 }
 
 export async function getTrafficTrend(
@@ -152,10 +156,9 @@ export async function getTrafficTrend(
 ): Promise<TrafficTrendResponse> {
   try {
     const token = getToken()
-    return await get<TrafficTrendResponse>(
-      `/user/info/trafficTrend?day=${day}`,
-      { headers: { Authorization: token } },
-    )
+    return await get<TrafficTrendResponse>(`/user/traffic/trend?day=${day}`, {
+      headers: { Authorization: token },
+    })
   } catch (err: any) {
     console.error('获取流量趋势数据失败:', err)
     return err
@@ -165,7 +168,7 @@ export async function getTrafficTrend(
 export async function getBroadcast(): Promise<BroadcastResponse> {
   try {
     const token = getToken()
-    return await get<BroadcastResponse>('/user/info/broadcast', {
+    return await get<BroadcastResponse>('/info/broadcasts', {
       headers: { Authorization: token },
     })
   } catch (err: any) {
@@ -188,7 +191,7 @@ export async function getUserInfo(): Promise<UserInfoResponse> {
 
 export async function sign(url: string): Promise<SignResponse> {
   return await post<SignResponse>(
-    `/user/sign${url}`,
+    `/sign${url}`,
     {},
     {
       headers: {
@@ -199,7 +202,7 @@ export async function sign(url: string): Promise<SignResponse> {
 }
 
 export async function getUserTraffic(): Promise<UserTrafficResponse> {
-  return await get<UserTrafficResponse>('/user/info/traffic', {
+  return await get<UserTrafficResponse>('/user/traffic', {
     headers: {
       Authorization: getToken(),
     },
@@ -207,7 +210,7 @@ export async function getUserTraffic(): Promise<UserTrafficResponse> {
 }
 
 export async function getUserGroups(): Promise<GroupResponse> {
-  return await get<GroupResponse>('/user/info/groups', {
+  return await get<GroupResponse>('/info/groups', {
     headers: {
       Authorization: getToken(),
     },
@@ -215,7 +218,7 @@ export async function getUserGroups(): Promise<GroupResponse> {
 }
 
 export async function getSoftwares(): Promise<SoftwaresResponse> {
-  return await get<SoftwaresResponse>('/user/info/softwares', {
+  return await get<SoftwaresResponse>('/info/softwares', {
     headers: {
       Authorization: getToken(),
     },
@@ -223,7 +226,7 @@ export async function getSoftwares(): Promise<SoftwaresResponse> {
 }
 
 export async function getDownloadSources(): Promise<DownloadSourcesResponse> {
-  return await get<DownloadSourcesResponse>('/user/info/download/sources', {
+  return await get<DownloadSourcesResponse>('/info/downloads/sources', {
     headers: {
       Authorization: getToken(),
     },
@@ -231,7 +234,7 @@ export async function getDownloadSources(): Promise<DownloadSourcesResponse> {
 }
 
 export async function getSoftwareVersions(): Promise<SoftwareVersionsResponse> {
-  return await get<SoftwareVersionsResponse>('/user/info/softwares/version', {
+  return await get<SoftwareVersionsResponse>('/info/softwares/versions', {
     headers: {
       Authorization: getToken(),
     },
@@ -239,7 +242,7 @@ export async function getSoftwareVersions(): Promise<SoftwareVersionsResponse> {
 }
 
 export async function getProducts(): Promise<ProductsResponse> {
-  return await get<ProductsResponse>('/user/info/product', {
+  return await get<ProductsResponse>('/info/products', {
     headers: {
       Authorization: getToken(),
     },
@@ -249,7 +252,7 @@ export async function getProducts(): Promise<ProductsResponse> {
 export async function buyProduct(
   params: BuyProductParams,
 ): Promise<BuyProductResponse> {
-  return await post<BuyProductResponse>('/user/buy', params, {
+  return await post<BuyProductResponse>('/orders/', params, {
     headers: {
       Authorization: getToken(),
     },
@@ -260,21 +263,18 @@ export async function buyProduct(
 export async function checkPaymentStatus(
   outTradeNo: string,
 ): Promise<CheckPaymentStatusResponse> {
-  return await get<CheckPaymentStatusResponse>(
-    `/user/pay/status/${outTradeNo}`,
-    {
-      headers: {
-        Authorization: getToken(),
-      },
+  return await get<CheckPaymentStatusResponse>(`/orders/status/${outTradeNo}`, {
+    headers: {
+      Authorization: getToken(),
     },
-  )
+  })
 }
 
 // 更新用户名
 export async function updateUsername(
   params: UpdateUsernameParams,
 ): Promise<UpdateUsernameResponse> {
-  return await post<UpdateUsernameResponse>('/user/update/username', params, {
+  return await patch<UpdateUsernameResponse>('/user/username', params, {
     headers: {
       Authorization: getToken(),
     },
@@ -285,8 +285,8 @@ export async function updateUsername(
 export async function updateNickname(
   nickname: string,
 ): Promise<UpdateNicknameResponse> {
-  return await post<UpdateNicknameResponse>(
-    `/user/update/nickname/${nickname}`,
+  return await patch<UpdateNicknameResponse>(
+    `/user/nickname`,
     { nickname },
     {
       headers: {
@@ -300,16 +300,12 @@ export async function updateNickname(
 export async function updateAvatarUpload(
   formData: FormData,
 ): Promise<UpdateAvatarResponse> {
-  return await post<UpdateAvatarResponse>(
-    '/user/update/avatar/uploads',
-    formData,
-    {
-      headers: {
-        Authorization: getToken() || '',
-        'Content-Type': 'multipart/form-data',
-      },
+  return await post<UpdateAvatarResponse>('/user/avatar', formData, {
+    headers: {
+      Authorization: getToken() || '',
+      'Content-Type': 'multipart/form-data',
     },
-  )
+  })
 }
 
 // QQ头像
@@ -317,7 +313,7 @@ export async function updateAvatarQQ(
   qq: string,
 ): Promise<UpdateAvatarResponse> {
   return await post<UpdateAvatarResponse>(
-    '/user/update/avatar/qq',
+    '/user/avatar/qq',
     { qq },
     {
       headers: {
@@ -332,7 +328,7 @@ export async function updateAvatarCravatar(
   cravatar: string,
 ): Promise<UpdateAvatarResponse> {
   return await post<UpdateAvatarResponse>(
-    '/user/update/avatar/cravatar',
+    '/user/avatar/cravatar',
     { cravatar },
     {
       headers: {
@@ -346,7 +342,7 @@ export async function updateAvatarCravatar(
 export async function updatePassword(
   params: UpdatePasswordParams,
 ): Promise<UpdatePasswordResponse> {
-  return await post<UpdatePasswordResponse>('/user/update/password', params, {
+  return await post<UpdatePasswordResponse>('/auth/password/update', params, {
     headers: {
       Authorization: getToken(),
     },
@@ -357,7 +353,7 @@ export async function updatePassword(
 export async function submitRealname(
   params: RealnameParams,
 ): Promise<SubmitRealnameResponse> {
-  return await post<SubmitRealnameResponse>('/user/realname', params, {
+  return await post<SubmitRealnameResponse>('/realname/', params, {
     headers: {
       Authorization: getToken(),
     },

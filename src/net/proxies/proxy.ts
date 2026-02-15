@@ -1,4 +1,4 @@
-import { post, get } from '../request'
+import { post, get, put, patch, del } from '../request'
 import { getToken } from '../token'
 import {
   CreateTunnelParams,
@@ -26,7 +26,7 @@ export async function createTunnel(
   params: CreateTunnelParams,
 ): Promise<CreateTunnelResponse> {
   try {
-    return await post<CreateTunnelResponse>('/proxy/create', params, {
+    return await post<CreateTunnelResponse>('/proxies', params, {
       headers: {
         Authorization: getToken(),
       },
@@ -43,7 +43,7 @@ export async function createTunnel(
  */
 export async function getProxyList(): Promise<ProxyListResponse> {
   try {
-    return await get<ProxyListResponse>('/proxy/list', {
+    return await get<ProxyListResponse>('/proxies', {
       headers: {
         Authorization: getToken(),
       },
@@ -60,7 +60,7 @@ export async function getProxyList(): Promise<ProxyListResponse> {
  */
 export async function getProxyNodes(): Promise<NodeResponse> {
   try {
-    return await get<NodeResponse>('/proxy/node/list', {
+    return await get<NodeResponse>('/proxies/nodes', {
       headers: {
         Authorization: getToken(),
       },
@@ -80,7 +80,7 @@ export async function updateProxy(
   params: UpdateTunnelParams,
 ): Promise<UpdateTunnelResponse> {
   try {
-    return await post<UpdateTunnelResponse>('/proxy/update', params, {
+    return await put<UpdateTunnelResponse>('/proxies', params, {
       headers: {
         Authorization: getToken(),
       },
@@ -100,7 +100,7 @@ export async function deleteProxy(
   params: DeleteProxyParams,
 ): Promise<DeleteTunnelResponse> {
   try {
-    return await post<DeleteTunnelResponse>('/proxy/delete', params, {
+    return await del<DeleteTunnelResponse>('/proxies', params, {
       headers: {
         Authorization: getToken(),
       },
@@ -120,7 +120,7 @@ export async function toggleProxy(
   params: ToggleProxyParams,
 ): Promise<ToggleTunnelResponse> {
   try {
-    return await post<ToggleTunnelResponse>('/proxy/toggle', params, {
+    return await patch<ToggleTunnelResponse>('/proxies/toggle', params, {
       headers: {
         Authorization: getToken(),
       },
@@ -140,7 +140,8 @@ export async function getProxyConfig(
   params: GetProxyConfigParams,
 ): Promise<ProxyConfigResponse> {
   try {
-    return await post<ProxyConfigResponse>('/proxy/config', params, {
+    return await get<ProxyConfigResponse>('/proxies/config', {
+      params,
       headers: {
         Authorization: getToken(),
       },
@@ -160,7 +161,7 @@ export async function getFreePort(
   params: GetFreePortParams,
 ): Promise<FreePortResponse> {
   try {
-    return await post<FreePortResponse>('/proxy/freePort', params, {
+    return await post<FreePortResponse>('/proxies/free-port', params, {
       headers: {
         Authorization: getToken(),
       },
@@ -186,7 +187,7 @@ export async function batchOperateProxies(
       proxyIds,
       action,
     }
-    return await post('/proxy/batch', params, {
+    return await post('/proxies/batch', params, {
       headers: {
         Authorization: getToken(),
       },
@@ -203,7 +204,7 @@ export async function batchOperateProxies(
  */
 export async function getProxyStats(): Promise<any> {
   try {
-    return await get('/proxy/status', {
+    return await get('/proxies/status', {
       headers: {
         Authorization: getToken(),
       },
@@ -215,32 +216,22 @@ export async function getProxyStats(): Promise<any> {
 }
 
 /**
- * 搜索隧道
- * @param keyword 搜索关键词
- * @param filters 过滤条件
- * @returns 搜索结果
+ * 重载代理
+ * @returns 重载结果
  */
-export async function searchProxies(
-  keyword: string,
-  filters?: {
-    proxyType?: string
-    nodeId?: number
-    isOnline?: boolean
-    isDisabled?: boolean
-  },
-): Promise<ProxyListResponse> {
+export async function reloadProxies(): Promise<any> {
   try {
-    const params = {
-      keyword,
-      ...filters,
-    }
-    return await post<ProxyListResponse>('/proxy/search', params, {
-      headers: {
-        Authorization: getToken(),
+    return await post(
+      '/proxies/reload',
+      {},
+      {
+        headers: {
+          Authorization: getToken(),
+        },
       },
-    })
+    )
   } catch (error) {
-    console.error('搜索隧道失败:', error)
+    console.error('重载代理失败:', error)
     throw error
   }
 }

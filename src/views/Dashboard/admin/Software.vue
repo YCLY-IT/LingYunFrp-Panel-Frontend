@@ -607,15 +607,13 @@ const handleEdit = (row: Software) => {
     name: row.name,
     code: row.code,
     description: row.description,
-    sourceId: row.sourceId,
+    sourceId: row.source_id,
   }
   window.$modalMutex?.open('software-modal')
 }
 
 const handleVersionManage = (row: Software) => {
   editingSoftware.value = row
-  console.log('当前软件ID:', row.id)
-  console.log('所有版本:', allVersions.value)
   currentVersions.value = allVersions.value.filter(
     (version) => version.software_id === row.id,
   )

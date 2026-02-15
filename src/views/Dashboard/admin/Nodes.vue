@@ -1175,7 +1175,7 @@ const handleEditNode = async () => {
       editingNode.value = null
     }
   } catch (error: any) {
-    message.error(error?.response?.data?.message || '更新节点失败')
+    message.error(error.message || '更新节点失败')
   }
 }
 
@@ -1214,6 +1214,7 @@ const handleAddNode = async () => {
       resetForm()
     }
   } catch (error: any) {
+    if (error.message == '') return
     message.error(error.message)
   }
 }

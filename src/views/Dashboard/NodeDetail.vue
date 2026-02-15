@@ -291,7 +291,7 @@ const goBack = () => {
 // 获取节点数据
 const fetchNodeData = async () => {
   try {
-    const res: any = await userApi.getStatus()
+    const res: any = await userApi.getProxyStats()
     const nodes = res.data?.nodes || []
     nodeData.value = nodes.find((n: any) => n.id === parseInt(nodeId.value))
   } catch (error) {
