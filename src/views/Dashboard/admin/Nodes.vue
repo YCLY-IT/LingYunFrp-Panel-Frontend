@@ -10,7 +10,6 @@
                 v-model:value="nodesStore.searchKeyword"
                 placeholder="搜索ID、节点名称或主机名"
                 clearable
-                @update:value="nodesStore.handleSearch"
               >
                 <template #prefix>
                   <n-icon><search-outline /></n-icon>
@@ -71,9 +70,9 @@
 
         <n-data-table
           v-if="nodesStore.shouldShowTable"
-          :remote="!nodesStore.hasFilters"
+          remote
           :columns="columns"
-          :data="sortedNodes"
+          :data="nodesStore.nodes"
           :loading="nodesStore.loading"
           :pagination="false"
           :row-class-name="rowClassName"
@@ -542,7 +541,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, h, computed } from 'vue'
+import { ref, h, watch } from 'vue'
 import {
   NCard,
   NSpace,
@@ -587,6 +586,23 @@ import { useGroupsStore } from '@/stores/groups'
 const message = useMessage()
 const nodesStore = useNodesStore()
 const groupsStore = useGroupsStore()
+
+// 搜索防抖定时器
+let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null
+
+// 监听搜索关键词变化，带防抖
+watch(
+  () => nodesStore.searchKeyword,
+  () => {
+    if (searchDebounceTimer) {
+      clearTimeout(searchDebounceTimer)
+    }
+    searchDebounceTimer = setTimeout(() => {
+      nodesStore.pagination.page = 1
+      nodesStore.fetchNodes(message)
+    }, 300)
+  },
+)
 
 // 模态框状态
 const showAddModal = ref(false)
@@ -657,57 +673,6 @@ const sortOrderOptions = [
   { label: '降序', value: 'desc' },
 ]
 const sortOptions = ref({ key: 'id', order: 'asc' })
-
-const sortedNodes = computed(() => {
-  let sorted = [...nodesStore.nodes]
-  if (sortOptions.value.key && sortOptions.value.order) {
-    sorted = sorted.sort((a, b) => {
-      let aValue, bValue
-      switch (sortOptions.value.key) {
-        case 'id':
-          aValue = a.id
-          bValue = b.id
-          break
-        case 'name':
-          aValue = a.name
-          bValue = b.name
-          break
-        case 'port':
-          aValue = a.port
-          bValue = b.port
-          break
-        case 'admin_port':
-          aValue = a.admin_port
-          bValue = b.admin_port
-          break
-        case 'need_realname':
-          aValue = a.need_realname ? 1 : 0
-          bValue = b.need_realname ? 1 : 0
-          break
-        case 'group':
-          aValue = a.group
-          bValue = b.group
-          break
-        default:
-          return 0
-      }
-      // 主字段相同用ID次级排序
-      if (aValue === bValue) {
-        return sortOptions.value.order === 'asc' ? a.id - b.id : b.id - a.id
-      }
-      if (sortOptions.value.order === 'asc') {
-        return aValue > bValue ? 1 : aValue < bValue ? -1 : 0
-      } else {
-        return aValue < bValue ? 1 : aValue > bValue ? -1 : 0
-      }
-    })
-  }
-  // 本地分页
-  const start =
-    (nodesStore.pagination.page - 1) * nodesStore.pagination.pageSize
-  const end = start + nodesStore.pagination.pageSize
-  return sorted.slice(start, end)
-})
 
 const handleSortFieldChange = () => {
   nodesStore.pagination.page = 1

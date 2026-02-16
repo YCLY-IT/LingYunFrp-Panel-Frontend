@@ -63,7 +63,7 @@
           <NDataTable
             remote
             :columns="columns"
-            :data="sortedProxies"
+            :data="proxies"
             :loading="loading"
             :pagination="false"
             :style="{
@@ -75,7 +75,6 @@
               },
             }"
             :scroll-x="900"
-            @update:sorter="handleSortChange"
           />
         </div>
 
@@ -94,6 +93,7 @@
               (pageSize: number) => {
                 pagination.pageSize = pageSize
                 pagination.page = 1
+                loadData()
               }
             "
           />
@@ -441,36 +441,8 @@ import {
 import { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
 import { adminApi, userApi } from '@/net'
 
-// 前端使用的隧道数据接口（小驼峰格式）
-interface ProxyViewModel {
-  proxyId: number
-  proxyName: string
-  nodeId: number
-  localIp: string
-  localPort: number
-  remotePort: number
-  domain: string
-  proxyType: string
-  isOnline: boolean
-  isBanned: boolean | null
-  isDisabled: boolean
-  username: string
-  accessKey: string
-  hostHeaderRewrite: string
-  headerXFromWhere: string
-  useEncryption: boolean
-  useCompression: boolean
-  proxyProtocolVersion: string
-  location: string
-  ipLimitIn: number
-  ipLimitInUnit: string
-  ipLimitOut: number
-  ipLimitOutUnit: string
-}
-
 const message = useMessage()
 const loading = ref(false)
-const allProxies = ref<ProxyViewModel[]>([]) // 存储所有从后端获取的隧道
 
 const filters = ref<{
   search: string
@@ -531,15 +503,6 @@ const pagination = ref({
   ],
   prefix({ itemCount }: { itemCount?: number }) {
     return `共 ${itemCount} 条`
-  },
-  onUpdatePage: (page: number) => {
-    pagination.value.page = page
-    // loadData() // 改为前端分页，不再需要重新加载数据
-  },
-  onUpdatePageSize: (pageSize: number) => {
-    pagination.value.pageSize = pageSize
-    pagination.value.page = 1
-    // loadData() // 改为前端分页，不再需要重新加载数据
   },
 })
 
@@ -1042,58 +1005,12 @@ const columns: DataTableColumns<Proxy> = [
   },
 ]
 
-// 前端筛选
-const filteredProxies = computed(() => {
-  let tempProxies = [...allProxies.value]
-
-  // 协议筛选
-  if (filters.value.proxyType) {
-    tempProxies = tempProxies.filter(
-      (p) => p.proxyType === filters.value.proxyType,
-    )
-  }
-
-  // 在线状态筛选
-  if (filters.value.isOnline !== null) {
-    const isOnline = filters.value.isOnline === 'online'
-    tempProxies = tempProxies.filter((p) => p.isOnline === isOnline)
-  }
-
-  // 封禁状态筛选
-  if (filters.value.isBanned !== null) {
-    const isBanned = filters.value.isBanned === 'banned'
-    tempProxies = tempProxies.filter((p) => p.isBanned === isBanned)
-  }
-
-  // 节点筛选
-  if (filters.value.nodeId !== null) {
-    tempProxies = tempProxies.filter((p) => p.nodeId === filters.value.nodeId)
-  }
-
-  // 搜索筛选
-  if (filters.value.search) {
-    const keyword = filters.value.search.toLowerCase()
-    tempProxies = tempProxies.filter(
-      (p) =>
-        String(p.proxyId).toLowerCase().includes(keyword) ||
-        p.proxyName.toLowerCase().includes(keyword) ||
-        (p.username || '').toLowerCase().includes(keyword) ||
-        (p.domain && p.domain.toLowerCase().includes(keyword)),
-    )
-  }
-
-  // 更新分页总数
-  pagination.value.itemCount = tempProxies.length
-  pagination.value.pageCount = Math.ceil(
-    tempProxies.length / pagination.value.pageSize,
-  )
-
-  return tempProxies
-})
+// 代理列表数据
+const proxies = ref<Proxy[]>([])
 
 const handlePageChange = (page: number) => {
   pagination.value.page = page
-  // loadData() // 改为前端分页
+  loadData()
 }
 
 let searchTimeout: ReturnType<typeof setTimeout> | null = null
@@ -1104,13 +1021,13 @@ const handleSearch = () => {
   }
   searchTimeout = setTimeout(() => {
     pagination.value.page = 1
-    // loadData() // 改为前端筛选
+    loadData()
   }, 300)
 }
 
 const handleFilterChange = () => {
   pagination.value.page = 1
-  // loadData() // 改为前端筛选
+  loadData()
 }
 
 const handleBanProxy = async (proxy: Proxy) => {
@@ -1222,9 +1139,9 @@ const handleEditSubmit = async () => {
 // 获取节点列表
 const fetchNodes = async () => {
   try {
-    const data = await adminApi.getNodeList()
-    if (data.code === 0) {
-      const nodes = data.data.nodes
+    const data = await adminApi.getNodeList(1, 1000)
+    if (data.code === 0 && data.data) {
+      const nodes = data.data.nodes || []
       nodeOptions.value = nodes.map((node: any) => ({
         id: node.id,
         name: node.name,
@@ -1244,27 +1161,19 @@ const fetchNodes = async () => {
 const loadData = async () => {
   loading.value = true
   try {
-    /* 以下筛选改由前端处理
-    if (filters.value.search) {
-      params.keyword = filters.value.search
-    }
-    if (filters.value.proxyType) {
-      params.proxyType = filters.value.proxyType
-    }
-    if (filters.value.isOnline !== null) {
-      params.isOnline = filters.value.isOnline === 'online'
-    }
-    if (filters.value.isBanned !== null) {
-      params.isBanned = filters.value.isBanned === 'banned'
-    }
-    if (filters.value.nodeId !== null) {
-      params.nodeId = filters.value.nodeId
-    }
-    */
-
-    const data = await adminApi.getProxyList()
-    if (data.code === 0) {
-      allProxies.value = data.data.proxies.map((proxy: any) => ({
+    const data = await adminApi.getProxyList(
+      pagination.value.page,
+      pagination.value.pageSize,
+      filters.value.search || undefined,
+      filters.value.nodeId || undefined,
+      filters.value.proxyType || undefined,
+      filters.value.isOnline || undefined,
+      filters.value.isBanned || undefined,
+      sortOptions.value.key || undefined,
+      sortOptions.value.order || undefined,
+    )
+    if (data.code === 0 && data.data) {
+      proxies.value = (data.data.proxies || []).map((proxy: any) => ({
         proxyId: proxy.proxy_id,
         proxyName: proxy.proxy_name ?? '',
         nodeId: proxy.node,
@@ -1284,6 +1193,8 @@ const loadData = async () => {
         useCompression: proxy.use_compression ?? false,
         proxyProtocolVersion: proxy.proxy_protocol_version?.trim() ?? '',
         location: proxy.locations ?? '',
+        lastStartTime: proxy.last_start_time || 0,
+        lastCloseTime: proxy.last_close_time || 0,
         ...(() => {
           const inKB = proxy.ip_limit_in ?? 0
           const outKB = proxy.ip_limit_out ?? 0
@@ -1309,12 +1220,8 @@ const loadData = async () => {
           }
         })(),
       }))
-      /* 后端分页信息不再需要
-      pagination.value.pageCount = Math.ceil(
-        data.data.pagination?.total / pagination.value.pageSize,
-      )
-      pagination.value.itemCount = data.data.pagination?.total
-      */
+      pagination.value.pageCount = data.data.totalPages
+      pagination.value.itemCount = data.data.total
     } else {
       message.error(data.message || '获取数据失败')
     }
@@ -1468,74 +1375,11 @@ const sortOrderOptions: SelectOption[] = [
 ]
 const sortOptions = ref({ key: 'proxyId', order: 'asc' })
 
-// 本地排序和分页
-const sortedProxies = computed(() => {
-  let sorted = [...filteredProxies.value]
-  if (sortOptions.value.key && sortOptions.value.order) {
-    sorted = sorted.sort((a, b) => {
-      let aValue: any, bValue: any
-      switch (sortOptions.value.key) {
-        case 'proxyId':
-          aValue = a.proxyId
-          bValue = b.proxyId
-          break
-        case 'username':
-          aValue = a.username
-          bValue = b.username
-          break
-        case 'proxyName':
-          aValue = a.proxyName
-          bValue = b.proxyName
-          break
-        case 'nodeId':
-          aValue = a.nodeId
-          bValue = b.nodeId
-          break
-        case 'proxyType':
-          aValue = a.proxyType
-          bValue = b.proxyType
-          break
-        case 'status':
-          // 状态：在线>封禁>禁用>正常
-          const getProxyStats = (row: any) =>
-            row.isOnline ? 3 : row.isBanned ? 2 : row.isDisabled ? 1 : 0
-          aValue = getProxyStats(a)
-          bValue = getProxyStats(b)
-          break
-        default:
-          return 0
-      }
-      // 主字段相同用ID次级排序
-      if (aValue === bValue) {
-        return sortOptions.value.order === 'asc'
-          ? a.proxyId - b.proxyId
-          : b.proxyId - a.proxyId
-      }
-      if (sortOptions.value.order === 'asc') {
-        return aValue > bValue ? 1 : aValue < bValue ? -1 : 0
-      } else {
-        return aValue < bValue ? 1 : aValue > bValue ? -1 : 0
-      }
-    })
-  }
-  // 本地分页
-  const start = (pagination.value.page - 1) * pagination.value.pageSize
-  const end = start + pagination.value.pageSize
-  return sorted.slice(start, end)
-})
-
 const handleSortFieldChange = () => {
   pagination.value.page = 1
 }
 const handleSortOrderChange = () => {
   pagination.value.page = 1
-}
-const handleSortChange = (sorter: any) => {
-  if (sorter) {
-    sortOptions.value.key = sorter.columnKey
-    sortOptions.value.order = sorter.order === 'ascend' ? 'asc' : 'desc'
-    pagination.value.page = 1
-  }
 }
 
 onMounted(() => {

@@ -42,6 +42,15 @@ export interface ApiBaseResponse<T = any> {
   message: string
 }
 
+// 分页响应基础类型
+export interface PaginatedResponse<T> {
+  list: T[]
+  total: number
+  page: number
+  pageSize: number
+  totalPages: number
+}
+
 export interface GitHubCommit {
   sha: string
   html_url: string
@@ -244,7 +253,16 @@ export type TrafficTrendResponse = ApiBaseResponse<TrafficData[]>
 export type ProductsResponse = ApiBaseResponse<ProductsData>
 export type SoftwaresResponse = ApiBaseResponse<Software[]>
 export type DownloadSourcesResponse = ApiBaseResponse<DownloadSource[]>
-export type SoftwareVersionsResponse = ApiBaseResponse<SoftwareVersion[]>
+// 软件版本列表分页响应
+export interface SoftwareVersionsResponseData {
+  list: SoftwareVersion[]
+  total: number
+  page: number
+  pageSize: number
+  totalPages: number
+}
+export type SoftwareVersionsResponse =
+  ApiBaseResponse<SoftwareVersionsResponseData>
 export type BuyProductResponse = ApiBaseResponse<any>
 export type CodeSendResponse = ApiBaseResponse<any>
 export type LogoutResponse = ApiBaseResponse<any>

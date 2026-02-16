@@ -92,8 +92,25 @@ export interface GetFreePortParams {
   protocol: 'tcp' | 'udp'
 }
 
+// 分页响应基础类型
+export interface PaginatedResponse<T> {
+  list: T[]
+  total: number
+  page: number
+  pageSize: number
+  totalPages: number
+}
+
 export type NodeResponse = ApiBaseResponse<NodeData[]>
-export type ProxyListResponse = ApiBaseResponse<ProxyData[]>
+// 用户端代理列表响应（后端使用 proxies 字段名）
+export interface ProxyListResponseData {
+  proxies: ProxyData[]
+  total: number
+  page: number
+  pageSize: number
+  totalPages: number
+}
+export type ProxyListResponse = ApiBaseResponse<ProxyListResponseData>
 export type ProxyConfigResponse = ApiBaseResponse<ProxyConfigData>
 export type FreePortResponse = ApiBaseResponse<number>
 export type CreateTunnelResponse = ApiBaseResponse<{ proxyId: number }>

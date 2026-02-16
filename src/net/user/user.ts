@@ -233,12 +233,18 @@ export async function getDownloadSources(): Promise<DownloadSourcesResponse> {
   })
 }
 
-export async function getSoftwareVersions(): Promise<SoftwareVersionsResponse> {
-  return await get<SoftwareVersionsResponse>('/info/softwares/versions', {
-    headers: {
-      Authorization: getToken(),
+export async function getSoftwareVersions(
+  page: number = 1,
+  pageSize: number = 20,
+): Promise<SoftwareVersionsResponse> {
+  return await get<SoftwareVersionsResponse>(
+    `/info/softwares/versions?page=${page}&pageSize=${pageSize}`,
+    {
+      headers: {
+        Authorization: getToken(),
+      },
     },
-  })
+  )
 }
 
 export async function getProducts(): Promise<ProductsResponse> {

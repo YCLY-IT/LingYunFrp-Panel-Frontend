@@ -8,6 +8,7 @@
             placeholder="搜索用户名、操作类型或模块"
             clearable
             style="flex: 1"
+            @update:value="handleSearch"
           >
             <template #prefix>
               <NIcon :component="Search" />
@@ -38,7 +39,7 @@
         <div class="table-container">
           <NDataTable
             :columns="columns"
-            :data="pagedLogs"
+            :data="logs"
             :loading="loading"
             :pagination="false"
             striped
@@ -50,10 +51,11 @@
           <NPagination
             v-model:page="pagination.page"
             v-model:page-size="pagination.pageSize"
-            :item-count="filteredLogs.length"
+            :item-count="pagination.itemCount"
+            :page-count="pagination.pageCount"
             :page-sizes="pagination.pageSizes"
             show-size-picker
-            @update:page="pagination.page = $event"
+            @update:page="fetchLogs"
             @update:page-size="handlePageSizeChange"
           >
             <template #prefix="{ itemCount }"> 共 {{ itemCount }} 条 </template>
@@ -179,7 +181,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, h } from 'vue'
+import { ref, onMounted, h } from 'vue'
 import {
   NCard,
   NSpace,
@@ -223,6 +225,8 @@ const filters = ref({
 const pagination = ref({
   page: 1,
   pageSize: 10,
+  pageCount: 1,
+  itemCount: 0,
   pageSizes: [
     { label: '10 条/页', value: 10 },
     { label: '20 条/页', value: 20 },
@@ -245,36 +249,6 @@ const statusOptions = [
   { label: '失败', value: '失败' },
 ]
 
-const filteredLogs = computed(() => {
-  return logs.value.filter((log) => {
-    const searchMatch =
-      !filters.value.search ||
-      log.user_name
-        .toLowerCase()
-        .includes(filters.value.search.toLowerCase()) ||
-      log.operation_type
-        .toLowerCase()
-        .includes(filters.value.search.toLowerCase()) ||
-      log.operation_module
-        .toLowerCase()
-        .includes(filters.value.search.toLowerCase())
-
-    const moduleMatch =
-      !filters.value.module || log.operation_module === filters.value.module
-
-    const statusMatch =
-      !filters.value.status || log.operation_status === filters.value.status
-
-    return searchMatch && moduleMatch && statusMatch
-  })
-})
-
-const pagedLogs = computed(() => {
-  const start = (pagination.value.page - 1) * pagination.value.pageSize
-  const end = start + pagination.value.pageSize
-  return filteredLogs.value.slice(start, end)
-})
-
 const formatDate = (dateStr: string) => {
   const date = new Date(dateStr)
   return date.toLocaleString('zh-CN')
@@ -283,6 +257,21 @@ const formatDate = (dateStr: string) => {
 const handlePageSizeChange = (size: number) => {
   pagination.value.pageSize = size
   pagination.value.page = 1
+  fetchLogs()
+}
+
+// 搜索防抖定时器
+let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null
+
+// 处理搜索输入
+const handleSearch = () => {
+  if (searchDebounceTimer) {
+    clearTimeout(searchDebounceTimer)
+  }
+  searchDebounceTimer = setTimeout(() => {
+    pagination.value.page = 1
+    fetchLogs()
+  }, 300)
 }
 
 const viewDetail = (log: OperationLog) => {
@@ -461,9 +450,17 @@ const columns: DataTableColumns<OperationLog> = [
 const fetchLogs = async () => {
   loading.value = true
   try {
-    const res = await getAdminOperationLogList()
+    const res = await getAdminOperationLogList(
+      pagination.value.page,
+      pagination.value.pageSize,
+      filters.value.search || undefined,
+      filters.value.module || undefined,
+      filters.value.status || undefined,
+    )
     if (res.code === 0 && res.data) {
-      logs.value = (res.data || []).sort((a, b) => b.id - a.id)
+      logs.value = res.data.list || []
+      pagination.value.itemCount = res.data.total
+      pagination.value.pageCount = res.data.totalPages
     }
   } finally {
     loading.value = false

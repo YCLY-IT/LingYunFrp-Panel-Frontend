@@ -7,6 +7,7 @@
             v-model:value="searchText"
             placeholder="搜索隧道..."
             clearable
+            @update:value="handleSearch"
           >
             <template #prefix>
               <NIcon>
@@ -69,14 +70,14 @@
 
     <!-- 隧道有数据时 -->
     <div
-      v-if="filteredProxies.length"
+      v-if="proxies.length"
       :class="viewMode === 'grid' ? 'tunnel-grid' : 'tunnel-list'"
     >
       <!-- 网格视图 -->
       <div v-if="viewMode === 'grid'" class="tunnel-grid">
-        <template v-if="filteredProxies.length">
+        <template v-if="proxies.length">
           <NCard
-            v-for="proxy in filteredProxies"
+            v-for="proxy in proxies"
             :key="proxy.proxyId"
             class="tunnel-card"
             @click="isMobile ? handleSelect('view', proxy) : undefined"
@@ -293,14 +294,32 @@
       <!-- 列表视图 -->
       <div v-else class="tunnel-list">
         <NDataTable
-          v-if="filteredProxies.length"
+          v-if="proxies.length"
           :columns="columns"
-          :data="filteredProxies"
-          :pagination="{ pageSize: 10 }"
+          :data="proxies"
+          :pagination="false"
           :bordered="false"
           class="data-table"
         />
       </div>
+    </div>
+
+    <!-- 分页组件 -->
+    <div
+      v-if="proxies.length"
+      style="display: flex; justify-content: right; margin-top: 16px"
+    >
+      <NPagination
+        v-model:page="pagination.page"
+        v-model:page-size="pagination.pageSize"
+        :item-count="pagination.itemCount"
+        :page-count="pagination.pageCount"
+        show-size-picker
+        :page-sizes="pagination.pageSizes"
+        :prefix="pagination.prefix"
+        @update:page="handlePageChange"
+        @update:page-size="handlePageSizeChange"
+      />
     </div>
 
     <!-- 隧道无数据时 -->
@@ -966,6 +985,7 @@ import {
   NTabPane,
   NScrollbar,
   NDropdown,
+  NPagination,
 } from 'naive-ui'
 import {
   GridOutline,
@@ -1024,6 +1044,38 @@ const loading = ref(false)
 const proxies = ref<Proxy[]>([])
 const viewMode = ref<'grid' | 'list'>('grid')
 const searchText = ref('')
+
+// 搜索防抖定时器
+let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null
+
+// 处理搜索输入
+const handleSearch = () => {
+  if (searchDebounceTimer) {
+    clearTimeout(searchDebounceTimer)
+  }
+  searchDebounceTimer = setTimeout(() => {
+    pagination.value.page = 1
+    fetchProxyList()
+  }, 300)
+}
+
+// 分页配置
+const pagination = ref({
+  page: 1,
+  pageSize: 10,
+  pageCount: 1,
+  itemCount: 0,
+  showSizePicker: true,
+  pageSizes: [
+    { label: '10 条 / 页', value: 10 },
+    { label: '20 条 / 页', value: 20 },
+    { label: '50 条 / 页', value: 50 },
+    { label: '100 条 / 页', value: 100 },
+  ],
+  prefix({ itemCount }: { itemCount?: number }) {
+    return `共 ${itemCount} 条`
+  },
+})
 const nodeOptions = ref<
   { label: string; value: number; hostname: string; location: string }[]
 >([])
@@ -1147,14 +1199,20 @@ const rules: FormRules = {
 // 获取隧道列表
 const fetchProxyList = async () => {
   try {
-    const data = await userApi.getProxyList()
-    if (data.code === 0) {
+    const data = await userApi.getProxyList(
+      pagination.value.page,
+      pagination.value.pageSize,
+      searchText.value || undefined,
+    )
+    if (data.code === 0 && data.data) {
       // 将 ProxyData[] 转换为 Proxy[]
-      proxies.value = data.data.map((item: any) => ({
+      proxies.value = (data.data.proxies || []).map((item: any) => ({
         ...item,
         lastStartTime: item.lastStartTime || 0,
         lastCloseTime: item.lastCloseTime || 0,
       }))
+      pagination.value.itemCount = data.data.total
+      pagination.value.pageCount = data.data.totalPages
     } else {
       message.warning(data.message || '获取隧道列表失败')
     }
@@ -1163,17 +1221,17 @@ const fetchProxyList = async () => {
   }
 }
 
-// 过滤隧道列表
-const filteredProxies = computed(() => {
-  const search = searchText.value.toLowerCase()
-  return proxies.value.filter(
-    (proxy) =>
-      proxy.proxyName.toLowerCase().includes(search) ||
-      proxy.proxyType.toLowerCase().includes(search) ||
-      (proxy.domain || '').toLowerCase().includes(search) ||
-      getNodeLabel(proxy.nodeId).toLowerCase().includes(search),
-  )
-})
+// 处理分页变化
+const handlePageChange = (page: number) => {
+  pagination.value.page = page
+  fetchProxyList()
+}
+
+const handlePageSizeChange = (pageSize: number) => {
+  pagination.value.pageSize = pageSize
+  pagination.value.page = 1
+  fetchProxyList()
+}
 
 const handleRefresh = async () => {
   loading.value = true

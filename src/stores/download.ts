@@ -11,6 +11,14 @@ export const useDownloadStore = defineStore('download', () => {
   const loading = ref(false)
   const loaded = ref(false)
 
+  // 分页配置
+  const pagination = ref({
+    page: 1,
+    pageSize: 20,
+    pageCount: 1,
+    itemCount: 0,
+  })
+
   // 拉取所有数据
   async function fetchAll() {
     if (loaded.value) return
@@ -61,9 +69,14 @@ export const useDownloadStore = defineStore('download', () => {
 
   async function fetchSoftwareVersions() {
     try {
-      const data = await userApi.getSoftwareVersions()
+      const data = await userApi.getSoftwareVersions(
+        pagination.value.page,
+        pagination.value.pageSize,
+      )
       if (data.code === 0 && data.data) {
-        softwareVersions.value = data.data
+        softwareVersions.value = data.data.list || []
+        pagination.value.itemCount = data.data.total
+        pagination.value.pageCount = data.data.totalPages
       } else {
         softwareVersions.value = []
       }
@@ -86,7 +99,9 @@ export const useDownloadStore = defineStore('download', () => {
     downloadSources,
     loading,
     loaded,
+    pagination,
     fetchAll,
     refreshAll,
+    fetchSoftwareVersions,
   }
 })

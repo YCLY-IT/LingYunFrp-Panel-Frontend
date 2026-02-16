@@ -328,18 +328,56 @@ export interface UpdateBroadcastParams extends CreateBroadcastParams {
   id: number
 }
 
+// 分页响应基础类型
+export interface PaginatedResponse<T> {
+  list: T[]
+  total: number
+  page: number
+  pageSize: number
+  totalPages: number
+}
+
+// 代理列表专用分页响应（后端使用 proxies 字段名）
+export interface ProxyPaginatedResponse {
+  proxies: any[]
+  total: number
+  page: number
+  pageSize: number
+  totalPages: number
+}
+
+// 用户列表专用分页响应（后端使用 users 字段名）
+export interface UserPaginatedResponse {
+  users: User[]
+  total: number
+  page: number
+  pageSize: number
+  totalPages: number
+}
+
+// 节点列表专用分页响应（后端使用 nodes 字段名）
+export interface NodePaginatedResponse {
+  nodes: Node[]
+  total: number
+  page: number
+  pageSize: number
+  totalPages: number
+}
+
 // 响应类型定义
-export type UserListApiResponse = ApiBaseResponse<UserListResponse>
+export type UserListApiResponse = ApiBaseResponse<UserPaginatedResponse>
 export type UserApiResponse = ApiBaseResponse<User>
-export type NodeListApiResponse = ApiBaseResponse<NodeListResponse>
+export type NodeListApiResponse = ApiBaseResponse<NodePaginatedResponse>
 export type NodeApiResponse = ApiBaseResponse<Node>
-export type ProxyListApiResponse = ApiBaseResponse<ProxyListResponse>
+export type ProxyListApiResponse = ApiBaseResponse<ProxyPaginatedResponse>
 export type ProxyApiResponse = ApiBaseResponse<Proxy>
 export type ProductListApiResponse = ApiBaseResponse<ProductListResponse>
 export type ProductApiResponse = ApiBaseResponse<Product>
 export type SoftwareListApiResponse = ApiBaseResponse<SoftwareListResponse>
 export type SoftwareApiResponse = ApiBaseResponse<Software>
-export type SoftwareVersionApiResponse = ApiBaseResponse<SoftwareVersion>
+export type SoftwareVersionApiResponse = ApiBaseResponse<
+  PaginatedResponse<SoftwareVersion>
+>
 export type SystemSettingApiResponse = ApiBaseResponse<SystemSetting[]>
 export type GroupListApiResponse = ApiBaseResponse<{ groups: Group[] }>
 export type GroupApiResponse = ApiBaseResponse<Group>
@@ -370,4 +408,6 @@ export interface OperationLog {
   client_type: string
 }
 
-export type OperationLogListApiResponse = ApiBaseResponse<OperationLog[]>
+export type OperationLogListApiResponse = ApiBaseResponse<
+  PaginatedResponse<OperationLog>
+>

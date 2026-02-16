@@ -7,14 +7,15 @@ import { NEmpty } from 'naive-ui'
 
 export const useNodesStore = defineStore('nodes', () => {
   const nodes = ref<Node[]>([])
-  const allNodes = ref<Node[]>([])
   const loading = ref(false)
   const submitting = ref(false)
-  const dataLoaded = ref(false)
 
   const searchKeyword = ref('')
   const selectedOnline = ref<string | null>(null)
   const selectedStatus = ref<string | null>(null)
+
+  // 搜索防抖定时器
+  let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null
 
   const pagination = ref({
     page: 1,
@@ -43,82 +44,50 @@ export const useNodesStore = defineStore('nodes', () => {
   })
 
   const fetchNodes = async (message?: any) => {
-    // 如果已缓存，直接本地筛
-    if (dataLoaded.value) {
-      filterAndPaginate()
-      return
-    }
-
+    // 每次请求前清空旧数据
+    nodes.value = []
     loading.value = true
     try {
-      // 一次性拉全部
-      const data = await adminApi.getNodeList()
+      const data = await adminApi.getNodeList(
+        pagination.value.page,
+        pagination.value.pageSize,
+        searchKeyword.value || undefined,
+        selectedOnline.value || undefined,
+        selectedStatus.value || undefined,
+      )
       if (data.code === 0) {
-        allNodes.value = (data.data.nodes || []).map(normalize)
-        dataLoaded.value = true
-        filterAndPaginate()
-      } else {
-        message?.error(data.message || '获取节点列表失败')
+        nodes.value = (data.data.nodes || []).map(normalize)
+        pagination.value.itemCount = data.data.total
+        pagination.value.pageCount = data.data.totalPages
       }
     } catch (e: any) {
+      nodes.value = []
+      pagination.value.itemCount = 0
+      pagination.value.pageCount = 0
       message?.error(e?.response?.data?.message || '获取节点列表失败')
     } finally {
       loading.value = false
     }
   }
 
-  const filterAndPaginate = () => {
-    let list = [...allNodes.value]
-
-    // 关键词
-    if (searchKeyword.value.trim()) {
-      const kw = searchKeyword.value.trim().toLowerCase()
-      list = list.filter(
-        (n) =>
-          n.id.toString().includes(kw) ||
-          n.name.toLowerCase().includes(kw) ||
-          n.hostname.toLowerCase().includes(kw),
-      )
-    }
-
-    // 在线状态
-    if (selectedOnline.value) {
-      const flag = selectedOnline.value === 'online'
-      list = list.filter((n) => n.isOnline === flag)
-    }
-
-    // 启用/禁用
-    if (selectedStatus.value) {
-      const flag = selectedStatus.value === 'disabled'
-      list = list.filter((n) => n.isDisabled === flag)
-    }
-
-    // 分页
-    const { page, pageSize } = pagination.value
-    const total = list.length
-    const start = (page - 1) * pageSize
-    nodes.value = list.slice(start, start + pageSize)
-    pagination.value.itemCount = total
-    pagination.value.pageCount = Math.ceil(total / pageSize)
-  }
-
   const handleSearch = () => {
-    pagination.value.page = 1
-    if (dataLoaded.value) filterAndPaginate()
-    else fetchNodes()
+    if (searchDebounceTimer) {
+      clearTimeout(searchDebounceTimer)
+    }
+    searchDebounceTimer = setTimeout(() => {
+      pagination.value.page = 1
+      fetchNodes()
+    }, 300)
   }
 
   const handleFilterChange = () => {
     pagination.value.page = 1
-    if (dataLoaded.value) filterAndPaginate()
-    else fetchNodes()
+    fetchNodes()
   }
 
   const handlePageChange = (p: number) => {
     pagination.value.page = p
-    // 已缓存则本地分页
-    if (dataLoaded.value) filterAndPaginate()
-    else fetchNodes()
+    fetchNodes()
   }
 
   const addNode = async (nodeData: any, message?: any) => {
@@ -127,8 +96,6 @@ export const useNodesStore = defineStore('nodes', () => {
       const data = await adminApi.createNode(nodeData)
       if (data.code === 0) {
         message?.success('添加节点成功')
-        // 重新拉取全量
-        dataLoaded.value = false
         await fetchNodes(message)
         return true
       } else {
@@ -146,7 +113,6 @@ export const useNodesStore = defineStore('nodes', () => {
       const data = await adminApi.updateNode(nodeData)
       if (data.code === 0) {
         message?.success('更新节点成功')
-        dataLoaded.value = false
         await fetchNodes(message)
         return true
       } else {
@@ -164,7 +130,6 @@ export const useNodesStore = defineStore('nodes', () => {
       const data = await adminApi.deleteNode(nodeId)
       if (data.code === 0) {
         message?.success('删除节点成功')
-        dataLoaded.value = false
         await fetchNodes(message)
         return true
       } else {
@@ -186,7 +151,6 @@ export const useNodesStore = defineStore('nodes', () => {
       const data = await adminApi.toggleNode(nodeId, isDisabled)
       if (data.code === 0) {
         message?.success(isDisabled ? '禁用成功' : '启用成功')
-        dataLoaded.value = false
         await fetchNodes(message)
         return true
       } else {
@@ -200,10 +164,8 @@ export const useNodesStore = defineStore('nodes', () => {
 
   const resetState = () => {
     nodes.value = []
-    allNodes.value = []
     loading.value = false
     submitting.value = false
-    dataLoaded.value = false
     searchKeyword.value = ''
     selectedOnline.value = null
     selectedStatus.value = null
@@ -220,18 +182,14 @@ export const useNodesStore = defineStore('nodes', () => {
 
   return {
     nodes,
-    allNodes,
     loading,
     submitting,
-    dataLoaded,
     searchKeyword,
     selectedOnline,
     selectedStatus,
     pagination,
     hasFilters,
-    shouldShowTable: computed(() =>
-      dataLoaded.value ? nodes.value.length > 0 || !hasFilters.value : true,
-    ),
+    shouldShowTable: computed(() => true),
     emptySlot,
     fetchNodes,
     handleSearch,

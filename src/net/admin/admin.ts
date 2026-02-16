@@ -34,8 +34,27 @@ import {
 import { ApiBaseResponse } from '../user/type'
 
 // 用户管理API
-export async function getUserList(): Promise<UserListApiResponse> {
-  return await get<UserListApiResponse>('/admin/users/', {
+export async function getUserList(
+  page: number = 1,
+  pageSize: number = 20,
+  search?: string,
+  group?: string,
+  isRealname?: boolean,
+  status?: number,
+  sortKey?: string,
+  sortOrder?: string,
+): Promise<UserListApiResponse> {
+  const params = new URLSearchParams()
+  params.append('page', String(page))
+  params.append('pageSize', String(pageSize))
+  if (search) params.append('search', search)
+  if (group) params.append('group', group)
+  if (isRealname !== undefined) params.append('isRealname', String(isRealname))
+  if (status !== undefined) params.append('status', String(status))
+  if (sortKey) params.append('sortKey', sortKey)
+  if (sortOrder) params.append('sortOrder', sortOrder)
+
+  return await get<UserListApiResponse>(`/admin/users?${params.toString()}`, {
     headers: { Authorization: getToken() },
   })
 }
@@ -57,8 +76,21 @@ export async function toggleUser(
 }
 
 // 节点管理API
-export async function getNodeList(): Promise<NodeListApiResponse> {
-  return await get<NodeListApiResponse>('/admin/nodes/', {
+export async function getNodeList(
+  page: number = 1,
+  pageSize: number = 20,
+  search?: string,
+  isOnline?: string,
+  status?: string,
+): Promise<NodeListApiResponse> {
+  const params = new URLSearchParams()
+  params.append('page', String(page))
+  params.append('pageSize', String(pageSize))
+  if (search) params.append('search', search)
+  if (isOnline) params.append('isOnline', isOnline)
+  if (status) params.append('status', status)
+
+  return await get<NodeListApiResponse>(`/admin/nodes?${params.toString()}`, {
     headers: { Authorization: getToken() },
   })
 }
@@ -115,10 +147,34 @@ export async function toggleNode(
 }
 
 // 代理管理API
-export async function getProxyList(): Promise<ProxyListApiResponse> {
-  return await get<ProxyListApiResponse>('/admin/proxies/', {
-    headers: { Authorization: getToken() },
-  })
+export async function getProxyList(
+  page: number = 1,
+  pageSize: number = 20,
+  search?: string,
+  nodeId?: number,
+  proxyType?: string,
+  isOnline?: string,
+  isBanned?: string,
+  sortKey?: string,
+  sortOrder?: string,
+): Promise<ProxyListApiResponse> {
+  const params = new URLSearchParams()
+  params.append('page', String(page))
+  params.append('pageSize', String(pageSize))
+  if (search) params.append('search', search)
+  if (nodeId) params.append('nodeId', String(nodeId))
+  if (proxyType) params.append('proxyType', proxyType)
+  if (isOnline) params.append('isOnline', isOnline)
+  if (isBanned) params.append('isBanned', isBanned)
+  if (sortKey) params.append('sortKey', sortKey)
+  if (sortOrder) params.append('sortOrder', sortOrder)
+
+  return await get<ProxyListApiResponse>(
+    `/admin/proxies?${params.toString()}`,
+    {
+      headers: { Authorization: getToken() },
+    },
+  )
 }
 
 export async function updateProxy(
@@ -450,17 +506,49 @@ export async function toggleBroadcastTop(
 }
 
 // 用户操作日志API
-export async function getOperationLogList(): Promise<OperationLogListApiResponse> {
-  return await get<OperationLogListApiResponse>('/logs/operations', {
-    headers: { Authorization: getToken() },
-  })
+export async function getOperationLogList(
+  page: number = 1,
+  pageSize: number = 20,
+  search?: string,
+  module?: string,
+  status?: string,
+): Promise<OperationLogListApiResponse> {
+  const params = new URLSearchParams()
+  params.append('page', String(page))
+  params.append('pageSize', String(pageSize))
+  if (search) params.append('search', search)
+  if (module) params.append('module', module)
+  if (status) params.append('status', status)
+
+  return await get<OperationLogListApiResponse>(
+    `/logs/operations?${params.toString()}`,
+    {
+      headers: { Authorization: getToken() },
+    },
+  )
 }
 
 // 管理员操作日志API
-export async function getAdminOperationLogList(): Promise<OperationLogListApiResponse> {
-  return await get<OperationLogListApiResponse>('/admin/logs/operations', {
-    headers: { Authorization: getToken() },
-  })
+export async function getAdminOperationLogList(
+  page: number = 1,
+  pageSize: number = 20,
+  search?: string,
+  module?: string,
+  status?: string,
+): Promise<OperationLogListApiResponse> {
+  const params = new URLSearchParams()
+  params.append('page', String(page))
+  params.append('pageSize', String(pageSize))
+  if (search) params.append('search', search)
+  if (module) params.append('module', module)
+  if (status) params.append('status', status)
+
+  return await get<OperationLogListApiResponse>(
+    `/admin/logs/operations?${params.toString()}`,
+    {
+      headers: { Authorization: getToken() },
+    },
+  )
 }
 
 export async function deleteAdminOperationLog(

@@ -56,7 +56,7 @@
         <div class="table-container">
           <NDataTable
             :columns="columns"
-            :data="pagedUsers"
+            :data="users"
             :loading="loading"
             :pagination="false"
             :scroll-x="900"
@@ -68,12 +68,11 @@
           <NPagination
             v-model:page="pagination.page"
             v-model:page-size="pagination.pageSize"
-            :item-count="filteredUsers.length"
+            :item-count="pagination.itemCount"
+            :page-count="pagination.pageCount"
             :page-sizes="pagination.pageSizes"
             show-size-picker
             :prefix="pagination.prefix"
-            @update:page="pagination.page = $event"
-            @update:page-size="handlePageSizeChange"
           />
         </div>
       </NSpace>
@@ -386,17 +385,12 @@ const sortOptions = ref<{ key: string; order: 'asc' | 'desc' }>({
 const pagination = ref({
   page: 1,
   pageSize: 20,
+  pageCount: 1,
+  itemCount: 0,
   showSizePicker: true,
   pageSizes: [10, 20, 30, 40].map((v) => ({ label: `${v} 条/页`, value: v })),
   prefix({ itemCount }: { itemCount?: number }) {
     return `共 ${itemCount} 条`
-  },
-  onChange: (page: number) => {
-    pagination.value.page = page
-  },
-  onUpdatePageSize: (pageSize: number) => {
-    pagination.value.pageSize = pageSize
-    pagination.value.page = 1
   },
 })
 
@@ -460,71 +454,11 @@ const columns: DataTableColumns<User> = [
 const formatTime = (ts: string | number) =>
   new Date(typeof ts === 'string' ? ts : ts * 1000).toLocaleString('zh-CN')
 
-const filteredUsers = computed(() => {
-  let list = [...users.value]
-
-  // 搜索
-  if (filters.value.search.trim()) {
-    const kw = filters.value.search.trim().toLowerCase()
-    list = list.filter(
-      (u) =>
-        u.id.toString().includes(kw) ||
-        u.username.toLowerCase().includes(kw) ||
-        u.email.toLowerCase().includes(kw),
-    )
-  }
-
-  // 用户组
-  if (filters.value.group !== null) {
-    list = list.filter((u) => u.group === filters.value.group)
-  }
-
-  // 实名状态
-  if (filters.value.isRealname !== null) {
-    const flag = filters.value.isRealname === 'true'
-    list = list.filter((u) => u.is_realname === flag)
-  }
-
-  // 账户状态
-  if (filters.value.status !== null) {
-    list = list.filter((u) => u.status === filters.value.status)
-  }
-
-  // 排序
-  const { key, order } = sortOptions.value
-  list.sort((a, b) => {
-    let av: any = a[key as keyof User]
-    let bv: any = b[key as keyof User]
-
-    if (key === 'created_at') {
-      av = new Date(av).getTime()
-      bv = new Date(bv).getTime()
-    }
-    if (key === 'group') {
-      av = groupNameMap.value[av] || av
-      bv = groupNameMap.value[bv] || bv
-    }
-
-    if (av === bv) return a.id - b.id
-    const res = av > bv ? 1 : -1
-    return order === 'asc' ? res : -res
-  })
-
-  return list
-})
-
-const pagedUsers = computed(() => {
-  const { page, pageSize } = pagination.value
-  const start = (page - 1) * pageSize
-  const slice = filteredUsers.value.slice(start, start + pageSize)
-  return slice
-})
-
-// 监听过滤条件变化，重置到第一页
+// 监听分页变化，重新加载数据
 watch(
-  [filters, sortOptions],
+  [() => pagination.value.page, () => pagination.value.pageSize],
   () => {
-    pagination.value.page = 1
+    loadData()
   },
   { deep: true },
 )
@@ -693,16 +627,25 @@ const loadData = async () => {
   loading.value = true
   try {
     if (!groupOptions.value.length) await fetchUserGroups()
-    const data = await adminApi.getUserList()
-    if (data.code === 0) {
-      users.value = data.data.users.map((u: User) => ({
+    const data = await adminApi.getUserList(
+      pagination.value.page,
+      pagination.value.pageSize,
+      filters.value.search || undefined,
+      filters.value.group || undefined,
+      filters.value.isRealname === null
+        ? undefined
+        : filters.value.isRealname === 'true',
+      filters.value.status === null ? undefined : filters.value.status,
+      sortOptions.value.key || undefined,
+      sortOptions.value.order || undefined,
+    )
+    if (data.code === 0 && data.data) {
+      users.value = (data.data.users || []).map((u: User) => ({
         ...u,
         friendlyGroup: groupNameMap.value[u.group] || u.group,
       }))
-      // 手动触发分页更新
-      nextTick(() => {
-        // updatePagination() // This line is no longer needed as pagination is handled by NDataTable
-      })
+      pagination.value.itemCount = data.data.total
+      pagination.value.pageCount = data.data.totalPages
     } else {
       message.error(data.message || '获取用户列表失败')
     }
@@ -715,15 +658,48 @@ const loadData = async () => {
 
 onMounted(loadData)
 
+// 搜索防抖定时器
+let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null
+
+// 监听搜索输入，带防抖
+watch(
+  () => filters.value.search,
+  () => {
+    if (searchDebounceTimer) {
+      clearTimeout(searchDebounceTimer)
+    }
+    searchDebounceTimer = setTimeout(() => {
+      pagination.value.page = 1
+      loadData()
+    }, 300)
+  },
+)
+
+// 监听其他筛选条件变化（无防抖）
+watch(
+  [
+    () => filters.value.group,
+    () => filters.value.isRealname,
+    () => filters.value.status,
+    () => sortOptions.value.key,
+    () => sortOptions.value.order,
+  ],
+  () => {
+    pagination.value.page = 1
+    loadData()
+  },
+  { deep: true },
+)
+
+// 监听分页变化
+watch([() => pagination.value.page, () => pagination.value.pageSize], () => {
+  loadData()
+})
+
 const modalStyle = computed(() => ({
   width: window.innerWidth <= 768 ? '95vw' : '600px',
   maxWidth: '95vw',
 }))
-
-const handlePageSizeChange = (pageSize: number) => {
-  pagination.value.pageSize = pageSize
-  pagination.value.page = 1
-}
 </script>
 
 <style lang="scss" scoped>

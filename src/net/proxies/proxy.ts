@@ -39,11 +39,38 @@ export async function createTunnel(
 
 /**
  * 获取代理列表
+ * @param page 页码
+ * @param pageSize 每页数量
+ * @param search 搜索关键词
+ * @param nodeId 节点ID
+ * @param proxyType 代理类型
+ * @param isOnline 在线状态
+ * @param sortKey 排序字段
+ * @param sortOrder 排序方式
  * @returns 代理列表
  */
-export async function getProxyList(): Promise<ProxyListResponse> {
+export async function getProxyList(
+  page: number = 1,
+  pageSize: number = 20,
+  search?: string,
+  nodeId?: number,
+  proxyType?: string,
+  isOnline?: string,
+  sortKey?: string,
+  sortOrder?: string,
+): Promise<ProxyListResponse> {
   try {
-    return await get<ProxyListResponse>('/proxies', {
+    const params = new URLSearchParams()
+    params.append('page', String(page))
+    params.append('pageSize', String(pageSize))
+    if (search) params.append('search', search)
+    if (nodeId) params.append('nodeId', String(nodeId))
+    if (proxyType) params.append('proxyType', proxyType)
+    if (isOnline) params.append('isOnline', isOnline)
+    if (sortKey) params.append('sortKey', sortKey)
+    if (sortOrder) params.append('sortOrder', sortOrder)
+
+    return await get<ProxyListResponse>(`/proxies?${params.toString()}`, {
       headers: {
         Authorization: getToken(),
       },
