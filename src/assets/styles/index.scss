@@ -47,6 +47,11 @@
   filter: contrast(1.2) saturate(1.2) !important;
 }
 
+/* 色弱模式 + 高对比度模式 同时开启 */
+.color-blind-mode.high-contrast-mode {
+  filter: var(--color-blind-filter, none) contrast(1.2) saturate(1.2) !important;
+}
+
 .high-contrast-mode .n-card,
 .high-contrast-mode .n-button,
 .high-contrast-mode .n-input,
@@ -83,78 +88,539 @@ body::before {
   z-index: -1;
 }
 
-/* 毛玻璃模式 */
+/* ========================================
+   毛玻璃模式 - 统一样式
+   ======================================== */
+
+/* 毛玻璃模式基础 */
 .frosted-glass-mode {
-  backdrop-filter: blur(var(--frosted-glass-blur, 10px));
-  background-color: rgba(var(--n-color-modal-rgb, 255, 255, 255), 0.1);
   transition: var(--frosted-glass-transition, none);
 }
 
-/* 毛玻璃模式下的卡片样式 */
+/* 毛玻璃模式下的卡片 */
 .frosted-glass-mode .n-card {
-  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1.5));
-  background-color: rgba(
-    var(--n-color-modal-rgb, 255, 255, 255),
-    0.15
-  ) !important;
-  border: 1px solid rgba(var(--n-color-modal-rgb, 255, 255, 255), 0.2);
+  background: #ffffff1a !important;
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1.5))
+    saturate(180%) !important;
+  -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1.5))
+    saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
-// /* 毛玻璃模式下的输入框和按钮 */
-// .frosted-glass-mode .n-input,
-// .frosted-glass-mode .n-button,
-// .frosted-glass-mode .n-select,
-// .frosted-glass-mode .n-switch {
-//   backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8));
-//   background-color: rgba(
-//     var(--n-color-modal-rgb, 255, 255, 255),
-//     0.12
-//   ) !important;
-//   border: 1px solid rgba(var(--n-color-modal-rgb, 255, 255, 255), 0.15);
-// }
-
 /* 毛玻璃模式下的模态框 */
 .frosted-glass-mode .n-modal .n-card {
-  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 2));
-  background-color: rgba(
-    var(--n-color-modal-rgb, 255, 255, 255),
-    0.2
-  ) !important;
-  border: 1px solid rgba(var(--n-color-modal-rgb, 255, 255, 255), 0.25);
+  background: #ffffff33 !important;
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 2))
+    saturate(180%) !important;
+  -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 2))
+    saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
 }
 
 /* 毛玻璃模式下的侧边栏 */
 .frosted-glass-mode .n-layout-sider {
-  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1.2));
-  background-color: rgba(
-    var(--n-color-modal-rgb, 255, 255, 255),
-    0.18
-  ) !important;
-  border-right: 1px solid rgba(var(--n-color-modal-rgb, 255, 255, 255), 0.2);
+  background: #ffffff2e !important;
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1.2))
+    saturate(180%) !important;
+  -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1.2))
+    saturate(180%) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.frosted-glass-mode .n-layout-sider .n-layout-sider-scroll-container {
+  background: transparent !important;
+}
+
+/* 隐藏侧边栏默认边框 */
+.frosted-glass-mode .n-layout-sider .n-layout-sider__border {
+  display: none !important;
 }
 
 /* 毛玻璃模式下的顶部栏 */
 .frosted-glass-mode .n-layout-header {
-  backdrop-filter: blur(calc(var(--frosted-glass-blur, 1px) * 1.2));
-  background-color: rgba(
-    var(--n-color-modal-rgb, 255, 255, 255),
-    0.18
-  ) !important;
-  border-bottom: 1px solid rgba(var(--n-color-modal-rgb, 255, 255, 255), 0.2);
+  background: #ffffff2e !important;
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1.2))
+    saturate(180%) !important;
+  -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1.2))
+    saturate(180%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
 }
 
-/* 深色主题下的毛玻璃效果 */
-.dark .frosted-glass-mode .n-card,
-.dark .frosted-glass-mode .n-input,
-.dark .frosted-glass-mode .n-button,
-.dark .frosted-glass-mode .n-select,
-.dark .frosted-glass-mode .n-switch {
-  background-color: rgba(0, 0, 0, 0.2) !important;
-  border-color: rgba(255, 255, 255, 0.1);
+.frosted-glass-mode .n-layout-header > div {
+  background: transparent !important;
 }
 
-/* 主题切换扩散动画 */
+/* 毛玻璃模式下的内容区域 */
+.frosted-glass-mode .n-layout-content {
+  background-color: transparent !important;
+}
+
+/* 毛玻璃模式下的抽屉 */
+.frosted-glass-mode .n-drawer {
+  background: #ffffff26 !important;
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1.5))
+    saturate(180%) !important;
+  -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1.5))
+    saturate(180%) !important;
+}
+
+.frosted-glass-mode .n-drawer .n-drawer-content {
+  background: #ffffff26 !important;
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1.5))
+    saturate(180%) !important;
+  -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1.5))
+    saturate(180%) !important;
+}
+
+/* 毛玻璃模式下抽屉内的卡片 */
+.frosted-glass-mode .n-drawer .n-card {
+  background: #ffffff1f !important;
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1))
+    saturate(180%) !important;
+  -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1))
+    saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+/* 毛玻璃模式下抽屉内的设置卡片 */
+.frosted-glass-mode .n-drawer .setting-card {
+  background: #ffffff1a !important;
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8))
+    saturate(180%) !important;
+  -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8))
+    saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+/* 毛玻璃模式下的表格 */
+.frosted-glass-mode .n-data-table {
+  background: #ffffff1a !important;
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8))
+    saturate(180%) !important;
+  -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8))
+    saturate(180%) !important;
+}
+
+.frosted-glass-mode .n-data-table .n-data-table-thead {
+  background: #ffffff26 !important;
+}
+
+.frosted-glass-mode .n-data-table .n-data-table-tr {
+  background-color: transparent !important;
+}
+
+.frosted-glass-mode .n-data-table .n-data-table-tr:hover {
+  background: #ffffff1a !important;
+}
+
+/* 毛玻璃模式下的菜单 */
+.frosted-glass-mode .n-menu {
+  background-color: transparent !important;
+}
+
+.frosted-glass-mode .n-menu .n-menu-item {
+  background-color: transparent !important;
+}
+
+.frosted-glass-mode .n-menu .n-menu-item:hover {
+  background: #ffffff1a !important;
+}
+
+.frosted-glass-mode .n-menu .n-menu-item--selected {
+  background: #ffffff26 !important;
+}
+
+/* 毛玻璃模式下的折叠面板 */
+.frosted-glass-mode .n-collapse {
+  background-color: transparent !important;
+}
+
+.frosted-glass-mode .n-collapse .n-collapse-item {
+  background: #ffffff1a !important;
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8))
+    saturate(180%) !important;
+  -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8))
+    saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+/* 毛玻璃模式下的列表 */
+.frosted-glass-mode .n-list {
+  background-color: transparent !important;
+}
+
+.frosted-glass-mode .n-list .n-list-item {
+  background: #ffffff14 !important;
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.6))
+    saturate(180%) !important;
+  -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.6))
+    saturate(180%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.frosted-glass-mode .n-list .n-list-item:hover {
+  background: #ffffff1f !important;
+}
+
+/* 毛玻璃模式下的时间线 */
+.frosted-glass-mode .n-timeline {
+  background-color: transparent !important;
+}
+
+.frosted-glass-mode .n-timeline .n-timeline-item {
+  background-color: transparent !important;
+}
+
+/* 毛玻璃模式下的描述列表 */
+.frosted-glass-mode .n-descriptions {
+  background: #ffffff1a !important;
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8))
+    saturate(180%) !important;
+  -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8))
+    saturate(180%) !important;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+/* 毛玻璃模式下的统计卡片 */
+.frosted-glass-mode .n-statistic {
+  background: #ffffff1a !important;
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8))
+    saturate(180%) !important;
+  -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8))
+    saturate(180%) !important;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+/* 毛玻璃模式下的分页 */
+.frosted-glass-mode .n-pagination {
+  background-color: transparent !important;
+}
+
+.frosted-glass-mode .n-pagination .n-pagination-item {
+  background: #ffffff1a !important;
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.5))
+    saturate(180%) !important;
+  -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.5))
+    saturate(180%) !important;
+}
+
+.frosted-glass-mode .n-pagination .n-pagination-item--active {
+  background: #ffffff33 !important;
+}
+
+/* 毛玻璃模式下的弹窗 */
+.frosted-glass-mode .n-popover {
+  background: #ffffff33 !important;
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1.2))
+    saturate(180%) !important;
+  -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1.2))
+    saturate(180%) !important;
+}
+
+/* 毛玻璃模式下的下拉菜单 */
+.frosted-glass-mode .n-dropdown-menu {
+  background: #ffffff33 !important;
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1.2))
+    saturate(180%) !important;
+  -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1.2))
+    saturate(180%) !important;
+}
+
+.frosted-glass-mode .n-dropdown-menu .n-dropdown-option {
+  background-color: transparent !important;
+}
+
+.frosted-glass-mode .n-dropdown-menu .n-dropdown-option:hover {
+  background: #ffffff1a !important;
+}
+
+/* 毛玻璃模式下的树形控件 */
+.frosted-glass-mode .n-tree {
+  background-color: transparent !important;
+}
+
+.frosted-glass-mode .n-tree .n-tree-node {
+  background-color: transparent !important;
+}
+
+.frosted-glass-mode .n-tree .n-tree-node:hover {
+  background: #ffffff1a !important;
+}
+
+.frosted-glass-mode .n-tree .n-tree-node--selected {
+  background: #ffffff26 !important;
+}
+
+/* 毛玻璃模式下的步骤条 */
+.frosted-glass-mode .n-steps {
+  background-color: transparent !important;
+}
+
+.frosted-glass-mode .n-steps .n-step {
+  background-color: transparent !important;
+}
+
+/* 毛玻璃模式下的日历 */
+.frosted-glass-mode .n-calendar {
+  background: #ffffff1a !important;
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8))
+    saturate(180%) !important;
+  -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8))
+    saturate(180%) !important;
+}
+
+.frosted-glass-mode .n-calendar .n-calendar-cell {
+  background-color: transparent !important;
+}
+
+.frosted-glass-mode .n-calendar .n-calendar-cell:hover {
+  background: #ffffff1a !important;
+}
+
+/* 毛玻璃模式下的自定义通知项 */
+.frosted-glass-mode .notice-item {
+  background: #ffffff1a !important;
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8))
+    saturate(180%) !important;
+  -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8))
+    saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+.frosted-glass-mode .notice-item:hover {
+  background: #ffffff26 !important;
+  box-shadow: 0 4px 16px var(--n-color-hover-shadow);
+  transform: scale(1.02);
+}
+
+/* 毛玻璃模式下的信息卡片 */
+.frosted-glass-mode .info-card,
+.frosted-glass-mode .user-card,
+.frosted-glass-mode .notice-card {
+  background: #ffffff1f !important;
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1.2))
+    saturate(180%) !important;
+  -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1.2))
+    saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+}
+
+/* 毛玻璃模式下的仪表板网格卡片 */
+.frosted-glass-mode .stat-card,
+.frosted-glass-mode .chart-card,
+.frosted-glass-mode .quick-action-card {
+  background: #ffffff1a !important;
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1))
+    saturate(180%) !important;
+  -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1))
+    saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+/* 毛玻璃模式下的表单容器 */
+.frosted-glass-mode .form-container,
+.frosted-glass-mode .search-container,
+.frosted-glass-mode .filter-container {
+  background: #ffffff14 !important;
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.6))
+    saturate(180%) !important;
+  -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.6))
+    saturate(180%) !important;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+/* 毛玻璃模式下的详情面板 */
+.frosted-glass-mode .detail-panel,
+.frosted-glass-mode .info-panel {
+  background: #ffffff1a !important;
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.9))
+    saturate(180%) !important;
+  -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.9))
+    saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 8px;
+}
+
+/* ========================================
+   深色主题下的毛玻璃效果
+   ======================================== */
+
+.dark .frosted-glass-mode .n-card {
+  background: #00000040 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark .frosted-glass-mode .n-modal .n-card {
+  background: #0000004d !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+.dark .frosted-glass-mode .n-layout-sider {
+  background: #0000004d !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark .frosted-glass-mode .n-layout-sider .n-layout-sider-scroll-container {
+  background: transparent !important;
+}
+
+.dark .frosted-glass-mode .n-layout-header {
+  background: #0000004d !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark .frosted-glass-mode .n-layout-header > div {
+  background: transparent !important;
+}
+
+.dark .frosted-glass-mode .n-drawer {
+  background: #0000004d !important;
+}
+
+.dark .frosted-glass-mode .n-drawer .n-drawer-content {
+  background: #0000004d !important;
+}
+
+.dark .frosted-glass-mode .n-drawer .n-card {
+  background: #00000040 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark .frosted-glass-mode .n-drawer .setting-card {
+  background: #00000033 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.dark .frosted-glass-mode .n-data-table {
+  background: #00000040 !important;
+}
+
+.dark .frosted-glass-mode .n-data-table .n-data-table-thead {
+  background: #0000004d !important;
+}
+
+.dark .frosted-glass-mode .n-data-table .n-data-table-tr:hover {
+  background: #ffffff0d !important;
+}
+
+.dark .frosted-glass-mode .n-menu .n-menu-item:hover {
+  background: #ffffff0d !important;
+}
+
+.dark .frosted-glass-mode .n-menu .n-menu-item--selected {
+  background: #ffffff1a !important;
+}
+
+.dark .frosted-glass-mode .n-tabs .n-tabs-nav {
+  background: #00000040 !important;
+}
+
+.dark .frosted-glass-mode .n-tabs .n-tabs-tab--active {
+  background: #ffffff1a !important;
+}
+
+.dark .frosted-glass-mode .n-collapse .n-collapse-item {
+  background: #00000040 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark .frosted-glass-mode .n-list .n-list-item {
+  background: #00000033 !important;
+}
+
+.dark .frosted-glass-mode .n-list .n-list-item:hover {
+  background: #0000004d !important;
+}
+
+.dark .frosted-glass-mode .n-descriptions {
+  background: #00000040 !important;
+}
+
+.dark .frosted-glass-mode .n-statistic {
+  background: #00000040 !important;
+}
+
+.dark .frosted-glass-mode .n-pagination .n-pagination-item {
+  background: #00000040 !important;
+}
+
+.dark .frosted-glass-mode .n-pagination .n-pagination-item--active {
+  background: #ffffff1a !important;
+}
+
+.dark .frosted-glass-mode .n-popover {
+  background: #0000004d !important;
+}
+
+.dark .frosted-glass-mode .n-dropdown-menu {
+  background: #0000004d !important;
+}
+
+.dark .frosted-glass-mode .n-dropdown-menu .n-dropdown-option:hover {
+  background: #ffffff0d !important;
+}
+
+.dark .frosted-glass-mode .n-tree .n-tree-node:hover {
+  background: #ffffff0d !important;
+}
+
+.dark .frosted-glass-mode .n-tree .n-tree-node--selected {
+  background: #ffffff1a !important;
+}
+
+.dark .frosted-glass-mode .n-calendar {
+  background: #00000040 !important;
+}
+
+.dark .frosted-glass-mode .n-calendar .n-calendar-cell:hover {
+  background: #ffffff0d !important;
+}
+
+.dark .frosted-glass-mode .notice-item {
+  background: #00000040 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark .frosted-glass-mode .notice-item:hover {
+  background: #00000059 !important;
+}
+
+.dark .frosted-glass-mode .info-card,
+.dark .frosted-glass-mode .user-card,
+.dark .frosted-glass-mode .notice-card {
+  background: #00000040 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark .frosted-glass-mode .stat-card,
+.dark .frosted-glass-mode .chart-card,
+.dark .frosted-glass-mode .quick-action-card {
+  background: #00000040 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark .frosted-glass-mode .form-container,
+.dark .frosted-glass-mode .search-container,
+.dark .frosted-glass-mode .filter-container {
+  background: #00000033 !important;
+}
+
+.dark .frosted-glass-mode .detail-panel,
+.dark .frosted-glass-mode .info-panel {
+  background: #00000040 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* ========================================
+   主题切换扩散动画
+   ======================================== */
+
 .theme-transition-overlay {
   position: fixed;
   pointer-events: none;

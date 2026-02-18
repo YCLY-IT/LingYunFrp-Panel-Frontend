@@ -2,7 +2,7 @@
   <div class="operation-log">
     <NCard title="操作日志管理">
       <NSpace vertical :size="12">
-        <div style="display: flex; gap: 12px">
+        <div class="filter-row" style="display: flex; gap: 12px">
           <NInput
             v-model:value="filters.search"
             placeholder="搜索用户名、操作类型或模块"
@@ -20,6 +20,7 @@
             placeholder="操作模块"
             clearable
             style="width: 180px"
+            @update:value="handleFilterChange"
           />
           <NSelect
             v-model:value="filters.status"
@@ -27,6 +28,7 @@
             placeholder="操作状态"
             clearable
             style="width: 140px"
+            @update:value="handleFilterChange"
           />
           <NButton type="error" @click="handleClear">
             <template #icon>
@@ -43,7 +45,7 @@
             :loading="loading"
             :pagination="false"
             striped
-            :scroll-x="900"
+            :scroll-x="1000"
           />
         </div>
 
@@ -59,9 +61,6 @@
             @update:page-size="handlePageSizeChange"
           >
             <template #prefix="{ itemCount }"> 共 {{ itemCount }} 条 </template>
-            <template #suffix="{ startIndex, endIndex, pageCount }">
-              {{ startIndex + 1 }} - {{ endIndex }} 条 / 共 {{ pageCount }} 页
-            </template>
           </NPagination>
         </div>
       </NSpace>
@@ -274,6 +273,12 @@ const handleSearch = () => {
   }, 300)
 }
 
+// 处理筛选条件变化
+const handleFilterChange = () => {
+  pagination.value.page = 1
+  fetchLogs()
+}
+
 const viewDetail = (log: OperationLog) => {
   selectedLog.value = log
   showDetailModal.value = true
@@ -479,5 +484,38 @@ onMounted(() => {
 
 .table-container {
   overflow-x: auto;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .filter-row {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  .filter-row .n-input {
+    width: 100% !important;
+    flex: none !important;
+  }
+
+  .filter-row .n-select {
+    width: 100% !important;
+  }
+
+  .filter-row .n-button {
+    width: 100% !important;
+  }
+
+  /* 分页组件移动端适配 */
+  .operation-log :deep(.n-pagination) {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .operation-log :deep(.n-pagination-prefix) {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 4px;
+  }
 }
 </style>

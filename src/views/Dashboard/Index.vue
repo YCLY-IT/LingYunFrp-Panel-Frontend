@@ -72,36 +72,44 @@
             <template #default>
               <div class="notice-scroll">
                 <NScrollbar :vertical-rail-style="{ right: '-15px' }">
-                  <NCollapse v-if="sortedNotices.length > 0" accordion>
-                    <template
+                  <div v-if="sortedNotices.length > 0" class="notice-list">
+                    <div
                       v-for="(notice, _index) in sortedNotices"
                       :key="notice.id"
+                      class="notice-item"
+                      @click="showNoticeDetail(notice)"
                     >
-                      <NCollapseItem :title="notice.title" :name="notice.id">
-                        <template #header-extra>
-                          <div
-                            style="display: flex; align-items: center; gap: 8px"
+                      <div class="notice-item-header">
+                        <span class="notice-item-title">{{
+                          notice.title
+                        }}</span>
+                        <div class="notice-item-meta">
+                          <NTag
+                            v-if="notice.type"
+                            :type="
+                              notice.type === 'info'
+                                ? 'info'
+                                : notice.type === 'warning'
+                                  ? 'warning'
+                                  : 'error'
+                            "
+                            size="small"
+                            :bordered="false"
+                            >{{
+                              notice.type === 'info'
+                                ? '通知'
+                                : notice.type === 'warning'
+                                  ? '紧急'
+                                  : '重要'
+                            }}</NTag
                           >
-                            <NTag
-                              v-if="notice.top"
-                              type="warning"
-                              size="small"
-                              :bordered="false"
-                              >置顶</NTag
-                            >
-                            <span class="notice-time">{{
-                              formatTime(notice.created_at)
-                            }}</span>
-                          </div>
-                        </template>
-                        <div
-                          class="notice-content"
-                          v-html="renderNoticeContent(notice.message)"
-                        />
-                      </NCollapseItem>
-                    </template>
-                    <NDivider style="margin: 15px 0px 0px 0px" />
-                  </NCollapse>
+                          <span class="notice-time">{{
+                            formatTime(notice.created_at)
+                          }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                   <div v-else class="no-notice">暂无通知</div>
                 </NScrollbar>
               </div>
@@ -115,6 +123,56 @@
     <div style="margin-top: 20px">
       <Traffic />
     </div>
+
+    <!-- 通知详情弹窗 -->
+    <NModal
+      v-model:show="showNoticeModal"
+      preset="card"
+      :title="selectedNotice?.title"
+      style="width: 600px; max-width: 100vw"
+    >
+      <template #header-extra>
+        <NTag
+          v-if="selectedNotice?.type"
+          :type="
+            selectedNotice.type === 'info'
+              ? 'info'
+              : selectedNotice.type === 'warning'
+                ? 'warning'
+                : 'error'
+          "
+          size="small"
+          :bordered="false"
+          >{{
+            selectedNotice.type === 'info'
+              ? '通知'
+              : selectedNotice.type === 'warning'
+                ? '紧急'
+                : '重要'
+          }}</NTag
+        >
+      </template>
+      <NScrollbar style="max-height: 430px">
+        <div
+          class="notice-detail-content"
+          v-html="renderNoticeContent(selectedNotice?.message || '')"
+        />
+      </NScrollbar>
+      <template #footer>
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          "
+        >
+          <span class="notice-time">{{
+            selectedNotice ? formatTime(selectedNotice.created_at) : ''
+          }}</span>
+          <NButton @click="showNoticeModal = false">关闭</NButton>
+        </div>
+      </template>
+    </NModal>
   </div>
 </template>
 
@@ -123,10 +181,9 @@ import {
   NCard,
   NAlert,
   NButton,
-  NCollapse,
-  NCollapseItem,
   NTag,
-  NDivider,
+  NModal,
+  NScrollbar,
   useMessage,
 } from 'naive-ui'
 import { ref, onMounted, computed, Ref } from 'vue'
@@ -144,13 +201,22 @@ const router = useRouter()
 const message = useMessage()
 const notices = ref<BroadcastData[]>([])
 const nickname = localStorage.getItem('nickname') || ''
+const showNoticeModal = ref(false)
+const selectedNotice = ref<BroadcastData | null>(null)
 
-// 排序后的通知列表（置顶的在前）
+// 显示通知详情
+const showNoticeDetail = (notice: BroadcastData) => {
+  selectedNotice.value = notice
+  showNoticeModal.value = true
+}
+
+// 排序后的通知列表（重要 > 紧急 > 通知）
 const sortedNotices = computed(() => {
+  const typePriority = { danger: 3, warning: 2, info: 1 }
   return [...notices.value].sort((a, b) => {
-    if (a.top && !b.top) return -1
-    if (!a.top && b.top) return 1
-    return 0
+    const priorityA = typePriority[a.type as keyof typeof typePriority] || 0
+    const priorityB = typePriority[b.type as keyof typeof typePriority] || 0
+    return priorityB - priorityA
   })
 })
 
@@ -388,6 +454,11 @@ onMounted(() => {
   margin-top: 10px;
 }
 
+.notice-scroll {
+  padding: 4px;
+  margin: -4px;
+}
+
 .notice-scroll :deep(.n-scrollbar) {
   overflow: visible;
 }
@@ -397,30 +468,8 @@ onMounted(() => {
   margin-bottom: 0;
 }
 
-.notice-scroll :deep(.n-collapse-item__header) {
-  font-size: 18px;
-  font-weight: 500;
-  border-radius: 8px 8px 0 0;
-  display: flex !important;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.notice-scroll :deep(.n-collapse-item__header-main) {
-  max-width: 50%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.notice-scroll :deep(.n-collapse-item__header-extra) {
-  margin-left: auto;
-  flex-shrink: 0;
-}
-
-.notice-scroll :deep(.n-collapse-item__content-inner) {
-  padding: 10px !important;
+.notice-list {
+  padding: 4px;
 }
 
 .notice-time {
@@ -429,22 +478,60 @@ onMounted(() => {
   font-weight: normal;
 }
 
-.notice-content {
-  line-height: 1.8;
-  color: var(--n-text-color);
-  font-size: 14px;
-  word-break: break-word;
-}
-
-.notice-content :deep(p) {
-  margin: 8px 0;
-}
-
 .no-notice {
   text-align: center;
   color: var(--n-text-color-3);
   padding: 40px 0;
   font-size: 14px;
+}
+
+.notice-item {
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--n-border-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.notice-item:hover {
+  background-color: var(--n-color-hover);
+  box-shadow: 0 4px 16px var(--n-color-hover-shadow);
+}
+
+.notice-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.notice-item-title {
+  font-size: 16px;
+  font-weight: 500;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.notice-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.notice-detail-content {
+  line-height: 1.8;
+  color: var(--n-text-color);
+  font-size: 14px;
+  word-break: break-word;
+  padding-right: 12px;
+}
+
+.notice-detail-content :deep(p) {
+  margin: 8px 0;
 }
 
 .welcome-card-container {

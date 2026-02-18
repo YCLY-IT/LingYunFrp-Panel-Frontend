@@ -288,4 +288,30 @@ onUnmounted(() => {
     transition: all 0.3s ease;
   }
 }
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .logo {
+    font-size: 16px;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .right .n-button {
+    transform: translateX(0) !important;
+    padding: 0 6px;
+  }
+
+  .avatar {
+    transform: translateY(-6px) translateX(0) !important;
+  }
+}
 </style>

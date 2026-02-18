@@ -2,7 +2,7 @@
   <div>
     <NCard title="系统管理">
       <NTabs type="line" animated @update:value="handleTabUpdate">
-        <NTabPane name="security" tab="安全">
+        <NTabPane name="security" tab="基本">
           <NForm
             ref="securityFormRef"
             :model="securityForm"
@@ -76,6 +76,48 @@
                     <template #checked>启用</template>
                     <template #unchecked>禁用</template>
                   </NSwitch>
+                </NFormItem>
+              </NGridItem>
+              <NGridItem>
+                <NFormItem label="签到积分范围">
+                  <NSpace>
+                    <NInputNumber
+                      v-model:value="securityForm.signPointsMin"
+                      :min="0"
+                      placeholder="最小值"
+                      style="width: 110px"
+                    />
+                    <span style="line-height: 34px">-</span>
+                    <NInputNumber
+                      v-model:value="securityForm.signPointsMax"
+                      :min="0"
+                      placeholder="最大值"
+                      style="width: 110px"
+                    />
+                  </NSpace>
+                </NFormItem>
+              </NGridItem>
+              <NGridItem>
+                <NFormItem label="签到流量范围">
+                  <NSpace>
+                    <NInputNumber
+                      v-model:value="securityForm.signTrafficMin"
+                      :min="0"
+                      placeholder="最小值"
+                      style="width: 150px"
+                    >
+                      <template #suffix>MB</template>
+                    </NInputNumber>
+                    <span style="line-height: 34px">-</span>
+                    <NInputNumber
+                      v-model:value="securityForm.signTrafficMax"
+                      :min="0"
+                      placeholder="最大值"
+                      style="width: 150px"
+                    >
+                      <template #suffix>MB</template>
+                    </NInputNumber>
+                  </NSpace>
                 </NFormItem>
               </NGridItem>
             </NGrid>
@@ -718,10 +760,11 @@
             :rows="5"
           />
         </NFormItem>
-        <NFormItem label="置顶" path="top">
-          <NSwitch
-            v-model:value="addBroadcastForm.top"
-            :rail-style="switchButtonRailStyle"
+        <NFormItem label="类型" path="type">
+          <NSelect
+            v-model:value="addBroadcastForm.type"
+            :options="broadcastTypeOptions"
+            placeholder="请选择通知类型"
           />
         </NFormItem>
       </NForm>
@@ -756,10 +799,11 @@
             :rows="5"
           />
         </NFormItem>
-        <NFormItem label="置顶" path="top">
-          <NSwitch
-            v-model:value="editBroadcastForm.top"
-            :rail-style="switchButtonRailStyle"
+        <NFormItem label="类型" path="type">
+          <NSelect
+            v-model:value="editBroadcastForm.type"
+            :options="broadcastTypeOptions"
+            placeholder="请选择通知类型"
           />
         </NFormItem>
       </NForm>
@@ -792,6 +836,7 @@ import {
   NGridItem,
   NDivider,
   NAlert,
+  NTag,
 } from 'naive-ui'
 import type { FormRules, FormInst, DataTableColumns } from 'naive-ui'
 import { switchButtonRailStyle } from '@/constants/theme.ts'
@@ -816,6 +861,10 @@ const securityForm = ref({
   allowSign: true,
   allowEmail: true,
   allowSms: true,
+  signPointsMin: 0,
+  signPointsMax: 0,
+  signTrafficMin: 0,
+  signTrafficMax: 0,
 })
 
 const smtpForm = ref({
@@ -900,7 +949,7 @@ const addBroadcastForm = ref<Broadcast>({
   id: 0,
   title: '',
   message: '',
-  top: false,
+  type: 'info',
   created_at: '',
   updated_at: '',
 })
@@ -909,7 +958,7 @@ const editBroadcastForm = ref<Broadcast>({
   id: 0,
   title: '',
   message: '',
-  top: false,
+  type: 'info',
   created_at: '',
   updated_at: '',
 })
@@ -1291,16 +1340,27 @@ const broadcastColumns: DataTableColumns<Broadcast> = [
     },
   },
   {
-    title: '置顶',
-    key: 'top',
+    title: '类型',
+    key: 'type',
     render(row) {
+      const typeMap: Record<string, string> = {
+        info: '通知',
+        warning: '紧急',
+        danger: '重要',
+      }
       return h(
-        'div',
+        NTag,
         {
-          style:
-            'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;',
+          type:
+            row.type === 'danger'
+              ? 'error'
+              : row.type === 'warning'
+                ? 'warning'
+                : 'info',
+          size: 'small',
+          bordered: false,
         },
-        row.top ? '是' : '否',
+        { default: () => typeMap[row.type || 'info'] || '通知' },
       )
     },
   },
@@ -1343,15 +1403,6 @@ const broadcastColumns: DataTableColumns<Broadcast> = [
         { wrap: false },
         {
           default: () => [
-            h(
-              NButton,
-              {
-                size: 'small',
-                type: 'warning',
-                onClick: () => handleToggleBroadcastTop(row.id, !row.top),
-              },
-              { default: () => (row.top ? '取消置顶' : '置顶') },
-            ),
             h(
               NButton,
               {
@@ -1403,6 +1454,8 @@ const handleSaveSecurity = async () => {
       allowSendMail: securityForm.value.allowEmail,
       allowSendSms: securityForm.value.allowSms,
       allowSign: securityForm.value.allowSign,
+      signPoints: `${securityForm.value.signPointsMin}-${securityForm.value.signPointsMax}`,
+      signTraffic: `${securityForm.value.signTrafficMin}-${securityForm.value.signTrafficMax}`,
     })
     if (data.code === 0) {
       message.success('保存安全设置成功')
@@ -1448,6 +1501,11 @@ const broadcastFilterModeOptions = [
 const broadcastSortOrderOptions = [
   { label: '升序', value: 'asc' },
   { label: '降序', value: 'desc' },
+]
+const broadcastTypeOptions = [
+  { label: '通知', value: 'info' },
+  { label: '紧急', value: 'warning' },
+  { label: '重要', value: 'danger' },
 ]
 const broadcastFilterMode = ref('title')
 const broadcastFilterKeyword = ref('')
@@ -1549,8 +1607,11 @@ const filterBroadcasts = () => {
     }
   }
   filtered.sort((a, b) => {
-    if (a.top !== b.top) {
-      return a.top ? -1 : 1
+    const typePriority = { danger: 3, warning: 2, info: 1 }
+    const priorityA = typePriority[a.type as keyof typeof typePriority] || 0
+    const priorityB = typePriority[b.type as keyof typeof typePriority] || 0
+    if (priorityA !== priorityB) {
+      return priorityB - priorityA
     }
     if (broadcastSortOrder.value === 'asc') {
       if (a.id === b.id) return 0
@@ -1570,19 +1631,24 @@ const fetchAllSystemSettings = async () => {
     if (data.code === 0) {
       const configs = data.data
 
-      // 设置安全配置
-      securityForm.value.allowRegister =
-        configs.find((c) => c.type === 'allowRegister')?.value === 'true'
-      securityForm.value.allowSign =
-        configs.find((c) => c.type === 'allowSign')?.value === 'true'
-      securityForm.value.allowLogin =
-        configs.find((c) => c.type === 'allowLogin')?.value === 'true'
-      securityForm.value.allowRealName =
-        configs.find((c) => c.type === 'allowRealname')?.value === 'true'
-      securityForm.value.allowEmail =
-        configs.find((c) => c.type === 'allowSendMail')?.value === 'true'
-      securityForm.value.allowSms =
-        configs.find((c) => c.type === 'allowSendSms')?.value === 'true'
+      securityForm.value.allowRegister = configs.allowRegister === 'true'
+      securityForm.value.allowSign = configs.allowSign === 'true'
+      securityForm.value.allowLogin = configs.allowLogin === 'true'
+      securityForm.value.allowRealName = configs.allowRealname === 'true'
+      securityForm.value.allowEmail = configs.allowSendMail === 'true'
+      securityForm.value.allowSms = configs.allowSendSms === 'true'
+
+      if (configs.signPoints) {
+        const [min, max] = configs.signPoints.split('-').map(Number)
+        securityForm.value.signPointsMin = min || 0
+        securityForm.value.signPointsMax = max || 0
+      }
+
+      if (configs.signTraffic) {
+        const [min, max] = configs.signTraffic.split('-').map(Number)
+        securityForm.value.signTrafficMin = min || 0
+        securityForm.value.signTrafficMax = max || 0
+      }
     } else {
       message.error(data.message || '获取系统设置失败')
     }
@@ -1785,7 +1851,7 @@ const handleAddBroadcast = async () => {
     const data = await adminApi.createBroadcast({
       title: addBroadcastForm.value.title,
       message: addBroadcastForm.value.message,
-      top: addBroadcastForm.value.top,
+      type: addBroadcastForm.value.type,
     })
     if (data.code === 0) {
       message.success('添加通知成功')
@@ -1794,7 +1860,7 @@ const handleAddBroadcast = async () => {
         id: 0,
         title: '',
         message: '',
-        top: false,
+        type: 'info',
         created_at: '',
         updated_at: '',
       }
@@ -1814,7 +1880,7 @@ const handleEditBroadcast = async () => {
       id: editBroadcastForm.value.id,
       title: editBroadcastForm.value.title,
       message: editBroadcastForm.value.message,
-      top: editBroadcastForm.value.top,
+      type: editBroadcastForm.value.type,
     })
     if (data.code === 0) {
       message.success('修改通知成功')
@@ -1823,7 +1889,7 @@ const handleEditBroadcast = async () => {
         id: 0,
         title: '',
         message: '',
-        top: false,
+        type: 'info',
         created_at: '',
         updated_at: '',
       }
@@ -1845,21 +1911,6 @@ const handleRemoveBroadcast = async (id: number) => {
       await fetchBroadcasts()
     } else {
       message.error(data.message || '删除通知失败')
-    }
-  } catch (error) {
-    message.error((error as ApiError).message)
-  }
-}
-
-// 置顶/取消置顶通知
-const handleToggleBroadcastTop = async (id: number, top: boolean) => {
-  try {
-    const data = await adminApi.toggleBroadcastTop(id, top)
-    if (data.code === 0) {
-      message.success(top ? '置顶成功' : '取消置顶成功')
-      await fetchBroadcasts()
-    } else {
-      message.error(data.message || '操作失败')
     }
   } catch (error) {
     message.error((error as ApiError).message)

@@ -1,285 +1,312 @@
+<!--
+  Copyright (c) 2025, TechCat-Team
+  本部分代码来源于：https://github.com/TechCat-Team/ChmlFrp-Panel-v3/blob/main/src/components/Layout/ThemeSwitcher.vue
+  遵循 Apache 2.0 许可证
+  修改者：eefen
+  修改时间：2025-12-05
+-->
+
 <template>
-  <div class="container">
-    <!-- 主题设置卡片 -->
-    <n-card class="setting-card" size="small">
-      <template #header>
-        <div class="card-header">
-          <n-icon :component="ColorPaletteOutline" :size="20" />
-          <span>主题设置</span>
-        </div>
-      </template>
-      <div class="setting-content">
-        <div class="setting-item">
-          <div class="setting-label">
-            <n-icon :component="SyncOutline" :size="18" />
-            <span>自动切换主题</span>
-          </div>
-          <n-switch
-            size="large"
-            v-model:value="isAutoTheme"
-            @change="handleThemeToggle"
-            :checked-value="true"
-            :unchecked-value="false"
-          >
-            <template #checked>自动切换</template>
-            <template #unchecked>手动切换</template>
-          </n-switch>
-        </div>
-        <div class="setting-item" v-if="!isAutoTheme">
-          <div class="setting-label">
-            <n-icon :component="isDarkTheme ? Sparkles : Sunny" :size="18" />
-            <span>主题模式</span>
-          </div>
-          <n-switch
-            size="large"
-            v-model:value="isDarkTheme"
-            @change="handleThemeToggle"
-            :rail-style="railStyle"
-            :checked-value="true"
-            :unchecked-value="false"
-          >
-            <template #checked-icon>
-              <n-icon :component="Sparkles" color="#9f9f9c" />
-            </template>
-            <template #unchecked-icon>
-              <n-icon :component="Sunny" color="#E6A23C" />
-            </template>
-            <template #checked>月映万川</template>
-            <template #unchecked>日照千里</template>
-          </n-switch>
-        </div>
-      </div>
-    </n-card>
-
-    <!-- 主题色设置卡片 -->
-    <n-card class="setting-card" size="small">
-      <template #header>
-        <div class="card-header">
-          <n-icon :component="BrushOutline" :size="20" />
-          <span>主题色</span>
-        </div>
-      </template>
-      <div class="setting-content">
-        <div class="color-picker-wrapper">
-          <n-color-picker
-            v-model:value="primaryColor"
-            :show-preview="true"
-            :modes="['hex']"
-            size="large"
-          />
-        </div>
-        <div class="preset-colors">
-          <div
-            v-for="color in presetColors"
-            :key="color"
-            :style="{ backgroundColor: color }"
-            class="preset-color"
-            :class="{ active: primaryColor === color }"
-            @click="setPresetColor(color)"
-          >
-            <n-icon
-              v-if="primaryColor === color"
-              :component="CheckmarkCircleOutline"
-              :size="16"
-              color="#fff"
-            />
-          </div>
-        </div>
-      </div>
-    </n-card>
-
-    <!-- 视觉效果设置卡片 -->
-    <n-card class="setting-card" size="small">
-      <template #header>
-        <div class="card-header">
-          <n-icon :component="EyeOutline" :size="20" />
-          <span>视觉效果</span>
-        </div>
-      </template>
-      <div class="setting-content">
-        <div class="setting-item">
-          <div class="setting-label">
-            <n-icon :component="ColorFilterOutline" :size="18" />
-            <span>RGB模式</span>
-          </div>
-          <n-switch
-            size="large"
-            v-model:value="isRGBMode"
-            :checked-value="true"
-            :unchecked-value="false"
-          />
-        </div>
-        <div class="setting-item">
-          <div class="setting-label">
-            <n-icon :component="LayersOutline" :size="18" />
-            <span>对话框模糊</span>
-          </div>
-          <n-switch
-            size="large"
-            v-model:value="isDialogBoxHairGlass"
-            :checked-value="true"
-            :unchecked-value="false"
-          />
-        </div>
-      </div>
-    </n-card>
-
-    <!-- 无障碍设置卡片 -->
-    <n-card class="setting-card" size="small">
-      <template #header>
-        <div class="card-header">
-          <n-icon :component="AccessibilityOutline" :size="20" />
-          <span>无障碍</span>
-        </div>
-      </template>
-      <div class="setting-content">
-        <div class="setting-item">
-          <div class="setting-label">
-            <n-icon :component="ColorWandOutline" :size="18" />
-            <span>色弱模式</span>
-          </div>
-          <n-switch
-            size="large"
-            v-model:value="colorBlindMode"
-            :checked-value="true"
-            :unchecked-value="false"
-          />
-        </div>
-        <div class="setting-item">
-          <div class="setting-label">
-            <n-icon :component="ContrastOutline" :size="18" />
-            <span>高对比度模式</span>
-          </div>
-          <n-switch
-            size="large"
-            v-model:value="highContrastMode"
-            :checked-value="true"
-            :unchecked-value="false"
-          />
-        </div>
-      </div>
-    </n-card>
-
-    <!-- 背景图设置卡片 -->
-    <n-card class="setting-card" size="small">
-      <template #header>
-        <div class="card-header">
-          <n-icon :component="ImageOutline" :size="20" />
-          <span>背景图</span>
-        </div>
-      </template>
-      <div class="setting-content">
-        <div class="background-settings">
-          <n-upload
-            :file-list="[]"
-            :show-file-list="false"
-            accept="image/*"
-            @change="handleFileChange"
-            :max="1"
-          >
-            <n-button block type="primary" ghost>
-              <template #icon>
-                <n-icon :component="CloudUploadOutline" />
-              </template>
-              选择本地图片
-            </n-button>
-          </n-upload>
-          <n-input
-            v-model:value="backgroundImageUrl"
-            placeholder="输入网络图片链接"
-            class="background-input"
-            @update:value="handleImageUrlChange"
-            clearable
-          >
-            <template #prefix>
-              <n-icon :component="LinkOutline" />
-            </template>
-          </n-input>
-          <div
-            v-if="backgroundImageUrl || backgroundImage"
-            class="image-preview"
-          >
-            <div class="preview-wrapper">
-              <img
-                :src="backgroundImageUrl || backgroundImage"
-                alt="背景预览"
-                class="preview-image"
-              />
-              <div class="preview-overlay">
-                <n-button
-                  size="small"
-                  type="error"
-                  @click="clearBackgroundImage"
-                >
-                  <template #icon>
-                    <n-icon :component="TrashOutline" />
-                  </template>
-                  清除
-                </n-button>
-              </div>
+  <div class="theme-switcher">
+    <n-scrollbar
+      class="container-scrollbar"
+      :vertical-rail-style="{ right: '-15px' }"
+    >
+      <div class="container">
+        <!-- 主题设置卡片 -->
+        <n-card class="setting-card" size="small">
+          <template #header>
+            <div class="card-header">
+              <n-icon :component="ColorPaletteOutline" :size="20" />
+              <span>主题设置</span>
             </div>
-            <div class="slider-control">
-              <div class="slider-label">
-                <n-icon :component="LayersOutline" :size="16" />
-                <span>模糊深度: {{ backgroundBlur }}px</span>
-              </div>
-              <n-slider
-                v-model:value="backgroundBlur"
-                :min="0"
-                :max="20"
-                :step="1"
-                @update:value="handleBlurChange"
-              />
-            </div>
-            <div class="slider-control" v-if="!frostedGlassMode">
-              <div class="slider-label">
-                <n-icon :component="WaterOutline" :size="16" />
-                <span>元素不透明度: {{ backgroundOpacity || 100 }}%</span>
-              </div>
-              <n-slider
-                v-model:value="backgroundOpacity"
-                :min="20"
-                :max="100"
-                :step="1"
-                @update:value="handleOpacityChange"
-              />
-            </div>
-            <div class="setting-item" style="margin-top: 12px">
+          </template>
+          <div class="setting-content">
+            <div class="setting-item">
               <div class="setting-label">
-                <n-icon :component="LayersOutline" :size="18" />
-                <span>毛玻璃模式</span>
+                <n-icon :component="SyncOutline" :size="18" />
+                <span>自动切换主题</span>
               </div>
               <n-switch
                 size="large"
-                v-model:value="frostedGlassMode"
+                v-model:value="isAutoTheme"
+                @click="changeTheme"
                 :checked-value="true"
                 :unchecked-value="false"
-                @update:value="handleFrostedGlassChange"
+              >
+                <template #checked>自动切换</template>
+                <template #unchecked>手动切换</template>
+              </n-switch>
+            </div>
+            <div class="setting-item" v-if="!isAutoTheme">
+              <div class="setting-label">
+                <n-icon
+                  :component="isDarkTheme ? Sparkles : Sunny"
+                  :size="18"
+                />
+                <span>主题模式</span>
+              </div>
+              <n-switch
+                size="large"
+                v-model:value="isDarkTheme"
+                :rail-style="railStyle"
+                :checked-value="true"
+                :unchecked-value="false"
+                @click="changeTheme"
+                :loading="isTransitioning"
+              >
+                <template #checked-icon>
+                  <n-icon :component="Sparkles" color="#9f9f9c" />
+                </template>
+                <template #unchecked-icon>
+                  <n-icon :component="Sunny" color="#E6A23C" />
+                </template>
+                <template #checked>月映万川</template>
+                <template #unchecked>日照千里</template>
+              </n-switch>
+            </div>
+          </div>
+        </n-card>
+
+        <!-- 主题色设置卡片 -->
+        <n-card class="setting-card" size="small">
+          <template #header>
+            <div class="card-header">
+              <n-icon :component="BrushOutline" :size="20" />
+              <span>主题色</span>
+            </div>
+          </template>
+          <div class="setting-content">
+            <div class="color-picker-wrapper">
+              <n-color-picker
+                v-model:value="primaryColor"
+                :show-preview="true"
+                :modes="['hex']"
+                size="large"
               />
             </div>
-            <div class="slider-control" v-if="frostedGlassMode">
-              <div class="slider-label">
-                <n-icon :component="WaterOutline" :size="16" />
-                <span>毛玻璃强度: {{ frostedGlassIntensity }}px</span>
+            <div class="preset-colors">
+              <div
+                v-for="color in presetColors"
+                :key="color"
+                :style="{ backgroundColor: color }"
+                class="preset-color"
+                :class="{ active: primaryColor === color }"
+                @click="setPresetColor(color)"
+              >
+                <n-icon
+                  v-if="primaryColor === color"
+                  :component="CheckmarkCircleOutline"
+                  :size="16"
+                  color="#fff"
+                />
               </div>
-              <n-slider
-                v-model:value="frostedGlassIntensity"
-                :min="5"
-                :max="30"
-                :step="1"
-                @update:value="handleFrostedGlassIntensityChange"
+            </div>
+          </div>
+        </n-card>
+
+        <!-- 视觉效果设置卡片 -->
+        <n-card class="setting-card" size="small">
+          <template #header>
+            <div class="card-header">
+              <n-icon :component="EyeOutline" :size="20" />
+              <span>视觉效果</span>
+            </div>
+          </template>
+          <div class="setting-content">
+            <div class="setting-item">
+              <div class="setting-label">
+                <n-icon :component="ColorFilterOutline" :size="18" />
+                <span>RGB模式</span>
+              </div>
+              <n-switch
+                size="large"
+                v-model:value="isRGBMode"
+                :checked-value="true"
+                :unchecked-value="false"
+              />
+            </div>
+            <div class="setting-item">
+              <div class="setting-label">
+                <n-icon :component="LayersOutline" :size="18" />
+                <span>对话框模糊</span>
+              </div>
+              <n-switch
+                size="large"
+                v-model:value="isDialogBoxHairGlass"
+                :checked-value="true"
+                :unchecked-value="false"
               />
             </div>
           </div>
-        </div>
+        </n-card>
+
+        <!-- 无障碍设置卡片 -->
+        <n-card class="setting-card" size="small">
+          <template #header>
+            <div class="card-header">
+              <n-icon :component="AccessibilityOutline" :size="20" />
+              <span>无障碍</span>
+            </div>
+          </template>
+          <div class="setting-content">
+            <div class="setting-item">
+              <div class="setting-label">
+                <n-icon :component="ColorWandOutline" :size="18" />
+                <span>色弱模式</span>
+              </div>
+              <n-switch
+                size="large"
+                v-model:value="colorBlindMode"
+                :checked-value="true"
+                :unchecked-value="false"
+              />
+            </div>
+            <div class="setting-item">
+              <div class="setting-label">
+                <n-icon :component="ContrastOutline" :size="18" />
+                <span>高对比度模式</span>
+              </div>
+              <n-switch
+                size="large"
+                v-model:value="highContrastMode"
+                :checked-value="true"
+                :unchecked-value="false"
+              />
+            </div>
+          </div>
+        </n-card>
+
+        <!-- 背景图设置卡片 -->
+        <n-card class="setting-card" size="small">
+          <template #header>
+            <div class="card-header">
+              <n-icon :component="ImageOutline" :size="20" />
+              <span>背景图</span>
+            </div>
+          </template>
+          <div class="setting-content">
+            <div class="background-settings">
+              <n-upload
+                :file-list="[]"
+                :show-file-list="false"
+                accept="image/*"
+                @change="handleFileChange"
+                :max="1"
+                :disabled="isCompressing"
+              >
+                <n-button
+                  block
+                  type="primary"
+                  ghost
+                  :loading="isCompressing"
+                  :disabled="isCompressing"
+                >
+                  <template #icon>
+                    <n-icon :component="CloudUploadOutline" />
+                  </template>
+                  {{ isCompressing ? '处理中...' : '选择本地图片' }}
+                </n-button>
+              </n-upload>
+              <n-input
+                v-model:value="backgroundImageUrl"
+                placeholder="输入网络图片链接"
+                class="background-input"
+                @update:value="handleImageUrlChange"
+                clearable
+                :disabled="isUrlLoading"
+              >
+                <template #prefix>
+                  <n-icon :component="LinkOutline" />
+                </template>
+              </n-input>
+              <div
+                v-if="backgroundImageUrl || backgroundImage"
+                class="image-preview"
+              >
+                <div class="preview-wrapper">
+                  <img
+                    :src="backgroundImageUrl || backgroundImage"
+                    alt="背景预览"
+                    class="preview-image"
+                  />
+                  <div class="preview-overlay">
+                    <n-button
+                      size="small"
+                      type="error"
+                      @click="clearBackgroundImage"
+                    >
+                      <template #icon>
+                        <n-icon :component="TrashOutline" />
+                      </template>
+                      清除
+                    </n-button>
+                  </div>
+                </div>
+                <div class="slider-control">
+                  <div class="slider-label">
+                    <n-icon :component="LayersOutline" :size="16" />
+                    <span>模糊深度: {{ backgroundBlur }}px</span>
+                  </div>
+                  <n-slider
+                    v-model:value="backgroundBlur"
+                    :min="0"
+                    :max="20"
+                    :step="1"
+                    @update:value="handleBlurChange"
+                  />
+                </div>
+                <div class="slider-control" v-if="!frostedGlassMode">
+                  <div class="slider-label">
+                    <n-icon :component="WaterOutline" :size="16" />
+                    <span>元素不透明度: {{ backgroundOpacity || 100 }}%</span>
+                  </div>
+                  <n-slider
+                    v-model:value="backgroundOpacity"
+                    :min="20"
+                    :max="100"
+                    :step="1"
+                    @update:value="handleOpacityChange"
+                  />
+                </div>
+                <div class="setting-item" style="margin-top: 12px">
+                  <div class="setting-label">
+                    <n-icon :component="LayersOutline" :size="18" />
+                    <span>毛玻璃模式</span>
+                  </div>
+                  <n-switch
+                    size="large"
+                    v-model:value="frostedGlassMode"
+                    :checked-value="true"
+                    :unchecked-value="false"
+                    @update:value="handleFrostedGlassChange"
+                  />
+                </div>
+                <div class="slider-control" v-if="frostedGlassMode">
+                  <div class="slider-label">
+                    <n-icon :component="WaterOutline" :size="16" />
+                    <span>毛玻璃强度: {{ frostedGlassIntensity }}px</span>
+                  </div>
+                  <n-slider
+                    v-model:value="frostedGlassIntensity"
+                    :min="5"
+                    :max="30"
+                    :step="1"
+                    @update:value="handleFrostedGlassIntensityChange"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </n-card>
       </div>
-    </n-card>
+    </n-scrollbar>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { CSSProperties, ref, onMounted, watch } from 'vue'
-import { useThemeStore } from '@/stores/theme'
+import { useThemeStore } from '../stores/theme'
 import {
   Sparkles,
   Sunny,
@@ -300,8 +327,17 @@ import {
   CheckmarkCircleOutline,
 } from '@vicons/ionicons5'
 import { useThemeTransition } from '@/utils/useThemeTransition'
+import {
+  compressImage,
+  compressNetworkImage,
+  formatFileSize,
+  type CompressResult,
+} from '@/utils/imageUtils'
+import { useMessage } from 'naive-ui'
 
+const message = useMessage()
 const themeStore = useThemeStore()
+const { toggleThemeWithDualCircle, isTransitioning } = useThemeTransition()
 const isDarkTheme = ref(themeStore.theme === 'dark')
 const primaryColor = ref(themeStore.primaryColor)
 const isAutoTheme = ref(themeStore.isAutoTheme)
@@ -329,19 +365,11 @@ const presetColors = [
   '#2f54eb',
 ]
 
-const { toggleThemeWithDualCircle } = useThemeTransition()
-
-const handleThemeToggle = async (event: MouseEvent) => {
+const changeTheme = async (event?: MouseEvent) => {
   await toggleThemeWithDualCircle(event, {
     duration: 600,
     easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
   })
-}
-
-const changeTheme = (isDark: boolean) => {
-  const theme = isDark ? 'dark' : 'light'
-  themeStore.setTheme(theme)
-  document.documentElement.setAttribute('data-theme', theme)
 }
 
 const changePrimaryColor = (color: string) => {
@@ -377,9 +405,9 @@ watch(isDialogBoxHairGlass, (newVal) => {
   }
 })
 
-watch(isDarkTheme, (newIsDark) => {
-  if (!isAutoTheme.value) {
-    changeTheme(newIsDark)
+watch(isDarkTheme, async () => {
+  if (!isAutoTheme.value && !isTransitioning.value) {
+    await changeTheme()
   }
 })
 
@@ -392,7 +420,7 @@ watch(isAutoTheme, (newVal) => {
   if (newVal) {
     const systemDarkTheme = window.matchMedia('(prefers-color-scheme: dark)')
     isDarkTheme.value = systemDarkTheme.matches
-    changeTheme(isDarkTheme.value)
+    changeTheme()
     systemDarkTheme.addEventListener('change', handleSystemThemeChange)
   } else {
     const systemDarkTheme = window.matchMedia('(prefers-color-scheme: dark)')
@@ -474,107 +502,96 @@ const railStyle = ({
 
 const handleSystemThemeChange = (e: MediaQueryListEvent) => {
   isDarkTheme.value = e.matches
-  changeTheme(isDarkTheme.value)
+  changeTheme()
 }
 
-// 压缩图片函数
-const compressImage = (
-  file: File,
-  maxWidth: number = 1920,
-  maxHeight: number = 1080,
-  quality: number = 0.8,
-): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      const img = new Image()
-      img.onload = () => {
-        // 计算压缩后的尺寸
-        let width = img.width
-        let height = img.height
-
-        if (width > maxWidth || height > maxHeight) {
-          const ratio = Math.min(maxWidth / width, maxHeight / height)
-          width = width * ratio
-          height = height * ratio
-        }
-
-        // 创建 canvas 进行压缩
-        const canvas = document.createElement('canvas')
-        canvas.width = width
-        canvas.height = height
-        const ctx = canvas.getContext('2d')
-
-        if (!ctx) {
-          reject(new Error('无法创建 canvas 上下文'))
-          return
-        }
-
-        // 绘制图片
-        ctx.drawImage(img, 0, 0, width, height)
-
-        // 转换为 base64
-        const compressedBase64 = canvas.toDataURL(file.type, quality)
-        resolve(compressedBase64)
-      }
-      img.onerror = () => reject(new Error('图片加载失败'))
-      img.src = e.target?.result as string
-    }
-    reader.onerror = () => reject(new Error('文件读取失败'))
-    reader.readAsDataURL(file)
-  })
-}
+const isCompressing = ref(false)
 
 const handleFileChange = async (options: { fileList: any[] }) => {
   const file = options.fileList[0]?.file
   if (file && file.type.startsWith('image/')) {
+    const maxFileSize = 10 * 1024 * 1024
+    if (file.size > maxFileSize) {
+      message.warning(
+        `图片文件过大 (${formatFileSize(file.size)})，建议使用小于 10MB 的图片`,
+      )
+    }
+
+    isCompressing.value = true
+    message.loading('正在处理图片...', { duration: 0 })
+
     try {
-      // 压缩图片（最大 1920x1080，质量 0.8）
-      const compressedBase64 = await compressImage(file, 1920, 1080, 0.8)
+      const result: CompressResult = await compressImage(file, {
+        maxWidth: 1920,
+        maxHeight: 1080,
+        quality: 0.8,
+        maxSizeKB: 500,
+      })
 
-      // 检查 base64 字符串长度（localStorage 限制约 5-10MB，但为了安全我们限制在 2MB）
-      if (compressedBase64.length > 2 * 1024 * 1024) {
-        // 如果还是太大，进一步压缩
-        const furtherCompressed = await compressImage(file, 1280, 720, 0.7)
-        backgroundImageUrl.value = furtherCompressed
-        backgroundImage.value = furtherCompressed
-        themeStore.setBackgroundImage(furtherCompressed)
-      } else {
-        backgroundImageUrl.value = compressedBase64
-        backgroundImage.value = compressedBase64
-        themeStore.setBackgroundImage(compressedBase64)
-      }
+      message.destroyAll()
+      message.success(
+        `图片处理完成！原始大小: ${formatFileSize(result.originalSize)}，` +
+          `压缩后: ${formatFileSize(result.compressedSize)}，` +
+          `尺寸: ${result.width}x${result.height}`,
+      )
 
+      backgroundImageUrl.value = result.data
+      backgroundImage.value = result.data
+      await themeStore.setBackgroundImage(result.data)
       updateBackgroundStyle()
     } catch (error) {
+      message.destroyAll()
+      message.error('图片处理失败，请尝试使用较小的图片')
       console.error('图片处理失败:', error)
-      // 如果压缩失败，尝试直接使用原图（但可能不工作）
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        const result = e.target?.result as string
-        if (result.length > 5 * 1024 * 1024) {
-          console.warn('图片太大，可能无法正常显示。建议使用较小的图片。')
-        }
-        backgroundImageUrl.value = result
-        backgroundImage.value = result
-        themeStore.setBackgroundImage(result)
-        updateBackgroundStyle()
-      }
-      reader.readAsDataURL(file)
+    } finally {
+      isCompressing.value = false
     }
   }
 }
 
-const handleImageUrlChange = (url: string) => {
+const isUrlLoading = ref(false)
+
+const handleImageUrlChange = async (url: string) => {
   backgroundImageUrl.value = url
+
   if (url && url.trim()) {
-    backgroundImage.value = url.trim()
-    themeStore.setBackgroundImage(url.trim())
+    const trimmedUrl = url.trim()
+    isUrlLoading.value = true
+    message.loading('正在加载网络图片...', { duration: 0 })
+
+    try {
+      const result: CompressResult = await compressNetworkImage(trimmedUrl, {
+        maxWidth: 1920,
+        maxHeight: 1080,
+        quality: 0.8,
+        maxSizeKB: 500,
+      })
+
+      message.destroyAll()
+      message.success(
+        `网络图片已缓存！压缩后大小: ${formatFileSize(result.compressedSize)}，` +
+          `尺寸: ${result.width}x${result.height}`,
+      )
+
+      backgroundImage.value = result.data
+      await themeStore.setBackgroundImage(result.data)
+      updateBackgroundStyle()
+    } catch (error) {
+      message.destroyAll()
+      message.warning('网络图片加载失败或跨域限制，将直接使用原图链接')
+      console.warn('网络图片压缩失败:', error)
+
+      backgroundImage.value = trimmedUrl
+      await themeStore.setBackgroundImage(trimmedUrl)
+      updateBackgroundStyle()
+    } finally {
+      isUrlLoading.value = false
+    }
   } else {
     backgroundImage.value = ''
-    themeStore.setBackgroundImage('')
+    await themeStore.clearBackgroundImage()
+    updateBackgroundStyle()
   }
-  updateBackgroundStyle()
 }
 
 const handleBlurChange = (blur: number) => {
@@ -616,17 +633,17 @@ const handleFrostedGlassIntensityChange = (intensity: number) => {
   root.style.setProperty('--frosted-glass-blur', `${intensity}px`)
 }
 
-const clearBackgroundImage = () => {
+const clearBackgroundImage = async () => {
   backgroundImageUrl.value = ''
   backgroundImage.value = ''
-  themeStore.setBackgroundImage('')
-  // 清除背景图时，如果启用了毛玻璃模式，也要禁用
+  await themeStore.clearBackgroundImage()
   if (frostedGlassMode.value) {
     frostedGlassMode.value = false
     themeStore.setFrostedGlassMode(false)
   }
   updateBackgroundStyle()
   updateFrostedGlassStyle()
+  message.success('背景图已清除')
 }
 
 const updateBackgroundStyle = () => {
@@ -721,29 +738,28 @@ watch(
   },
 )
 
-// 初始化背景样式
-onMounted(() => {
-  // 确保 backgroundOpacity 有默认值，且不低于20%
+onMounted(async () => {
   if (!backgroundOpacity.value || isNaN(backgroundOpacity.value)) {
     backgroundOpacity.value = 100
     themeStore.setBackgroundOpacity(100)
   } else if (backgroundOpacity.value < 20) {
-    // 如果值小于20%，自动调整为20%
     backgroundOpacity.value = 20
     themeStore.setBackgroundOpacity(20)
   }
-  // 如果启用了毛玻璃模式，确保不透明度为100%
   if (frostedGlassMode.value) {
     backgroundOpacity.value = 100
     themeStore.setBackgroundOpacity(100)
   }
 
-  // 初始化对话框模糊效果
   if (isDialogBoxHairGlass.value) {
     document.documentElement.style.setProperty('--modal-filter', '10px')
   } else {
     document.documentElement.style.setProperty('--modal-filter', '0px')
   }
+
+  await themeStore.loadBackgroundImageFromStorage()
+  backgroundImage.value = themeStore.backgroundImage
+  backgroundImageUrl.value = themeStore.backgroundImage
 
   updateBackgroundStyle()
   updateAccessibilityStyles()
@@ -752,6 +768,15 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+.theme-switcher {
+  height: 100%;
+}
+
+.theme-switcher :deep(.n-scrollbar) {
+  height: 100%;
+  overflow: visible;
+}
+
 .container {
   display: flex;
   flex-direction: column;

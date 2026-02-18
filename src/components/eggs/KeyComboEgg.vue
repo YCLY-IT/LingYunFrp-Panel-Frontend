@@ -15,7 +15,7 @@
     <n-space vertical size="large" align="center">
       <n-text>code{{ currentYear }} 输完了</n-text>
       <n-text depth="3" style="font-size: 12px">
-        单身多少年练出来的手速
+        单身多少年练出来的手速d(`･∀･)b
       </n-text>
     </n-space>
 

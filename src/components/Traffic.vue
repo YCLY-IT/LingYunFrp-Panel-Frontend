@@ -350,5 +350,26 @@ onUnmounted(() => {
   .n-card {
     padding: 8px !important;
   }
+
+  /* 标题和按钮移动端适配 */
+  :deep(.n-card-header) {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px;
+  }
+
+  :deep(.n-card-header__main) {
+    font-size: 16px;
+    white-space: nowrap;
+  }
+
+  :deep(.n-card-header__extra) {
+    width: 100%;
+  }
+
+  :deep(.n-card-header__extra .n-space) {
+    flex-wrap: wrap;
+    gap: 8px !important;
+  }
 }
 </style>

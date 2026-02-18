@@ -13,18 +13,18 @@
     </template>
 
     <n-space vertical size="large" align="center">
-      <span style="font-size: 60px">🦉</span>
+      <span style="font-size: 60px">⎝( OωO)⎠</span>
       <n-text style="text-align: center">
         都 {{ currentTime }} 了还在肝
       </n-text>
       <n-text depth="3" style="text-align: center; font-size: 12px">
-        早点休息，身体要紧
+        要早点休息，身体要紧(`・ω・´)
       </n-text>
     </n-space>
 
     <template #footer>
       <n-space justify="center">
-        <n-button type="primary" @click="closeEgg"> 知道了啦 </n-button>
+        <n-button type="primary" @click="closeEgg"> 嗯嗯 </n-button>
       </n-space>
     </template>
   </n-modal>

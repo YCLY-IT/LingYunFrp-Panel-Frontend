@@ -8,12 +8,12 @@
     <template #header>
       <n-space align="center" justify="center" style="width: 100%">
         <span style="font-size: 24px">🎯</span>
-        <n-text strong style="font-size: 18px">点中了</n-text>
+        <n-text strong style="font-size: 18px">好厉害⁽⁽٩(๑˃̶͈̀ ᗨ ˂̶͈́)۶⁾⁾</n-text>
       </n-space>
     </template>
 
     <n-space vertical size="large" align="center">
-      <n-text>四个角都点到了</n-text>
+      <n-text>5秒四个角都点到了</n-text>
       <n-text depth="3" style="font-size: 12px">
         顺序: 左上 → 右上 → 右下 → 左下
       </n-text>
@@ -21,7 +21,9 @@
 
     <template #footer>
       <n-space justify="center">
-        <n-button type="primary" @click="showEgg = false"> 不愧是你 </n-button>
+        <n-button type="primary" @click="showEgg = false">
+          不愧是你呀！
+        </n-button>
       </n-space>
     </template>
   </n-modal>

@@ -773,4 +773,27 @@ onMounted(() => {
 .markdown-content :deep(em) {
   font-style: italic;
 }
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  /* 功能特性网格改为单列 */
+  :deep(.n-grid) {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* 卡片标题和按钮垂直排列 */
+  :deep(.n-card-header) {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px;
+  }
+
+  :deep(.n-card-header__main) {
+    font-size: 16px;
+  }
+
+  :deep(.n-card-header__extra) {
+    width: 100%;
+  }
+}
 </style>

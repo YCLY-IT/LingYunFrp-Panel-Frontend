@@ -1,4 +1,9 @@
 import { defineStore } from 'pinia'
+import {
+  saveBackgroundImage,
+  loadBackgroundImage,
+  clearBackgroundImage as clearImageStorage,
+} from '@/utils/imageUtils'
 
 interface ThemeState {
   theme: string
@@ -13,6 +18,7 @@ interface ThemeState {
   highContrastMode: boolean
   frostedGlassMode: boolean
   frostedGlassIntensity: number
+  backgroundImageLoading: boolean
 }
 
 const THEME_KEY = 'app-theme'
@@ -38,7 +44,7 @@ export const useThemeStore = defineStore('theme', {
     isRGBMode: localStorage.getItem(RGB_MODE_KEY) === 'true' || false,
     isDialogBoxHairGlass:
       localStorage.getItem(DBH_MODE_KEY) === 'true' || false,
-    backgroundImage: localStorage.getItem(BACKGROUND_IMAGE_KEY) || '',
+    backgroundImage: '',
     backgroundBlur: Number(localStorage.getItem(BACKGROUND_BLUR_KEY)) || 3,
     backgroundOpacity: (() => {
       const stored = localStorage.getItem(BACKGROUND_OPACITY_KEY)
@@ -53,6 +59,7 @@ export const useThemeStore = defineStore('theme', {
       localStorage.getItem(FROSTED_GLASS_MODE_KEY) === 'true' || false,
     frostedGlassIntensity:
       Number(localStorage.getItem(FROSTED_GLASS_INTENSITY_KEY)) || 15,
+    backgroundImageLoading: true,
   }),
   actions: {
     setTheme(theme: string) {
@@ -75,9 +82,48 @@ export const useThemeStore = defineStore('theme', {
       this.isDialogBoxHairGlass = isDBH
       localStorage.setItem(DBH_MODE_KEY, isDBH.toString())
     },
-    setBackgroundImage(imageUrl: string) {
+    async setBackgroundImage(imageUrl: string) {
       this.backgroundImage = imageUrl
-      localStorage.setItem(BACKGROUND_IMAGE_KEY, imageUrl)
+      if (imageUrl && imageUrl.startsWith('data:')) {
+        try {
+          await saveBackgroundImage(imageUrl)
+        } catch (error) {
+          console.error('保存背景图失败:', error)
+        }
+      } else if (imageUrl) {
+        localStorage.setItem(BACKGROUND_IMAGE_KEY, imageUrl)
+      } else {
+        await clearImageStorage()
+        localStorage.removeItem(BACKGROUND_IMAGE_KEY)
+      }
+    },
+    async loadBackgroundImageFromStorage() {
+      this.backgroundImageLoading = true
+      try {
+        const localUrl = localStorage.getItem(BACKGROUND_IMAGE_KEY)
+        if (localUrl && !localUrl.startsWith('data:')) {
+          this.backgroundImage = localUrl
+          this.backgroundImageLoading = false
+          return
+        }
+
+        const imageData = await loadBackgroundImage()
+        if (imageData) {
+          this.backgroundImage = imageData
+        } else {
+          this.backgroundImage = localUrl || ''
+        }
+      } catch (error) {
+        console.error('加载背景图失败:', error)
+        this.backgroundImage = localStorage.getItem(BACKGROUND_IMAGE_KEY) || ''
+      } finally {
+        this.backgroundImageLoading = false
+      }
+    },
+    async clearBackgroundImage() {
+      this.backgroundImage = ''
+      await clearImageStorage()
+      localStorage.removeItem(BACKGROUND_IMAGE_KEY)
     },
     setBackgroundBlur(blur: number) {
       this.backgroundBlur = blur
@@ -98,7 +144,6 @@ export const useThemeStore = defineStore('theme', {
     setFrostedGlassMode(enabled: boolean) {
       this.frostedGlassMode = enabled
       localStorage.setItem(FROSTED_GLASS_MODE_KEY, enabled.toString())
-      // 启用毛玻璃模式时，强制不透明度为100%
       if (enabled) {
         this.backgroundOpacity = 100
         localStorage.setItem(BACKGROUND_OPACITY_KEY, '100')

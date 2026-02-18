@@ -26,8 +26,6 @@ api.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       if (!isAlerting) {
         isAlerting = true
-        // 这里用 window，因为 setup 里没法直接用 useMessage/useRouter
-        window.$message?.error?.('登录信息已过期，请重新登录')
         // 弹窗
         window.$dialog?.warning?.({
           title: '登录失效',

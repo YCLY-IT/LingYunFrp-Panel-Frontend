@@ -260,8 +260,14 @@ export interface SoftwareListResponse {
 
 // 系统设置相关类型
 export interface SystemSetting {
-  type: string
-  value: string
+  allowRegister: string
+  allowSign: string
+  allowLogin: string
+  allowRealname: string
+  allowSendMail: string
+  allowSendSms: string
+  signPoints: string
+  signTraffic: string
 }
 
 export interface Group {
@@ -313,7 +319,7 @@ export interface Broadcast {
   id: number
   title: string
   message: string
-  top: boolean
+  type: string
   created_at: string
   updated_at: string
 }
@@ -321,7 +327,7 @@ export interface Broadcast {
 export interface CreateBroadcastParams {
   title: string
   message: string
-  top: boolean
+  type: string
 }
 
 export interface UpdateBroadcastParams extends CreateBroadcastParams {
@@ -378,7 +384,7 @@ export type SoftwareApiResponse = ApiBaseResponse<Software>
 export type SoftwareVersionApiResponse = ApiBaseResponse<
   PaginatedResponse<SoftwareVersion>
 >
-export type SystemSettingApiResponse = ApiBaseResponse<SystemSetting[]>
+export type SystemSettingApiResponse = ApiBaseResponse<SystemSetting>
 export type GroupListApiResponse = ApiBaseResponse<{ groups: Group[] }>
 export type GroupApiResponse = ApiBaseResponse<Group>
 export type DownloadSourceApiResponse = ApiBaseResponse<any[]>

@@ -72,7 +72,7 @@ export interface BroadcastData {
   id: number
   title: string
   message: string
-  top: boolean
+  type: string | 'info' | 'warning' | 'danger'
   created_at: string
   updated_at: string
 }

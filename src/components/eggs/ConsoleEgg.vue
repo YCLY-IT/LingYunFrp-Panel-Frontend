@@ -13,7 +13,7 @@
     </template>
 
     <n-space vertical size="large" align="center">
-      <span style="font-size: 60px">🕵️</span>
+      <span style="font-size: 30px">(((o(*ﾟ▽ﾟ*)o)))</span>
       <n-text style="text-align: center"> 居然会打开控制台输入命令 </n-text>
       <n-text depth="3" style="text-align: center; font-size: 12px">
         平时没少调试吧
@@ -22,7 +22,7 @@
 
     <template #footer>
       <n-space justify="center">
-        <n-button type="primary" @click="showEgg = false"> 泰裤辣 </n-button>
+        <n-button type="primary" @click="showEgg = false"> 当然啦 </n-button>
       </n-space>
     </template>
   </n-modal>

@@ -82,7 +82,6 @@ const message = useMessage()
 const weatherStore = useWeatherStore()
 
 // 响应式数据
-const cardRef = ref<HTMLElement>()
 const customText = ref('')
 
 // 访问者信息
