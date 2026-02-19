@@ -172,10 +172,36 @@ watch(
 // 监听背景图变化，更新主题覆盖
 watch(
   () => themeStore.backgroundImage,
-  () => {
-    // 触发 themeOverrides 重新计算
-    // 由于 themeOverrides 是 computed，会自动更新
+  (newImage) => {
+    if (newImage) {
+      const opacity = Math.max(20, themeStore.backgroundOpacity || 100)
+      document.documentElement.style.setProperty(
+        '--background-image',
+        `url(${newImage})`,
+      )
+      document.documentElement.style.setProperty(
+        '--background-blur',
+        `${themeStore.backgroundBlur}px`,
+      )
+      document.documentElement.style.setProperty(
+        '--background-opacity',
+        `${opacity / 100}`,
+      )
+      if (themeStore.frostedGlassMode) {
+        document.documentElement.classList.add('frosted-glass-mode')
+        document.documentElement.style.setProperty(
+          '--frosted-glass-blur',
+          `${themeStore.frostedGlassIntensity}px`,
+        )
+      }
+    } else {
+      document.documentElement.style.removeProperty('--background-image')
+      document.documentElement.style.removeProperty('--background-blur')
+      document.documentElement.style.removeProperty('--background-opacity')
+      document.documentElement.classList.remove('frosted-glass-mode')
+    }
   },
+  { immediate: true },
 )
 
 // 触屏识别
@@ -191,7 +217,10 @@ const detectInputMethod = (event: PointerEvent) => {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
+  // 先加载背景图（watch 会自动应用样式）
+  await themeStore.loadBackgroundImageFromStorage()
+
   if (themeStore.isRGBMode) {
     animatePrimaryColor()
   }
@@ -200,28 +229,6 @@ onMounted(() => {
     document.documentElement.style.setProperty('--modal-filter', '10px')
   } else {
     document.documentElement.style.setProperty('--modal-filter', '0px')
-  }
-  // 初始化背景图
-  if (themeStore.backgroundImage) {
-    // 确保不透明度不低于20%
-    const opacity = Math.max(20, themeStore.backgroundOpacity || 100)
-    document.documentElement.style.setProperty(
-      '--background-image',
-      `url(${themeStore.backgroundImage})`,
-    )
-    document.documentElement.style.setProperty(
-      '--background-blur',
-      `${themeStore.backgroundBlur}px`,
-    )
-    document.documentElement.style.setProperty(
-      '--background-opacity',
-      `${opacity / 100}`,
-    )
-  } else {
-    // 移除 CSS 变量以恢复默认样式
-    document.documentElement.style.removeProperty('--background-image')
-    document.documentElement.style.removeProperty('--background-blur')
-    document.documentElement.style.removeProperty('--background-opacity')
   }
   // 初始化无障碍模式
   if (themeStore.colorBlindMode) {
@@ -233,18 +240,6 @@ onMounted(() => {
   }
   if (themeStore.highContrastMode) {
     document.documentElement.classList.add('high-contrast-mode')
-  }
-  // 初始化毛玻璃模式
-  if (themeStore.frostedGlassMode && themeStore.backgroundImage) {
-    document.documentElement.classList.add('frosted-glass-mode')
-    document.documentElement.style.setProperty(
-      '--frosted-glass-blur',
-      `${themeStore.frostedGlassIntensity}px`,
-    )
-    document.documentElement.style.setProperty(
-      '--frosted-glass-transition',
-      'all 0.3s ease',
-    )
   }
   // 设置自定义 hover 颜色变量
   const updateHoverColor = () => {

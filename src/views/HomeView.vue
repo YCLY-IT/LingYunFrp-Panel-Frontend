@@ -27,9 +27,7 @@
                 </span>
               </h1>
               <p class="hero-description">
-                {{
-                  packageData.title
-                }}
+                {{ packageData.title }}
                 是一个专注于内网穿透的高性能反向代理应用，支持
                 TCP、UDP、HTTP、HTTPS
                 等多种协议，让您轻松实现内网服务的外网访问。
