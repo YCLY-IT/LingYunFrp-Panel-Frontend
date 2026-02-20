@@ -67,7 +67,6 @@ export interface Group {
   id: number
   name: string
   friendlyName: string
-  point: number
   proxies: number
   traffic: number
   out_limit: number

@@ -475,16 +475,6 @@
             </NFormItem>
           </NGridItem>
           <NGridItem>
-            <NFormItem label="积分" path="point">
-              <NInputNumber
-                v-model:value="groupForm.point"
-                :min="0"
-                placeholder="请输入积分"
-                style="width: 100%"
-              />
-            </NFormItem>
-          </NGridItem>
-          <NGridItem>
             <NFormItem label="基础流量" path="traffic">
               <NInputNumber
                 v-model:value="groupForm.traffic"
@@ -609,16 +599,6 @@
                 v-model:value="editGroupForm.friendlyName"
                 placeholder="请输入显示名称"
                 clearable
-              />
-            </NFormItem>
-          </NGridItem>
-          <NGridItem>
-            <NFormItem label="积分" path="point">
-              <NInputNumber
-                v-model:value="editGroupForm.point"
-                :min="0"
-                placeholder="请输入积分"
-                style="width: 100%"
               />
             </NFormItem>
           </NGridItem>
@@ -923,7 +903,6 @@ const groupForm = ref<Group>({
   id: 0,
   name: '',
   friendlyName: '',
-  point: 0,
   proxies: 0,
   traffic: 0,
   out_limit: 0,
@@ -936,7 +915,6 @@ const editGroupForm = ref<Group>({
   id: 0,
   name: '',
   friendlyName: '',
-  point: 0,
   proxies: 0,
   traffic: 0,
   out_limit: 0,
@@ -1215,20 +1193,6 @@ const groupColumns: DataTableColumns<Group> = [
             'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;',
         },
         row.proxies,
-      )
-    },
-  },
-  {
-    title: '积分数量',
-    key: 'point',
-    render(row) {
-      return h(
-        'div',
-        {
-          style:
-            'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;',
-        },
-        row.point,
       )
     },
   },
@@ -1754,7 +1718,6 @@ const handleAddGroup = async () => {
     const data = await adminApi.createGroup({
       name: groupForm.value.name,
       friendlyName: groupForm.value.friendlyName,
-      point: groupForm.value.point,
       proxies: groupForm.value.proxies,
       traffic: groupForm.value.traffic,
       out_limit: groupForm.value.out_limit * 128,
@@ -1769,7 +1732,6 @@ const handleAddGroup = async () => {
         id: 0,
         name: '',
         friendlyName: '',
-        point: 0,
         proxies: 0,
         traffic: 0,
         out_limit: 0,
@@ -1793,7 +1755,6 @@ const handleEditGroup = async () => {
       id: editGroupForm.value.id,
       name: editGroupForm.value.name,
       friendlyName: editGroupForm.value.friendlyName,
-      point: editGroupForm.value.point,
       proxies: editGroupForm.value.proxies,
       traffic: editGroupForm.value.traffic,
       out_limit: editGroupForm.value.out_limit,
