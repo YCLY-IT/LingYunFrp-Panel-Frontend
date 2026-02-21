@@ -88,171 +88,87 @@
                 <h3 class="tunnel-title">
                   {{ proxy.proxyName }}
                 </h3>
-                <div class="status-tags">
-                  <NTag
-                    :type="proxy.isOnline ? 'success' : 'error'"
-                    size="small"
-                    round
-                  >
-                    {{ proxy.isOnline ? '在线' : '离线' }}
-                  </NTag>
-                  <NTag
-                    v-if="proxy.isBanned"
-                    type="error"
-                    size="small"
-                    round
-                    style="margin-left: 4px"
-                  >
-                    已封禁
-                  </NTag>
-                  <NTag
-                    v-if="proxy.isDisabled"
-                    type="warning"
-                    size="small"
-                    round
-                    style="margin-left: 4px"
-                  >
-                    已禁用
-                  </NTag>
-                </div>
               </div>
-              <div class="tunnel-id">
-                <NTag type="info" size="small"># {{ proxy.proxyId }}</NTag>
+              <div class="tunnel-meta">
+                <NTag type="info" size="small">#{{ proxy.proxyId }}</NTag>
+                <NTag
+                  :type="proxy.isOnline ? 'success' : 'error'"
+                  size="small"
+                  round
+                >
+                  {{ proxy.isOnline ? '在线' : '离线' }}
+                </NTag>
+                <NTag v-if="proxy.isBanned" type="error" size="small" round>
+                  已封禁
+                </NTag>
+                <NTag v-if="proxy.isDisabled" type="warning" size="small" round>
+                  已禁用
+                </NTag>
               </div>
             </div>
 
             <div class="tunnel-info">
-              <div class="info-row">
-                <div class="info-item">
-                  <div class="label">协议:</div>
-                  <div class="value protocol">
-                    <NTag type="info" size="small">{{
-                      proxy.proxyType.toUpperCase()
-                    }}</NTag>
-                  </div>
-                </div>
-
-                <div class="info-item node-item">
-                  <div class="label">节点:</div>
-                  <div class="value node-value">
-                    <NTag
-                      :type="getNodeTagType(getNodeLocation(proxy.nodeId))"
-                      size="small"
-                    >
-                      {{ getNodeLabel(proxy.nodeId).split(' - ')[1] }}
-                    </NTag>
-                  </div>
-                </div>
+              <div class="info-badges">
+                <NTag type="info" size="small" class="info-badge">
+                  <template #icon>
+                    <NIcon><GitNetworkOutline /></NIcon>
+                  </template>
+                  {{ proxy.proxyType.toUpperCase() }}
+                </NTag>
+                <NTag
+                  :type="getNodeTagType(getNodeLocation(proxy.nodeId))"
+                  size="small"
+                  class="info-badge"
+                >
+                  <template #icon>
+                    <NIcon><ServerOutline /></NIcon>
+                  </template>
+                  {{ getNodeLabel(proxy.nodeId).split(' - ')[1] }}
+                </NTag>
               </div>
 
-              <div class="info-item domain-item">
-                <div class="label">
-                  {{
+              <div class="info-domain">
+                <div
+                  v-if="
                     proxy.proxyType === 'http' || proxy.proxyType === 'https'
-                      ? '绑定域名：'
-                      : '远程端口：'
-                  }}
-                </div>
-                <div class="value">
-                  <div
-                    v-if="
-                      proxy.proxyType === 'http' || proxy.proxyType === 'https'
-                    "
-                    class="domain-list"
+                  "
+                  class="domain-list"
+                >
+                  <NTag
+                    v-for="domain in JSON.parse(proxy.domain || '[]')"
+                    :key="domain"
+                    type="success"
+                    size="small"
+                    class="domain-tag"
+                    style="cursor: pointer"
+                    @click="() => openUrl(proxy.proxyType, domain)"
                   >
-                    <div
-                      v-for="domain in JSON.parse(proxy.domain || '[]')"
-                      :key="domain"
-                      class="domain"
-                    >
-                      <NTag
-                        type="info"
-                        size="small"
-                        style="cursor: pointer"
-                        @click="() => openUrl(proxy.proxyType, domain)"
-                      >
-                        {{ domain }}
-                      </NTag>
-                    </div>
-                  </div>
-                  <template v-else>
-                    <NTag type="info" size="small">{{ proxy.remotePort }}</NTag>
-                  </template>
+                    <template #icon>
+                      <NIcon><LinkOutline /></NIcon>
+                    </template>
+                    {{ domain }}
+                  </NTag>
                 </div>
+                <NTag
+                  v-else
+                  type="success"
+                  size="small"
+                  class="port-tag"
+                  style="cursor: pointer"
+                  @click="() => copyRemoteAddress(proxy)"
+                >
+                  <template #icon>
+                    <NIcon><CopyOutline /></NIcon>
+                  </template>
+                  远程地址: {{ getNodeHostname(proxy.nodeId) }}:{{
+                    proxy.remotePort
+                  }}
+                </NTag>
               </div>
             </div>
 
-            <div class="tunnel-actions">
-              <template v-if="!isMobile">
-                <NButton
-                  quaternary
-                  size="small"
-                  @click="() => handleSelect('view', proxy)"
-                  class="action-btn"
-                >
-                  <template #icon>
-                    <NIcon>
-                      <InformationCircleOutline />
-                    </NIcon>
-                  </template>
-                  详情
-                </NButton>
-                <NButton
-                  quaternary
-                  size="small"
-                  @click="() => handleSelect('genConfig', proxy)"
-                  class="action-btn"
-                >
-                  <template #icon>
-                    <NIcon>
-                      <DocumentOutline />
-                    </NIcon>
-                  </template>
-                  配置
-                </NButton>
-                <NButton
-                  quaternary
-                  size="small"
-                  @click="() => handleSelect('edit', proxy)"
-                  class="action-btn"
-                >
-                  <template #icon>
-                    <NIcon>
-                      <CreateOutline />
-                    </NIcon>
-                  </template>
-                  编辑
-                </NButton>
-                <NButton
-                  quaternary
-                  size="small"
-                  :type="proxy.isDisabled ? 'success' : 'warning'"
-                  @click="() => handleSelect('toggle', proxy)"
-                  class="action-btn"
-                >
-                  <template #icon>
-                    <NIcon>
-                      <PowerOutline />
-                    </NIcon>
-                  </template>
-                  {{ proxy.isDisabled ? '启用' : '禁用' }}
-                </NButton>
-                <NButton
-                  quaternary
-                  size="small"
-                  type="error"
-                  @click="() => handleSelect('delete', proxy)"
-                  class="action-btn"
-                >
-                  <template #icon>
-                    <NIcon>
-                      <TrashOutline />
-                    </NIcon>
-                  </template>
-                  删除
-                </NButton>
-              </template>
-              <template v-else>
+            <template #action>
+              <div class="tunnel-actions">
                 <NButton
                   quaternary
                   size="small"
@@ -279,14 +195,14 @@
                   >
                     <template #icon>
                       <NIcon>
-                        <EllipsisHorizontalOutline />
+                        <SettingsOutline />
                       </NIcon>
                     </template>
-                    更多
+                    配置
                   </NButton>
                 </NDropdown>
-              </template>
-            </div>
+              </div>
+            </template>
           </NCard>
         </template>
       </div>
@@ -586,7 +502,12 @@
       v-model:show="showEditModal"
       preset="card"
       title="编辑隧道"
-      style="width: 800px; max-width: 90vw"
+      :style="
+        isMobile
+          ? 'width: 95vw; max-height: 85vh'
+          : 'width: 700px; max-width: 90vw'
+      "
+      class="edit-tunnel-modal"
     >
       <template #header>
         <div class="modal-header">
@@ -598,8 +519,8 @@
         ref="editFormRef"
         :model="editForm"
         :rules="rules"
-        label-placement="left"
-        label-width="120"
+        :label-placement="isMobile ? 'top' : 'left'"
+        :label-width="isMobile ? 'auto' : '140'"
         require-mark-placement="right-hanging"
         size="medium"
         class="edit-form"
@@ -666,6 +587,18 @@
                 @update:value="handleDomainsUpdate"
               />
             </NFormItem>
+            <!-- 访问密钥 - 条件显示 -->
+            <NFormItem
+              v-if="['stcp', 'xtcp'].includes(editForm.proxyType)"
+              label="访问密钥"
+              path="accessKey"
+              class="advanced-form-item"
+            >
+              <NInput
+                v-model:value="editForm.accessKey"
+                placeholder="请输入访问密钥"
+              />
+            </NFormItem>
           </NCollapseItem>
 
           <NCollapseItem name="advanced" title="高级配置">
@@ -675,93 +608,92 @@
               </NText>
             </template>
 
-            <NFormItem label="访问密钥" path="accessKey">
-              <NInput
-                v-model:value="editForm.accessKey"
-                placeholder="访问密钥已不再支持"
-                :disabled="true"
-              />
-            </NFormItem>
-            <NFormItem label="Host Header Rewrite" path="hostHeaderRewrite">
-              <NInput
-                v-model:value="editForm.hostHeaderRewrite"
-                placeholder="请输入 Host 请求头重写值"
-              />
-            </NFormItem>
-            <NFormItem label="X-From-Where" path="headerXFromWhere">
-              <NInput
-                v-model:value="editForm.headerXFromWhere"
-                placeholder="请输入 X-From-Where 请求头值"
-              />
-            </NFormItem>
-            <NFormItem label="Proxy Protocol" path="proxyProtocolVersion">
-              <NSelect
-                v-model:value="editForm.proxyProtocolVersion"
-                :options="[
-                  { label: '不启用', value: '' },
-                  { label: 'v1', value: 'v1' },
-                  { label: 'v2', value: 'v2' },
-                ]"
-                placeholder="Proxy Protocol Version"
-              />
-            </NFormItem>
-            <NFormItem label="每个IP最大下载速率" path="ipLimitIn">
-              <div
-                class="speed-input-group"
-                style="display: flex; gap: 8px; align-items: center"
+            <div class="advanced-settings">
+              <!-- 第一行：Proxy Protocol -->
+              <NFormItem
+                label="Proxy Protocol"
+                path="proxyProtocolVersion"
+                class="advanced-form-item"
               >
-                <NInputNumber
-                  v-model:value="editForm.ipLimitIn"
-                  :min="0"
-                  placeholder="请输入最大下载速率"
-                  style="flex: 1"
-                />
                 <NSelect
-                  v-model:value="editForm.ipLimitInUnit"
-                  :options="speedUnitOptions"
-                  style="width: 100px"
+                  v-model:value="editForm.proxyProtocolVersion"
+                  :options="[
+                    { label: '不启用', value: '' },
+                    { label: 'v1', value: 'v1' },
+                    { label: 'v2', value: 'v2' },
+                  ]"
+                  placeholder="Proxy Protocol Version"
                 />
+              </NFormItem>
+
+              <!-- 第二行：速率限制 -->
+              <div class="rate-limit-row">
+                <NFormItem
+                  label="每个IP最大下载速率"
+                  path="ipLimitIn"
+                  class="advanced-form-item"
+                >
+                  <div class="speed-input-group">
+                    <NInputNumber
+                      v-model:value="editForm.ipLimitIn"
+                      :min="0"
+                      placeholder="请输入最大下载速率"
+                      class="speed-input"
+                    />
+                    <NSelect
+                      v-model:value="editForm.ipLimitInUnit"
+                      :options="speedUnitOptions"
+                      class="speed-unit-select"
+                    />
+                  </div>
+                </NFormItem>
+
+                <NFormItem
+                  label="每个IP最大上传速率"
+                  path="ipLimitOut"
+                  class="advanced-form-item"
+                >
+                  <div class="speed-input-group">
+                    <NInputNumber
+                      v-model:value="editForm.ipLimitOut"
+                      :min="0"
+                      placeholder="请输入最大上传速率"
+                      class="speed-input"
+                    />
+                    <NSelect
+                      v-model:value="editForm.ipLimitOutUnit"
+                      :options="speedUnitOptions"
+                      class="speed-unit-select"
+                    />
+                  </div>
+                </NFormItem>
               </div>
-            </NFormItem>
-            <NFormItem label="每个IP最大上传速率" path="ipLimitOut">
-              <div
-                class="speed-input-group"
-                style="display: flex; gap: 8px; align-items: center"
+
+              <!-- 第三行：开关选项 -->
+              <NFormItem
+                :label="isMobile ? '' : '其他选项'"
+                class="advanced-form-item switch-row"
               >
-                <NInputNumber
-                  v-model:value="editForm.ipLimitOut"
-                  :min="0"
-                  placeholder="请输入最大上传速率"
-                  style="flex: 1"
-                />
-                <NSelect
-                  v-model:value="editForm.ipLimitOutUnit"
-                  :options="speedUnitOptions"
-                  style="width: 100px"
-                />
-              </div>
-            </NFormItem>
-            <NFormItem :label="isMobile ? '' : '其他选项'">
-              <div class="switch-group-outer">
-                <div class="switch-group">
-                  <NSwitch
-                    v-model:value="editForm.useEncryption"
-                    :rail-style="switchButtonRailStyle"
-                  >
-                    <template #checked>启用加密</template>
-                    <template #unchecked>禁用加密</template>
-                  </NSwitch>
-                  <NSwitch
-                    style="margin-left: 16px"
-                    v-model:value="editForm.useCompression"
-                    :rail-style="switchButtonRailStyle"
-                  >
-                    <template #checked>启用压缩</template>
-                    <template #unchecked>禁用压缩</template>
-                  </NSwitch>
+                <div class="switch-group-outer">
+                  <div class="switch-group">
+                    <NSwitch
+                      v-model:value="editForm.useEncryption"
+                      :rail-style="switchButtonRailStyle"
+                    >
+                      <template #checked>启用加密</template>
+                      <template #unchecked>禁用加密</template>
+                    </NSwitch>
+                    <NSwitch
+                      v-model:value="editForm.useCompression"
+                      :rail-style="switchButtonRailStyle"
+                    >
+                      <template #checked>启用压缩</template>
+                      <template #unchecked>禁用压缩</template>
+                    </NSwitch>
+                  </div>
                 </div>
-              </div>
-            </NFormItem>
+              </NFormItem>
+            </div>
           </NCollapseItem>
         </NCollapse>
       </NForm>
@@ -1000,7 +932,10 @@ import {
   CopyOutline,
   DocumentOutline,
   DownloadOutline,
-  EllipsisHorizontalOutline,
+  SettingsOutline,
+  GitNetworkOutline,
+  ServerOutline,
+  LinkOutline,
 } from '@vicons/ionicons5'
 import hljs from 'highlight.js/lib/core'
 import javascript from 'highlight.js/lib/languages/javascript'
@@ -1099,8 +1034,6 @@ const editForm = ref<Proxy>({
   accessKey: '',
   lastStartTime: 0,
   lastCloseTime: 0,
-  hostHeaderRewrite: '',
-  headerXFromWhere: '',
   useEncryption: false,
   useCompression: false,
   proxyProtocolVersion: '',
@@ -1243,7 +1176,7 @@ const handleRefresh = async () => {
 }
 
 const createTunnel = () => {
-  router.push('/dashboard/proxies/create')
+  router.push('/dashboard/proxy/create')
 }
 
 // 获取节点列表
@@ -1409,10 +1342,6 @@ const handleEdit = (proxy: Proxy) => {
     domain: proxy.domain || '',
     location: proxy.location || '',
     accessKey: proxy.accessKey || '',
-    hostHeaderRewrite: proxy.hostHeaderRewrite || '',
-    headerXFromWhere: proxy.headerXFromWhere
-      ? String(proxy.headerXFromWhere)
-      : '',
     useEncryption: proxy.useEncryption || false,
     useCompression: proxy.useCompression || false,
     proxyProtocolVersion: proxy.proxyProtocolVersion?.trim() || '',
@@ -1464,8 +1393,6 @@ const handleEditSubmit = () => {
           domain: editForm.value.domain,
           proxyType: editForm.value.proxyType,
           accessKey: editForm.value.accessKey,
-          hostHeaderRewrite: editForm.value.hostHeaderRewrite,
-          headerXFromWhere: editForm.value.headerXFromWhere,
           proxyProtocolVersion:
             editForm.value.proxyProtocolVersion?.trim() || '',
           useEncryption: editForm.value.useEncryption,
@@ -1935,6 +1862,24 @@ const getNodeLocation = (nodeId: number) => {
   return node ? node.location : ''
 }
 
+const getNodeHostname = (nodeId: number) => {
+  const node = nodeOptions.value.find((n) => n.value === nodeId)
+  return node ? node.hostname : ''
+}
+
+const copyRemoteAddress = (proxy: Proxy) => {
+  const hostname = getNodeHostname(proxy.nodeId)
+  const address = `${hostname}:${proxy.remotePort}`
+  navigator.clipboard
+    .writeText(address)
+    .then(() => {
+      message.success('远程地址已复制')
+    })
+    .catch(() => {
+      message.error('复制失败')
+    })
+}
+
 const checkMobile = () => {
   isMobile.value = window.innerWidth <= 480
 }
@@ -1950,6 +1895,15 @@ onUnmounted(() => {
 
 const actionOptions = (proxy: Proxy) => [
   {
+    label: '查看详情',
+    key: 'view',
+    icon: () => h(NIcon, null, { default: () => h(InformationCircleOutline) }),
+  },
+  {
+    type: 'divider',
+    key: 'd1',
+  },
+  {
     label: proxy.isDisabled ? '启用' : '禁用',
     key: 'toggle',
     icon: () => h(NIcon, null, { default: () => h(PowerOutline) }),
@@ -1960,9 +1914,13 @@ const actionOptions = (proxy: Proxy) => [
     icon: () => h(NIcon, null, { default: () => h(CreateOutline) }),
   },
   {
-    label: '配置',
+    label: '生成配置',
     key: 'genConfig',
     icon: () => h(NIcon, null, { default: () => h(DocumentOutline) }),
+  },
+  {
+    type: 'divider',
+    key: 'd2',
   },
   {
     label: '删除',
@@ -2054,7 +2012,7 @@ function closeModal(modalName: string) {
 
   .tunnel-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
     gap: 20px;
     margin-bottom: 24px;
 
@@ -2073,89 +2031,60 @@ function closeModal(modalName: string) {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        margin-bottom: 16px;
+        margin-bottom: 12px;
+        gap: 8px;
 
         .tunnel-title-area {
           flex: 1;
+          min-width: 0;
 
           .tunnel-title {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
-            margin: 0 0 8px 0;
-          }
-
-          .status-tags {
-            display: flex;
-            gap: 8px;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
         }
 
-        .tunnel-id {
-          margin-left: 12px;
+        .tunnel-meta {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+          justify-content: flex-end;
+          flex-shrink: 0;
         }
       }
 
       .tunnel-info {
-        margin-bottom: 20px;
+        margin-bottom: 10px;
 
-        .info-row {
+        .info-badges {
           display: flex;
-          gap: 16px;
-          margin-bottom: 12px;
-        }
+          gap: 10px;
+          margin-bottom: 10px;
 
-        .info-item {
-          margin-bottom: 12px;
-
-          &.node-item {
-            flex: 1;
-          }
-
-          .label {
-            font-size: 14px;
-            margin-bottom: 4px;
-          }
-
-          .value {
-            font-size: 14px;
-            &.protocol {
-              font-weight: 500;
-              color: #1890ff;
-            }
-            &.node-value {
-              white-space: nowrap;
-              overflow: hidden;
-              text-overflow: ellipsis;
-            }
+          .info-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
           }
         }
 
-        .domain-item {
+        .info-domain {
           .domain-list {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
-            margin-top: 4px;
           }
-        }
-      }
 
-      .tunnel-actions {
-        display: flex;
-        flex-wrap: nowrap;
-        gap: 6px;
-        justify-content: flex-start;
-        align-items: stretch;
-        margin-top: 8px;
-
-        .action-btn {
-          flex: 1 1 0;
-          min-width: 60px;
-          max-width: 100px;
-          padding: 0 6px;
-          font-size: 14px;
-          white-space: nowrap;
-          justify-content: center;
+          .domain-tag,
+          .port-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+          }
         }
       }
     }
@@ -2466,6 +2395,94 @@ function closeModal(modalName: string) {
     flex-direction: column;
     align-items: stretch;
     gap: 8px;
+  }
+}
+
+// 高级设置布局
+.advanced-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+
+  .advanced-form-item {
+    margin-bottom: 0;
+
+    :deep(.n-form-item-label) {
+      font-size: 13px;
+      padding-bottom: 4px;
+    }
+
+    :deep(.n-form-item-feedback-wrapper) {
+      min-height: 0;
+    }
+
+    &.switch-row {
+      :deep(.n-form-item-label) {
+        width: auto;
+        min-width: 80px;
+      }
+    }
+  }
+
+  .rate-limit-row {
+    display: grid;
+    gap: 16px;
+
+    .advanced-form-item {
+      margin-bottom: 0;
+    }
+  }
+
+  .speed-input-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+
+    .speed-input {
+      flex: 1;
+    }
+
+    .speed-unit-select {
+      width: 90px;
+    }
+  }
+
+  .switch-group {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+
+    .n-switch {
+      margin-left: 0 !important;
+    }
+  }
+}
+
+// 移动端适配
+@media (max-width: 768px) {
+  .advanced-settings {
+    gap: 12px;
+
+    .rate-limit-row {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .speed-input-group {
+      flex-direction: column;
+      align-items: stretch;
+
+      .speed-unit-select {
+        width: 100%;
+      }
+    }
+
+    .switch-group {
+      flex-direction: column;
+      gap: 12px;
+      align-items: flex-start;
+    }
   }
 }
 </style>

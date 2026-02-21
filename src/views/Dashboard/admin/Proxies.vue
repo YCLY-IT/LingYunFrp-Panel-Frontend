@@ -114,7 +114,7 @@
         :model="editForm"
         :rules="rules"
         label-placement="left"
-        label-width="120"
+        label-width="150"
         require-mark-placement="right-hanging"
         size="medium"
         style="padding-top: 12px"
@@ -210,19 +210,6 @@
                 仅推荐技术用户使用
               </NText>
             </template>
-
-            <NFormItem label="Host Header Rewrite" path="hostHeaderRewrite">
-              <NInput
-                v-model:value="editForm.hostHeaderRewrite"
-                placeholder="请输入 Host 请求头重写值"
-              />
-            </NFormItem>
-            <NFormItem label="X-From-Where" path="headerXFromWhere">
-              <NInput
-                v-model:value="editForm.headerXFromWhere"
-                placeholder="请输入 X-From-Where 请求头值"
-              />
-            </NFormItem>
             <NFormItem label="Proxy Protocol" path="proxyProtocolVersion">
               <NSelect
                 v-model:value="editForm.proxyProtocolVersion"
@@ -546,8 +533,6 @@ const editForm = ref<Proxy>({
   accessKey: '',
   lastStartTime: 0,
   lastCloseTime: 0,
-  hostHeaderRewrite: '',
-  headerXFromWhere: '',
   useEncryption: false,
   useCompression: false,
   proxyProtocolVersion: '',
@@ -577,10 +562,6 @@ const handleEdit = (proxy: Proxy) => {
     domain: proxy.domain || '',
     location: proxy.location || '',
     accessKey: proxy.accessKey || '',
-    hostHeaderRewrite: proxy.hostHeaderRewrite || '',
-    headerXFromWhere: proxy.headerXFromWhere
-      ? String(proxy.headerXFromWhere)
-      : '',
     useEncryption: proxy.useEncryption || false,
     useCompression: proxy.useCompression || false,
     proxyProtocolVersion: proxy.proxyProtocolVersion?.trim() || '',
@@ -1101,9 +1082,6 @@ const handleEditSubmit = async () => {
         remotePort: editForm.value.remotePort,
         nodeId: editForm.value.nodeId,
         accessKey: editForm.value.accessKey,
-        // 高级配置字段补全
-        hostHeaderRewrite: editForm.value.hostHeaderRewrite,
-        headerXFromWhere: editForm.value.headerXFromWhere,
         useEncryption: editForm.value.useEncryption,
         useCompression: editForm.value.useCompression,
         proxyProtocolVersion: editForm.value.proxyProtocolVersion?.trim() || '',
@@ -1187,8 +1165,6 @@ const loadData = async () => {
         isDisabled: proxy.is_disabled ?? false,
         username: proxy.username ?? '',
         accessKey: proxy.sk ?? '',
-        hostHeaderRewrite: proxy.host_header_rewrite ?? '',
-        headerXFromWhere: String(proxy.header_x_from_where ?? ''),
         useEncryption: proxy.use_encryption ?? false,
         useCompression: proxy.use_compression ?? false,
         proxyProtocolVersion: proxy.proxy_protocol_version?.trim() ?? '',

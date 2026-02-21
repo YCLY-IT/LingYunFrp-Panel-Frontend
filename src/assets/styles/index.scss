@@ -1,5 +1,8 @@
 .n-card {
   border-radius: 15px !important;
+  .n-card__action {
+    border-radius: 0 0 15px 15px !important;
+  }
 }
 
 .n-message {
@@ -108,6 +111,47 @@ body::before {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
+/* 毛玻璃模式下卡片的操作栏 */
+.frosted-glass-mode .n-card .n-card__action {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.5))
+    saturate(180%) !important;
+  -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.5))
+    saturate(180%) !important;
+}
+
+/* 毛玻璃模式下的消息提示 */
+.frosted-glass-mode .n-message {
+  background: rgba(255, 255, 255, 0.15) !important;
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1.5))
+    saturate(180%) !important;
+  -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1.5))
+    saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+}
+
+.frosted-glass-mode .n-message.n-message--info {
+  background: rgba(24, 144, 255, 0.15) !important;
+  border-color: rgba(24, 144, 255, 0.3) !important;
+}
+
+.frosted-glass-mode .n-message.n-message--success {
+  background: rgba(82, 196, 26, 0.15) !important;
+  border-color: rgba(82, 196, 26, 0.3) !important;
+}
+
+.frosted-glass-mode .n-message.n-message--warning {
+  background: rgba(250, 173, 20, 0.15) !important;
+  border-color: rgba(250, 173, 20, 0.3) !important;
+}
+
+.frosted-glass-mode .n-message.n-message--error {
+  background: rgba(255, 77, 79, 0.15) !important;
+  border-color: rgba(255, 77, 79, 0.3) !important;
+}
+
 /* 毛玻璃模式下的模态框 */
 .frosted-glass-mode .n-modal .n-card {
   background: #ffffff33 !important;
@@ -118,6 +162,17 @@ body::before {
   border: 1px solid rgba(255, 255, 255, 0.25) !important;
 }
 
+/* 毛玻璃模式下的对话框 */
+.frosted-glass-mode .n-dialog {
+  background: rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 2))
+    saturate(180%) !important;
+  -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 2))
+    saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
+}
+
 /* 毛玻璃模式下的侧边栏 */
 .frosted-glass-mode .n-layout-sider {
   background: #ffffff2e !important;
@@ -126,10 +181,6 @@ body::before {
   -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1.2))
     saturate(180%) !important;
   border-right: 1px solid rgba(255, 255, 255, 0.2) !important;
-}
-
-.frosted-glass-mode .n-layout-sider .n-layout-sider-scroll-container {
-  background: transparent !important;
 }
 
 /* 隐藏侧边栏默认边框 */
@@ -145,15 +196,6 @@ body::before {
   -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1.2))
     saturate(180%) !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
-}
-
-.frosted-glass-mode .n-layout-header > div {
-  background: transparent !important;
-}
-
-/* 毛玻璃模式下的内容区域 */
-.frosted-glass-mode .n-layout-content {
-  background-color: transparent !important;
 }
 
 /* 毛玻璃模式下的抽屉 */
@@ -202,56 +244,6 @@ body::before {
     saturate(180%) !important;
 }
 
-.frosted-glass-mode .n-data-table .n-data-table-thead {
-  background: #ffffff26 !important;
-}
-
-.frosted-glass-mode .n-data-table .n-data-table-tr {
-  background-color: transparent !important;
-}
-
-.frosted-glass-mode .n-data-table .n-data-table-tr:hover {
-  background: #ffffff1a !important;
-}
-
-/* 毛玻璃模式下的菜单 */
-.frosted-glass-mode .n-menu {
-  background-color: transparent !important;
-}
-
-.frosted-glass-mode .n-menu .n-menu-item {
-  background-color: transparent !important;
-}
-
-.frosted-glass-mode .n-menu .n-menu-item:hover {
-  background: #ffffff1a !important;
-}
-
-.frosted-glass-mode .n-menu .n-menu-item--selected {
-  background: #ffffff26 !important;
-}
-
-/* 毛玻璃模式下的折叠面板 */
-.frosted-glass-mode .n-collapse {
-  background-color: transparent !important;
-}
-
-.frosted-glass-mode .n-collapse .n-collapse-item {
-  background: #ffffff1a !important;
-  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8))
-    saturate(180%) !important;
-  -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8))
-    saturate(180%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
-  border-radius: 8px;
-  margin-bottom: 8px;
-}
-
-/* 毛玻璃模式下的列表 */
-.frosted-glass-mode .n-list {
-  background-color: transparent !important;
-}
-
 .frosted-glass-mode .n-list .n-list-item {
   background: #ffffff14 !important;
   backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.6))
@@ -259,19 +251,6 @@ body::before {
   -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.6))
     saturate(180%) !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.frosted-glass-mode .n-list .n-list-item:hover {
-  background: #ffffff1f !important;
-}
-
-/* 毛玻璃模式下的时间线 */
-.frosted-glass-mode .n-timeline {
-  background-color: transparent !important;
-}
-
-.frosted-glass-mode .n-timeline .n-timeline-item {
-  background-color: transparent !important;
 }
 
 /* 毛玻璃模式下的描述列表 */
@@ -285,32 +264,12 @@ body::before {
   padding: 16px;
 }
 
-/* 毛玻璃模式下的统计卡片 */
-.frosted-glass-mode .n-statistic {
-  background: #ffffff1a !important;
-  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8))
-    saturate(180%) !important;
-  -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8))
-    saturate(180%) !important;
-  border-radius: 8px;
-  padding: 16px;
-}
-
-/* 毛玻璃模式下的分页 */
-.frosted-glass-mode .n-pagination {
-  background-color: transparent !important;
-}
-
 .frosted-glass-mode .n-pagination .n-pagination-item {
   background: #ffffff1a !important;
   backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.5))
     saturate(180%) !important;
   -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.5))
     saturate(180%) !important;
-}
-
-.frosted-glass-mode .n-pagination .n-pagination-item--active {
-  background: #ffffff33 !important;
 }
 
 /* 毛玻璃模式下的弹窗 */
@@ -331,55 +290,76 @@ body::before {
     saturate(180%) !important;
 }
 
-.frosted-glass-mode .n-dropdown-menu .n-dropdown-option {
-  background-color: transparent !important;
-}
-
-.frosted-glass-mode .n-dropdown-menu .n-dropdown-option:hover {
-  background: #ffffff1a !important;
-}
-
-/* 毛玻璃模式下的树形控件 */
-.frosted-glass-mode .n-tree {
-  background-color: transparent !important;
-}
-
-.frosted-glass-mode .n-tree .n-tree-node {
-  background-color: transparent !important;
-}
-
-.frosted-glass-mode .n-tree .n-tree-node:hover {
-  background: #ffffff1a !important;
-}
-
-.frosted-glass-mode .n-tree .n-tree-node--selected {
-  background: #ffffff26 !important;
-}
-
-/* 毛玻璃模式下的步骤条 */
-.frosted-glass-mode .n-steps {
-  background-color: transparent !important;
-}
-
-.frosted-glass-mode .n-steps .n-step {
-  background-color: transparent !important;
-}
-
-/* 毛玻璃模式下的日历 */
-.frosted-glass-mode .n-calendar {
+/* 毛玻璃模式下的输入框 */
+.frosted-glass-mode .n-input {
   background: #ffffff1a !important;
   backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8))
     saturate(180%) !important;
   -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8))
     saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
 }
 
-.frosted-glass-mode .n-calendar .n-calendar-cell {
-  background-color: transparent !important;
-}
-
-.frosted-glass-mode .n-calendar .n-calendar-cell:hover {
+/* 毛玻璃模式下的下拉选择器 */
+.frosted-glass-mode .n-select .n-base-selection {
   background: #ffffff1a !important;
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8))
+    saturate(180%) !important;
+  -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8))
+    saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+.frosted-glass-mode .n-select .n-base-selection--active {
+  background: #ffffff26 !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1) !important;
+}
+
+.frosted-glass-mode .n-select .n-base-selection-label {
+  background: transparent !important;
+}
+
+/* 毛玻璃模式下多选下拉框的标签 */
+.frosted-glass-mode .n-base-selection-tags {
+  background: transparent !important;
+}
+
+.frosted-glass-mode .n-base-selection-tag-wrapper {
+  background: #ffffff26 !important;
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.6))
+    saturate(180%) !important;
+  -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.6))
+    saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 4px !important;
+}
+
+/* 毛玻璃模式下下拉选择器的下拉菜单 */
+.frosted-glass-mode .n-select-menu {
+  background: #ffffff33 !important;
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1.2))
+    saturate(180%) !important;
+  -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1.2))
+    saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* 毛玻璃模式下的单选按钮组 */
+.frosted-glass-mode .n-radio-group {
+  background: #ffffff1a !important;
+  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8))
+    saturate(180%) !important;
+  -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8))
+    saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 8px !important;
+}
+
+.frosted-glass-mode .n-base-selection-tag-wrapper .n-tag {
+  background: transparent !important;
+  border: none !important;
 }
 
 /* 毛玻璃模式下的自定义通知项 */
@@ -445,176 +425,6 @@ body::before {
     saturate(180%) !important;
   border: 1px solid rgba(255, 255, 255, 0.15) !important;
   border-radius: 8px;
-}
-
-/* ========================================
-   深色主题下的毛玻璃效果
-   ======================================== */
-
-.dark .frosted-glass-mode .n-card {
-  background: #00000040 !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-
-.dark .frosted-glass-mode .n-modal .n-card {
-  background: #0000004d !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-}
-
-.dark .frosted-glass-mode .n-layout-sider {
-  background: #0000004d !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-
-.dark .frosted-glass-mode .n-layout-sider .n-layout-sider-scroll-container {
-  background: transparent !important;
-}
-
-.dark .frosted-glass-mode .n-layout-header {
-  background: #0000004d !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-
-.dark .frosted-glass-mode .n-layout-header > div {
-  background: transparent !important;
-}
-
-.dark .frosted-glass-mode .n-drawer {
-  background: #0000004d !important;
-}
-
-.dark .frosted-glass-mode .n-drawer .n-drawer-content {
-  background: #0000004d !important;
-}
-
-.dark .frosted-glass-mode .n-drawer .n-card {
-  background: #00000040 !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-
-.dark .frosted-glass-mode .n-drawer .setting-card {
-  background: #00000033 !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-}
-
-.dark .frosted-glass-mode .n-data-table {
-  background: #00000040 !important;
-}
-
-.dark .frosted-glass-mode .n-data-table .n-data-table-thead {
-  background: #0000004d !important;
-}
-
-.dark .frosted-glass-mode .n-data-table .n-data-table-tr:hover {
-  background: #ffffff0d !important;
-}
-
-.dark .frosted-glass-mode .n-menu .n-menu-item:hover {
-  background: #ffffff0d !important;
-}
-
-.dark .frosted-glass-mode .n-menu .n-menu-item--selected {
-  background: #ffffff1a !important;
-}
-
-.dark .frosted-glass-mode .n-tabs .n-tabs-nav {
-  background: #00000040 !important;
-}
-
-.dark .frosted-glass-mode .n-tabs .n-tabs-tab--active {
-  background: #ffffff1a !important;
-}
-
-.dark .frosted-glass-mode .n-collapse .n-collapse-item {
-  background: #00000040 !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-
-.dark .frosted-glass-mode .n-list .n-list-item {
-  background: #00000033 !important;
-}
-
-.dark .frosted-glass-mode .n-list .n-list-item:hover {
-  background: #0000004d !important;
-}
-
-.dark .frosted-glass-mode .n-descriptions {
-  background: #00000040 !important;
-}
-
-.dark .frosted-glass-mode .n-statistic {
-  background: #00000040 !important;
-}
-
-.dark .frosted-glass-mode .n-pagination .n-pagination-item {
-  background: #00000040 !important;
-}
-
-.dark .frosted-glass-mode .n-pagination .n-pagination-item--active {
-  background: #ffffff1a !important;
-}
-
-.dark .frosted-glass-mode .n-popover {
-  background: #0000004d !important;
-}
-
-.dark .frosted-glass-mode .n-dropdown-menu {
-  background: #0000004d !important;
-}
-
-.dark .frosted-glass-mode .n-dropdown-menu .n-dropdown-option:hover {
-  background: #ffffff0d !important;
-}
-
-.dark .frosted-glass-mode .n-tree .n-tree-node:hover {
-  background: #ffffff0d !important;
-}
-
-.dark .frosted-glass-mode .n-tree .n-tree-node--selected {
-  background: #ffffff1a !important;
-}
-
-.dark .frosted-glass-mode .n-calendar {
-  background: #00000040 !important;
-}
-
-.dark .frosted-glass-mode .n-calendar .n-calendar-cell:hover {
-  background: #ffffff0d !important;
-}
-
-.dark .frosted-glass-mode .notice-item {
-  background: #00000040 !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-
-.dark .frosted-glass-mode .notice-item:hover {
-  background: #00000059 !important;
-}
-
-.dark .frosted-glass-mode .info-card,
-.dark .frosted-glass-mode .user-card,
-.dark .frosted-glass-mode .notice-card {
-  background: #00000040 !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-
-.dark .frosted-glass-mode .stat-card,
-.dark .frosted-glass-mode .chart-card,
-.dark .frosted-glass-mode .quick-action-card {
-  background: #00000040 !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-
-.dark .frosted-glass-mode .form-container,
-.dark .frosted-glass-mode .search-container,
-.dark .frosted-glass-mode .filter-container {
-  background: #00000033 !important;
-}
-
-.dark .frosted-glass-mode .detail-panel,
-.dark .frosted-glass-mode .info-panel {
-  background: #00000040 !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
 /* ========================================

@@ -579,7 +579,7 @@
         :model="formValue"
         :rules="rules"
         label-placement="left"
-        label-width="120"
+        label-width="150"
         require-mark-placement="right-hanging"
       >
         <NCollapse
@@ -669,31 +669,6 @@
                 仅推荐技术用户使用
               </NText>
             </template>
-
-            <NFormItem
-              v-if="!['stcp', 'xtcp'].includes(formValue.type)"
-              label="访问密钥"
-              path="accessKey"
-            >
-              <NInput
-                v-model:value="formValue.accessKey"
-                placeholder="请输入访问密钥"
-              />
-            </NFormItem>
-
-            <NFormItem label="Host Header Rewrite" path="hostHeaderRewrite">
-              <NInput
-                v-model:value="formValue.hostHeaderRewrite"
-                placeholder="请输入 Host 请求头重写值"
-              />
-            </NFormItem>
-
-            <NFormItem label="X-From-Where" path="headerXFromWhere">
-              <NInput
-                v-model:value="formValue.headerXFromWhere"
-                placeholder="请输入 X-From-Where 请求头值"
-              />
-            </NFormItem>
 
             <NFormItem label="Proxy Protocol" path="proxyProtocolVersion">
               <NSelect
@@ -932,8 +907,6 @@ const formValue = ref({
   domain: '',
   name: '',
   accessKey: '',
-  hostHeaderRewrite: '',
-  headerXFromWhere: '',
   proxyProtocolVersion: '',
   useEncryption: false,
   useCompression: false,
@@ -1326,8 +1299,6 @@ const handleCreate = async () => {
         : '',
       proxyType: formValue.value.type,
       accessKey: formValue.value.accessKey,
-      hostHeaderRewrite: formValue.value.hostHeaderRewrite,
-      headerXFromWhere: formValue.value.headerXFromWhere,
       proxyProtocolVersion: formValue.value.proxyProtocolVersion?.trim() || '',
       useEncryption: formValue.value.useEncryption,
       useCompression: formValue.value.useCompression,

@@ -760,6 +760,161 @@ $gap-small: 8px;
   }
 }
 
+// 移动端适配优化
+@media (max-width: 768px) {
+  .node-status-container {
+    padding: 8px;
+  }
+
+  .node-card {
+    :deep(.n-card-header) {
+      padding: 12px 16px;
+    }
+
+    :deep(.n-card__content) {
+      padding: 12px;
+    }
+  }
+
+  // 统计卡片在移动端显示优化
+  .stat-card {
+    :deep(.n-statistic) {
+      .n-statistic__label {
+        font-size: 12px;
+      }
+      .n-statistic-value {
+        font-size: 20px;
+      }
+    }
+  }
+
+  // 节点卡片在移动端优化
+  .node-card-beautiful {
+    .node-card-header {
+      padding: 10px 12px;
+
+      .node-title-row {
+        gap: 6px;
+
+        .node-name {
+          font-size: 14px;
+        }
+
+        .node-id {
+          font-size: 10px;
+        }
+      }
+    }
+
+    .node-card-body {
+      flex-direction: column;
+      padding: 12px;
+      gap: 16px;
+    }
+
+    .cpu-wrapper {
+      .cpu-ring {
+        width: 100px;
+        height: 100px;
+
+        .cpu-center {
+          width: 80px;
+          height: 80px;
+
+          .cpu-value {
+            font-size: 22px;
+          }
+
+          .cpu-label {
+            font-size: 11px;
+          }
+        }
+      }
+    }
+
+    .metrics-wrapper {
+      width: 100%;
+      gap: 8px;
+    }
+
+    .metric-box {
+      .metric-icon-wrapper {
+        width: 24px;
+        height: 24px;
+      }
+
+      .metric-content {
+        .metric-value {
+          font-size: 14px;
+
+          &.small {
+            font-size: 12px;
+          }
+        }
+
+        .metric-label {
+          font-size: 10px;
+        }
+      }
+    }
+
+    .node-card-footer {
+      padding: 0 12px 10px 12px;
+    }
+  }
+
+  // 头部按钮区域优化
+  :deep(.n-card-header__extra) {
+    .n-space {
+      gap: 8px !important;
+    }
+
+    .n-button {
+      font-size: 12px;
+    }
+  }
+}
+
+// 小屏幕手机适配
+@media (max-width: 480px) {
+  .node-card-beautiful {
+    .node-card-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+
+      .status-tag {
+        align-self: flex-end;
+      }
+    }
+
+    .cpu-wrapper {
+      .cpu-ring {
+        width: 90px;
+        height: 90px;
+
+        .cpu-center {
+          width: 72px;
+          height: 72px;
+
+          .cpu-value {
+            font-size: 20px;
+          }
+        }
+      }
+    }
+  }
+
+  // 分页组件在移动端优化
+  :deep(.n-pagination) {
+    .n-pagination-item {
+      min-width: 28px;
+      height: 28px;
+      font-size: 12px;
+    }
+  }
+}
+
 // 节点详情模态框样式
 .node-detail-modal {
   :deep(.n-card-header) {

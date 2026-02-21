@@ -27,8 +27,6 @@ export interface CreateTunnelParams {
   domain: string
   proxyType: string
   accessKey: string
-  hostHeaderRewrite: string
-  headerXFromWhere: string
   proxyProtocolVersion: string
   useEncryption: boolean
   useCompression: boolean
@@ -49,8 +47,6 @@ export interface ProxyData {
   domain: string
   proxyType: string
   accessKey: string
-  hostHeaderRewrite: string
-  headerXFromWhere: string
   proxyProtocolVersion: string
   useEncryption: boolean
   useCompression: boolean
