@@ -71,7 +71,11 @@
     </NSpin>
 
     <!-- 购买配置侧边栏 -->
-    <NDrawer v-model:show="showPurchaseSidebar" :width="400" placement="right">
+    <NDrawer
+      v-model:show="showPurchaseSidebar"
+      :width="isMobile ? '100%' : 400"
+      placement="right"
+    >
       <NDrawerContent
         :title="selectedProduct?.name || '购买配置'"
         closable
@@ -407,7 +411,7 @@ import {
   NSpace,
   NTag,
 } from 'naive-ui'
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { InformationCircle, InfiniteOutline } from '@vicons/ionicons5'
 import { useMessage, useDialog } from 'naive-ui'
 import { userApi } from '@/net'
@@ -425,6 +429,11 @@ const autoCloseTimeout = ref<number | null>(null)
 const countdownTime = ref(300) // 5分钟倒计时（秒）
 const showPurchaseSidebar = ref(false)
 const selectedProduct = ref<Product | null>(null)
+
+// 判断是否为移动端
+const isMobile = computed(() => {
+  return window.innerWidth <= 768
+})
 
 // 清除支付状态检查定时器
 const clearPaymentCheck = () => {

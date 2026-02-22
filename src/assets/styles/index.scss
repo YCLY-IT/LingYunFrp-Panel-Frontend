@@ -346,17 +346,6 @@ body::before {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
 }
 
-/* 毛玻璃模式下的单选按钮组 */
-.frosted-glass-mode .n-radio-group {
-  background: #ffffff1a !important;
-  backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8))
-    saturate(180%) !important;
-  -webkit-backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8))
-    saturate(180%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
-  border-radius: 8px !important;
-}
-
 .frosted-glass-mode .n-base-selection-tag-wrapper .n-tag {
   background: transparent !important;
   border: none !important;

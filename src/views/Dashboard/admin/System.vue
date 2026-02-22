@@ -7,8 +7,8 @@
             ref="securityFormRef"
             :model="securityForm"
             :rules="securityRules"
-            label-placement="left"
-            label-width="120px"
+            :label-placement="isMobile ? 'top' : 'left'"
+            :label-width="isMobile ? undefined : '120px'"
             require-mark-placement="right-hanging"
           >
             <NGrid :cols="2" :x-gap="24" :y-gap="16" responsive="screen">
@@ -78,46 +78,46 @@
                   </NSwitch>
                 </NFormItem>
               </NGridItem>
-              <NGridItem>
+              <NGridItem :span="isMobile ? 2 : 1">
                 <NFormItem label="签到积分范围">
-                  <NSpace>
+                  <div class="range-inputs">
                     <NInputNumber
                       v-model:value="securityForm.signPointsMin"
                       :min="0"
                       placeholder="最小值"
-                      style="width: 110px"
+                      class="range-input"
                     />
-                    <span style="line-height: 34px">-</span>
+                    <span class="range-separator">-</span>
                     <NInputNumber
                       v-model:value="securityForm.signPointsMax"
                       :min="0"
                       placeholder="最大值"
-                      style="width: 110px"
+                      class="range-input"
                     />
-                  </NSpace>
+                  </div>
                 </NFormItem>
               </NGridItem>
-              <NGridItem>
+              <NGridItem :span="isMobile ? 2 : 1">
                 <NFormItem label="签到流量范围">
-                  <NSpace>
+                  <div class="range-inputs">
                     <NInputNumber
                       v-model:value="securityForm.signTrafficMin"
                       :min="0"
                       placeholder="最小值"
-                      style="width: 150px"
+                      class="range-input"
                     >
                       <template #suffix>MB</template>
                     </NInputNumber>
-                    <span style="line-height: 34px">-</span>
+                    <span class="range-separator">-</span>
                     <NInputNumber
                       v-model:value="securityForm.signTrafficMax"
                       :min="0"
                       placeholder="最大值"
-                      style="width: 150px"
+                      class="range-input"
                     >
                       <template #suffix>MB</template>
                     </NInputNumber>
-                  </NSpace>
+                  </div>
                 </NFormItem>
               </NGridItem>
             </NGrid>
@@ -135,11 +135,16 @@
             ref="smtpFormRef"
             :model="smtpForm"
             :rules="smtpRules"
-            label-placement="left"
-            label-width="120px"
+            :label-placement="isMobile ? 'top' : 'left'"
+            :label-width="isMobile ? undefined : '120px'"
             require-mark-placement="right-hanging"
           >
-            <NGrid :cols="2" :x-gap="24" :y-gap="16" responsive="screen">
+            <NGrid
+              :cols="isMobile ? 1 : 2"
+              :x-gap="24"
+              :y-gap="16"
+              responsive="screen"
+            >
               <NGridItem>
                 <NFormItem label="SMTP服务器" path="host">
                   <NInput
@@ -211,11 +216,16 @@
             ref="smsFormRef"
             :model="smsForm"
             :rules="smsRules"
-            label-placement="left"
-            label-width="120px"
+            :label-placement="isMobile ? 'top' : 'left'"
+            :label-width="isMobile ? undefined : '120px'"
             require-mark-placement="right-hanging"
           >
-            <NGrid :cols="2" :x-gap="24" :y-gap="16" responsive="screen">
+            <NGrid
+              :cols="isMobile ? 1 : 2"
+              :x-gap="24"
+              :y-gap="16"
+              responsive="screen"
+            >
               <NGridItem>
                 <NFormItem label="APPID" path="appId">
                   <NInput
@@ -256,18 +266,30 @@
         </NTabPane>
 
         <NTabPane name="downloads" tab="下载">
-          <div class="download-filter-row">
+          <div
+            :class="
+              isMobile ? 'download-filter-row-mobile' : 'download-filter-row'
+            "
+          >
             <n-select
               v-model:value="filterMode"
               :options="filterModeOptions"
               placeholder="筛选方式"
-              class="download-filter-item"
+              :class="
+                isMobile
+                  ? 'download-filter-item-mobile'
+                  : 'download-filter-item'
+              "
               style="min-width: 100px"
             />
             <n-input
               v-model:value="filterKeyword"
               placeholder="请输入关键词"
-              class="download-filter-item"
+              :class="
+                isMobile
+                  ? 'download-filter-item-mobile'
+                  : 'download-filter-item'
+              "
               clearable
               @update:value="filterDownloadSources"
             />
@@ -275,14 +297,20 @@
               v-model:value="sortOrder"
               :options="sortOrderOptions"
               placeholder="排序方式"
-              class="download-filter-item"
+              :class="
+                isMobile
+                  ? 'download-filter-item-mobile'
+                  : 'download-filter-item'
+              "
               style="min-width: 100px"
               @update:value="filterDownloadSources"
             />
             <n-button
               type="primary"
               @click="showAddSourceModal = true"
-              class="download-filter-btn"
+              :class="
+                isMobile ? 'download-filter-btn-mobile' : 'download-filter-btn'
+              "
               size="small"
             >
               添加下载源
@@ -298,18 +326,24 @@
         </NTabPane>
 
         <NTabPane name="groups" tab="用户组">
-          <div class="group-filter-row">
+          <div
+            :class="isMobile ? 'group-filter-row-mobile' : 'group-filter-row'"
+          >
             <n-select
               v-model:value="groupFilterMode"
               :options="groupFilterModeOptions"
               placeholder="筛选方式"
-              class="group-filter-item"
+              :class="
+                isMobile ? 'group-filter-item-mobile' : 'group-filter-item'
+              "
               style="min-width: 100px"
             />
             <n-input
               v-model:value="groupFilterKeyword"
               placeholder="请输入关键词"
-              class="group-filter-item"
+              :class="
+                isMobile ? 'group-filter-item-mobile' : 'group-filter-item'
+              "
               clearable
               @update:value="filterGroups"
             />
@@ -317,14 +351,16 @@
               v-model:value="groupSortOrder"
               :options="groupSortOrderOptions"
               placeholder="排序方式"
-              class="group-filter-item"
+              :class="
+                isMobile ? 'group-filter-item-mobile' : 'group-filter-item'
+              "
               style="min-width: 100px"
               @update:value="filterGroups"
             />
             <n-button
               type="primary"
               @click="showAddGroupModal = true"
-              class="group-filter-btn"
+              :class="isMobile ? 'group-filter-btn-mobile' : 'group-filter-btn'"
               size="small"
             >
               添加用户组
@@ -340,18 +376,30 @@
         </NTabPane>
 
         <NTabPane name="broadcast" tab="通知管理">
-          <div class="broadcast-filter-row">
+          <div
+            :class="
+              isMobile ? 'broadcast-filter-row-mobile' : 'broadcast-filter-row'
+            "
+          >
             <n-select
               v-model:value="broadcastFilterMode"
               :options="broadcastFilterModeOptions"
               placeholder="筛选方式"
-              class="broadcast-filter-item"
+              :class="
+                isMobile
+                  ? 'broadcast-filter-item-mobile'
+                  : 'broadcast-filter-item'
+              "
               style="min-width: 100px"
             />
             <n-input
               v-model:value="broadcastFilterKeyword"
               placeholder="请输入关键词"
-              class="broadcast-filter-item"
+              :class="
+                isMobile
+                  ? 'broadcast-filter-item-mobile'
+                  : 'broadcast-filter-item'
+              "
               clearable
               @update:value="filterBroadcasts"
             />
@@ -359,14 +407,22 @@
               v-model:value="broadcastSortOrder"
               :options="broadcastSortOrderOptions"
               placeholder="排序方式"
-              class="broadcast-filter-item"
+              :class="
+                isMobile
+                  ? 'broadcast-filter-item-mobile'
+                  : 'broadcast-filter-item'
+              "
               style="min-width: 100px"
               @update:value="filterBroadcasts"
             />
             <n-button
               type="primary"
               @click="showAddBroadcastModal = true"
-              class="broadcast-filter-btn"
+              :class="
+                isMobile
+                  ? 'broadcast-filter-btn-mobile'
+                  : 'broadcast-filter-btn'
+              "
               size="small"
             >
               添加通知
@@ -385,7 +441,12 @@
     </NCard>
 
     <!-- 编辑下载源模态框 -->
-    <NModal v-model:show="showEditModal" preset="dialog" title="修改下载源">
+    <NModal
+      v-model:show="showEditModal"
+      preset="dialog"
+      title="修改下载源"
+      :style="{ width: isMobile ? '90vw' : '500px' }"
+    >
       <NForm
         ref="editSourceFormRef"
         :model="editSourceForm"
@@ -415,6 +476,7 @@
       v-model:show="showAddSourceModal"
       preset="dialog"
       title="添加下载源"
+      :style="{ width: isMobile ? '90vw' : '500px' }"
     >
       <NForm
         ref="addSourceFormRef"
@@ -720,6 +782,7 @@
       v-model:show="showAddBroadcastModal"
       preset="dialog"
       title="添加通知"
+      :style="{ width: isMobile ? '90vw' : '500px' }"
     >
       <NForm
         ref="addBroadcastFormRef"
@@ -759,6 +822,7 @@
       v-model:show="showEditBroadcastModal"
       preset="dialog"
       title="修改通知"
+      :style="{ width: isMobile ? '90vw' : '500px' }"
     >
       <NForm
         ref="editBroadcastFormRef"
@@ -796,7 +860,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, h } from 'vue'
+import { ref, onMounted, h, computed } from 'vue'
 import {
   NCard,
   NTabs,
@@ -826,6 +890,11 @@ import { adminApi } from '@/net'
 import type { ApiError } from '@/net/request'
 
 const message = useMessage()
+
+// 判断是否为移动端
+const isMobile = computed(() => {
+  return window.innerWidth <= 768
+})
 
 // 表单引用
 const securityFormRef = ref<FormInst | null>(null)
@@ -1359,7 +1428,7 @@ const broadcastColumns: DataTableColumns<Broadcast> = [
   {
     title: '操作',
     key: 'actions',
-    width: 240,
+    width: 130,
     fixed: 'right',
     render: (row) => {
       return h(
@@ -2057,5 +2126,72 @@ onMounted(() => {
   padding: 0 16px;
   height: 32px;
   align-self: center;
+}
+
+/* 移动端筛选区域样式 */
+.download-filter-row-mobile,
+.group-filter-row-mobile,
+.broadcast-filter-row-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.download-filter-item-mobile,
+.group-filter-item-mobile,
+.broadcast-filter-item-mobile {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.download-filter-btn-mobile,
+.group-filter-btn-mobile,
+.broadcast-filter-btn-mobile {
+  width: 100%;
+  height: 36px;
+  align-self: stretch;
+}
+
+/* 移动端表格横向滚动 */
+:deep(.n-data-table-wrapper) {
+  overflow-x: auto;
+}
+
+/* 范围输入框样式 */
+.range-inputs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.range-input {
+  flex: 1;
+}
+
+.range-separator {
+  line-height: 34px;
+  flex-shrink: 0;
+}
+
+/* 桌面端固定宽度 */
+@media screen and (min-width: 769px) {
+  .range-input {
+    flex: 0 0 auto;
+    width: 110px;
+  }
+}
+
+/* 移动端表单优化 */
+@media screen and (max-width: 768px) {
+  :deep(.n-form-item) {
+    margin-bottom: 16px;
+  }
+
+  :deep(.n-form-item-label) {
+    padding-bottom: 4px;
+  }
 }
 </style>

@@ -15,7 +15,8 @@
           </NInput>
         </div>
 
-        <NSpace>
+        <!-- 桌面端筛选 -->
+        <NSpace v-if="!isMobile">
           <NSelect
             v-model:value="filters.group"
             :options="groupOptions"
@@ -51,6 +52,58 @@
             clearable
             style="width: 120px"
           />
+        </NSpace>
+        <!-- 移动端筛选 -->
+        <NSpace v-else vertical :size="8" style="width: 100%">
+          <NGrid :cols="2" :x-gap="8">
+            <NGridItem>
+              <NSelect
+                v-model:value="filters.group"
+                :options="groupOptions"
+                placeholder="用户组"
+                clearable
+                style="width: 100%"
+              />
+            </NGridItem>
+            <NGridItem>
+              <NSelect
+                v-model:value="filters.isRealname"
+                :options="realnameOptions"
+                placeholder="实名状态"
+                clearable
+                style="width: 100%"
+              />
+            </NGridItem>
+          </NGrid>
+          <NGrid :cols="3" :x-gap="8">
+            <NGridItem>
+              <NSelect
+                v-model:value="filters.status"
+                :options="statusOptions"
+                placeholder="账户状态"
+                clearable
+                style="width: 100%"
+              />
+            </NGridItem>
+            <NGridItem>
+              <NSelect
+                v-model:value="sortOptions.key"
+                :options="sortFieldOptions"
+                placeholder="排序字段"
+                clearable
+                style="width: 100%"
+              />
+            </NGridItem>
+            <NGridItem>
+              <NSelect
+                v-model:value="sortOptions.order"
+                :options="sortOrderOptions"
+                placeholder="排序方式"
+                clearable
+                style="width: 100%"
+              />
+            </NGridItem>
+          </NGrid>
         </NSpace>
 
         <div class="table-container">
@@ -323,6 +376,8 @@ import {
   NFormItem,
   NInputNumber,
   NSwitch,
+  NGrid,
+  NGridItem,
   type SelectOption,
   type DataTableColumns,
   type FormInst,
@@ -334,6 +389,12 @@ import { adminApi } from '@/net'
 import type { User } from '@/net/admin/type'
 
 const message = useMessage()
+
+// 判断是否为移动端
+const isMobile = computed(() => {
+  return window.innerWidth <= 768
+})
+
 const loading = ref(false)
 const users: Ref<User[]> = ref([])
 const groupNameMap = ref<Record<string, string>>({})

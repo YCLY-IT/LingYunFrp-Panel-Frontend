@@ -2,63 +2,140 @@
   <div>
     <NCard title="隧道管理">
       <NSpace vertical :size="12">
-        <NInput
-          v-model:value="filters.search"
-          placeholder="搜索ID、隧道名、用户名或绑定域名"
-          clearable
-          style="width: 100%"
-          @update:value="handleSearch"
-        />
-        <NSelect
-          v-model:value="filters.nodeId"
-          :options="nodeOptions"
-          placeholder="节点"
-          clearable
-          style="width: 100%"
-          @update:value="handleFilterChange"
-        />
-        <div class="proxy-sort-filter-row">
-          <NSelect
-            v-model:value="sortOptions.key"
-            :options="sortFieldOptions"
-            placeholder="排序字段"
+        <!-- 桌面端筛选 -->
+        <template v-if="!isMobile">
+          <NInput
+            v-model:value="filters.search"
+            placeholder="搜索ID、隧道名、用户名或绑定域名"
             clearable
-            class="proxy-sort-item"
-            @update:value="handleSortFieldChange"
+            style="width: 100%"
+            @update:value="handleSearch"
           />
           <NSelect
-            v-model:value="sortOptions.order"
-            :options="sortOrderOptions"
-            placeholder="排序方式"
+            v-model:value="filters.nodeId"
+            :options="nodeOptions"
+            placeholder="节点"
             clearable
-            class="proxy-sort-item"
-            @update:value="handleSortOrderChange"
-          />
-          <NSelect
-            v-model:value="filters.proxyType"
-            :options="proxyTypeOptions"
-            placeholder="协议"
-            clearable
-            class="proxy-sort-item"
+            style="width: 100%"
             @update:value="handleFilterChange"
           />
-          <NSelect
-            v-model:value="filters.isOnline"
-            :options="onlineOptions"
-            placeholder="在线状态"
+          <div class="proxy-sort-filter-row">
+            <NSelect
+              v-model:value="sortOptions.key"
+              :options="sortFieldOptions"
+              placeholder="排序字段"
+              clearable
+              class="proxy-sort-item"
+              @update:value="handleSortFieldChange"
+            />
+            <NSelect
+              v-model:value="sortOptions.order"
+              :options="sortOrderOptions"
+              placeholder="排序方式"
+              clearable
+              class="proxy-sort-item"
+              @update:value="handleSortOrderChange"
+            />
+            <NSelect
+              v-model:value="filters.proxyType"
+              :options="proxyTypeOptions"
+              placeholder="协议"
+              clearable
+              class="proxy-sort-item"
+              @update:value="handleFilterChange"
+            />
+            <NSelect
+              v-model:value="filters.isOnline"
+              :options="onlineOptions"
+              placeholder="在线状态"
+              clearable
+              class="proxy-sort-item"
+              @update:value="handleFilterChange"
+            />
+            <NSelect
+              v-model:value="filters.isBanned"
+              :options="banOptions"
+              placeholder="封禁状态"
+              clearable
+              class="proxy-sort-item"
+              @update:value="handleFilterChange"
+            />
+          </div>
+        </template>
+        <!-- 移动端筛选 -->
+        <template v-else>
+          <NInput
+            v-model:value="filters.search"
+            placeholder="搜索ID、隧道名、用户名或绑定域名"
             clearable
-            class="proxy-sort-item"
-            @update:value="handleFilterChange"
+            style="width: 100%"
+            @update:value="handleSearch"
           />
           <NSelect
-            v-model:value="filters.isBanned"
-            :options="banOptions"
-            placeholder="封禁状态"
+            v-model:value="filters.nodeId"
+            :options="nodeOptions"
+            placeholder="节点"
             clearable
-            class="proxy-sort-item"
+            style="width: 100%"
             @update:value="handleFilterChange"
           />
-        </div>
+          <!-- 第一行：协议、在线状态、封禁状态 -->
+          <NGrid :cols="3" :x-gap="8">
+            <NGridItem>
+              <NSelect
+                v-model:value="filters.proxyType"
+                :options="proxyTypeOptions"
+                placeholder="协议"
+                clearable
+                style="width: 100%"
+                @update:value="handleFilterChange"
+              />
+            </NGridItem>
+            <NGridItem>
+              <NSelect
+                v-model:value="filters.isOnline"
+                :options="onlineOptions"
+                placeholder="在线状态"
+                clearable
+                style="width: 100%"
+                @update:value="handleFilterChange"
+              />
+            </NGridItem>
+            <NGridItem>
+              <NSelect
+                v-model:value="filters.isBanned"
+                :options="banOptions"
+                placeholder="封禁状态"
+                clearable
+                style="width: 100%"
+                @update:value="handleFilterChange"
+              />
+            </NGridItem>
+          </NGrid>
+          <!-- 第二行：排序字段、排序方式 -->
+          <NGrid :cols="2" :x-gap="8">
+            <NGridItem>
+              <NSelect
+                v-model:value="sortOptions.key"
+                :options="sortFieldOptions"
+                placeholder="排序字段"
+                clearable
+                style="width: 100%"
+                @update:value="handleSortFieldChange"
+              />
+            </NGridItem>
+            <NGridItem>
+              <NSelect
+                v-model:value="sortOptions.order"
+                :options="sortOrderOptions"
+                placeholder="排序方式"
+                clearable
+                style="width: 100%"
+                @update:value="handleSortOrderChange"
+              />
+            </NGridItem>
+          </NGrid>
+        </template>
         <div class="table-container">
           <NDataTable
             remote
@@ -408,6 +485,8 @@ import {
   NCollapseItem,
   NText,
   NPagination,
+  NGrid,
+  NGridItem,
 } from 'naive-ui'
 import type {
   DataTableColumns,
@@ -429,6 +508,12 @@ import { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
 import { adminApi, userApi } from '@/net'
 
 const message = useMessage()
+
+// 判断是否为移动端
+const isMobile = computed(() => {
+  return window.innerWidth <= 768
+})
+
 const loading = ref(false)
 
 const filters = ref<{

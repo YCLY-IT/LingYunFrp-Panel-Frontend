@@ -486,11 +486,7 @@ const formatSpeed = (kb: number) => {
 // 获取图表时间标签
 const getTimeLabel = (recordTime: string) => {
   if (!recordTime) return ''
-  const hours = parseInt(historyTimeRange.value)
-  if (hours > 24) {
-    return recordTime.substring(5, 16) // MM-DD HH:mm
-  }
-  return recordTime.substring(11, 16) // HH:mm
+  return recordTime.substring(0, 19) // YYYY-MM-DD HH:mm:ss
 }
 
 // 获取CPU状态
@@ -644,7 +640,7 @@ const initMemoryChart = () => {
 
   const { textColor, lineColor } = getChartColors()
   const times = nodeHistory.value.map(
-    (item) => item.record_time?.substring(11, 16) || '',
+    (item) => item.record_time?.substring(0, 19) || '',
   )
   const data = nodeHistory.value.map((item) => {
     const total =
@@ -732,7 +728,7 @@ const initClientChart = () => {
 
   const { textColor, lineColor } = getChartColors()
   const times = nodeHistory.value.map(
-    (item) => item.record_time?.substring(11, 16) || '',
+    (item) => item.record_time?.substring(0, 19) || '',
   )
   const data = nodeHistory.value.map((item) => item.client_counts || 0)
 

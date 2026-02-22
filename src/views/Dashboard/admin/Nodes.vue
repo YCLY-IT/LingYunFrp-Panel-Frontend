@@ -3,7 +3,8 @@
     <n-card title="节点管理" class="main-card">
       <n-space vertical :size="16">
         <div class="filter-container-grid">
-          <n-grid :cols="24" :x-gap="16" :y-gap="8">
+          <!-- 桌面端布局 -->
+          <n-grid v-if="!isMobile" :cols="24" :x-gap="16" :y-gap="8">
             <!-- 第一行：搜索相关 -->
             <n-grid-item :span="12">
               <n-input
@@ -66,6 +67,71 @@
               </n-button>
             </n-grid-item>
           </n-grid>
+          <!-- 移动端布局 -->
+          <n-space v-else vertical :size="12">
+            <!-- 搜索框 -->
+            <n-input
+              v-model:value="nodesStore.searchKeyword"
+              placeholder="搜索ID、节点名称或主机名"
+              clearable
+            >
+              <template #prefix>
+                <n-icon><search-outline /></n-icon>
+              </template>
+            </n-input>
+            <!-- 状态和排序行 -->
+            <n-grid :cols="2" :x-gap="8">
+              <n-grid-item>
+                <n-select
+                  v-model:value="nodesStore.selectedOnline"
+                  placeholder="在线状态"
+                  :options="onlineOptions"
+                  clearable
+                  @update:value="nodesStore.handleFilterChange"
+                />
+              </n-grid-item>
+              <n-grid-item>
+                <n-select
+                  v-model:value="nodesStore.selectedStatus"
+                  placeholder="节点状态"
+                  :options="statusOptions"
+                  clearable
+                  @update:value="nodesStore.handleFilterChange"
+                />
+              </n-grid-item>
+            </n-grid>
+            <n-grid :cols="2" :x-gap="8">
+              <n-grid-item>
+                <n-select
+                  v-model:value="sortOptions.key"
+                  :options="sortFieldOptions"
+                  placeholder="排序字段"
+                  clearable
+                  @update:value="handleSortFieldChange"
+                />
+              </n-grid-item>
+              <n-grid-item>
+                <n-select
+                  v-model:value="sortOptions.order"
+                  :options="sortOrderOptions"
+                  placeholder="排序方式"
+                  clearable
+                  @update:value="handleSortOrderChange"
+                />
+              </n-grid-item>
+            </n-grid>
+            <!-- 添加按钮 -->
+            <n-button
+              type="primary"
+              @click="onAddNodeClick"
+              style="width: 100%"
+            >
+              <template #icon>
+                <n-icon><add-outline /></n-icon>
+              </template>
+              添加节点
+            </n-button>
+          </n-space>
         </div>
 
         <n-data-table
@@ -129,7 +195,7 @@
         preset="card"
         title="添加节点"
         class="node-modal"
-        :style="{ width: '650px' }"
+        :style="{ width: isMobile ? '95vw' : '650px' }"
       >
         <n-form
           ref="formRef"
@@ -148,7 +214,12 @@
             </n-form-item-gi>
 
             <n-grid-item :span="1">
-              <n-grid :cols="2" :x-gap="16">
+              <n-grid
+                :cols="isMobile ? 1 : 2"
+                :x-gap="16"
+                :y-gap="isMobile ? 12 : 0"
+                responsive="screen"
+              >
                 <n-form-item-gi label="主机名" path="hostname">
                   <n-input
                     v-model:value="formModel.hostname"
@@ -180,7 +251,12 @@
             </n-form-item-gi>
 
             <n-grid-item :span="1">
-              <n-grid :cols="2" :x-gap="16">
+              <n-grid
+                :cols="isMobile ? 1 : 2"
+                :x-gap="16"
+                :y-gap="isMobile ? 12 : 0"
+                responsive="screen"
+              >
                 <n-form-item-gi label="服务端口" path="port">
                   <n-input-number
                     v-model:value="formModel.port"
@@ -310,7 +386,7 @@
         preset="card"
         title="编辑节点"
         class="node-modal"
-        :style="{ width: '650px' }"
+        :style="{ width: isMobile ? '95vw' : '650px' }"
       >
         <n-form
           ref="formRef"
@@ -490,7 +566,7 @@
         v-model:show="showToggleModal"
         preset="dialog"
         :title="currentNode?.is_disabled ? '启用节点' : '禁用节点'"
-        :style="{ width: '420px' }"
+        :style="{ width: isMobile ? '90vw' : '420px' }"
         :show-icon="false"
       >
         <div class="confirm-text">
@@ -517,7 +593,7 @@
         v-model:show="showDeleteModal"
         preset="dialog"
         title="删除节点"
-        :style="{ width: '420px' }"
+        :style="{ width: isMobile ? '90vw' : '420px' }"
         :show-icon="false"
       >
         <div class="confirm-text">
@@ -541,7 +617,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, h, watch } from 'vue'
+import { ref, h, watch, computed } from 'vue'
 import {
   NCard,
   NSpace,
@@ -586,6 +662,11 @@ import { useGroupsStore } from '@/stores/groups'
 const message = useMessage()
 const nodesStore = useNodesStore()
 const groupsStore = useGroupsStore()
+
+// 判断是否为移动端
+const isMobile = computed(() => {
+  return window.innerWidth <= 768
+})
 
 // 搜索防抖定时器
 let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null

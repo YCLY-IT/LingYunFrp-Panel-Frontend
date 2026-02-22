@@ -1,7 +1,8 @@
 <template>
   <div class="software-container">
     <n-card title="软件管理">
-      <div class="software-sort-row">
+      <!-- 桌面端筛选 -->
+      <div v-if="!isMobile" class="software-sort-row">
         <n-select
           v-model:value="sortOptions.key"
           :options="sortFieldOptions"
@@ -27,6 +28,39 @@
           添加软件
         </n-button>
       </div>
+      <!-- 移动端筛选 -->
+      <n-space v-else vertical :size="8" style="width: 100%">
+        <n-grid :cols="2" :x-gap="8">
+          <n-grid-item>
+            <n-select
+              v-model:value="sortOptions.key"
+              :options="sortFieldOptions"
+              placeholder="排序字段"
+              clearable
+              style="width: 100%"
+              @update:value="handleSortFieldChange"
+            />
+          </n-grid-item>
+          <n-grid-item>
+            <n-select
+              v-model:value="sortOptions.order"
+              :options="sortOrderOptions"
+              placeholder="排序方式"
+              clearable
+              style="width: 100%"
+              @update:value="handleSortOrderChange"
+            />
+          </n-grid-item>
+        </n-grid>
+        <n-button
+          type="primary"
+          @click="handleAddSoftware"
+          style="width: 100%"
+          size="medium"
+        >
+          添加软件
+        </n-button>
+      </n-space>
 
       <div class="table-container">
         <n-data-table
@@ -224,7 +258,14 @@
 
 <script setup lang="ts">
 import { ref, h, onMounted, onUnmounted, computed } from 'vue'
-import { NButton, NSpace, useMessage, NCheckbox } from 'naive-ui'
+import {
+  NButton,
+  NSpace,
+  useMessage,
+  NCheckbox,
+  NGrid,
+  NGridItem,
+} from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 import { adminApi } from '@/net'
 import type { Software, SoftwareVersion } from '@/net/admin/type'
@@ -238,6 +279,12 @@ interface DownloadSource {
 }
 
 const message = useMessage()
+
+// 判断是否为移动端
+const isMobile = computed(() => {
+  return window.innerWidth <= 768
+})
+
 const loading = ref(false)
 const showAddModal = ref(false)
 const showVersionModal = ref(false)

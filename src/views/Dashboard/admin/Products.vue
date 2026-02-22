@@ -2,7 +2,8 @@
   <div>
     <NCard title="产品管理">
       <NSpace vertical>
-        <div class="product-sort-row">
+        <!-- 桌面端筛选 -->
+        <div v-if="!isMobile" class="product-sort-row">
           <n-select
             v-model:value="sortOptions.key"
             :options="sortFieldOptions"
@@ -28,6 +29,39 @@
             添加产品
           </n-button>
         </div>
+        <!-- 移动端筛选 -->
+        <NSpace v-else vertical :size="8" style="width: 100%">
+          <NGrid :cols="2" :x-gap="8">
+            <NGridItem>
+              <n-select
+                v-model:value="sortOptions.key"
+                :options="sortFieldOptions"
+                placeholder="排序字段"
+                clearable
+                style="width: 100%"
+                @update:value="handleSortFieldChange"
+              />
+            </NGridItem>
+            <NGridItem>
+              <n-select
+                v-model:value="sortOptions.order"
+                :options="sortOrderOptions"
+                placeholder="排序方式"
+                clearable
+                style="width: 100%"
+                @update:value="handleSortOrderChange"
+              />
+            </NGridItem>
+          </NGrid>
+          <n-button
+            type="primary"
+            @click="openAddModal"
+            style="width: 100%"
+            size="medium"
+          >
+            添加产品
+          </n-button>
+        </NSpace>
         <div class="table-container">
           <NDataTable
             remote
@@ -385,6 +419,12 @@ import { adminApi } from '@/net'
 import { Group, Product } from '@/types'
 
 const message = useMessage()
+
+// 判断是否为移动端
+const isMobile = computed(() => {
+  return window.innerWidth <= 768
+})
+
 const loading = ref(false)
 
 // 表单相关
