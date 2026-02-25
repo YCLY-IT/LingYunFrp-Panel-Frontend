@@ -13,6 +13,8 @@ export const useNodesStore = defineStore('nodes', () => {
   const searchKeyword = ref('')
   const selectedOnline = ref<string | null>(null)
   const selectedStatus = ref<string | null>(null)
+  const sortKey = ref<string>('id')
+  const sortOrder = ref<string>('asc')
 
   // 搜索防抖定时器
   let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null
@@ -54,6 +56,8 @@ export const useNodesStore = defineStore('nodes', () => {
         searchKeyword.value || undefined,
         selectedOnline.value || undefined,
         selectedStatus.value || undefined,
+        sortKey.value || undefined,
+        sortOrder.value || undefined,
       )
       if (data.code === 0) {
         nodes.value = (data.data.nodes || []).map(normalize)
@@ -187,6 +191,8 @@ export const useNodesStore = defineStore('nodes', () => {
     searchKeyword,
     selectedOnline,
     selectedStatus,
+    sortKey,
+    sortOrder,
     pagination,
     hasFilters,
     shouldShowTable: computed(() => true),

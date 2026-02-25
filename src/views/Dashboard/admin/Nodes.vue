@@ -38,19 +38,17 @@
             <!-- 第二行：排序相关+操作 -->
             <n-grid-item :span="6">
               <n-select
-                v-model:value="sortOptions.key"
+                v-model:value="nodesStore.sortKey"
                 :options="sortFieldOptions"
                 placeholder="排序字段"
-                clearable
                 @update:value="handleSortFieldChange"
               />
             </n-grid-item>
             <n-grid-item :span="6">
               <n-select
-                v-model:value="sortOptions.order"
+                v-model:value="nodesStore.sortOrder"
                 :options="sortOrderOptions"
                 placeholder="排序方式"
-                clearable
                 @update:value="handleSortOrderChange"
               />
             </n-grid-item>
@@ -103,19 +101,17 @@
             <n-grid :cols="2" :x-gap="8">
               <n-grid-item>
                 <n-select
-                  v-model:value="sortOptions.key"
+                  v-model:value="nodesStore.sortKey"
                   :options="sortFieldOptions"
                   placeholder="排序字段"
-                  clearable
                   @update:value="handleSortFieldChange"
                 />
               </n-grid-item>
               <n-grid-item>
                 <n-select
-                  v-model:value="sortOptions.order"
+                  v-model:value="nodesStore.sortOrder"
                   :options="sortOrderOptions"
                   placeholder="排序方式"
-                  clearable
                   @update:value="handleSortOrderChange"
                 />
               </n-grid-item>
@@ -753,20 +749,15 @@ const sortOrderOptions = [
   { label: '升序', value: 'asc' },
   { label: '降序', value: 'desc' },
 ]
-const sortOptions = ref({ key: 'id', order: 'asc' })
-
-const handleSortFieldChange = () => {
+const handleSortFieldChange = (value: string | null) => {
+  nodesStore.sortKey = value || 'id'
   nodesStore.pagination.page = 1
+  nodesStore.fetchNodes()
 }
-const handleSortOrderChange = () => {
+const handleSortOrderChange = (value: string | null) => {
+  nodesStore.sortOrder = value || 'asc'
   nodesStore.pagination.page = 1
-}
-const handleSortChange = (sorter) => {
-  if (sorter) {
-    sortOptions.value.key = sorter.columnKey
-    sortOptions.value.order = sorter.order === 'ascend' ? 'asc' : 'desc'
-    nodesStore.pagination.page = 1
-  }
+  nodesStore.fetchNodes()
 }
 
 // 表单验证规则

@@ -1339,6 +1339,10 @@ const handleNodeSelect = (node: any) => {
     message.error('该节点已被禁用，无法选择')
     return
   }
+  if (node.loadStatus === 'overload') {
+    message.error('该节点当前处于超载状态，无法选择')
+    return
+  }
   selectedNodeId.value = node.value
   selectedNode.value = {
     id: node.id,

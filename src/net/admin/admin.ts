@@ -82,6 +82,8 @@ export async function getNodeList(
   search?: string,
   isOnline?: string,
   status?: string,
+  sortKey?: string,
+  sortOrder?: string,
 ): Promise<NodeListApiResponse> {
   const params = new URLSearchParams()
   params.append('page', String(page))
@@ -89,6 +91,8 @@ export async function getNodeList(
   if (search) params.append('search', search)
   if (isOnline) params.append('isOnline', isOnline)
   if (status) params.append('status', status)
+  if (sortKey) params.append('sortKey', sortKey)
+  if (sortOrder) params.append('sortOrder', sortOrder)
 
   return await get<NodeListApiResponse>(`/admin/nodes?${params.toString()}`, {
     headers: { Authorization: getToken() },
