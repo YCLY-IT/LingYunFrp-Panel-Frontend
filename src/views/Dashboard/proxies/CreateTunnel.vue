@@ -77,14 +77,32 @@
                     <div class="node-header">
                       <div class="node-title">
                         <NTag type="info" size="small"># {{ node.id }}</NTag>
-                        <NText
-                          style="
-                            white-space: nowrap;
-                            margin-left: -3px;
-                            margin-right: 4px;
-                          "
-                          >{{ node.name }}</NText
+                        <NTooltip trigger="hover">
+                          <template #trigger>
+                            <NText
+                              style="
+                                white-space: nowrap;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                                margin-left: -3px;
+                                margin-right: 4px;
+                                flex: 1;
+                                min-width: 0;
+                                cursor: default;
+                              "
+                              >{{ node.name }}</NText
+                            >
+                          </template>
+                          {{ node.name }}
+                        </NTooltip>
+                        <NTag
+                          :type="getLoadStatusType(node.loadStatus)"
+                          size="small"
+                          strong
+                          round
                         >
+                          {{ getLoadStatusText(node.loadStatus) }}
+                        </NTag>
                       </div>
                       <!-- <div class="node-tags">
                         <NTag
@@ -238,14 +256,32 @@
                     <div class="node-header">
                       <div class="node-title">
                         <NTag type="info" size="small"># {{ node.id }}</NTag>
-                        <NText
-                          style="
-                            white-space: nowrap;
-                            margin-left: -3px;
-                            margin-right: 4px;
-                          "
-                          >{{ node.name }}</NText
+                        <NTooltip trigger="hover">
+                          <template #trigger>
+                            <NText
+                              style="
+                                white-space: nowrap;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                                margin-left: -3px;
+                                margin-right: 4px;
+                                flex: 1;
+                                min-width: 0;
+                                cursor: default;
+                              "
+                              >{{ node.name }}</NText
+                            >
+                          </template>
+                          {{ node.name }}
+                        </NTooltip>
+                        <NTag
+                          :type="getLoadStatusType(node.loadStatus)"
+                          size="small"
+                          strong
+                          round
                         >
+                          {{ getLoadStatusText(node.loadStatus) }}
+                        </NTag>
                       </div>
                       <!-- <div class="node-tags">
                         <NTag
@@ -412,14 +448,32 @@
                     <div class="node-header">
                       <div class="node-title">
                         <NTag type="info" size="small"># {{ node.id }}</NTag>
-                        <NText
-                          style="
-                            white-space: nowrap;
-                            margin-left: -3px;
-                            margin-right: 4px;
-                          "
-                          >{{ node.name }}</NText
+                        <NTooltip trigger="hover">
+                          <template #trigger>
+                            <NText
+                              style="
+                                white-space: nowrap;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                                margin-left: -3px;
+                                margin-right: 4px;
+                                flex: 1;
+                                min-width: 0;
+                                cursor: default;
+                              "
+                              >{{ node.name }}</NText
+                            >
+                          </template>
+                          {{ node.name }}
+                        </NTooltip>
+                        <NTag
+                          :type="getLoadStatusType(node.loadStatus)"
+                          size="small"
+                          strong
+                          round
                         >
+                          {{ getLoadStatusText(node.loadStatus) }}
+                        </NTag>
                       </div>
                       <!-- <div class="node-tags">
                         <NTag
@@ -816,7 +870,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, h, computed, onMounted, watch, watchEffect, nextTick } from 'vue'
+import { ref, h, computed, onMounted, watch, nextTick } from 'vue'
 import {
   NCard,
   NForm,
@@ -841,6 +895,7 @@ import {
   NSpin,
   NCollapse,
   NCollapseItem,
+  NTooltip,
 } from 'naive-ui'
 import { CloudUploadOutline, SearchOutline } from '@vicons/ionicons5'
 import { switchButtonRailStyle } from '@/constants/theme.ts'
@@ -951,6 +1006,14 @@ const nodeOptions = ref<
       min: number
       max: number
     }
+    loadStatus:
+      | 'low'
+      | 'normal'
+      | 'high'
+      | 'overload'
+      | 'offline'
+      | 'disabled'
+      | 'unknown'
   }[]
 >([])
 // 添加过滤节点的计算属性
@@ -1017,6 +1080,39 @@ const supportsStcp = (node: any) => {
 
 const supportsXtcp = (node: any) => {
   return node.allowedProtocols.includes('xtcp')
+}
+
+// 获取负载状态的显示文本
+const getLoadStatusText = (status: string) => {
+  const statusMap: Record<string, string> = {
+    low: '低负载',
+    normal: '正常',
+    high: '高负载',
+    overload: '超载',
+    offline: '离线',
+    disabled: '禁用',
+    unknown: '未知',
+  }
+  return statusMap[status] || '未知'
+}
+
+// 获取负载状态的标签类型
+const getLoadStatusType = (
+  status: string,
+): 'default' | 'success' | 'error' | 'warning' | 'primary' | 'info' => {
+  const typeMap: Record<
+    string,
+    'default' | 'success' | 'error' | 'warning' | 'primary' | 'info'
+  > = {
+    low: 'success',
+    normal: 'success',
+    high: 'warning',
+    overload: 'error',
+    offline: 'default',
+    disabled: 'default',
+    unknown: 'default',
+  }
+  return typeMap[status] || 'default'
 }
 
 const rules: FormRules = {
@@ -1171,6 +1267,7 @@ const fetchNodes = async () => {
           min: minPort,
           max: maxPort,
         },
+        loadStatus: node.loadStatus || 'unknown',
       }
     })
   } catch (error) {
@@ -1360,11 +1457,6 @@ watch(showRealnameModal, (newVal) => {
   }
 })
 
-// 在 setup 里添加调试代码
-watchEffect(() => {
-  console.log('groupNameMap', groupNameMap.value)
-})
-
 // 折叠篮默认展开中国大陆
 const expandedRegion = ref(['cn'])
 // 高级配置折叠栏默认收起
@@ -1436,6 +1528,8 @@ const handleCreateFormCollapseUpdate = (names: string[]) => {
       display: flex;
       align-items: center;
       gap: 8px;
+      flex: 1;
+      min-width: 0;
     }
 
     // .node-tags {
