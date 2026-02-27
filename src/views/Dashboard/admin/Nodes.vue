@@ -140,7 +140,6 @@
           :row-class-name="rowClassName"
           :scroll-x="1200"
           :empty="nodesStore.emptySlot"
-          @update:sorter="handleSortChange"
         />
 
         <!-- 独立的分页组件 -->
