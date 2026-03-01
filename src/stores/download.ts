@@ -69,14 +69,17 @@ export const useDownloadStore = defineStore('download', () => {
 
   async function fetchSoftwareVersions() {
     try {
-      const data = await userApi.getSoftwareVersions(
-        pagination.value.page,
-        pagination.value.pageSize,
-      )
+      const data = await userApi.getSoftwareVersions()
       if (data.code === 0 && data.data) {
-        softwareVersions.value = data.data.list || []
-        pagination.value.itemCount = data.data.total
-        pagination.value.pageCount = data.data.totalPages
+        if (Array.isArray(data.data)) {
+          softwareVersions.value = data.data
+        } else if (Array.isArray(data.data.list)) {
+          softwareVersions.value = data.data.list
+          pagination.value.itemCount = data.data.total
+          pagination.value.pageCount = data.data.totalPages
+        } else {
+          softwareVersions.value = []
+        }
       } else {
         softwareVersions.value = []
       }

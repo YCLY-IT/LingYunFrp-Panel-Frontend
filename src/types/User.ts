@@ -78,7 +78,7 @@ export interface Group {
 export interface DownloadSource {
   id: number
   name: string
-  url: string
+  path: string
 }
 
 export interface Software extends DownloadSource {

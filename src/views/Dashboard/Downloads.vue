@@ -1,40 +1,51 @@
 <template>
   <div class="downloads">
     <NSpin :show="loading">
-      <NTabs type="line" animated>
-        <NTabPane name="download" tab="文件下载">
-          <div class="downloads-layout">
-            <!-- 左侧：资源下载 -->
-            <NCard title="文件下载" class="download-card">
-              <div class="downloads-container">
-                <!-- 下载源选择 -->
-                <div class="select-row">
-                  <div class="select-label">下载源</div>
-                  <NPopselect
-                    v-model:value="selectedSource"
-                    :options="sourceOptions"
-                    trigger="click"
-                    @update:value="handleSourceChange"
-                  >
-                    <NButton :focusable="false" text size="small" type="info">
-                      <span class="select-text">{{
-                        currentSource?.name || '请选择下载源'
-                      }}</span>
-                      <NIcon
-                        :size="16"
-                        class="select-icon"
-                        :component="ChevronDownOutline"
-                      />
-                    </NButton>
-                  </NPopselect>
-                </div>
+      <NCard class="main-card">
+        <template #header>
+          <div class="card-header">
+            <h2 class="card-title">文件下载</h2>
+            <NText depth="3" class="card-subtitle">
+              选择下载源和产品，获取最新版本
+            </NText>
+          </div>
+        </template>
 
-                <!-- 主要内容区域 -->
-                <NFadeInExpandTransition>
-                  <div v-if="selectedSource" class="main-content">
-                    <!-- 产品选择 -->
-                    <div class="select-row">
-                      <div class="select-label">产品</div>
+        <div class="downloads-content">
+          <NTabs type="line" animated>
+            <NTabPane name="download" tab="文件下载">
+              <div class="downloads-layout">
+                <!-- 选择区域 -->
+                <div class="selection-section">
+                  <div class="selection-group">
+                    <div class="selection-item">
+                      <span class="selection-label">下载源</span>
+                      <NPopselect
+                        v-model:value="selectedSource"
+                        :options="sourceOptions"
+                        trigger="click"
+                        @update:value="handleSourceChange"
+                      >
+                        <NButton
+                          :focusable="false"
+                          text
+                          size="medium"
+                          type="primary"
+                        >
+                          <span class="selection-text">{{
+                            currentSource?.name || '全部源'
+                          }}</span>
+                          <NIcon
+                            :size="16"
+                            class="selection-icon"
+                            :component="ChevronDownOutline"
+                          />
+                        </NButton>
+                      </NPopselect>
+                    </div>
+
+                    <div v-if="selectedSource" class="selection-item">
+                      <span class="selection-label">产品</span>
                       <NPopselect
                         v-model:value="selectedProduct"
                         :options="productOptions"
@@ -44,95 +55,112 @@
                         <NButton
                           :focusable="false"
                           text
-                          size="small"
-                          type="info"
+                          size="medium"
+                          type="primary"
                         >
-                          <span class="select-text">{{
+                          <span class="selection-text">{{
                             currentProduct?.name || '请选择产品'
                           }}</span>
                           <NIcon
                             :size="16"
-                            class="select-icon"
+                            class="selection-icon"
                             :component="ChevronDownOutline"
                           />
                         </NButton>
                       </NPopselect>
-                      <div v-if="currentProduct" class="version-selector">
-                        <NPopselect
-                          v-model:value="selectedVersion"
-                          :options="versionOptions"
-                          trigger="click"
-                          @update:value="handleVersionChange"
-                        >
-                          <NButton
-                            :focusable="false"
-                            text
-                            size="small"
-                            type="info"
-                          >
-                            <div class="version-tag">
-                              <NTag size="small" type="success" round>
-                                <template #icon>
-                                  <NIcon :component="PricetagOutline" />
-                                </template>
-                                v{{ selectedVersion }}
-                              </NTag>
-                            </div>
-                            <NIcon
-                              :size="16"
-                              class="select-icon"
-                              :component="ChevronDownOutline"
-                            />
-                          </NButton>
-                        </NPopselect>
-                      </div>
                     </div>
 
-                    <!-- 产品详情 -->
-                    <div v-if="currentProduct" class="product-content">
-                      <div class="markdown-content">
-                        <NText depth="3">
-                          <div v-html="renderedDesc"></div>
-                        </NText>
-                      </div>
-                      <NDivider />
+                    <div
+                      v-if="currentProduct"
+                      class="selection-item version-item"
+                    >
+                      <span class="selection-label">版本</span>
+                      <NPopselect
+                        v-model:value="selectedVersion"
+                        :options="versionOptions"
+                        trigger="click"
+                        @update:value="handleVersionChange"
+                      >
+                        <NButton
+                          :focusable="false"
+                          text
+                          size="medium"
+                          type="success"
+                        >
+                          <div class="version-badge">
+                            <NIcon :component="PricetagOutline" />
+                            <span>v{{ selectedVersion }}</span>
+                          </div>
+                          <NIcon
+                            :size="16"
+                            class="selection-icon"
+                            :component="ChevronDownOutline"
+                          />
+                        </NButton>
+                      </NPopselect>
+                    </div>
+                  </div>
+                </div>
 
-                      <!-- 非Docker产品显示系统和架构选择 -->
-                      <template v-if="!isDockerProduct">
-                        <div class="select-row">
-                          <div class="select-label">系统</div>
+                <!-- 主要内容区域 -->
+                <NFadeInExpandTransition>
+                  <div
+                    v-if="selectedSource && currentProduct"
+                    class="content-area"
+                  >
+                    <div class="product-card">
+                      <div class="product-header">
+                        <h3 class="product-name">{{ currentProduct.name }}</h3>
+                        <NTag v-if="isDockerProduct" size="small" type="info"
+                          >Docker</NTag
+                        >
+                      </div>
+                      <div class="product-description">
+                        <div v-html="renderedDesc"></div>
+                      </div>
+
+                      <NDivider class="divider" />
+
+                      <div v-if="!isDockerProduct" class="system-selection">
+                        <div class="system-row">
+                          <div class="system-label">系统</div>
                           <NSelect
                             v-model:value="currentSystem"
                             :options="systemOptions"
                             @update:value="handleSystemChange"
                             placeholder="请选择系统"
+                            size="small"
                           />
                         </div>
-                        <div class="select-row">
-                          <div class="select-label">架构</div>
+                        <div class="system-row">
+                          <div class="system-label">架构</div>
                           <NSelect
                             v-model:value="currentArch"
                             :options="archOptions"
                             :disabled="!currentSystem"
                             @update:value="handleArchChange"
                             placeholder="请选择架构"
+                            size="small"
                           />
                         </div>
-                        <div class="download-row">
+                      </div>
+
+                      <div class="action-area">
+                        <div v-if="!isDockerProduct" class="download-actions">
                           <NButton
                             secondary
-                            size="medium"
+                            size="small"
                             :disabled="!canDownload"
                             @click="handleCopyDownloadUrl"
                           >
                             <template #icon>
                               <NIcon :component="CopyOutline" />
                             </template>
-                            复制下载链接
+                            复制链接
                           </NButton>
                           <NButton
                             type="primary"
-                            size="medium"
+                            size="small"
                             :disabled="!canDownload"
                             @click="handleDownload"
                           >
@@ -142,54 +170,57 @@
                             下载
                           </NButton>
                         </div>
-                      </template>
 
-                      <!-- Docker产品显示Docker命令 -->
-                      <template v-else>
-                        <div class="docker-info">
-                          <NAlert type="info" title="Docker 镜像">
+                        <div v-else class="docker-actions">
+                          <NAlert type="info" class="docker-alert">
                             <template #icon>
                               <NIcon :component="InformationCircleOutline" />
                             </template>
-                            <p>此产品为 Docker 镜像，请使用以下命令拉取：</p>
-                            <div class="docker-command">
-                              <NCode
-                                >docker pull {{ currentProduct.code }}:{{
-                                  selectedVersion
-                                }}</NCode
-                              >
-                              <NButton size="small" @click="copyDockerCommand">
-                                <template #icon>
-                                  <NIcon :component="CopyOutline" />
-                                </template>
-                                复制
-                              </NButton>
+                            <div class="docker-content">
+                              <span>使用以下命令拉取镜像：</span>
+                              <div class="docker-command">
+                                <NCode>{{
+                                  `docker pull ${currentProduct.code}:${selectedVersion}`
+                                }}</NCode>
+                                <NButton size="tiny" @click="copyDockerCommand">
+                                  <template #icon>
+                                    <NIcon :component="CopyOutline" />
+                                  </template>
+                                </NButton>
+                              </div>
                             </div>
                           </NAlert>
                         </div>
-                      </template>
+                      </div>
                     </div>
+                  </div>
+
+                  <div v-else class="empty-state">
+                    <div class="empty-icon">
+                      <NIcon :component="DownloadOutline" size="48" />
+                    </div>
+                    <p class="empty-text">请选择下载源和产品开始下载</p>
                   </div>
                 </NFadeInExpandTransition>
               </div>
-            </NCard>
-          </div>
-        </NTabPane>
-        <NTabPane name="overview" tab="产品总览">
-          <div style="padding-bottom: 16px">
-            <NDataTable
-              :columns="overviewColumns"
-              :data="overviewData"
-              :pagination="pagination"
-              :bordered="true"
-              :scroll-x="1200"
-              :scroll-y="400"
-              v-model:expanded-row-keys="expandedRowKeys"
-              :row-key="(row) => row.id"
-            />
-          </div>
-        </NTabPane>
-      </NTabs>
+            </NTabPane>
+            <NTabPane name="overview" tab="产品总览">
+              <div class="overview-content">
+                <NDataTable
+                  :columns="overviewColumns"
+                  :data="overviewData"
+                  :pagination="pagination"
+                  :bordered="true"
+                  :scroll-x="1200"
+                  :scroll-y="400"
+                  v-model:expanded-row-keys="expandedRowKeys"
+                  :row-key="(row) => row.id"
+                />
+              </div>
+            </NTabPane>
+          </NTabs>
+        </div>
+      </NCard>
     </NSpin>
   </div>
 </template>
@@ -682,9 +713,5 @@ watch(expandedRowKeys, (val) => {
       font-size: 14px;
     }
   }
-}
-
-:deep(.n-data-table-base-table-body) {
-  padding-bottom: 6px;
 }
 </style>

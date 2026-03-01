@@ -80,6 +80,7 @@
       preset="card"
       :style="modalStyle"
       :mask-closable="false"
+      @update:show="(show) => !show && handleModalClosed('software-modal')"
     >
       <n-form
         ref="formRef"
@@ -141,6 +142,7 @@
       preset="card"
       :style="versionModalStyle"
       :mask-closable="false"
+      @update:show="(show) => !show && handleModalClosed('version-modal')"
     >
       <n-space vertical :size="16">
         <n-space justify="space-between" align="center">
@@ -182,6 +184,7 @@
       preset="card"
       :style="modalStyle"
       :mask-closable="false"
+      @update:show="(show) => !show && handleModalClosed('add-version-modal')"
     >
       <n-form
         ref="versionFormRef"
@@ -646,6 +649,11 @@ const handleCloseVersionModal = () => {
 const handleCloseAddVersionModal = () => {
   editingVersion.value = null
   window.$modalMutex?.close('add-version-modal')
+}
+
+// 处理弹窗关闭事件（包括手动关闭）
+const handleModalClosed = (modalName: string) => {
+  window.$modalMutex?.close(modalName)
 }
 
 const handleEdit = (row: Software) => {
