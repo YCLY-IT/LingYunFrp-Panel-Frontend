@@ -300,4 +300,8 @@ onMounted(async () => {
   align-items: center;
   gap: 0px;
 }
+
+.n-card {
+  border-radius: 0px !important;
+}
 </style>

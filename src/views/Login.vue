@@ -49,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   NForm,
@@ -128,7 +128,7 @@ const handleSubmit = async () => {
   }
 }
 onMounted(() => {
-  // 动态设置Bing背景
+  document.body.style.overflowY = 'hidden'
   const bgUrl = BING_BG_URL
   const loginEl = document.querySelector('.login') as HTMLElement
   if (loginEl) {
@@ -136,6 +136,9 @@ onMounted(() => {
     loginEl.style.backgroundSize = 'cover'
     loginEl.style.backgroundPosition = 'center'
   }
+})
+onUnmounted(() => {
+  document.body.style.overflowY = ''
 })
 </script>
 
@@ -145,20 +148,25 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px; // 根据需要调整间距
+  margin-bottom: 16px;
 }
 .login {
   height: 100vh;
   display: flex;
 }
+
 .auth-card {
   background-color: transparent;
   backdrop-filter: blur(8px);
-  border-radius: 16px;
 }
+
 .title-with-icon {
   display: flex;
   align-items: center;
-  gap: 0px; // 调整这个值来改变间距
+  gap: 0px;
+}
+
+.n-card {
+  border-radius: 0px !important;
 }
 </style>
