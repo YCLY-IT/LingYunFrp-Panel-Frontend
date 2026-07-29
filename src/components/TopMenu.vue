@@ -30,15 +30,7 @@
             </NScrollbar>
           </div>
         </NPopover>
-        <h2
-          class="logo"
-          style="
-            background: transparent;
-            -webkit-background-clip: text;
-            color: transparent;
-            background-image: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
-          "
-        >
+        <h2 class="logo" :style="{ color: themeStore.primaryColor }">
           {{ packageData.title }}
         </h2>
       </div>
