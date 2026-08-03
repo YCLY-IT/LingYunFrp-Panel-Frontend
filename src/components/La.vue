@@ -1,29 +1,3 @@
-<!--
-  51LA 统计组件 - 页面中间布局设计
-  
-  使用方法：
-  <La /> - 使用默认配置，显示在页面中间
-  <La :show-footer="false" /> - 隐藏底部链接
-  <La :display-order="[0, 1, 2]" /> - 自定义显示顺序
-  <La :titles="['自定义标题1', '自定义标题2']" /> - 自定义标题
-  <La :api-url="'https://your-custom-api.com'" /> - 自定义API地址
-  
-  属性说明：
-  - showFooter: boolean - 是否显示底部链接，默认 true
-  - displayOrder: number[] - 显示顺序，默认 [1, 3, 2, 4, 5]
-    索引对应：0=最近活跃访客, 1=今日人数, 2=今日访问, 3=昨日人数, 4=昨日访问, 5=本月访问, 6=总访问量
-  - titles: string[] - 统计项标题，默认 ['最近活跃访客', '今日人数', '今日访问', '昨日人数', '昨日访问', '本月访问', '总访问量']
-  - apiUrl: string - 51LA API地址，默认 'https://v6-widget.51.la/v6/JkxJmzzWDhbGjOFf/quote.js'
-  
-  样式特点：
-  - 页面中间布局
-  - 默认显示部分统计项，点击展开全部
-  - 响应式设计，支持移动端
-  - 加载状态和错误状态处理
-  - 紧凑的布局设计
-  - 支持暗黑模式
--->
-
 <template>
   <div
     class="statistic-container"

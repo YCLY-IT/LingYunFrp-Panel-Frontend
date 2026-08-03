@@ -49,12 +49,20 @@ export async function getHitokoto(): Promise<string> {
 }
 
 export async function sendEmailCode(
-  email: string,
+  email: string = '<EMAIL>',
   module: string,
   url?: string,
 ): Promise<CodeResponse> {
   const endpoint = url ? `/codes/${module}${url}` : `/codes/${module}`
-  return await post<CodeResponse>(endpoint, { email })
+  return await post<CodeResponse>(
+    endpoint,
+    { email },
+    {
+      headers: {
+        Authorization: getToken(),
+      },
+    },
+  )
 }
 
 export async function sendSmsCode(

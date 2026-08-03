@@ -138,7 +138,7 @@
           :loading="nodesStore.loading"
           :pagination="false"
           :row-class-name="rowClassName"
-          :scroll-x="1200"
+          :scroll-x="1320"
           :empty="nodesStore.emptySlot"
         />
 
@@ -908,7 +908,7 @@ const columns: DataTableColumns<Node> = [
   {
     title: '名称',
     key: 'name',
-    width: 180,
+    width: 160,
     render(row) {
       return h(
         NSpace,
@@ -938,11 +938,12 @@ const columns: DataTableColumns<Node> = [
   {
     title: '主机名',
     key: 'hostname',
-    width: 150,
+    width: 130,
   },
   {
     title: '描述',
     key: 'description',
+    width: 140,
     ellipsis: {
       tooltip: true,
     },
@@ -966,37 +967,6 @@ const columns: DataTableColumns<Node> = [
     },
   },
   {
-    title: '用户组',
-    key: 'group',
-    width: 180,
-    render(row) {
-      const groups = row.group ? row.group.split(';') : []
-      return h(
-        NSpace,
-        { wrap: true, justify: 'start' },
-        {
-          default: () =>
-            groups.map((group) => {
-              const option = groupsStore.groupOptions.find(
-                (opt) => opt.value === group,
-              )
-              return h(
-                NTag,
-                {
-                  type: 'info',
-                  size: 'small',
-                  round: true,
-                  bordered: false,
-                  style: 'margin: 2px',
-                },
-                { default: () => (option ? option.label : group) },
-              )
-            }),
-        },
-      )
-    },
-  },
-  {
     title: '地区',
     key: 'location',
     width: 100,
@@ -1011,35 +981,6 @@ const columns: DataTableColumns<Node> = [
           bordered: false,
         },
         { default: () => (option ? option.label : row.location) },
-      )
-    },
-  },
-  {
-    title: '协议',
-    key: 'allow_type',
-    width: 180,
-    render(row) {
-      const types = row.allow_type ? row.allow_type.split(';') : []
-      return h(
-        NSpace,
-        { wrap: true, justify: 'start' },
-        {
-          default: () =>
-            types.map((type) => {
-              const option = protocolOptions.find((opt) => opt.value === type)
-              return h(
-                NTag,
-                {
-                  type: 'success',
-                  size: 'small',
-                  round: true,
-                  bordered: false,
-                  style: 'margin: 2px',
-                },
-                { default: () => (option ? option.label : type) },
-              )
-            }),
-        },
       )
     },
   },

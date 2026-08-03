@@ -476,13 +476,7 @@
       title="是否删除此隧道？"
       style="width: 400px"
     >
-      <template #header>
-        <div>删除确认</div>
-      </template>
-      <div class="delete-warning">
-        <NIcon size="48" color="#f56c6c">
-          <TrashOutline />
-        </NIcon>
+      <div class="delete">
         <p>确定要删除此隧道吗？此操作不可恢复。</p>
       </div>
       <template #action>
@@ -713,17 +707,13 @@
     </NModal>
 
     <!-- 禁用/启用确认弹窗 -->
-    <NModal v-model:show="showToggleModal" preset="dialog" style="width: 400px">
-      <template #header>
-        <div>{{ toggleModalTitle }}</div>
-      </template>
+    <NModal
+      v-model:show="showToggleModal"
+      :title="toggleModalTitle"
+      preset="dialog"
+      style="width: 400px"
+    >
       <div class="toggle-content">
-        <NIcon
-          size="48"
-          :color="proxyToOperate?.isDisabled ? '#18a058' : '#f0a020'"
-        >
-          <PowerOutline />
-        </NIcon>
         <p>{{ toggleModalContent }}</p>
       </div>
       <template #action>
@@ -2193,20 +2183,6 @@ function closeModal(modalName: string) {
       display: flex;
       justify-content: flex-end;
       gap: 12px;
-    }
-  }
-
-  .delete-warning,
-  .toggle-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-    padding: 16px 0;
-
-    p {
-      text-align: center;
-      margin: 0;
     }
   }
 

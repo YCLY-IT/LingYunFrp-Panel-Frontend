@@ -150,12 +150,6 @@
               placeholder="请输入新用户名"
             />
           </n-form-item>
-          <n-form-item label="邮箱" path="email">
-            <n-input
-              v-model:value="forms.username.emailCode"
-              placeholder="请输入邮箱"
-            />
-          </n-form-item>
           <n-form-item label="验证码" path="emailCode">
             <div style="display: flex; gap: 8px">
               <n-input
@@ -164,12 +158,7 @@
               />
               <n-button
                 :disabled="emailCodeSending || emailCodeCountdown > 0"
-                @click="
-                  sendEmailVerificationCode(
-                    'username',
-                    forms.username.emailCode,
-                  )
-                "
+                @click="sendEmailVerificationCode('username', 'email')"
               >
                 {{ emailCodeButtonText }}
               </n-button>
@@ -1124,22 +1113,19 @@ $transition-normal: all 0.2s ease;
 
 // 容器样式
 .statistic-container {
-  padding: $primary-spacing;
   margin-bottom: $primary-spacing - 5px;
 }
 
 .page-container {
   display: flex;
   gap: $primary-spacing;
-  margin: 0 15px;
-  width: calc(100% - 30px);
+  width: calc(100%);
 
   @media (max-width: 768px) {
     flex-direction: column;
     padding: $mobile-spacing;
     gap: $mobile-spacing;
     margin: 0 10px;
-    width: calc(100% - 20px);
   }
 }
 
