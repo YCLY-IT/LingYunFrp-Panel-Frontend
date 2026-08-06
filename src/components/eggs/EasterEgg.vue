@@ -6,10 +6,16 @@
     :bordered="false"
   >
     <template #header>
-      <n-space align="center" justify="center" style="width: 100%">
-        <span style="font-size: 28px">🎉</span>
+      <n-space
+        style="
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding-left: 60px;
+          padding-right: 40px;
+        "
+      >
         <n-text strong style="font-size: 20px">我嘞个！</n-text>
-        <span style="font-size: 28px">🎉</span>
       </n-space>
     </template>
 
@@ -27,7 +33,7 @@
 
     <template #footer>
       <n-space justify="center">
-        <n-button type="primary" @click="closeEasterEgg"> 6 </n-button>
+        <n-button type="primary" @click="closeEasterEgg"> 一般般般</n-button>
       </n-space>
     </template>
   </n-modal>

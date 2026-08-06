@@ -351,6 +351,9 @@ const columns: DataTableColumns<OperationLog> = [
     title: '操作IP',
     key: 'operation_ip',
     width: 130,
+    ellipsis: {
+      tooltip: true,
+    },
   },
   {
     title: '操作类型',
@@ -360,7 +363,7 @@ const columns: DataTableColumns<OperationLog> = [
   {
     title: '操作模块',
     key: 'operation_module',
-    width: 100,
+    width: 120,
   },
   {
     title: '状态',

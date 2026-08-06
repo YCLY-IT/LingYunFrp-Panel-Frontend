@@ -6,8 +6,15 @@
     :bordered="false"
   >
     <template #header>
-      <n-space align="center" justify="center" style="width: 100%">
-        <span style="font-size: 24px">⌨️</span>
+      <n-space
+        style="
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding-left: 60px;
+          padding-right: 40px;
+        "
+      >
         <n-text strong style="font-size: 18px">手速王者</n-text>
       </n-space>
     </template>
@@ -21,7 +28,7 @@
 
     <template #footer>
       <n-space justify="center">
-        <n-button type="primary" @click="showEgg = false"> 基操勿6 </n-button>
+        <n-button type="primary" @click="showEgg = false"> 一般般</n-button>
       </n-space>
     </template>
   </n-modal>

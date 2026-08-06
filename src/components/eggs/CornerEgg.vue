@@ -6,8 +6,15 @@
     :bordered="false"
   >
     <template #header>
-      <n-space align="center" justify="center" style="width: 100%">
-        <span style="font-size: 24px">🎯</span>
+      <n-space
+        style="
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding-left: 60px;
+          padding-right: 40px;
+        "
+      >
         <n-text strong style="font-size: 18px">好厉害⁽⁽٩(๑˃̶͈̀ ᗨ ˂̶͈́)۶⁾⁾</n-text>
       </n-space>
     </template>

@@ -229,7 +229,6 @@
         v-model:page="pagination.page"
         v-model:page-size="pagination.pageSize"
         :item-count="pagination.itemCount"
-        :page-count="pagination.pageCount"
         show-size-picker
         :page-sizes="pagination.pageSizes"
         :prefix="pagination.prefix"
@@ -926,6 +925,7 @@ import {
   GitNetworkOutline,
   ServerOutline,
   LinkOutline,
+  PlayOutline,
 } from '@vicons/ionicons5'
 import hljs from 'highlight.js/lib/core'
 import javascript from 'highlight.js/lib/languages/javascript'
@@ -1174,12 +1174,20 @@ const fetchNodes = async () => {
   try {
     const data = await userApi.getProxyNodes()
     if (data.code === 0) {
-      nodeOptions.value = (data.data || []).map((node: any) => ({
-        label: node.name,
-        value: node.nodeId,
-        hostname: node.hostname,
-        location: node.location,
-      }))
+      nodeOptions.value = (data.data || []).map((node: any) => {
+        const address = node.hostname || node.ip
+        const isIPv6 = address && address.includes(':')
+        const hostname = isIPv6 ? `[${address}]` : address
+
+        return {
+          label: node.name,
+          value: node.nodeId,
+          hostname,
+          location: node.location,
+          _originalAddress: address,
+          _isIPv6: isIPv6,
+        }
+      })
     } else {
       message.error('获取节点列表失败')
     }
@@ -1453,6 +1461,9 @@ const handleDeleteConfirm = async () => {
 
 const handleSelect = (key: string, proxy: Proxy) => {
   switch (key) {
+    case 'start':
+      handleStartClick(proxy)
+      break
     case 'view':
       selectedProxy.value = proxy
       openModal('detail')
@@ -1491,6 +1502,30 @@ const handleGetFreePortForEdit = async () => {
     message.error(error?.response?.data?.message || '获取空闲端口失败')
   } finally {
     gettingFreePort.value = false
+  }
+}
+
+const handleStartClick = async (proxy: Proxy) => {
+  if (proxy.isDisabled) {
+    message.error('已禁用，无法启动')
+    return
+  }
+  if (proxy.isOnline) {
+    message.error('已启动，无法重复启动')
+    return
+  }
+  if (proxy.isBanned) {
+    message.error('已封禁，无法启动')
+    return
+  }
+  try {
+    window.location.href = `lyfrp://tunnel/start/${proxy.proxyId}`
+    message.success('已尝试启动隧道')
+    setTimeout(() => {
+      handleRefresh()
+    }, 5000)
+  } catch (error: any) {
+    message.error(error.message || '启动失败')
   }
 }
 
@@ -1885,9 +1920,9 @@ onUnmounted(() => {
 
 const actionOptions = (proxy: Proxy) => [
   {
-    label: '查看详情',
-    key: 'view',
-    icon: () => h(NIcon, null, { default: () => h(InformationCircleOutline) }),
+    key: 'start',
+    label: '启动隧道',
+    icon: () => h(NIcon, null, { default: () => h(PlayOutline) }),
   },
   {
     type: 'divider',
@@ -1904,6 +1939,15 @@ const actionOptions = (proxy: Proxy) => [
     icon: () => h(NIcon, null, { default: () => h(CreateOutline) }),
   },
   {
+    type: 'divider',
+    key: 'd1',
+  },
+  {
+    label: '查看详情',
+    key: 'view',
+    icon: () => h(NIcon, null, { default: () => h(InformationCircleOutline) }),
+  },
+  {
     label: '生成配置',
     key: 'genConfig',
     icon: () => h(NIcon, null, { default: () => h(DocumentOutline) }),
@@ -1915,11 +1959,14 @@ const actionOptions = (proxy: Proxy) => [
   {
     label: '删除',
     key: 'delete',
-    icon: () => h(NIcon, null, { default: () => h(TrashOutline) }),
+    props: {
+      style: 'color: #d03050;',
+    },
+    icon: () =>
+      h(NIcon, { color: '#d03050' }, { default: () => h(TrashOutline) }),
   },
 ]
 
-// ========== 弹窗互斥逻辑 ========== //
 const modalStack = ref<string[]>([])
 
 function setModalVisible(name: string, visible: boolean) {

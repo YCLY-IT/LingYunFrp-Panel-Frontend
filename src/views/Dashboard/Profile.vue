@@ -512,7 +512,7 @@ import {
 import userInfo from '../../components/UserInfo.vue'
 import WelcomeCard from '@/components/WelcomeCard.vue'
 import { userApi } from '../../net'
-import { getToken, removeToken } from '../../net/token'
+import { removeToken } from '../../net/token'
 import Statistic from '@/components/Statistic.vue'
 import { Cropper, CircleStencil } from 'vue-advanced-cropper'
 import 'vue-advanced-cropper/dist/style.css'
@@ -1055,7 +1055,6 @@ const handleResetToken = async () => {
 onMounted(async () => {
   // 加载极验脚本
   await loadGeetest()
-  clientLogin()
   return () => {
     if (cropperRef.value) {
       cropperRef.value.destroy()
@@ -1063,44 +1062,6 @@ onMounted(async () => {
     }
   }
 })
-
-const clientLogin = async () => {
-  const login = new URLSearchParams(location.search).get('login')
-  if (login === null) {
-    return
-  }
-  const result = check(login)
-  if (result) {
-    dialog.info({
-      title: '您确认要登陆吗',
-      content: '检测到客户端打开网页登录，是否继续？',
-      positiveText: '确认',
-      negativeText: '取消',
-      onPositiveClick: async () => {
-        window.open(`lyfrp://login?token=${getToken()}`, '_self')
-      },
-    })
-  } else {
-    dialog.error({
-      title: '登录失败',
-      content: '请重试一下试试',
-      positiveText: '确定',
-    })
-    return
-  }
-}
-// 后端 check
-function check(token) {
-  if (!/^\d{14}$/.test(token)) return false
-  const plain = [...token]
-    .map((c, i) => (+c - 7 * i - 23 + 140) % 10) // +140 保证正数再模 10
-    .join('')
-  const now = new Date(Math.floor(Date.now() / 20_000) * 20_000)
-    .toISOString()
-    .slice(0, 19)
-    .replace(/[-:T]/g, '')
-  return plain === now
-}
 </script>
 
 <style lang="scss" scoped>
