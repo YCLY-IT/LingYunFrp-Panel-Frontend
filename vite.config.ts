@@ -1,4 +1,3 @@
-import vueDevTools from 'vite-plugin-vue-devtools'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
@@ -6,6 +5,9 @@ import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
+
+const projectRoot = import.meta.dirname
+
 // https://vite.dev/config/
 export default defineConfig({
   root: process.cwd(),
@@ -45,10 +47,10 @@ export default defineConfig({
               .split('/')[0]
               .toString()
           } else {
-            if (id.includes(__dirname)) {
+            if (id.includes(projectRoot)) {
               return id
                 .toString()
-                .split(__dirname)[1]
+                .split(projectRoot)[1]
                 .split('?')[0]
                 .toString()
                 .replace(/\//g, `_`)

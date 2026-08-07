@@ -338,7 +338,6 @@ const connChartRef = ref<HTMLElement | null>(null)
 // 图表实例
 let cpuChart: echarts.ECharts | null = null
 let memoryChart: echarts.ECharts | null = null
-let trafficChart: echarts.ECharts | null = null
 let clientChart: echarts.ECharts | null = null
 let tunnelChart: echarts.ECharts | null = null
 let proxyTypeChart: echarts.ECharts | null = null
@@ -1183,7 +1182,6 @@ const initConnChart = () => {
 const handleResize = () => {
   cpuChart?.resize()
   memoryChart?.resize()
-  trafficChart?.resize()
   clientChart?.resize()
   tunnelChart?.resize()
   proxyTypeChart?.resize()
@@ -1218,7 +1216,6 @@ onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
   cpuChart?.dispose()
   memoryChart?.dispose()
-  trafficChart?.dispose()
   clientChart?.dispose()
   tunnelChart?.dispose()
   proxyTypeChart?.dispose()

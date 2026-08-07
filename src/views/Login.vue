@@ -150,23 +150,22 @@ onUnmounted(() => {
   align-items: center;
   margin-bottom: 16px;
 }
+
 .login {
-  height: 100vh;
   display: flex;
+  min-height: calc(100vh - 59px);
 }
 
 .auth-card {
   background-color: transparent;
   backdrop-filter: blur(8px);
+  border-radius: 0 16px 16px 0 !important;
+  overflow-y: auto;
 }
 
 .title-with-icon {
   display: flex;
   align-items: center;
   gap: 0px;
-}
-
-.n-card {
-  border-radius: 0px !important;
 }
 </style>

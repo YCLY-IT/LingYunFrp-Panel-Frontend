@@ -37,7 +37,6 @@
   border-radius: 8px !important;
 }
 
-/* 对话框模糊效果 */
 .n-modal-mask {
   backdrop-filter: blur(var(--modal-filter, 10px)) !important;
   -webkit-backdrop-filter: blur(var(--modal-filter, 10px)) !important;
@@ -48,17 +47,14 @@
   -webkit-backdrop-filter: blur(var(--modal-filter, 10px)) !important;
 }
 
-/* 色弱模式 */
 .color-blind-mode {
   filter: var(--color-blind-filter, none) !important;
 }
 
-/* 高对比度模式 */
 .high-contrast-mode {
   filter: contrast(1.2) saturate(1.2) !important;
 }
 
-/* 色弱模式 + 高对比度模式 同时开启 */
 .color-blind-mode.high-contrast-mode {
   filter: var(--color-blind-filter, none) contrast(1.2) saturate(1.2) !important;
 }
@@ -99,16 +95,10 @@ body::before {
   z-index: -1;
 }
 
-/* ========================================
-   毛玻璃模式 - 统一样式
-   ======================================== */
-
-/* 毛玻璃模式基础 */
 .frosted-glass-mode {
   transition: var(--frosted-glass-transition, none);
 }
 
-/* 毛玻璃模式下的卡片 */
 .frosted-glass-mode .n-card {
   background: #ffffff1a !important;
   backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1.5))
@@ -119,7 +109,6 @@ body::before {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
-/* 毛玻璃模式下卡片的操作栏 */
 .frosted-glass-mode .n-card .n-card__action {
   background: rgba(255, 255, 255, 0.08) !important;
   border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -129,7 +118,6 @@ body::before {
     saturate(180%) !important;
 }
 
-/* 毛玻璃模式下的消息提示 */
 .frosted-glass-mode .n-message {
   background: rgba(255, 255, 255, 0.15) !important;
   backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1.5))
@@ -160,7 +148,6 @@ body::before {
   border-color: rgba(255, 77, 79, 0.3) !important;
 }
 
-/* 毛玻璃模式下的模态框 */
 .frosted-glass-mode .n-modal .n-card {
   background: #ffffff33 !important;
   backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 2))
@@ -170,7 +157,6 @@ body::before {
   border: 1px solid rgba(255, 255, 255, 0.25) !important;
 }
 
-/* 毛玻璃模式下的对话框 */
 .frosted-glass-mode .n-dialog {
   background: rgba(255, 255, 255, 0.2) !important;
   backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 2))
@@ -181,7 +167,6 @@ body::before {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
 }
 
-/* 毛玻璃模式下的侧边栏 */
 .frosted-glass-mode .n-layout-sider {
   background: #ffffff2e !important;
   backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1.2))
@@ -191,12 +176,10 @@ body::before {
   border-right: 1px solid rgba(255, 255, 255, 0.2) !important;
 }
 
-/* 隐藏侧边栏默认边框 */
 .frosted-glass-mode .n-layout-sider .n-layout-sider__border {
   display: none !important;
 }
 
-/* 毛玻璃模式下的顶部栏 */
 .frosted-glass-mode .n-layout-header {
   background: #ffffff2e !important;
   backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1.2))
@@ -206,7 +189,6 @@ body::before {
   border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
 }
 
-/* 毛玻璃模式下的抽屉 */
 .frosted-glass-mode .n-drawer {
   background: #ffffff26 !important;
   backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1.5))
@@ -223,7 +205,6 @@ body::before {
     saturate(180%) !important;
 }
 
-/* 毛玻璃模式下抽屉内的卡片 */
 .frosted-glass-mode .n-drawer .n-card {
   background: #ffffff1f !important;
   backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1))
@@ -233,7 +214,6 @@ body::before {
   border: 1px solid rgba(255, 255, 255, 0.15) !important;
 }
 
-/* 毛玻璃模式下抽屉内的设置卡片 */
 .frosted-glass-mode .n-drawer .setting-card {
   background: #ffffff1a !important;
   backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8))
@@ -243,7 +223,6 @@ body::before {
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
 }
 
-/* 毛玻璃模式下的表格 */
 .frosted-glass-mode .n-data-table {
   background: #ffffff1a !important;
   backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8))
@@ -261,7 +240,6 @@ body::before {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* 毛玻璃模式下的描述列表 */
 .frosted-glass-mode .n-descriptions {
   background: #ffffff1a !important;
   backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8))
@@ -280,7 +258,6 @@ body::before {
     saturate(180%) !important;
 }
 
-/* 毛玻璃模式下的弹窗 */
 .frosted-glass-mode .n-popover {
   background: #ffffff33 !important;
   backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1.2))
@@ -289,7 +266,6 @@ body::before {
     saturate(180%) !important;
 }
 
-/* 毛玻璃模式下的下拉菜单 */
 .frosted-glass-mode .n-dropdown-menu {
   background: #ffffff33 !important;
   backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1.2))
@@ -298,7 +274,6 @@ body::before {
     saturate(180%) !important;
 }
 
-/* 毛玻璃模式下的输入框 */
 .frosted-glass-mode .n-input {
   background: #ffffff1a !important;
   backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8))
@@ -308,7 +283,6 @@ body::before {
   border: 1px solid rgba(255, 255, 255, 0.15) !important;
 }
 
-/* 毛玻璃模式下的下拉选择器 */
 .frosted-glass-mode .n-select .n-base-selection {
   background: #ffffff1a !important;
   backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8))
@@ -328,7 +302,6 @@ body::before {
   background: transparent !important;
 }
 
-/* 毛玻璃模式下多选下拉框的标签 */
 .frosted-glass-mode .n-base-selection-tags {
   background: transparent !important;
 }
@@ -343,7 +316,6 @@ body::before {
   border-radius: 4px !important;
 }
 
-/* 毛玻璃模式下下拉选择器的下拉菜单 */
 .frosted-glass-mode .n-select-menu {
   background: #ffffff33 !important;
   backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 1.2))
@@ -359,7 +331,6 @@ body::before {
   border: none !important;
 }
 
-/* 毛玻璃模式下的自定义通知项 */
 .frosted-glass-mode .notice-item {
   background: #ffffff1a !important;
   backdrop-filter: blur(calc(var(--frosted-glass-blur, 10px) * 0.8))
@@ -375,7 +346,6 @@ body::before {
   transform: scale(1.02);
 }
 
-/* 毛玻璃模式下的信息卡片 */
 .frosted-glass-mode .info-card,
 .frosted-glass-mode .user-card,
 .frosted-glass-mode .notice-card {
@@ -387,7 +357,6 @@ body::before {
   border: 1px solid rgba(255, 255, 255, 0.18) !important;
 }
 
-/* 毛玻璃模式下的仪表板网格卡片 */
 .frosted-glass-mode .stat-card,
 .frosted-glass-mode .chart-card,
 .frosted-glass-mode .quick-action-card {
@@ -399,7 +368,6 @@ body::before {
   border: 1px solid rgba(255, 255, 255, 0.15) !important;
 }
 
-/* 毛玻璃模式下的表单容器 */
 .frosted-glass-mode .form-container,
 .frosted-glass-mode .search-container,
 .frosted-glass-mode .filter-container {
@@ -412,7 +380,6 @@ body::before {
   padding: 16px;
 }
 
-/* 毛玻璃模式下的详情面板 */
 .frosted-glass-mode .detail-panel,
 .frosted-glass-mode .info-panel {
   background: #ffffff1a !important;
@@ -423,10 +390,6 @@ body::before {
   border: 1px solid rgba(255, 255, 255, 0.15) !important;
   border-radius: 8px;
 }
-
-/* ========================================
-   主题切换扩散动画
-   ======================================== */
 
 .theme-transition-overlay {
   position: fixed;
@@ -439,14 +402,12 @@ body::before {
     height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* View Transition API 主题切换动画 */
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none;
   mix-blend-mode: normal;
 }
 
-/* 默认层级：旧视图在下，新视图在上 */
 ::view-transition-old(root) {
   z-index: 1;
 }
@@ -455,12 +416,10 @@ body::before {
   z-index: 9999;
 }
 
-/* 确保 View Transition 期间内容不可交互 */
 .view-transition-active {
   pointer-events: none;
 }
 
-/* 优化 View Transition 性能 */
 ::view-transition-group(root) {
   animation-duration: 0.6s;
 }

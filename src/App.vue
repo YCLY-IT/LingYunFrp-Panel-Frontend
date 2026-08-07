@@ -42,7 +42,6 @@ const theme = computed(() =>
   themeStore.theme === 'dark' ? darkTheme : lightTheme,
 )
 
-// 主题切换函数
 const toggleTheme = () => {
   themeStore.theme = themeStore.theme === 'dark' ? 'light' : 'dark'
 }
@@ -61,7 +60,6 @@ const themeOverrides = computed(() => {
         : 'rgba(0, 0, 0, 0.06)',
   }
 
-  // 如果有背景图，则让背景色透明，否则使用默认背景色
   const hasBackgroundImage = !!themeStore.backgroundImage
   const bodyColor = hasBackgroundImage
     ? 'transparent'
@@ -72,7 +70,7 @@ const themeOverrides = computed(() => {
   const lightThemeOverrides =
     themeStore.theme === 'light'
       ? {
-          bodyColor: bodyColor || '#f5f5f5', // 更改亮色主题下的背景颜色
+          bodyColor: bodyColor || '#f5f5f5',
         }
       : {}
 
@@ -80,11 +78,9 @@ const themeOverrides = computed(() => {
     common: {
       ...commonColors,
       ...lightThemeOverrides,
-      // 如果有背景图，强制设置 bodyColor 为透明
       ...(hasBackgroundImage ? { bodyColor: 'transparent' } : {}),
     },
     Button: {
-      // 调整Primary按钮，让它看起来更合适
       textColorPrimary: '#fff',
       textColorHoverPrimary: '#fff',
       textColorPressedPrimary: '#fff',
@@ -154,14 +150,12 @@ watch(
     if (newVal) {
       animatePrimaryColor()
     } else {
-      // 完全停止RGB动画
       if (animationFrameId) {
         cancelAnimationFrame(animationFrameId)
         animationFrameId = null
       }
       isRGBRunning = false
 
-      // 重置主色调为默认值
       const defaultColor =
         localStorage.getItem('app-primary-color') || '#722ed1'
       themeStore.setPrimaryColor(defaultColor)
@@ -169,7 +163,6 @@ watch(
   },
 )
 
-// 监听背景图变化，更新主题覆盖
 watch(
   () => themeStore.backgroundImage,
   (newImage) => {
@@ -204,7 +197,6 @@ watch(
   { immediate: true },
 )
 
-// 触屏识别
 const isTouchDevice = ref(false)
 
 provide('isTouchDevice', isTouchDevice)
@@ -218,19 +210,18 @@ const detectInputMethod = (event: PointerEvent) => {
 }
 
 onMounted(async () => {
-  // 先加载背景图（watch 会自动应用样式）
   await themeStore.loadBackgroundImageFromStorage()
 
   if (themeStore.isRGBMode) {
     animatePrimaryColor()
   }
-  // 初始化模糊效果
+
   if (themeStore.isDialogBoxHairGlass) {
     document.documentElement.style.setProperty('--modal-filter', '10px')
   } else {
     document.documentElement.style.setProperty('--modal-filter', '0px')
   }
-  // 初始化无障碍模式
+
   if (themeStore.colorBlindMode) {
     document.documentElement.classList.add('color-blind-mode')
     document.documentElement.style.setProperty(
@@ -241,7 +232,7 @@ onMounted(async () => {
   if (themeStore.highContrastMode) {
     document.documentElement.classList.add('high-contrast-mode')
   }
-  // 设置自定义 hover 颜色变量
+
   const updateHoverColor = () => {
     const hoverColor =
       themeStore.theme === 'dark'
@@ -251,12 +242,10 @@ onMounted(async () => {
   }
   updateHoverColor()
 
-  // 监听主题变化，更新 hover 颜色
   watch(() => themeStore.theme, updateHoverColor)
 
-  // 设置悬浮阴影颜色变量（使用主题色）
   const updateHoverShadowColor = () => {
-    const primaryColor = themeStore.primaryColor.replace('FF', '') // 移除透明度
+    const primaryColor = themeStore.primaryColor.replace('FF', '')
     document.documentElement.style.setProperty(
       '--n-color-hover-shadow',
       `${primaryColor}1F`,
@@ -264,10 +253,8 @@ onMounted(async () => {
   }
   updateHoverShadowColor()
 
-  // 监听主题色变化，更新阴影颜色
   watch(() => themeStore.primaryColor, updateHoverShadowColor)
 
-  // 更新目前的指针方式
   window.addEventListener('pointerdown', detectInputMethod)
 })
 
@@ -276,10 +263,9 @@ onUnmounted(() => {
     cancelAnimationFrame(animationFrameId)
     animationFrameId = null
   }
-  // 移除指针事件监听器
   window.removeEventListener('pointerdown', detectInputMethod)
 })
-// 提供给全局使用
+
 provide('theme', {
   theme,
   toggleTheme,
@@ -305,6 +291,7 @@ select {
 
 <style lang="scss">
 @use './assets/styles/index.scss';
+html,
 body {
   margin: 0;
   padding: 0;
