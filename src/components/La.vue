@@ -152,11 +152,11 @@ onMounted(async () => {
 
 <style lang="scss" scoped>
 .statistic-container {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
+  position: static;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin: 24px 0 0;
   transition: all 0.3s ease;
 
   &.expanded {
@@ -290,7 +290,7 @@ onMounted(async () => {
 // 响应式设计
 @media (max-width: 768px) {
   .statistic-container {
-    bottom: 15px;
+    margin: 20px 0 0;
 
     &.expanded {
       .statistic-bar {
@@ -338,7 +338,7 @@ onMounted(async () => {
 // 超小屏幕适配
 @media (max-width: 480px) {
   .statistic-container {
-    bottom: 10px;
+    margin: 16px 0 0;
 
     &.expanded {
       .statistic-bar {

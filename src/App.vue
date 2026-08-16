@@ -298,7 +298,6 @@ body {
 }
 
 #app {
-  font-family: 'Lato', 'Fira Code', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
