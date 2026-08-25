@@ -9,9 +9,8 @@
 }
 
 .navbar-content {
-  max-width: 1200px;
   margin: 0 auto;
-  padding: 12px 24px;
+  padding: 12px 30px;
   display: flex;
   align-items: center;
   gap: 32px;
@@ -42,14 +41,30 @@
 
 .desktop-menu {
   display: flex;
-  gap: 8px;
   align-items: center;
+  gap: 0px 0px !important;
 }
 
 .pc-navbar {
   @media (max-width: 768px) {
     display: none;
   }
+}
+
+.avatar {
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .mobile-navbar {

@@ -258,7 +258,6 @@ onUnmounted(() => {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  transform: translateY(-6px) translateX(-12px);
   overflow: hidden;
   display: flex;
   align-items: center;

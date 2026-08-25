@@ -115,7 +115,7 @@ const handleSubmit = async () => {
     localStorage.setItem('nickname', data.data.nickname)
     localStorage.setItem('avatar', data.data.avatar)
     localStorage.setItem('group', data.data.role)
-    message.success(data.message)
+    message.success('登录成功')
     loading.value = false
     setTimeout(() => {
       router.push('/dashboard')

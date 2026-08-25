@@ -1,254 +1,281 @@
 <template>
   <n-config-provider>
-    <div class="landing-page">
-      <!-- 英雄区域 -->
-      <section class="hero">
-        <div class="container">
-          <div class="hero-content">
-            <div class="hero-text">
-              <h2 class="hero-title">
-                <span :style="{ color: themeStore.primaryColor }">{{
-                  packageData.title
-                }}</span>
-                内网穿透
-              </h2>
-              <p class="hero-description">
-                免费、易用、安全、稳定、快速、极低占用
+    <n-scrollbar class="home-scrollbar" :style="{ height: scrollbarHeight }">
+      <div class="landing-page">
+        <!-- 英雄区域 -->
+        <section class="hero">
+          <div class="container">
+            <div class="hero-content">
+              <div class="hero-text">
+                <h2 class="hero-title">
+                  <span :style="{ color: themeStore.primaryColor }">{{
+                    packageData.title
+                  }}</span>
+                  内网穿透
+                </h2>
+                <p class="hero-description">
+                  免费、易用、安全、稳定、快速、极低占用
+                </p>
+                <div class="hero-actions">
+                  <n-space :vertical="isMobile" :size="isMobile ? 12 : 16">
+                    <template v-if="!isLogin">
+                      <n-button
+                        type="primary"
+                        :size="isMobile ? 'medium' : 'large'"
+                        block
+                        @click="router.push('/login')"
+                        >立即登录
+                      </n-button>
+                    </template>
+                    <template v-else>
+                      <n-button
+                        type="primary"
+                        :size="isMobile ? 'medium' : 'large'"
+                        block
+                        @click="router.push('/dashboard')"
+                        >管理面板
+                      </n-button>
+                    </template>
+                    <n-button
+                      :size="isMobile ? 'medium' : 'large'"
+                      block
+                      @click="scrollToFeatures"
+                      >了解更多</n-button
+                    >
+                  </n-space>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 特性区域 -->
+        <section class="features" id="features-section">
+          <div class="container">
+            <div class="section-header">
+              <h2 class="section-title">为什么选择我们的 FRP 服务</h2>
+              <p class="section-description">
+                我们提供简单易用、安全可靠的内网穿透服务，满足您的各种需求
               </p>
-              <div class="hero-actions">
-                <n-space :vertical="isMobile" :size="isMobile ? 12 : 16">
+            </div>
+            <n-grid
+              :cols="quickStartGridCols"
+              responsive="screen"
+              :x-gap="isMobile ? 16 : 24"
+              :y-gap="isMobile ? 16 : 24"
+            >
+              <n-grid-item v-for="feature in features" :key="feature.title">
+                <n-card class="feature-card">
+                  <div class="feature-icon">
+                    <n-icon :size="isMobile ? 28 : 36" :depth="3">
+                      <component :is="feature.icon" />
+                    </n-icon>
+                  </div>
+                  <h3 class="feature-title">{{ feature.title }}</h3>
+                  <p class="feature-description">{{ feature.description }}</p>
+                </n-card>
+              </n-grid-item>
+            </n-grid>
+          </div>
+        </section>
+
+        <!-- 使用场景 -->
+        <section class="use-cases">
+          <div class="container">
+            <div class="section-header">
+              <h2 class="section-title">适用场景</h2>
+              <p class="section-description">
+                {{ packageData.title }} 可以应用于多种场景，满足您的不同需求
+              </p>
+            </div>
+            <n-timeline>
+              <n-timeline-item
+                v-for="(useCase, index) in useCases"
+                :key="index"
+                :type="useCase.type"
+                :title="useCase.title"
+              >
+                <n-card>
+                  <div class="use-case-content">
+                    <div class="use-case-text">
+                      <p>{{ useCase.description }}</p>
+                    </div>
+                  </div>
+                </n-card>
+              </n-timeline-item>
+            </n-timeline>
+          </div>
+        </section>
+
+        <!-- 服务优势 -->
+        <section class="advantages">
+          <div class="container">
+            <div class="section-header">
+              <h2 class="section-title">服务优势</h2>
+              <p class="section-description">
+                选择 {{ packageData.title }}，享受专业的内网穿透服务体验
+              </p>
+            </div>
+            <n-grid
+              :cols="gridCols"
+              responsive="screen"
+              :x-gap="isMobile ? 16 : 24"
+              :y-gap="isMobile ? 16 : 24"
+            >
+            </n-grid>
+          </div>
+        </section>
+
+        <!-- 快速开始 -->
+        <section class="quick-start">
+          <div class="container">
+            <div class="section-header">
+              <h2 class="section-title">快速开始</h2>
+              <p class="section-description">
+                只需几个简单步骤，即可开始使用 {{ packageData.title }} 服务
+              </p>
+            </div>
+            <n-grid
+              :cols="gridCols"
+              responsive="screen"
+              :x-gap="isMobile ? 16 : 24"
+              :y-gap="isMobile ? 16 : 24"
+            >
+              <n-grid-item
+                v-for="(step, index) in quickStartSteps"
+                :key="index"
+              >
+                <n-card
+                  class="step-card"
+                  :class="{ 'step-card-active': index === 0 - 1 }"
+                  :style="{ animationDelay: `${index * 0.2}s` }"
+                >
+                  <template #header>
+                    <div class="step-header">
+                      <div class="step-number">{{ index + 1 }}</div>
+                      <div class="step-icon">
+                        <n-icon :size="isMobile ? 32 : 40" :depth="3">
+                          <component :is="step.icon" />
+                        </n-icon>
+                      </div>
+                    </div>
+                  </template>
+                  <div class="step-content">
+                    <h3 class="step-title">{{ step.title }}</h3>
+                    <p class="step-description">{{ step.description }}</p>
+                  </div>
+                  <div
+                    class="step-arrow"
+                    v-if="index < quickStartSteps.length - 1"
+                  >
+                    <n-icon :size="isMobile ? 20 : 2">
+                      <ArrowRightIcon />
+                    </n-icon>
+                  </div>
+                </n-card>
+              </n-grid-item>
+            </n-grid>
+          </div>
+        </section>
+
+        <!-- 常见问题 -->
+        <section class="faq">
+          <div class="container">
+            <div class="section-header">
+              <h2 class="section-title">常见问题</h2>
+              <p class="section-description">了解更多关于我们服务的信息</p>
+            </div>
+            <n-collapse>
+              <n-collapse-item
+                v-for="(item, index) in faqItems"
+                :key="index"
+                :title="item.question"
+                :name="index"
+              >
+                {{ item.answer }}
+              </n-collapse-item>
+            </n-collapse>
+          </div>
+        </section>
+
+        <!-- 联系我们 -->
+        <section class="contact">
+          <div class="container">
+            <div class="contact-content">
+              <div class="contact-text">
+                <h2 class="section-title">准备好开始了吗？</h2>
+                <p class="section-description">
+                  立即注册，开始使用我们的
+                  {{ packageData.title }} 服务，享受高速稳定的内网穿透体验。
+                </p>
+              </div>
+              <div class="contact-action">
+                <template v-if="!isLogin">
                   <n-button
                     type="primary"
                     :size="isMobile ? 'medium' : 'large'"
                     block
-                    @click="handleLogin"
-                    >立即登录</n-button
-                  >
+                    @click="router.push('/login')"
+                    >立即登录
+                  </n-button>
+                </template>
+                <template v-else>
                   <n-button
+                    type="primary"
                     :size="isMobile ? 'medium' : 'large'"
                     block
-                    @click="scrollToFeatures"
-                    >了解更多</n-button
-                  >
-                </n-space>
+                    @click="router.push('/dashboard')"
+                    >管理面板
+                  </n-button>
+                </template>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- 特性区域 -->
-      <section class="features" id="features-section">
-        <div class="container">
-          <div class="section-header">
-            <h2 class="section-title">为什么选择我们的 FRP 服务</h2>
-            <p class="section-description">
-              我们提供简单易用、安全可靠的内网穿透服务，满足您的各种需求
-            </p>
-          </div>
-          <n-grid
-            :cols="quickStartGridCols"
-            responsive="screen"
-            :x-gap="isMobile ? 16 : 24"
-            :y-gap="isMobile ? 16 : 24"
-          >
-            <n-grid-item v-for="feature in features" :key="feature.title">
-              <n-card class="feature-card">
-                <div class="feature-icon">
-                  <n-icon :size="isMobile ? 28 : 36" :depth="3">
-                    <component :is="feature.icon" />
-                  </n-icon>
-                </div>
-                <h3 class="feature-title">{{ feature.title }}</h3>
-                <p class="feature-description">{{ feature.description }}</p>
-              </n-card>
-            </n-grid-item>
-          </n-grid>
-        </div>
-      </section>
+        <!-- 页脚 -->
+        <footer class="footer">
+          <div class="container">
+            <div class="footer-content">
+              <div class="footer-logo">
+                <n-gradient-text type="primary" :size="isMobile ? 20 : 24">{{
+                  packageData.title
+                }}</n-gradient-text>
+                <p class="footer-description">专业的内网穿透服务提供商</p>
+              </div>
+              <div class="footer-links"></div>
+            </div>
 
-      <!-- 使用场景 -->
-      <section class="use-cases">
-        <div class="container">
-          <div class="section-header">
-            <h2 class="section-title">适用场景</h2>
-            <p class="section-description">
-              {{ packageData.title }} 可以应用于多种场景，满足您的不同需求
-            </p>
-          </div>
-          <n-timeline>
-            <n-timeline-item
-              v-for="(useCase, index) in useCases"
-              :key="index"
-              :type="useCase.type"
-              :title="useCase.title"
-            >
-              <n-card>
-                <div class="use-case-content">
-                  <div class="use-case-text">
-                    <p>{{ useCase.description }}</p>
-                  </div>
-                </div>
-              </n-card>
-            </n-timeline-item>
-          </n-timeline>
-        </div>
-      </section>
+            <!-- 统计组件 - 页脚内居中显示 -->
+            <div class="footer-statistic">
+              <La />
+            </div>
 
-      <!-- 服务优势 -->
-      <section class="advantages">
-        <div class="container">
-          <div class="section-header">
-            <h2 class="section-title">服务优势</h2>
-            <p class="section-description">
-              选择 {{ packageData.title }}，享受专业的内网穿透服务体验
-            </p>
-          </div>
-          <n-grid
-            :cols="gridCols"
-            responsive="screen"
-            :x-gap="isMobile ? 16 : 24"
-            :y-gap="isMobile ? 16 : 24"
-          >
-          </n-grid>
-        </div>
-      </section>
-
-      <!-- 快速开始 -->
-      <section class="quick-start">
-        <div class="container">
-          <div class="section-header">
-            <h2 class="section-title">快速开始</h2>
-            <p class="section-description">
-              只需几个简单步骤，即可开始使用 {{ packageData.title }} 服务
-            </p>
-          </div>
-          <n-grid
-            :cols="gridCols"
-            responsive="screen"
-            :x-gap="isMobile ? 16 : 24"
-            :y-gap="isMobile ? 16 : 24"
-          >
-            <n-grid-item v-for="(step, index) in quickStartSteps" :key="index">
-              <n-card
-                class="step-card"
-                :class="{ 'step-card-active': index === 0 - 1 }"
-                :style="{ animationDelay: `${index * 0.2}s` }"
-              >
-                <template #header>
-                  <div class="step-header">
-                    <div class="step-number">{{ index + 1 }}</div>
-                    <div class="step-icon">
-                      <n-icon :size="isMobile ? 32 : 40" :depth="3">
-                        <component :is="step.icon" />
-                      </n-icon>
-                    </div>
-                  </div>
-                </template>
-                <div class="step-content">
-                  <h3 class="step-title">{{ step.title }}</h3>
-                  <p class="step-description">{{ step.description }}</p>
-                </div>
-                <div
-                  class="step-arrow"
-                  v-if="index < quickStartSteps.length - 1"
+            <div class="footer-bottom">
+              <div class="footer-copyright">
+                © {{ new Date().getFullYear() }} {{ packageData.title }} 服务.
+                保留所有权利.<br />
+                Powered By
+                <a
+                  class="section-description"
+                  :href="packageData.ycly"
+                  target="_blank"
+                  >云创联跃IT</a
                 >
-                  <n-icon :size="isMobile ? 20 : 2">
-                    <ArrowRightIcon />
-                  </n-icon>
-                </div>
-              </n-card>
-            </n-grid-item>
-          </n-grid>
-        </div>
-      </section>
-
-      <!-- 常见问题 -->
-      <section class="faq">
-        <div class="container">
-          <div class="section-header">
-            <h2 class="section-title">常见问题</h2>
-            <p class="section-description">了解更多关于我们服务的信息</p>
-          </div>
-          <n-collapse>
-            <n-collapse-item
-              v-for="(item, index) in faqItems"
-              :key="index"
-              :title="item.question"
-              :name="index"
-            >
-              {{ item.answer }}
-            </n-collapse-item>
-          </n-collapse>
-        </div>
-      </section>
-
-      <!-- 联系我们 -->
-      <section class="contact">
-        <div class="container">
-          <div class="contact-content">
-            <div class="contact-text">
-              <h2 class="section-title">准备好开始了吗？</h2>
-              <p class="section-description">
-                立即注册，开始使用我们的
-                {{ packageData.title }} 服务，享受高速稳定的内网穿透体验。
-              </p>
-            </div>
-            <div class="contact-action">
-              <n-button
-                type="primary"
-                @click="handleLogin"
-                :size="isMobile ? 'medium' : 'large'"
-                :block="isMobile"
-                >立即登录</n-button
-              >
+              </div>
+              <div class="footer-social">
+                <a :href="packageData.github" class="social-link">
+                  <n-icon :size="isMobile ? 20 : 25"><GithubIcon /></n-icon>
+                </a>
+                <a :href="packageData.ycly" class="social-link">
+                  <n-icon :size="isMobile ? 20 : 25"><CloudIcon /></n-icon>
+                </a>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      <!-- 页脚 -->
-      <footer class="footer">
-        <div class="container">
-          <div class="footer-content">
-            <div class="footer-logo">
-              <n-gradient-text type="primary" :size="isMobile ? 20 : 24">{{
-                packageData.title
-              }}</n-gradient-text>
-              <p class="footer-description">专业的内网穿透服务提供商</p>
-            </div>
-            <div class="footer-links"></div>
-          </div>
-
-          <!-- 统计组件 - 页脚内居中显示 -->
-          <div class="footer-statistic">
-            <La />
-          </div>
-
-          <div class="footer-bottom">
-            <div class="footer-copyright">
-              © {{ new Date().getFullYear() }} {{ packageData.title }} 服务.
-              保留所有权利.<br />
-              Powered By
-              <a
-                class="section-description"
-                :href="packageData.ycly"
-                target="_blank"
-                >云创联跃IT</a
-              >
-            </div>
-            <div class="footer-social">
-              <a :href="packageData.github" class="social-link">
-                <n-icon :size="isMobile ? 20 : 25"><GithubIcon /></n-icon>
-              </a>
-              <a :href="packageData.ycly" class="social-link">
-                <n-icon :size="isMobile ? 20 : 25"><CloudIcon /></n-icon>
-              </a>
-            </div>
-          </div>
-        </div>
-      </footer>
-    </div>
+        </footer>
+      </div>
+    </n-scrollbar>
   </n-config-provider>
 </template>
 
@@ -256,6 +283,7 @@
 import packageData from '../../package.json'
 import { BING_BG_URL } from '@/constants/bing'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { NScrollbar } from 'naive-ui'
 import {
   ZapIcon,
   ShieldIcon,
@@ -275,8 +303,11 @@ import La from '@/components/La.vue'
 import { useThemeStore } from '@/stores/theme'
 
 const themeStore = useThemeStore()
+const isLogin = ref(false)
 
-// 响应式断点检测
+const navbarHeight = ref(56)
+const scrollbarHeight = computed(() => `calc(100vh - ${navbarHeight.value}px)`)
+
 const windowWidth = ref(window.innerWidth)
 
 const isMobile = computed(() => windowWidth.value < 768)
@@ -284,21 +315,18 @@ const isTablet = computed(
   () => windowWidth.value >= 768 && windowWidth.value < 1024,
 )
 
-// 网格列数响应式配置
 const gridCols = computed(() => {
   if (isMobile.value) return 1
   if (isTablet.value) return 2
   return 4
 })
 
-// 快速开始网格列数响应式配置
 const quickStartGridCols = computed(() => {
   if (isMobile.value) return 1
   if (isTablet.value) return 2
   return 3
 })
 
-// 窗口大小监听
 const handleResize = () => {
   windowWidth.value = window.innerWidth
 }
@@ -423,15 +451,21 @@ const faqItems = [
   },
 ]
 
-const handleLogin = () => {
-  router.push('/login')
-}
-
 const scrollToFeatures = () => {
   const featuresSection = document.getElementById('features-section')
   if (featuresSection) {
     featuresSection.scrollIntoView({ behavior: 'smooth' })
   }
+}
+
+function loadUserInfo() {
+  const tokenStr =
+    localStorage.getItem('Authorization') ||
+    sessionStorage.getItem('Authorization')
+  if (!tokenStr) {
+    return
+  }
+  isLogin.value = true
 }
 
 onMounted(() => {
@@ -442,6 +476,20 @@ onMounted(() => {
     loginEl.style.backgroundSize = 'cover'
     loginEl.style.backgroundPosition = 'center'
   }
+  loadUserInfo()
+  document.documentElement.classList.add('home-scroll-lock')
+  requestAnimationFrame(() => {
+    const navbars = document.querySelectorAll<HTMLElement>('.navbar')
+    let height = 56
+    navbars.forEach((el) => {
+      if (el.offsetHeight > 0) height = el.offsetHeight
+    })
+    navbarHeight.value = height
+  })
+})
+
+onUnmounted(() => {
+  document.documentElement.classList.remove('home-scroll-lock')
 })
 </script>
 
@@ -454,6 +502,14 @@ onMounted(() => {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+.home-scrollbar {
+  overflow: hidden;
+
+  :deep(.n-scrollbar-container) {
+    height: 100%;
   }
 }
 
@@ -1007,5 +1063,13 @@ onMounted(() => {
       transform: translateY(0);
     }
   }
+}
+</style>
+
+<!-- 全局：首页锁定 html/body 滚动，杜绝原生滚动条 -->
+<style lang="scss">
+html.home-scroll-lock,
+html.home-scroll-lock body {
+  overflow: hidden;
 }
 </style>

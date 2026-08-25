@@ -234,44 +234,37 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach((to, _from, next) => {
+router.beforeEach((to) => {
   // 需要登录的路由校验
-  if (to.matched.some((record) => record.meta.requiresAuth)) {
-    if (unauthorized()) {
-      next({
-        name: 'login',
-        query: { redirect: to.fullPath }, // 携带跳转路径参数
-      })
-    } else {
-      next()
+  if (to.matched.some((record) => record.meta.requiresAuth) && unauthorized()) {
+    return {
+      name: 'login',
+      query: { redirect: to.fullPath }, // 携带跳转路径参数
     }
   }
-  // 已登录用户禁止访问登录/注册页
-  else if (
+  // 已登录用户禁止访问登录/注册/重置密码页
+  if (
     (to.name === 'login' ||
       to.name === 'register' ||
       to.name === 'ResetPassword') &&
     !unauthorized()
   ) {
-    next({ name: 'dashboard' })
+    return { name: 'dashboard' }
   }
-  // 其他情况直接放行
-  else if (to.matched.length === 0) {
-    next('/dashboard')
-  } else {
-    next()
+  // 未匹配到任何路由时跳转到控制面板
+  if (to.matched.length === 0) {
+    return '/dashboard'
   }
+  return true
 })
 
-router.beforeEach((to, _from, next) => {
-  // 如果是首页，不修改标题
-  if (to.name === 'home') {
-  } else if (to.meta.title) {
-    document.title = `${to.meta.title} - ${packageData.title2}`
-  } else {
-    document.title = packageData.title2
+router.beforeEach((to) => {
+  // 首页不修改标题
+  if (to.name !== 'home') {
+    document.title = to.meta.title
+      ? `${to.meta.title} - ${packageData.title2}`
+      : packageData.title2
   }
-  next()
 })
 
 // 添加路由导航守卫

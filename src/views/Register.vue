@@ -266,7 +266,7 @@ const handleSendEmailCode = async () => {
           url,
         )
         if (data.code === 0) {
-          message.success(data.message)
+          message.success('验证码发送成功')
           startEmailCodeCountdown()
           formValue.value.emailCode = ''
         } else {
@@ -334,7 +334,7 @@ const handleSubmit = async () => {
       code: formValue.value.emailCode,
     })
     if (data.code === 0) {
-      message.success(data.message)
+      message.success('注册成功')
       setTimeout(() => {
         router.push('/login')
       }, 1200)

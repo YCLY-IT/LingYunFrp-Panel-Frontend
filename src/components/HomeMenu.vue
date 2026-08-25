@@ -13,19 +13,39 @@
       <!-- 桌面端菜单 -->
       <div class="nav-links">
         <NSpace class="desktop-menu">
-          <NButton
+          <n-button
             quaternary
             circle
-            size="small"
             @click="handleThemeToggle"
             class="theme-toggle-btn"
+            style="transform: translateX(-30px)"
           >
             <NIcon
               size="20"
               :component="themeStore.theme === 'dark' ? Sunny : Moon"
             />
-          </NButton>
-          <RouterLink to="/dashboard">
+          </n-button>
+          <NDropdown
+            v-if="userInfo"
+            :options="options"
+            @select="handleUserMenuSelect"
+            trigger="hover"
+          >
+            <NButton text>
+              <template #icon>
+                <NIcon>
+                  <div
+                    class="avatar"
+                    style="transform: translateY(-6px) translateX(-15px)"
+                  >
+                    <img :src="userInfo.avatar" alt="avatar" />
+                  </div>
+                </NIcon>
+              </template>
+              {{ userInfo.displayName }}
+            </NButton>
+          </NDropdown>
+          <RouterLink v-else to="/dashboard">
             <NButton secondary type="primary">管理面板</NButton>
           </RouterLink>
         </NSpace>
@@ -75,19 +95,39 @@
       <!-- 右侧：主题切换按钮 -->
       <div class="nav-links">
         <NSpace class="desktop-menu">
-          <NButton
+          <n-button
             quaternary
             circle
-            size="small"
             @click="handleThemeToggle"
             class="theme-toggle-btn"
+            style="transform: translateX(-30px)"
           >
             <NIcon
               size="20"
               :component="themeStore.theme === 'dark' ? Sunny : Moon"
             />
-          </NButton>
-          <RouterLink to="/dashboard">
+          </n-button>
+          <NDropdown
+            v-if="userInfo"
+            :options="options"
+            @select="handleUserMenuSelect"
+            trigger="hover"
+          >
+            <NButton text>
+              <template #icon>
+                <NIcon>
+                  <div
+                    class="avatar"
+                    style="transform: translateY(-6px) translateX(-15px)"
+                  >
+                    <img :src="userInfo.avatar" alt="avatar" />
+                  </div>
+                </NIcon>
+              </template>
+              {{ userInfo.displayName }}
+            </NButton>
+          </NDropdown>
+          <RouterLink v-else to="/dashboard">
             <NButton secondary type="primary">管理面板</NButton>
           </RouterLink>
         </NSpace>
@@ -98,7 +138,7 @@
 
 <script setup lang="ts">
 import packageData from '../../package.json'
-import { h, ref } from 'vue'
+import { h, ref, onMounted } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import {
   NLayoutHeader,
@@ -108,15 +148,48 @@ import {
   NPopover,
   NMenu,
   MenuOption,
+  useDialog,
+  NDropdown,
 } from 'naive-ui'
-import { MenuOutline, Moon, Sunny } from '@vicons/ionicons5'
+import { LogOutOutline, MenuOutline, Moon, Sunny } from '@vicons/ionicons5'
 import { HomeOutline, LogInOutline, PersonAddOutline } from '@vicons/ionicons5'
 import { useThemeStore } from '@/stores/theme'
 import { useThemeTransition } from '@/utils/useThemeTransition'
+import { userApi } from '@/net'
+import { removeToken } from '@/net/token'
 
 const showMenu = ref(false)
 const router = useRouter()
 const themeStore = useThemeStore()
+const dialog = useDialog()
+
+interface UserInfo {
+  avatar: string
+  displayName: string
+}
+
+const userInfo = ref<UserInfo | null>(null)
+
+function loadUserInfo() {
+  const tokenStr =
+    localStorage.getItem('Authorization') ||
+    sessionStorage.getItem('Authorization')
+  if (!tokenStr) {
+    userInfo.value = null
+    return
+  }
+  const avatar = localStorage.getItem('avatar') || ''
+  const nickname = localStorage.getItem('nickname') || ''
+  const username = localStorage.getItem('username') || ''
+  const displayName = nickname || username
+  if (!avatar && !displayName) {
+    userInfo.value = null
+    return
+  }
+  userInfo.value = { avatar, displayName }
+}
+
+onMounted(loadUserInfo)
 
 const { toggleThemeWithDualCircle } = useThemeTransition()
 
@@ -152,6 +225,52 @@ const menuOptions: MenuOption[] = [
   },
 ]
 
+const options = [
+  {
+    label: '控制面板',
+    key: 'home',
+    icon: renderIcon(HomeOutline),
+  },
+  {
+    type: 'divider',
+    key: 'd2',
+  },
+  {
+    label: '退出登录',
+    key: 'logout',
+    icon: renderIcon(LogOutOutline),
+  },
+]
+
+const handleUserMenuSelect = (key: string) => {
+  switch (key) {
+    case 'logout':
+      dialog.warning({
+        title: '提示',
+        content: '确定要退出登录吗？',
+        positiveText: '确定',
+        negativeText: '取消',
+        onPositiveClick: async () => {
+          await userLogout()
+          userInfo.value = null
+        },
+      })
+      break
+    case 'home':
+      router.push('/dashboard')
+      break
+  }
+}
+
+const userLogout = async () => {
+  try {
+    await userApi.logout()
+    removeToken()
+  } catch (error: any) {
+    removeToken()
+  }
+}
+
 function handleMenuSelect(key: string) {
   switch (key) {
     case 'home':
@@ -169,6 +288,12 @@ function handleMenuSelect(key: string) {
 
 <style lang="scss" scoped>
 @use '../assets/styles/components/homeMenu.scss' as *;
+
+/* 右侧操作区容器 */
+.nav-links {
+  display: flex;
+  align-items: center;
+}
 
 .theme-toggle-btn {
   transition: all 0.3s ease;
