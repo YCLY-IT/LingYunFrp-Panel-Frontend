@@ -1,8 +1,5 @@
 <template>
   <div class="home gradient-bg">
-    <!-- 欢迎横幅 -->
-    <div class="welcome-banner">欢迎回来, {{ nickname }}</div>
-
     <!-- 用户卡片 -->
     <div class="content-info">
       <n-card :loading="loading" class="user-card">
