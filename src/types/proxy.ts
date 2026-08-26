@@ -1,70 +1,63 @@
 export interface CreateProxyArgs {
-    nodeId: number
-    proxyName: string
-    localIp: string
-    localPort: number
-    remotePort: number
-    domain?: string
-    proxyType: string
-    accessKey?: string
-    hostHeaderRewrite?: string
-    headerXFromWhere?: string
-    proxyProtocolVersion?: string
-    useEncryption: boolean
-    useCompression: boolean
+  nodeId: number
+  proxyName: string
+  localIp: string
+  localPort: number
+  remotePort: number
+  domain?: string
+  proxyType: string
+  accessKey?: string
+  proxyProtocolVersion?: string
+  useEncryption: boolean
+  useCompression: boolean
+  ipLimitIn?: number
+  ipLimitOut?: number
 }
 export interface Proxy {
-    proxyId: number;
-    proxyName: string;
-    nodeId: number;
-    localIp: string;
-    localPort: number;
-    remotePort: number;
-    domain?: string;
-    proxyType: string;
-    /** 隧道是否在线 */
-    isOnline: boolean;
-    /** 隧道是否被封禁（管理员手动封禁） */
-    is_banned: boolean;
-    /** 隧道所属用户名 */
-    username?: string;
-    /** 隧道是否被禁用 */
-    isDisabled?: boolean;
-    location: string;
-    accessKey: string;
-    lastStartTime: number;
-    lastCloseTime: number;
-    hostHeaderRewrite: string;
-    headerXFromWhere: string;
-    useEncryption: boolean;
-    useCompression: boolean;
-    proxyProtocolVersion: string;
+  proxyId: number
+  proxyName: string
+  nodeId: number
+  localIp: string
+  localPort: number
+  remotePort: number
+  domain: string
+  proxyType: string
+  /** 隧道是否在线 */
+  isOnline: boolean
+  /** 隧道是否被封禁（管理员手动封禁） */
+  isBanned: boolean
+  /** 隧道所属用户名 */
+  username?: string
+  /** 隧道是否被禁用 */
+  isDisabled: boolean
+  location: string
+  accessKey: string
+  lastStartTime: number
+  lastCloseTime: number
+  useEncryption: boolean
+  useCompression: boolean
+  proxyProtocolVersion: string
+  ipLimitIn?: number
+  /** 前端显示单位，不提交到服务端 */
+  ipLimitInUnit?: string
+  ipLimitOut?: number
+  /** 前端显示单位，不提交到服务端 */
+  ipLimitOutUnit?: string
 }
 export interface UserNodeName {
-    nodeId: number;
-    name: string;
-    hostname: string;
-}
-
-export interface FilterProxiesArgs {
-    page: number;
-    limit: number;
-    nodeId?: number;
-    username?: string;
-    proxyType?: string;
-    isOnline?: boolean;
-    isBanned?: boolean;
-    keyword?: string;
+  nodeId: number
+  name: string
+  hostname: string
 }
 
 export interface UserNode {
-    id: any;
-    name: string;
-    hostname: string;
-    description: string;
-    allowGroup: string;
-    allowPort: string;
-    allowType: string;
-    isOnline: boolean;
-    isDisabled: boolean;
+  id: any
+  name: string
+  hostname: string
+  description: string
+  allowGroup: string
+  allowPort: string
+  allowType: string
+  isOnline: boolean
+  isDisabled: boolean
 }

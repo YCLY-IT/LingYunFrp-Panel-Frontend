@@ -4,59 +4,310 @@
       <NMessageProvider>
         <NNotificationProvider>
           <NLoadingBarProvider>
+            <GlobalEggs />
             <AppContent />
           </NLoadingBarProvider>
         </NNotificationProvider>
       </NMessageProvider>
     </NDialogProvider>
   </NConfigProvider>
+  <svg class="defs-only" aria-hidden="true">
+    <defs>
+      <filter id="colorblind" color-interpolation-filters="sRGB">
+        <feColorMatrix
+          type="matrix"
+          values="0.567 0.433 0 0 0 0.558 0.442 0 0 0 0 0.242 0.758 0 0 0 0 0 1 0"
+        />
+      </filter>
+    </defs>
+  </svg>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, provide } from 'vue';
+import { ref, computed, provide, onMounted, onUnmounted, watch } from 'vue'
 import {
   NConfigProvider,
   NMessageProvider,
   NDialogProvider,
   NNotificationProvider,
   NLoadingBarProvider,
-  darkTheme
-} from 'naive-ui';
-import { themeOverrides } from './constants/theme';
-import AppContent from './components/AppContent.vue';
+  darkTheme,
+  lightTheme,
+} from 'naive-ui'
+import AppContent from './components/AppContent.vue'
+import GlobalEggs from './components/GlobalEggs.vue'
+import { useThemeStore } from './stores/theme'
 
-// 主题状态
-const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
-const isDarkMode = ref(prefersDark.matches);
-const theme = computed(() => isDarkMode.value ? darkTheme : null);
+const theme = computed(() =>
+  themeStore.theme === 'dark' ? darkTheme : lightTheme,
+)
 
-// 监听系统主题变化
-prefersDark.addEventListener('change', (e) => {
-  isDarkMode.value = e.matches;
-});
-
-// 主题切换函数
 const toggleTheme = () => {
-  isDarkMode.value = !isDarkMode.value;
-};
+  themeStore.theme = themeStore.theme === 'dark' ? 'light' : 'dark'
+}
 
-// 提供给全局使用
+const themeStore = useThemeStore()
+
+const themeOverrides = computed(() => {
+  const commonColors = {
+    primaryColor: themeStore.primaryColor,
+    primaryColorHover: themeStore.primaryColor,
+    primaryColorPressed: themeStore.primaryColor,
+    primaryColorSuppl: themeStore.primaryColor,
+    colorHover:
+      themeStore.theme === 'dark'
+        ? 'rgb(255, 255, 240)'
+        : 'rgba(0, 0, 0, 0.06)',
+  }
+
+  const hasBackgroundImage = !!themeStore.backgroundImage
+  const bodyColor = hasBackgroundImage
+    ? 'transparent'
+    : themeStore.theme === 'light'
+      ? '#f5f5f5'
+      : undefined
+
+  const lightThemeOverrides =
+    themeStore.theme === 'light'
+      ? {
+          bodyColor: bodyColor || '#f5f5f5',
+        }
+      : {}
+
+  return {
+    common: {
+      ...commonColors,
+      ...lightThemeOverrides,
+      ...(hasBackgroundImage ? { bodyColor: 'transparent' } : {}),
+    },
+    Button: {
+      textColorPrimary: '#fff',
+      textColorHoverPrimary: '#fff',
+      textColorPressedPrimary: '#fff',
+      textColorFocusPrimary: '#fff',
+      textColorDisabledPrimary: '#fff',
+      colorPrimary: themeStore.primaryColor,
+      colorHoverPrimary: themeStore.primaryColor,
+      colorPressedPrimary: themeStore.primaryColor,
+      colorFocusPrimary: themeStore.primaryColor,
+      colorDisabledPrimary: themeStore.primaryColor,
+    },
+  }
+})
+
+let animationFrameId: number | null = null
+let isRGBRunning = false
+
+const animatePrimaryColor = () => {
+  if (isRGBRunning) return
+  isRGBRunning = true
+
+  let r = 255,
+    g = 0,
+    b = 0
+  let dr = -5,
+    dg = 5,
+    db = 0
+
+  const step = () => {
+    if (!themeStore.isRGBMode) {
+      isRGBRunning = false
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId)
+        animationFrameId = null
+      }
+      return
+    }
+    if (r <= 0 && g >= 255) {
+      dr = 0
+      dg = -5
+      db = 5
+    }
+    if (g <= 0 && b >= 255) {
+      dr = 5
+      dg = 0
+      db = -5
+    }
+    if (b <= 0 && r >= 255) {
+      dr = -5
+      dg = 5
+      db = 0
+    }
+    r += dr
+    g += dg
+    b += db
+
+    themeStore.primaryColor = `rgb(${r}, ${g}, ${b})`
+    animationFrameId = requestAnimationFrame(step)
+  }
+
+  step()
+}
+
+watch(
+  () => themeStore.isRGBMode,
+  (newVal) => {
+    if (newVal) {
+      animatePrimaryColor()
+    } else {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId)
+        animationFrameId = null
+      }
+      isRGBRunning = false
+
+      const defaultColor =
+        localStorage.getItem('app-primary-color') || '#722ed1'
+      themeStore.setPrimaryColor(defaultColor)
+    }
+  },
+)
+
+watch(
+  () => themeStore.backgroundImage,
+  (newImage) => {
+    if (newImage) {
+      const opacity = Math.max(20, themeStore.backgroundOpacity || 100)
+      document.documentElement.style.setProperty(
+        '--background-image',
+        `url(${newImage})`,
+      )
+      document.documentElement.style.setProperty(
+        '--background-blur',
+        `${themeStore.backgroundBlur}px`,
+      )
+      document.documentElement.style.setProperty(
+        '--background-opacity',
+        `${opacity / 100}`,
+      )
+      if (themeStore.frostedGlassMode) {
+        document.documentElement.classList.add('frosted-glass-mode')
+        document.documentElement.style.setProperty(
+          '--frosted-glass-blur',
+          `${themeStore.frostedGlassIntensity}px`,
+        )
+      }
+    } else {
+      document.documentElement.style.removeProperty('--background-image')
+      document.documentElement.style.removeProperty('--background-blur')
+      document.documentElement.style.removeProperty('--background-opacity')
+      document.documentElement.classList.remove('frosted-glass-mode')
+    }
+  },
+  { immediate: true },
+)
+
+const isTouchDevice = ref(false)
+
+provide('isTouchDevice', isTouchDevice)
+
+const detectInputMethod = (event: PointerEvent) => {
+  if (event.pointerType === 'touch') {
+    isTouchDevice.value = true
+  } else if (event.pointerType === 'mouse') {
+    isTouchDevice.value = false
+  }
+}
+
+onMounted(async () => {
+  await themeStore.loadBackgroundImageFromStorage()
+
+  if (themeStore.isRGBMode) {
+    animatePrimaryColor()
+  }
+
+  if (themeStore.isDialogBoxHairGlass) {
+    document.documentElement.style.setProperty('--modal-filter', '10px')
+  } else {
+    document.documentElement.style.setProperty('--modal-filter', '0px')
+  }
+
+  if (themeStore.colorBlindMode) {
+    document.documentElement.classList.add('color-blind-mode')
+    document.documentElement.style.setProperty(
+      '--color-blind-filter',
+      'url(#colorblind)',
+    )
+  }
+  if (themeStore.highContrastMode) {
+    document.documentElement.classList.add('high-contrast-mode')
+  }
+
+  const updateHoverColor = () => {
+    const hoverColor =
+      themeStore.theme === 'dark'
+        ? 'rgba(255, 255, 255, 0.08)'
+        : 'rgba(0, 0, 0, 0.06)'
+    document.documentElement.style.setProperty('--n-color-hover', hoverColor)
+  }
+  updateHoverColor()
+
+  watch(() => themeStore.theme, updateHoverColor)
+
+  const updateHoverShadowColor = () => {
+    const primaryColor = themeStore.primaryColor.replace('FF', '')
+    document.documentElement.style.setProperty(
+      '--n-color-hover-shadow',
+      `${primaryColor}1F`,
+    ) // 12% 透明度
+  }
+  updateHoverShadowColor()
+
+  watch(() => themeStore.primaryColor, updateHoverShadowColor)
+
+  window.addEventListener('pointerdown', detectInputMethod)
+})
+
+onUnmounted(() => {
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId)
+    animationFrameId = null
+  }
+  window.removeEventListener('pointerdown', detectInputMethod)
+})
+
 provide('theme', {
-  isDarkMode,
   theme,
-  toggleTheme
-});
+  toggleTheme,
+})
 </script>
 
 <style lang="scss">
-@use "./assets/styles/transitions.scss";
-input, textarea, select {
+@use './assets/styles/transitions.scss';
+input,
+textarea,
+select {
   font-size: 16px !important;
 }
 
 @media screen and (max-width: 768px) {
-  input, textarea, select {
+  input,
+  textarea,
+  select {
     font-size: 16px !important;
   }
+}
+</style>
+
+<style lang="scss">
+@use './assets/styles/index.scss';
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+#app {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 确保SVG滤镜不占用空间 */
+.defs-only {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
 }
 </style>

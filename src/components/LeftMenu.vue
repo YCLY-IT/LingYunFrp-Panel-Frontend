@@ -1,6 +1,14 @@
 <template>
-  <NMenu :collapsed-width="64" :collapsed-icon-size="24" :options="menuOptions" :value="currentKey" :icon-size="22"
-    @update:value="handleMenuSelect" style="user-select: none" :default-expanded-keys="defaultExpandedKeys" />
+  <NMenu
+    :collapsed-width="64"
+    :collapsed-icon-size="24"
+    :options="menuOptions"
+    :value="currentKey"
+    :icon-size="22"
+    @update:value="handleMenuSelect"
+    style="user-select: none"
+    :default-expanded-keys="defaultExpandedKeys"
+  />
 </template>
 
 <script setup lang="ts">
@@ -20,8 +28,13 @@ const handleMenuSelect = (_: any, item: MenuOption) => {
 }
 
 const currentKey = computed(() => {
-  return route.name as string
+  const routeName = route.name as string
+
+  // 节点详情页时，高亮节点状态菜单
+  if (routeName === 'node-detail') {
+    return 'node-status'
+  }
+
+  return routeName
 })
-
 </script>
-

@@ -1,14 +1,19 @@
-import { DialogApiInjection } from 'naive-ui/es/dialog/src/DialogProvider';
-import { LoadingBarApiInjection } from 'naive-ui/es/loading-bar/src/LoadingBarProvider';
-import { MessageApiInjection } from 'naive-ui/es/message/src/MessageProvider';
-import { NotificationApiInjection } from 'naive-ui/es/notification/src/NotificationProvider';
+export * from './proxy'
+export * from './User'
+import type { DialogApi, MessageApi } from 'naive-ui'
 
-export * from './proxy';
-export * from './user';
-
-export interface Window extends globalThis.Window {
-    $loadingBar?: LoadingBarApiInjection
-    $message?: MessageApiInjection
-    $dialog?: DialogApiInjection
-    $notification?: NotificationApiInjection
+declare global {
+  interface Window {
+    $loadingBar?: {
+      start: () => void
+      finish: () => void
+      error: () => void
+    }
+    $message?: MessageApi
+    $dialog?: DialogApi
+    $notification?: any
+    initGeetest?: (config: any, callback: (captcha: any) => void) => void
+    gt?: string
+    challenge?: string
+  }
 }

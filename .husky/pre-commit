@@ -1,0 +1,5 @@
+npx prettier . --write
+git add .
+
+node ./auto-version.cjs
+git add package.json 

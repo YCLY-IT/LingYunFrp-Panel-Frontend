@@ -2,130 +2,446 @@
   <div class="users">
     <NCard title="用户管理">
       <NSpace vertical :size="12">
-        <div style="display: flex;">
-          <NInput v-model:value="filters.search" placeholder="搜索 ID、用户名、邮箱或访问密钥" clearable style="flex: 1;"
-            @update:value="handleSearch">
+        <div style="display: flex">
+          <NInput
+            v-model:value="filters.search"
+            placeholder="搜索 ID、用户名、邮箱或访问密钥"
+            clearable
+            style="flex: 1"
+          >
             <template #prefix>
               <NIcon :component="Search" />
             </template>
           </NInput>
         </div>
-        <NSpace>
-          <NSelect v-model:value="filters.group" :options="groupOptions" placeholder="用户组" clearable
-            style="width: 200px" @update:value="handleGroupFilter" />
-          <NSelect v-model:value="filters.isRealname" :options="realnameOptions" placeholder="实名状态" clearable
-            style="width: 200px" @update:value="handleRealnameFilter" />
-          <NSelect v-model:value="filters.status" :options="statusOptions" placeholder="账户状态" clearable
-            style="width: 200px" @update:value="handleStatusFilter" />
+
+        <!-- 桌面端筛选 -->
+        <NSpace v-if="!isMobile">
+          <NSelect
+            v-model:value="filters.group"
+            :options="groupOptions"
+            placeholder="用户组"
+            clearable
+            style="width: 200px"
+          />
+          <NSelect
+            v-model:value="filters.isRealname"
+            :options="realnameOptions"
+            placeholder="实名状态"
+            clearable
+            style="width: 200px"
+          />
+          <NSelect
+            v-model:value="filters.status"
+            :options="statusOptions"
+            placeholder="账户状态"
+            clearable
+            style="width: 200px"
+          />
+          <NSelect
+            v-model:value="sortOptions.key"
+            :options="sortFieldOptions"
+            placeholder="排序字段"
+            clearable
+            style="width: 150px"
+          />
+          <NSelect
+            v-model:value="sortOptions.order"
+            :options="sortOrderOptions"
+            placeholder="排序方式"
+            clearable
+            style="width: 120px"
+          />
         </NSpace>
-        <NDataTable remote :columns="columns" :data="users" :loading="loading" :pagination="pagination" />
+        <!-- 移动端筛选 -->
+        <NSpace v-else vertical :size="8" style="width: 100%">
+          <NGrid :cols="2" :x-gap="8">
+            <NGridItem>
+              <NSelect
+                v-model:value="filters.group"
+                :options="groupOptions"
+                placeholder="用户组"
+                clearable
+                style="width: 100%"
+              />
+            </NGridItem>
+            <NGridItem>
+              <NSelect
+                v-model:value="filters.isRealname"
+                :options="realnameOptions"
+                placeholder="实名状态"
+                clearable
+                style="width: 100%"
+              />
+            </NGridItem>
+          </NGrid>
+          <NGrid :cols="3" :x-gap="8">
+            <NGridItem>
+              <NSelect
+                v-model:value="filters.status"
+                :options="statusOptions"
+                placeholder="账户状态"
+                clearable
+                style="width: 100%"
+              />
+            </NGridItem>
+            <NGridItem>
+              <NSelect
+                v-model:value="sortOptions.key"
+                :options="sortFieldOptions"
+                placeholder="排序字段"
+                clearable
+                style="width: 100%"
+              />
+            </NGridItem>
+            <NGridItem>
+              <NSelect
+                v-model:value="sortOptions.order"
+                :options="sortOrderOptions"
+                placeholder="排序方式"
+                clearable
+                style="width: 100%"
+              />
+            </NGridItem>
+          </NGrid>
+        </NSpace>
+
+        <div class="table-container">
+          <NDataTable
+            :columns="columns"
+            :data="users"
+            :loading="loading"
+            :pagination="false"
+            :scroll-x="900"
+          />
+        </div>
+
+        <!-- 独立的分页组件 -->
+        <div style="display: flex; justify-content: right">
+          <NPagination
+            v-model:page="pagination.page"
+            v-model:page-size="pagination.pageSize"
+            :item-count="pagination.itemCount"
+            :page-count="pagination.pageCount"
+            :page-sizes="pagination.pageSizes"
+            show-size-picker
+            :prefix="pagination.prefix"
+          />
+        </div>
       </NSpace>
     </NCard>
 
-    <!-- 添加编辑用户的模态框 -->
-    <NModal v-model:show="showEditModal" preset="card" title="编辑用户" style="width: 600px;">
-      <NForm ref="formRef" :model="editForm" :rules="rules" label-placement="left" label-width="auto"
-        require-mark-placement="right-hanging">
-        <NFormItem label="用户名" path="username">
-          <NInput v-model:value="editForm.username" placeholder="请输入用户名" />
-        </NFormItem>
-        <NFormItem label="邮箱" path="email">
-          <NInput v-model:value="editForm.email" placeholder="请输入邮箱" />
-        </NFormItem>
-        <NFormItem label="用户组" path="group">
-          <NSelect v-model:value="editForm.group" :options="groupOptions" placeholder="请选择用户组" />
-        </NFormItem>
-        <NFormItem label="账户状态" path="status">
-          <NSelect v-model:value="editForm.status" :options="statusOptions" placeholder="请选择账户状态" />
-        </NFormItem>
-        <NFormItem label="实名状态" path="isRealname">
-          <NSwitch v-model:value="editForm.is_realname" :rail-style="switchButtonRailStyle" />
-        </NFormItem>
-        <NFormItem label="验证码次数" path="remainder">
-          <NSpace align="center">
-            <NInputNumber v-model:value="editForm.remainder" placeholder="请输入手机验证码次数" :min="0" />
-            <span>次</span>
-          </NSpace>
-        </NFormItem>
-        <NFormItem label="流量限制" path="traffic">
-          <NSpace align="center">
-            <NInputNumber v-model:value="editForm.traffic" placeholder="请输入流量限制" :min="0" />
-            <span>GB</span>
-          </NSpace>
-        </NFormItem>
-        <NFormItem label="出站带宽" path="out_limit">
-          <NSpace align="center">
-            <NInputNumber v-model:value="editForm.out_limit" placeholder="请输入出站带宽" :min="0" />
-            <span>Mbps</span>
-          </NSpace>
-        </NFormItem>
-        <NFormItem label="入站带宽" path="in_limit">
-          <NSpace align="center">
-            <NInputNumber v-model:value="editForm.in_limit" placeholder="请输入入站带宽" :min="0" />
-            <span>Mbps</span>
-          </NSpace>
-        </NFormItem>
-        <NFormItem label="隧道数量" path="proxies">
-          <NSpace align="center">
-            <NInputNumber v-model:value="editForm.proxies" placeholder="请输入隧道数量" :min="0" />
-            <span>个</span>
-          </NSpace>
-        </NFormItem>
+    <!-- 编辑模态框 -->
+    <NModal
+      v-model:show="showEditModal"
+      preset="card"
+      title="编辑用户"
+      :style="modalStyle"
+    >
+      <NForm
+        ref="formRef"
+        :model="editForm"
+        :rules="rules"
+        label-placement="left"
+        label-width="100px"
+        require-mark-placement="right-hanging"
+      >
+        <NGrid :cols="2" :x-gap="20" :y-gap="8" responsive="screen">
+          <NGridItem span="2">
+            <NFormItem label="用户名" path="username">
+              <NInput
+                v-model:value="editForm.username"
+                placeholder="请输入用户名"
+                clearable
+              />
+            </NFormItem>
+          </NGridItem>
+          <NGridItem>
+            <NFormItem label="邮箱" path="email">
+              <NInput
+                v-model:value="editForm.email"
+                placeholder="请输入邮箱"
+                clearable
+              />
+            </NFormItem>
+          </NGridItem>
+          <NGridItem>
+            <NFormItem label="用户组" path="group">
+              <NSelect
+                v-model:value="editForm.group"
+                :options="groupOptions"
+                placeholder="请选择用户组"
+                clearable
+              />
+            </NFormItem>
+          </NGridItem>
+          <NGridItem>
+            <NFormItem label="账户状态" path="status">
+              <NSelect
+                v-model:value="editForm.status"
+                :options="statusOptions"
+                placeholder="请选择账户状态"
+                clearable
+              />
+            </NFormItem>
+          </NGridItem>
+          <NGridItem>
+            <NFormItem label="实名状态" path="isRealname">
+              <NSwitch v-model:value="editForm.is_realname" />
+            </NFormItem>
+          </NGridItem>
+          <NGridItem>
+            <NFormItem label="验证码次数" path="remainder">
+              <NInputNumber
+                v-model:value="editForm.remainder"
+                :min="0"
+                placeholder="请输入验证码次数"
+                style="width: 100%"
+              >
+                <template #suffix>次</template>
+              </NInputNumber>
+            </NFormItem>
+          </NGridItem>
+          <NGridItem span="2">
+            <NDivider title-placement="left" style="margin: 16px 0"
+              >资源限制</NDivider
+            >
+          </NGridItem>
+          <NGridItem>
+            <NFormItem label="流量限制" path="traffic">
+              <NInputNumber
+                v-model:value="editForm.traffic"
+                :min="0"
+                placeholder="请输入流量限制"
+                style="width: 100%"
+              >
+                <template #suffix>GB</template>
+              </NInputNumber>
+            </NFormItem>
+          </NGridItem>
+          <NGridItem>
+            <NFormItem label="隧道数量" path="proxies">
+              <NInputNumber
+                v-model:value="editForm.proxies"
+                :min="0"
+                placeholder="请输入隧道数量"
+                style="width: 100%"
+              >
+                <template #suffix>个</template>
+              </NInputNumber>
+            </NFormItem>
+          </NGridItem>
+          <NGridItem span="2">
+            <NDivider title-placement="left" style="margin: 16px 0"
+              >带宽设置</NDivider
+            >
+          </NGridItem>
+          <NGridItem>
+            <NFormItem label="出站带宽" path="out_limit">
+              <NInputNumber
+                v-model:value="editForm.out_limit"
+                :min="0"
+                placeholder="请输入出站带宽"
+                style="width: 100%"
+              >
+                <template #suffix>Mbps</template>
+              </NInputNumber>
+            </NFormItem>
+          </NGridItem>
+          <NGridItem>
+            <NFormItem label="入站带宽" path="in_limit">
+              <NInputNumber
+                v-model:value="editForm.in_limit"
+                :min="0"
+                placeholder="请输入入站带宽"
+                style="width: 100%"
+              >
+                <template #suffix>Mbps</template>
+              </NInputNumber>
+            </NFormItem>
+          </NGridItem>
+          <NGridItem span="2">
+            <NDivider title-placement="left" style="margin: 16px 0"
+              >海外带宽设置</NDivider
+            >
+          </NGridItem>
+          <NGridItem>
+            <NFormItem label="海外出站" path="no_cn_out_limit">
+              <NInputNumber
+                v-model:value="editForm.no_cn_out_limit"
+                :min="0"
+                placeholder="请输入海外出站带宽"
+                style="width: 100%"
+              >
+                <template #suffix>Mbps</template>
+              </NInputNumber>
+            </NFormItem>
+          </NGridItem>
+          <NGridItem>
+            <NFormItem label="海外入站" path="no_cn_in_limit">
+              <NInputNumber
+                v-model:value="editForm.no_cn_in_limit"
+                :min="0"
+                placeholder="请输入海外入站带宽"
+                style="width: 100%"
+              >
+                <template #suffix>Mbps</template>
+              </NInputNumber>
+            </NFormItem>
+          </NGridItem>
+        </NGrid>
       </NForm>
+
       <template #footer>
         <NSpace justify="end">
           <NButton size="small" @click="showEditModal = false">取消</NButton>
-          <NButton type="primary" size="small" :loading="submitting" @click="handleEditSubmit">
+          <NButton
+            type="primary"
+            size="small"
+            :loading="submitting"
+            @click="handleEditSubmit"
+          >
             确定
           </NButton>
         </NSpace>
+      </template>
+    </NModal>
+
+    <!-- 封禁/解封原因 -->
+    <NModal
+      v-model:show="showBanReasonModal"
+      preset="dialog"
+      :title="isUnbanning ? '请输入解封原因' : '请输入封禁原因'"
+    >
+      <n-text> 输入封禁/解封原因（该原因会发送邮件给用户） </n-text>
+      <NInput
+        style="margin-top: 16px"
+        v-model:value="banReason"
+        type="textarea"
+        :placeholder="isUnbanning ? '请填写解封原因' : '请填写封禁原因'"
+        :autosize="{ minRows: 3, maxRows: 5 }"
+      />
+      <template #action>
+        <NButton @click="showBanReasonModal = false">取消</NButton>
+        <NButton
+          type="primary"
+          :disabled="!banReason.trim()"
+          @click="submitBanReason"
+        >
+          确定
+        </NButton>
+      </template>
+    </NModal>
+
+    <!-- 修改状态原因 -->
+    <NModal
+      v-model:show="showEditReasonModal"
+      preset="dialog"
+      title="请输入修改账户状态原因"
+    >
+      <NInput
+        v-model:value="editReason"
+        type="textarea"
+        placeholder="请填写原因"
+        :autosize="{ minRows: 3, maxRows: 5 }"
+      />
+      <template #action>
+        <NButton @click="showEditReasonModal = false">取消</NButton>
+        <NButton
+          type="primary"
+          :disabled="!editReason.trim()"
+          @click="submitEditReason"
+        >
+          确定
+        </NButton>
       </template>
     </NModal>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, h } from 'vue'
-import { NCard, NSpace, NDataTable, NButton, useMessage, NTag, NInput, NSelect, NPopconfirm, NIcon, NModal, NForm, NFormItem, NInputNumber, NSwitch, SelectOption } from 'naive-ui'
+import { ref, h, computed, onMounted, nextTick, type Ref, watch } from 'vue'
+import {
+  NCard,
+  NSpace,
+  NDataTable,
+  NButton,
+  useMessage,
+  NTag,
+  NInput,
+  NSelect,
+  NIcon,
+  NModal,
+  NForm,
+  NFormItem,
+  NInputNumber,
+  NSwitch,
+  NGrid,
+  NGridItem,
+  type SelectOption,
+  type DataTableColumns,
+  type FormInst,
+  type FormRules,
+  NPagination,
+} from 'naive-ui'
 import { Search } from '@vicons/ionicons5'
-import type { DataTableColumns, FormInst, FormRules } from 'naive-ui'
-import type { UserInfo } from '@/types'
-import moment from 'moment';
-import type { FilterUsersArgs } from '@/types'
-import { switchButtonRailStyle } from '@/constants/theme.ts'
-import {userApi} from "@/net";
-import {accessHandle} from "@/net/base.ts";
+import { adminApi } from '@/net'
+import type { User } from '@/net/admin/type'
+
 const message = useMessage()
+
+// 判断是否为移动端
+const isMobile = computed(() => {
+  return window.innerWidth <= 768
+})
+
 const loading = ref(false)
-const users = ref<UserInfo[]>([])
+const users: Ref<User[]> = ref([])
 const groupNameMap = ref<Record<string, string>>({})
 
-const realnameOptions: SelectOption[] = [
-  { label: '已实名', value: true },
-  { label: '未实名', value: false }
-]
-
-// 修改filters类型定义
 const filters = ref<{
-  search: string;
-  group: string | null;
-  isRealname: boolean | null;  // 类型改为boolean|null
-  status: number | null;
+  search: string
+  group: string | null
+  isRealname: string | null
+  status: number | null
 }>({
   search: '',
   group: null,
-  isRealname: null,  // 初始值保持null
-  status: null
+  isRealname: null,
+  status: null,
 })
 
-
-const groupOptions = ref<{ label: string; value: string }[]>([])
+const realnameOptions: SelectOption[] = [
+  { label: '已实名', value: 'true' },
+  { label: '未实名', value: 'false' },
+]
 
 const statusOptions: SelectOption[] = [
   { label: '正常', value: 0 },
   { label: '封禁', value: 1 },
-  { label: '流量超限', value: 2 }
+  { label: '流量超限', value: 2 },
 ]
+
+const groupOptions = ref<SelectOption[]>([])
+
+const sortFieldOptions: SelectOption[] = [
+  { label: 'ID', value: 'id' },
+  { label: '用户名', value: 'username' },
+  { label: '用户组', value: 'group' },
+  { label: '邮箱', value: 'email' },
+  { label: '注册时间', value: 'created_at' },
+  { label: '状态', value: 'status' },
+]
+
+const sortOrderOptions: SelectOption[] = [
+  { label: '升序', value: 'asc' },
+  { label: '降序', value: 'desc' },
+]
+
+const sortOptions = ref<{ key: string; order: 'asc' | 'desc' }>({
+  key: 'id',
+  order: 'asc',
+})
 
 const pagination = ref({
   page: 1,
@@ -133,358 +449,368 @@ const pagination = ref({
   pageCount: 1,
   itemCount: 0,
   showSizePicker: true,
-  pageSizes: [
-    {
-      label: '10 条 / 页',
-      value: 10
-    },
-    {
-      label: '20 条 / 页',
-      value: 20
-    },
-    {
-      label: '30 条 / 页',
-      value: 30
-    },
-    {
-      label: '40 条 / 页',
-      value: 40
-    }
-  ],
+  pageSizes: [10, 20, 30, 40].map((v) => ({ label: `${v} 条/页`, value: v })),
   prefix({ itemCount }: { itemCount?: number }) {
     return `共 ${itemCount} 条`
   },
-  onUpdatePage: (page: number) => {
-    pagination.value.page = page
-    loadData()
-  },
-  onUpdatePageSize: (pageSize: number) => {
-    pagination.value.pageSize = pageSize
-    pagination.value.page = 1
-    loadData()
-  }
 })
 
+const columns: DataTableColumns<User> = [
+  { title: 'ID', key: 'id', width: 80 },
+  { title: '用户名', key: 'username', minWidth: 120, ellipsis: true },
+  { title: '邮箱', key: 'email', minWidth: 160, ellipsis: true },
+  {
+    title: '用户组',
+    key: 'group',
+    minWidth: 120,
+    render: (row) => row.friendlyGroup || row.group,
+  },
+  {
+    title: '注册时间',
+    key: 'created_at',
+    minWidth: 140,
+    render: (row) => formatTime(row.created_at),
+  },
+  {
+    title: '状态',
+    key: 'status',
+    width: 90,
+    render: (row) => {
+      const map: Record<
+        number,
+        { text: string; type: 'success' | 'error' | 'warning' }
+      > = {
+        0: { text: '正常', type: 'success' },
+        1: { text: '封禁', type: 'error' },
+        2: { text: '流量超限', type: 'warning' },
+      }
+      const cur = map[row.status] || { text: '未知', type: 'warning' }
+      return h(NTag, { type: cur.type }, () => cur.text)
+    },
+  },
+  {
+    title: '操作',
+    key: 'actions',
+    width: 140,
+    render: (row) =>
+      h(NSpace, { size: 'small' }, () => [
+        h(
+          NButton,
+          { size: 'small', type: 'primary', onClick: () => handleEdit(row) },
+          () => '编辑',
+        ),
+        h(
+          NButton,
+          {
+            size: 'small',
+            type: row.status === 1 ? 'success' : 'error',
+            onClick: () => openBanModal(row),
+          },
+          () => (row.status === 1 ? '解封' : '封禁'),
+        ),
+      ]),
+  },
+]
+
+const formatTime = (ts: string | number) =>
+  new Date(typeof ts === 'string' ? ts : ts * 1000).toLocaleString('zh-CN')
+
+// 监听分页变化，重新加载数据
+watch(
+  [() => pagination.value.page, () => pagination.value.pageSize],
+  () => {
+    loadData()
+  },
+  { deep: true },
+)
+
+/* ----------------- 编辑 / 封禁 / 解封 ----------------- */
 const showEditModal = ref(false)
 const formRef = ref<FormInst | null>(null)
 const submitting = ref(false)
-
 const editForm = ref({
   ID: 0,
   username: '',
   email: '',
   group: '',
   status: 0,
+  originalStatus: 0,
   is_realname: false,
   remainder: 0,
   traffic: 0,
   out_limit: 0,
   in_limit: 0,
-  proxies: 0
+  no_cn_out_limit: 0,
+  no_cn_in_limit: 0,
+  proxies: 0,
 })
 
 const rules: FormRules = {
-  username: {
-    required: true,
-    message: '请输入用户名',
-    trigger: ['blur', 'input']
-  },
+  username: { required: true, message: '请输入用户名', trigger: 'blur' },
   email: {
     required: true,
-    message: '请输入邮箱',
-    trigger: ['blur', 'input'],
-    validator: (_rule: any, value: string) => {
-      if (!value) return true
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      if (!emailRegex.test(value)) {
-        return new Error('请输入有效的邮箱地址')
-      }
-      return true
-    }
+    validator: (_rule, value) =>
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+        ? Promise.resolve()
+        : Promise.reject(new Error('请输入有效邮箱')),
+    trigger: 'blur',
   },
-  group: {
-    required: true,
-    message: '请选择用户组',
-    trigger: ['blur', 'change']
-  }
+  group: { required: true, message: '请选择用户组', trigger: 'change' },
 }
 
-const columns: DataTableColumns<UserInfo> = [
-  {
-    title: 'ID',
-    key: 'id',
-    render(row) {
-      return h('div', { style: 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' }, row.id)
-    }
-  },
-  {
-    title: '用户名',
-    key: 'username',
-    render(row) {
-      return h('div', { style: 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' }, row.username)
-    }
-  },
-  {
-    title: '邮箱',
-    key: 'email',
-    render(row) {
-      return h('div', { style: 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' }, row.email)
-    }
-  },
-  {
-    title: '用户组',
-    key: 'group',
-    render(row) {
-      return h('div', { style: 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' }, row.friendlyGroup || row.group)
-    }
-  },
-  {
-    title: '注册时间',
-    key: 'create_at',
-    render(row) {
-      return h('div', { style: 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' }, moment(row.create_at).format('LLLL'))
-    }
-  },
-  {
-    title: '状态',
-    key: 'status',
-    render(row) {
-      const statusMap: Record<number, { text: string, type: 'success' | 'error' | 'warning' }> = {
-        0: { text: '正常', type: 'success' },
-        1: { text: '封禁', type: 'error' },
-        2: { text: '流量超限', type: 'warning' }
-      }
-      const status = statusMap[row.status] || { text: '未知', type: 'warning' }
-      return h(
-        NTag,
-        {
-          type: status.type
-        },
-        { default: () => status.text }
-      )
-    }
-  },
-  {
-    title: '操作',
-    key: 'actions',
-    render(row) {
-      return h(
-        NSpace,
-        {},
-        {
-          default: () => [
-            h(
-              NButton,
-              {
-                size: 'small',
-                onClick: () => handleEdit(row)
-              },
-              { default: () => '编辑' }
-            ),
-            h(
-              NPopconfirm,
-              {
-                onPositiveClick: () => handleToggleStatus(row),
-                positiveText: '确定',
-                negativeText: '取消'
-              },
-              {
-                default: () => row.status === 1 ? '确认解封此用户？' : '确认封禁此用户？',
-                trigger: () =>
-                  h(
-                    NButton,
-                    {
-                      size: 'small',
-                      type: row.status === 1 ? 'success' : 'error'
-                    },
-                    { default: () => row.status === 1 ? '解封' : '封禁' }
-                  )
-              }
-            )
-          ]
-        }
-      )
-    }
-  }
-]
+const showBanReasonModal = ref(false)
+const banReason = ref('')
+const banningUser = ref<User | null>(null)
+const isUnbanning = ref(false)
 
-const searchTimeout = ref<number>()
+const openBanModal = (user: User) => {
+  banningUser.value = user
+  isUnbanning.value = user.status === 1
+  showBanReasonModal.value = true
+  banReason.value = ''
+}
 
-const handleSearch = () => {
-  window.clearTimeout(searchTimeout.value)
-  searchTimeout.value = window.setTimeout(() => {
-    if (pagination.value.page !== 1) {
-      pagination.value.page = 1
+const submitBanReason = async () => {
+  if (!banningUser.value) return
+  try {
+    const { id, status } = banningUser.value
+    const data = await adminApi.toggleUser({
+      userId: id,
+      status: status === 1 ? 0 : 1,
+      reason: banReason.value,
+    })
+    if (data.code === 0) {
+      message.success(data.message || '操作成功')
+      loadData()
     } else {
-      loadData() // 防止页码相同时不触发
+      message.error(data.message || '操作失败')
     }
-  }, 300)
-}
-
-const handleGroupFilter = () => {
-  pagination.value.page = 1
-  loadData()
-}
-
-const handleRealnameFilter = () => {
-  pagination.value.page = 1
-  loadData()
-}
-
-const handleStatusFilter = () => {
-  pagination.value.page = 1
-  loadData()
-}
-
-const handleToggleStatus = async (user: UserInfo) => {
-  try {
-    userApi.post("/admin/user/toggle", {
-      userId: user.id,
-      status: user.status === 1? 0 : 1
-    }, accessHandle(), (data) => {
-      if (data.code === 0) {
-        message.success(data.message || '操作成功')
-        loadData()
-      } else {
-        message.error(data.message || '操作失败')
-      }
-    })
-  } catch (error: any) {
-    message.error(error?.response?.data?.message || '操作失败')
+  } catch (e: any) {
+    message.error(e.message || '操作失败')
+  } finally {
+    showBanReasonModal.value = false
   }
 }
 
-const handleEditSubmit = () => {
-  formRef.value?.validate(async (errors) => {
-    if (!errors) {
-      submitting.value = true
-      try {
-        editForm.value.traffic *= 1024
-        editForm.value.out_limit *= 128
-        editForm.value.in_limit *= 128
-        userApi.post(`/admin/user/set/${editForm.value.ID}`, editForm.value, accessHandle(), (data) => {
-          if (data.code === 0) {
-            message.success('更新用户成功')
-          } else {
-            message.error(data.message || '更新用户失败')
-          }
-        })
-        showEditModal.value = false
-        loadData()
-      } catch (error: any) {
-        message.error(error?.response?.data?.message || '更新用户失败')
-      } finally {
-        submitting.value = false
-      }
-    }
-  })
+const handleEdit = (row: User) => {
+  editForm.value = {
+    ID: row.id,
+    username: row.username,
+    email: row.email,
+    group: row.group,
+    status: row.status,
+    originalStatus: row.status,
+    is_realname: row.is_realname,
+    remainder: row.remainder,
+    traffic: row.traffic / 1024,
+    out_limit: row.outBound / 128,
+    in_limit: row.inBound / 128,
+    no_cn_out_limit: row.noCnOutBound / 128,
+    no_cn_in_limit: row.noCnInBound / 128,
+    proxies: row.proxies,
+  }
+  showEditModal.value = true
+  nextTick(() => formRef.value?.restoreValidation())
 }
 
-const handleEdit = async (user: UserInfo) => {
+const showEditReasonModal = ref(false)
+const editReason = ref('')
+const handleEditSubmit = async () => {
+  await formRef.value?.validate()
+  if (editForm.value.status !== editForm.value.originalStatus) {
+    showEditReasonModal.value = true
+    return
+  }
+  await doEdit()
+}
+
+const submitEditReason = async () => {
+  showEditReasonModal.value = false
+  await doEdit()
+}
+
+const doEdit = async () => {
+  submitting.value = true
   try {
-    userApi.get(`/admin/user/get/${user.id}`,  accessHandle(), (data) => {
-      if (data.code === 0) {
-        const userDetail = data.data
-        editForm.value = {
-          ID: userDetail.id,
-          username: userDetail.username,
-          email: userDetail.email,
-          group: userDetail.group,
-          status: userDetail.status,
-          is_realname: userDetail.is_realname,
-          remainder: userDetail.remainder,
-          traffic: userDetail.traffic / 1024,
-          out_limit: userDetail.outBound / 128,
-          in_limit: userDetail.inBound / 128,
-          proxies: userDetail.proxies
-        }
-        showEditModal.value = true
-      } else {
-        message.error(data.message || '获取用户信息失败')
-      }
+    const data = await adminApi.updateUser({
+      id: editForm.value.ID,
+      username: editForm.value.username,
+      email: editForm.value.email,
+      group: editForm.value.group,
+      status: editForm.value.status,
+      maxProxies: editForm.value.proxies,
+      traffic: editForm.value.traffic * 1024,
+      outBound: editForm.value.out_limit * 128,
+      inBound: editForm.value.in_limit * 128,
+      noCnOutBound: editForm.value.no_cn_out_limit * 128,
+      noCnInBound: editForm.value.no_cn_in_limit * 128,
+      isRealname: editForm.value.is_realname,
+      remainder: editForm.value.remainder,
+      reason: editReason.value,
     })
-  } catch (error: any) {
-    message.error(error?.response?.data?.message || '获取用户信息失败')
+    if (data.code === 0) {
+      message.success('更新成功')
+      showEditModal.value = false
+      loadData()
+    } else {
+      message.error(data.message || '更新失败')
+    }
+  } catch (e: any) {
+    message.error(e.message || '更新失败')
+  } finally {
+    submitting.value = false
+    editReason.value = ''
   }
 }
 
-// 修改后的获取用户组方法
 const fetchUserGroups = async () => {
   try {
-    userApi.get("/user/info/groups", accessHandle(), (data) => {
-      if (data.code === 0) {
-        // 同时更新组名映射和下拉选项
-        groupOptions.value = data.data.groups.map(group => ({
-          label: group.friendlyName,  // 使用接口返回的友好名称
-          value: group.name
-        }));
-
-        groupNameMap.value = data.data.groups.reduce((acc: Record<string, string>, group) => {
-          acc[group.name] = group.friendlyName;
-          return acc;
-        }, {});
-      } else {
-        message.error(data.message || '获取用户组列表失败');
-      }
-    })
-  } catch (error) {
-    message.error('获取用户组失败');
+    const data = await adminApi.getGroupList()
+    if (data.code === 0) {
+      const groups = data.data.groups || data.data
+      groupOptions.value = groups.map((g) => ({
+        label: g.friendlyName,
+        value: g.name,
+      }))
+      groupNameMap.value = groups.reduce((acc: Record<string, string>, g) => {
+        acc[g.name] = g.friendlyName
+        return acc
+      }, {})
+    } else {
+      message.error(data.message || '获取用户组失败')
+    }
+  } catch (e) {
+    message.error('获取用户组失败')
   }
 }
 
-
-// 处理用户数据, 添加 friendlyGroup
-const processUsers = (users: UserInfo[]) => {
-  return users.map(user => ({
-    ...user,
-    friendlyGroup: groupNameMap.value[user.group] || user.group
-  }))
-}
-
-// 统一的数据加载函数
 const loadData = async () => {
   loading.value = true
   try {
-    const params: FilterUsersArgs = {
-      page: pagination.value.page,
-      limit: pagination.value.pageSize
+    if (!groupOptions.value.length) await fetchUserGroups()
+    const data = await adminApi.getUserList(
+      pagination.value.page,
+      pagination.value.pageSize,
+      filters.value.search || undefined,
+      filters.value.group || undefined,
+      filters.value.isRealname === null
+        ? undefined
+        : filters.value.isRealname === 'true',
+      filters.value.status === null ? undefined : filters.value.status,
+      sortOptions.value.key || undefined,
+      sortOptions.value.order || undefined,
+    )
+    if (data.code === 0 && data.data) {
+      users.value = (data.data.users || []).map((u: User) => ({
+        ...u,
+        friendlyGroup: groupNameMap.value[u.group] || u.group,
+      }))
+      pagination.value.itemCount = data.data.total
+      pagination.value.pageCount = data.data.totalPages
+    } else {
+      message.error(data.message || '获取用户列表失败')
     }
-
-    // 添加所有有效的筛选条件
-    if (filters.value.search) {
-      params.keyword = filters.value.search
-    }
-    if (filters.value.group) {
-      params.group = filters.value.group
-    }
-// 修改后的筛选条件处理部分
-    if (filters.value.isRealname !== null) {
-      // 直接使用boolean值
-      params.isRealname = filters.value.isRealname
-    }
-
-
-    if (filters.value.status !== null) {
-      params.status = filters.value.status
-    }
-
-    userApi.post("/admin/user/list", params, accessHandle(), (data) => {
-      if (data.code === 0) {
-        users.value = processUsers(data.data.users)
-        pagination.value.pageCount = data.data.totalPages
-        pagination.value.itemCount = data.data.totalUsers
-      } else {
-        message.error(data.message || '获取数据失败')
-      }
-    })
-  } catch (error) {
+  } catch (e) {
     message.error('获取数据失败')
   } finally {
     loading.value = false
   }
 }
 
-// 初始化数据
-fetchUserGroups()
-loadData()
+onMounted(loadData)
+
+// 搜索防抖定时器
+let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null
+
+// 监听搜索输入，带防抖
+watch(
+  () => filters.value.search,
+  () => {
+    if (searchDebounceTimer) {
+      clearTimeout(searchDebounceTimer)
+    }
+    searchDebounceTimer = setTimeout(() => {
+      pagination.value.page = 1
+      loadData()
+    }, 300)
+  },
+)
+
+// 监听其他筛选条件变化（无防抖）
+watch(
+  [
+    () => filters.value.group,
+    () => filters.value.isRealname,
+    () => filters.value.status,
+    () => sortOptions.value.key,
+    () => sortOptions.value.order,
+  ],
+  () => {
+    pagination.value.page = 1
+    loadData()
+  },
+  { deep: true },
+)
+
+// 监听分页变化
+watch([() => pagination.value.page, () => pagination.value.pageSize], () => {
+  loadData()
+})
+
+const modalStyle = computed(() => ({
+  width: window.innerWidth <= 768 ? '95vw' : '600px',
+  maxWidth: '95vw',
+}))
 </script>
+
+<style lang="scss" scoped>
+:deep(.n-input-number) {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  :deep(.n-card .n-card-header) {
+    padding: 16px 12px;
+    .n-card-header__main {
+      font-size: 16px;
+    }
+  }
+  :deep(.n-card .n-card-content) {
+    padding: 12px;
+  }
+  :deep(.n-data-table) {
+    font-size: 12px;
+    .n-data-table-th,
+    .n-data-table-td {
+      padding: 8px 4px;
+    }
+  }
+  :deep(.n-form-item) {
+    margin-bottom: 16px;
+  }
+  :deep(.n-modal .n-card) {
+    margin: 16px 8px;
+  }
+  :deep(.n-modal .n-card .n-card-header) {
+    padding: 16px;
+  }
+  :deep(.n-modal .n-card .n-card-content) {
+    padding: 16px;
+  }
+  :deep(.n-button) {
+    min-height: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .table-container {
+    padding: 4px;
+  }
+  :deep(.n-data-table) {
+    font-size: 11px;
+  }
+  :deep(.n-modal .n-card) {
+    margin: 8px 4px;
+  }
+}
+</style>

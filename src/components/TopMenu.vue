@@ -1,8 +1,17 @@
 <template>
-  <NLayoutHeader bordered position="absolute" style="height: 64px; z-index: 999; user-select: none">
+  <NLayoutHeader
+    bordered
+    position="absolute"
+    style="height: 64px; z-index: 999; user-select: none"
+  >
     <div class="header-content">
       <div class="left">
-        <NPopover trigger="click" placement="bottom-start" :show="showMenu" @update:show="showMenu = $event">
+        <NPopover
+          trigger="click"
+          placement="bottom-start"
+          :show="showMenu"
+          @update:show="showMenu = $event"
+        >
           <template #trigger>
             <NButton text class="menu-trigger">
               <NIcon size="24">
@@ -12,19 +21,52 @@
           </template>
           <div class="mobile-menu">
             <NScrollbar style="max-height: 500px">
-              <NMenu :options="menuOptions" :value="currentKey" @update:value="handleMenuSelect"
-                     :default-expanded-keys="defaultExpandedKeys" />
+              <NMenu
+                :options="menuOptions"
+                :value="currentKey"
+                @update:value="handleMenuSelect"
+                :default-expanded-keys="defaultExpandedKeys"
+              />
             </NScrollbar>
           </div>
         </NPopover>
-        <h2 class="logo">LingYunFRP</h2>
+        <h2 class="logo" :style="{ color: themeStore.primaryColor }">
+          {{ packageData.title }}
+        </h2>
       </div>
       <div class="right">
-        <NDropdown :options="options" @select="handleUserMenuSelect" trigger="hover">
+        <n-button
+          quaternary
+          style="font-size: 18px; transform: translateX(-30px)"
+          @click="ThemeSwitcherDrawer('right')"
+        >
+          <n-icon :component="SettingsOutline" style="cursor: pointer"></n-icon>
+        </n-button>
+        <n-button
+          quaternary
+          circle
+          size="small"
+          @click="handleThemeToggle"
+          class="theme-toggle-btn"
+          style="transform: translateX(-30px)"
+        >
+          <NIcon
+            size="20"
+            :component="themeStore.theme === 'dark' ? Sunny : Moon"
+          />
+        </n-button>
+        <NDropdown
+          :options="options"
+          @select="handleUserMenuSelect"
+          trigger="hover"
+        >
           <NButton text>
             <template #icon>
               <NIcon>
-                <div class="avatar">
+                <div
+                  class="avatar"
+                  style="transform: translateY(-6px) translateX(-20px)"
+                >
                   <img :src="avatarUrl" alt="avatar" />
                 </div>
               </NIcon>
@@ -42,18 +84,57 @@
       <LeftMenu @select="showMobileMenu = false" />
     </NDrawerContent>
   </NDrawer>
+  <n-drawer
+    v-model:show="themeSwitcherDrawer"
+    :placement="placement"
+    :default-width="320"
+    resizable
+  >
+    <n-drawer-content title="面板配置">
+      <ThemeSwitcher />
+    </n-drawer-content>
+  </n-drawer>
 </template>
 
 <script setup lang="ts">
-import { h, ref, inject, computed, Ref, onMounted, onUnmounted } from 'vue'
+import packageData from '../../package.json'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { NLayoutHeader, NIcon, NButton, NDropdown, useDialog, useMessage, NSwitch, NPopover, NMenu, MenuOption, NDrawer, NDrawerContent, NScrollbar } from 'naive-ui'
-import { PersonCircleOutline, LogOutOutline, SunnyOutline, MoonOutline, MenuOutline, HomeOutline } from '@vicons/ionicons5'
-import { switchButtonRailStyle } from '../constants/theme.ts'
-import { getMenuOptions, renderIcon, defaultExpandedKeys } from '../shared/menuOptions.ts'
+import {
+  NLayoutHeader,
+  NIcon,
+  NButton,
+  NDropdown,
+  useDialog,
+  useMessage,
+  NPopover,
+  NMenu,
+  MenuOption,
+  NDrawer,
+  NDrawerContent,
+  NScrollbar,
+  DrawerPlacement,
+} from 'naive-ui'
+import {
+  PersonCircleOutline,
+  LogOutOutline,
+  Sunny,
+  Moon,
+  MenuOutline,
+  HomeOutline,
+  SettingsOutline,
+} from '@vicons/ionicons5'
+
+import {
+  getMenuOptions,
+  renderIcon,
+  defaultExpandedKeys,
+} from '../shared/menuOptions.ts'
 import LeftMenu from './LeftMenu.vue'
-import { userApi } from "@/net";
-import { accessHandle, removeToken } from "@/net/base.ts";
+import { userApi } from '@/net'
+import { removeToken } from '@/net/token.ts'
+import { useThemeStore } from '@/stores/theme.ts'
+import { useThemeTransition } from '@/utils/useThemeTransition.ts'
 
 const router = useRouter()
 const route = useRoute()
@@ -64,77 +145,64 @@ const message = useMessage()
 const nickname = localStorage.getItem('nickname')
 const showMobileMenu = ref(false)
 const isMobile = ref(window.innerWidth <= 768)
+const { toggleThemeWithDualCircle } = useThemeTransition()
 
-// 从 localStorage 获取头像链接
-const avatarUrl = ref(localStorage.getItem('avatar') || 'https://via.placeholder.com/50')
-
-// 注入主题相关函数
-const { isDarkMode, toggleTheme } = inject('theme') as {
-  isDarkMode: Ref<boolean>
-  toggleTheme: () => void
+const handleThemeToggle = async (event: MouseEvent) => {
+  await toggleThemeWithDualCircle(event, {
+    duration: 600,
+    easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+  })
 }
 
-// 渲染下拉菜单中的主题切换选项
-const renderThemeOption = () => {
-  return h('div', {
-    style: 'display: flex; align-items: center; padding: 8px 12px; height: 20px;'
-  }, [
-    h('span', {
-      style: 'flex: 1; margin-right: 12px; font-size: 14px;'
-    }, '主题切换'),
-    h(NSwitch, {
-      value: isDarkMode.value,
-      'onUpdate:value': handleThemeChange,
-      railStyle: switchButtonRailStyle,
-      size: 'small'
-    }, {
-      checked: () => h(NIcon, null, { default: () => h(MoonOutline) }),
-      unchecked: () => h(NIcon, null, { default: () => h(SunnyOutline) })
-    })
-  ])
+// 从 localStorage 获取头像链接
+const avatarUrl = ref(localStorage.getItem('avatar') || '')
+
+const themeSwitcherDrawer = ref(false)
+const placement = ref<DrawerPlacement>('right')
+const themeStore = useThemeStore()
+const ThemeSwitcherDrawer = (place: DrawerPlacement) => {
+  themeSwitcherDrawer.value = true
+  placement.value = place
 }
 
 const options = [
-  {
-    key: 'theme',
-    type: 'render',
-    render: renderThemeOption
-  },
-  {
-    type: 'divider',
-    key: 'd1'
-  },
+  // {
+  //   key: 'theme',
+  //   type: 'render',
+  //   render: renderThemeOption,
+  // },
+  // {
+  //   type: 'divider',
+  //   key: 'd1',
+  // },
   {
     label: '返回首页',
     key: 'home',
-    icon: renderIcon(HomeOutline)
+    icon: renderIcon(HomeOutline),
   },
   {
     type: 'divider',
-    key: 'd2'
+    key: 'd2',
   },
   {
     label: '个人资料',
     key: 'profile',
-    icon: renderIcon(PersonCircleOutline)
+    icon: renderIcon(PersonCircleOutline),
   },
   {
     label: '退出登录',
     key: 'logout',
-    icon: renderIcon(LogOutOutline)
-  }
+    icon: renderIcon(LogOutOutline),
+  },
 ]
 
-// 处理主题切换
-const handleThemeChange = () => {
-  toggleTheme()
-}
-
-function userLogout() {
-  userApi.get('/user/logout', accessHandle(), () => {
-    removeToken();
-  })
-  router.push({ name: 'login' });
+const userLogout = async () => {
+  try {
+    await userApi.logout()
+    removeToken()
+  } catch (error: any) {
+    removeToken()
+  }
 }
 
 const handleUserMenuSelect = (key: string) => {
@@ -145,17 +213,15 @@ const handleUserMenuSelect = (key: string) => {
         content: '确定要退出登录吗？',
         positiveText: '确定',
         negativeText: '取消',
-        onPositiveClick: () => {
-          userLogout()
+        onPositiveClick: async () => {
+          await userLogout()
           message.success('已退出登录')
-          router.push('/login').then(() => {
-            window.location.reload()
-          })
-        }
+          router.push('/login')
+        },
       })
       break
     case 'profile':
-      router.push('/dashboard/user/my-profile')
+      router.push('/dashboard/profile')
       break
     case 'home':
       router.push('/')
@@ -192,17 +258,51 @@ onUnmounted(() => {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  transform: translateY(-6px) translateX(-12px);
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-
 .avatar img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+.theme-toggle-btn {
+  transition: all 0.3s ease;
+  &:hover {
+    transform: rotate(30deg);
+    background-color: var(--n-color-hover);
+  }
+  .n-icon {
+    transition: all 0.3s ease;
+  }
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .logo {
+    font-size: 16px;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .right .n-button {
+    transform: translateX(0) !important;
+    padding: 0 6px;
+  }
+
+  .avatar {
+    transform: translateY(-6px) translateX(0) !important;
+  }
 }
 </style>

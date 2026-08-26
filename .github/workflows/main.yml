@@ -1,0 +1,83 @@
+name: Vue Project Build (Node.js 22 + pnpm 10)
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_env:
+        description: 'Build Environment'
+        required: true
+        default: 'production'
+        options:
+          - production
+          - development
+      output_dir:
+        description: 'Output Directory'
+        required: false
+        default: 'dist'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 调整顺序：先安装pnpm再设置Node.js
+      - name: Install pnpm 10
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10
+          run_install: true
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: 'pnpm'
+
+      - name: Verify Environment
+        run: |
+          echo "Node.js $(node -v)"
+          echo "PNPM $(pnpm -v) at $(which pnpm)"
+
+      - name: Install Dependencies
+        run: |
+          pnpm install --frozen-lockfile --prod=false
+          # 添加跨平台Rollup支持
+          pnpm add @rollup/rollup-wasm --no-save || true
+        env:
+          NODE_OPTIONS: --openssl-legacy-provider # 修正拼写错误
+          PNPM_FORCE: true
+
+      - name: Build Project
+        run: |
+          if [ "${{ inputs.build_env }}" = "development" ]; then
+            echo "Building in development mode"
+            pnpm run build:dev || pnpm run build
+          else
+            echo "Building in production mode"
+            NODE_ENV=production pnpm run build
+          fi
+        env:
+          NODE_V8_COMPAT: 1
+
+      - name: Verify Output
+        id: output_check
+        run: |
+          dir="${INPUT_OUTPUT_DIR:-dist}"
+          if [ ! -d "$dir" ]; then
+            echo "::warning::Output directory '$dir' not found, using 'dist'"
+            dir="dist"
+          fi
+          echo "Final output directory: $dir"
+          ls -la "$dir"
+          echo "dir=$dir" >> $GITHUB_OUTPUT
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vue-build-${{ inputs.build_env }}-node22-pnpm10
+          path: ${{ steps.output_check.outputs.dir }}/
+          compression-level: 5
+          retention-days: 1
