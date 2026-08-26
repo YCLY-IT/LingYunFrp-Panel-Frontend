@@ -4,7 +4,7 @@
       <div class="auth-header">
         <div class="title-with-icon">
           <NIcon size="32" :component="PersonAddOutline" />
-          <h1>LINGYUNFRP</h1>
+          <h1>{{ packageData.title }}</h1>
           <span>后台管理系统</span>
         </div>
         <br />
