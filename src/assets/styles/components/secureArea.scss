@@ -1,0 +1,31 @@
+.secure-area {
+  position: relative;
+  width: 100%;
+
+  &__content {
+    position: relative;
+    z-index: 1;
+    min-height: inherit;
+    transition: filter 0.2s ease;
+
+    &.is-no-select {
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+    }
+  }
+
+  &__watermark {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background-repeat: repeat;
+    background-position: 0 0;
+  }
+
+  &.is-blurred &__content {
+    filter: blur(14px);
+  }
+}

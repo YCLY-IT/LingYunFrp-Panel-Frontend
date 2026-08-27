@@ -1,396 +1,379 @@
 <template>
-  <div class="users">
-    <NCard title="用户管理">
-      <NSpace vertical :size="12">
-        <div style="display: flex">
-          <NInput
-            v-model:value="filters.search"
-            placeholder="搜索 ID、用户名、邮箱或访问密钥"
-            clearable
-            style="flex: 1"
-          >
-            <template #prefix>
-              <NIcon :component="Search" />
-            </template>
-          </NInput>
-        </div>
+  <SecureArea>
+    <div class="users">
+      <n-card title="用户管理">
+        <n-space vertical :size="12">
+          <div style="display: flex">
+            <n-input
+              v-model:value="filters.search"
+              placeholder="搜索 ID、用户名、邮箱或访问密钥"
+              clearable
+              style="flex: 1"
+            >
+              <template #prefix>
+                <n-icon :component="Search" />
+              </template>
+            </n-input>
+          </div>
 
-        <!-- 桌面端筛选 -->
-        <NSpace v-if="!isMobile">
-          <NSelect
-            v-model:value="filters.group"
-            :options="groupOptions"
-            placeholder="用户组"
-            clearable
-            style="width: 200px"
-          />
-          <NSelect
-            v-model:value="filters.isRealname"
-            :options="realnameOptions"
-            placeholder="实名状态"
-            clearable
-            style="width: 200px"
-          />
-          <NSelect
-            v-model:value="filters.status"
-            :options="statusOptions"
-            placeholder="账户状态"
-            clearable
-            style="width: 200px"
-          />
-          <NSelect
-            v-model:value="sortOptions.key"
-            :options="sortFieldOptions"
-            placeholder="排序字段"
-            clearable
-            style="width: 150px"
-          />
-          <NSelect
-            v-model:value="sortOptions.order"
-            :options="sortOrderOptions"
-            placeholder="排序方式"
-            clearable
-            style="width: 120px"
-          />
-        </NSpace>
-        <!-- 移动端筛选 -->
-        <NSpace v-else vertical :size="8" style="width: 100%">
-          <NGrid :cols="2" :x-gap="8">
-            <NGridItem>
-              <NSelect
-                v-model:value="filters.group"
-                :options="groupOptions"
-                placeholder="用户组"
-                clearable
-                style="width: 100%"
-              />
-            </NGridItem>
-            <NGridItem>
-              <NSelect
-                v-model:value="filters.isRealname"
-                :options="realnameOptions"
-                placeholder="实名状态"
-                clearable
-                style="width: 100%"
-              />
-            </NGridItem>
-          </NGrid>
-          <NGrid :cols="3" :x-gap="8">
-            <NGridItem>
-              <NSelect
-                v-model:value="filters.status"
-                :options="statusOptions"
-                placeholder="账户状态"
-                clearable
-                style="width: 100%"
-              />
-            </NGridItem>
-            <NGridItem>
-              <NSelect
-                v-model:value="sortOptions.key"
-                :options="sortFieldOptions"
-                placeholder="排序字段"
-                clearable
-                style="width: 100%"
-              />
-            </NGridItem>
-            <NGridItem>
-              <NSelect
-                v-model:value="sortOptions.order"
-                :options="sortOrderOptions"
-                placeholder="排序方式"
-                clearable
-                style="width: 100%"
-              />
-            </NGridItem>
-          </NGrid>
-        </NSpace>
+          <n-space v-if="!isMobile">
+            <n-select
+              v-model:value="filters.group"
+              :options="groupOptions"
+              placeholder="用户组"
+              clearable
+              style="width: 200px"
+            />
+            <n-select
+              v-model:value="filters.isRealname"
+              :options="realnameOptions"
+              placeholder="实名状态"
+              clearable
+              style="width: 200px"
+            />
+            <n-select
+              v-model:value="filters.status"
+              :options="statusOptions"
+              placeholder="账户状态"
+              clearable
+              style="width: 200px"
+            />
+            <n-select
+              v-model:value="sortOptions.key"
+              :options="sortFieldOptions"
+              placeholder="排序字段"
+              clearable
+              style="width: 150px"
+            />
+            <n-select
+              v-model:value="sortOptions.order"
+              :options="sortOrderOptions"
+              placeholder="排序方式"
+              clearable
+              style="width: 120px"
+            />
+          </n-space>
 
-        <div class="table-container">
-          <NDataTable
-            :columns="columns"
-            :data="users"
-            :loading="loading"
-            :pagination="false"
-            :scroll-x="900"
-          />
-        </div>
+          <n-space v-else vertical :size="8" style="width: 100%">
+            <n-grid :cols="2" :x-gap="8">
+              <n-grid-item>
+                <n-select
+                  v-model:value="filters.group"
+                  :options="groupOptions"
+                  placeholder="用户组"
+                  clearable
+                  style="width: 100%"
+                />
+              </n-grid-item>
+              <n-grid-item>
+                <n-select
+                  v-model:value="filters.isRealname"
+                  :options="realnameOptions"
+                  placeholder="实名状态"
+                  clearable
+                  style="width: 100%"
+                />
+              </n-grid-item>
+            </n-grid>
+            <n-grid :cols="3" :x-gap="8">
+              <n-grid-item>
+                <n-select
+                  v-model:value="filters.status"
+                  :options="statusOptions"
+                  placeholder="账户状态"
+                  clearable
+                  style="width: 100%"
+                />
+              </n-grid-item>
+              <n-grid-item>
+                <n-select
+                  v-model:value="sortOptions.key"
+                  :options="sortFieldOptions"
+                  placeholder="排序字段"
+                  clearable
+                  style="width: 100%"
+                />
+              </n-grid-item>
+              <n-grid-item>
+                <n-select
+                  v-model:value="sortOptions.order"
+                  :options="sortOrderOptions"
+                  placeholder="排序方式"
+                  clearable
+                  style="width: 100%"
+                />
+              </n-grid-item>
+            </n-grid>
+          </n-space>
 
-        <!-- 独立的分页组件 -->
-        <div style="display: flex; justify-content: right">
-          <NPagination
-            v-model:page="pagination.page"
-            v-model:page-size="pagination.pageSize"
-            :item-count="pagination.itemCount"
-            :page-count="pagination.pageCount"
-            :page-sizes="pagination.pageSizes"
-            show-size-picker
-            :prefix="pagination.prefix"
-          />
-        </div>
-      </NSpace>
-    </NCard>
+          <div class="table-container">
+            <n-data-table
+              :columns="columns"
+              :data="users"
+              :loading="loading"
+              :pagination="false"
+              :scroll-x="900"
+            />
+          </div>
 
-    <!-- 编辑模态框 -->
-    <NModal
-      v-model:show="showEditModal"
-      preset="card"
-      title="编辑用户"
-      :style="modalStyle"
-    >
-      <NForm
-        ref="formRef"
-        :model="editForm"
-        :rules="rules"
-        label-placement="left"
-        label-width="100px"
-        require-mark-placement="right-hanging"
+          <div style="display: flex; justify-content: right">
+            <n-pagination
+              v-model:page="pagination.page"
+              v-model:page-size="pagination.pageSize"
+              :item-count="pagination.itemCount"
+              :page-count="pagination.pageCount"
+              :page-sizes="pagination.pageSizes"
+              show-size-picker
+              :prefix="pagination.prefix"
+            />
+          </div>
+        </n-space>
+      </n-card>
+
+      <n-modal
+        v-model:show="showEditModal"
+        preset="card"
+        title="编辑用户"
+        :style="modalStyle"
       >
-        <NGrid :cols="2" :x-gap="20" :y-gap="8" responsive="screen">
-          <NGridItem span="2">
-            <NFormItem label="用户名" path="username">
-              <NInput
-                v-model:value="editForm.username"
-                placeholder="请输入用户名"
-                clearable
-              />
-            </NFormItem>
-          </NGridItem>
-          <NGridItem>
-            <NFormItem label="邮箱" path="email">
-              <NInput
-                v-model:value="editForm.email"
-                placeholder="请输入邮箱"
-                clearable
-              />
-            </NFormItem>
-          </NGridItem>
-          <NGridItem>
-            <NFormItem label="用户组" path="group">
-              <NSelect
-                v-model:value="editForm.group"
-                :options="groupOptions"
-                placeholder="请选择用户组"
-                clearable
-              />
-            </NFormItem>
-          </NGridItem>
-          <NGridItem>
-            <NFormItem label="账户状态" path="status">
-              <NSelect
-                v-model:value="editForm.status"
-                :options="statusOptions"
-                placeholder="请选择账户状态"
-                clearable
-              />
-            </NFormItem>
-          </NGridItem>
-          <NGridItem>
-            <NFormItem label="实名状态" path="isRealname">
-              <NSwitch v-model:value="editForm.is_realname" />
-            </NFormItem>
-          </NGridItem>
-          <NGridItem>
-            <NFormItem label="验证码次数" path="remainder">
-              <NInputNumber
-                v-model:value="editForm.remainder"
-                :min="0"
-                placeholder="请输入验证码次数"
-                style="width: 100%"
-              >
-                <template #suffix>次</template>
-              </NInputNumber>
-            </NFormItem>
-          </NGridItem>
-          <NGridItem span="2">
-            <NDivider title-placement="left" style="margin: 16px 0"
-              >资源限制</NDivider
-            >
-          </NGridItem>
-          <NGridItem>
-            <NFormItem label="流量限制" path="traffic">
-              <NInputNumber
-                v-model:value="editForm.traffic"
-                :min="0"
-                placeholder="请输入流量限制"
-                style="width: 100%"
-              >
-                <template #suffix>GB</template>
-              </NInputNumber>
-            </NFormItem>
-          </NGridItem>
-          <NGridItem>
-            <NFormItem label="隧道数量" path="proxies">
-              <NInputNumber
-                v-model:value="editForm.proxies"
-                :min="0"
-                placeholder="请输入隧道数量"
-                style="width: 100%"
-              >
-                <template #suffix>个</template>
-              </NInputNumber>
-            </NFormItem>
-          </NGridItem>
-          <NGridItem span="2">
-            <NDivider title-placement="left" style="margin: 16px 0"
-              >带宽设置</NDivider
-            >
-          </NGridItem>
-          <NGridItem>
-            <NFormItem label="出站带宽" path="out_limit">
-              <NInputNumber
-                v-model:value="editForm.out_limit"
-                :min="0"
-                placeholder="请输入出站带宽"
-                style="width: 100%"
-              >
-                <template #suffix>Mbps</template>
-              </NInputNumber>
-            </NFormItem>
-          </NGridItem>
-          <NGridItem>
-            <NFormItem label="入站带宽" path="in_limit">
-              <NInputNumber
-                v-model:value="editForm.in_limit"
-                :min="0"
-                placeholder="请输入入站带宽"
-                style="width: 100%"
-              >
-                <template #suffix>Mbps</template>
-              </NInputNumber>
-            </NFormItem>
-          </NGridItem>
-          <NGridItem span="2">
-            <NDivider title-placement="left" style="margin: 16px 0"
-              >海外带宽设置</NDivider
-            >
-          </NGridItem>
-          <NGridItem>
-            <NFormItem label="海外出站" path="no_cn_out_limit">
-              <NInputNumber
-                v-model:value="editForm.no_cn_out_limit"
-                :min="0"
-                placeholder="请输入海外出站带宽"
-                style="width: 100%"
-              >
-                <template #suffix>Mbps</template>
-              </NInputNumber>
-            </NFormItem>
-          </NGridItem>
-          <NGridItem>
-            <NFormItem label="海外入站" path="no_cn_in_limit">
-              <NInputNumber
-                v-model:value="editForm.no_cn_in_limit"
-                :min="0"
-                placeholder="请输入海外入站带宽"
-                style="width: 100%"
-              >
-                <template #suffix>Mbps</template>
-              </NInputNumber>
-            </NFormItem>
-          </NGridItem>
-        </NGrid>
-      </NForm>
+        <n-form
+          ref="formRef"
+          :model="editForm"
+          :rules="rules"
+          label-placement="left"
+          label-width="100px"
+          require-mark-placement="right-hanging"
+        >
+          <n-collapse
+            v-model:expanded-names="expandedNames"
+            accordion
+            :bordered="false"
+          >
+            <n-collapse-item title="基本信息" name="base">
+              <n-grid :cols="2" :x-gap="20" :y-gap="8" responsive="screen">
+                <n-grid-item span="2">
+                  <n-form-item label="用户名" path="username">
+                    <n-input :value="editForm.username" disabled />
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item span="2">
+                  <n-form-item label="邮箱" path="email">
+                    <n-input :value="editForm.email" disabled />
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item>
+                  <n-form-item label="用户组" path="group">
+                    <n-select
+                      v-model:value="editForm.group"
+                      :options="groupOptions"
+                      placeholder="请选择用户组"
+                      clearable
+                    />
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item>
+                  <n-form-item label="账户状态" path="status">
+                    <n-select
+                      v-model:value="editForm.status"
+                      :options="statusOptions"
+                      placeholder="请选择账户状态"
+                      clearable
+                    />
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item>
+                  <n-form-item label="实名状态" path="isRealname">
+                    <n-switch v-model:value="editForm.is_realname" />
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item>
+                  <n-form-item label="验证码次数" path="remainder">
+                    <n-input-number
+                      v-model:value="editForm.remainder"
+                      :min="0"
+                      placeholder="请输入验证码次数"
+                      style="width: 100%"
+                    >
+                      <template #suffix>次</template>
+                    </n-input-number>
+                  </n-form-item>
+                </n-grid-item>
+              </n-grid>
+            </n-collapse-item>
+            <n-collapse-item title="资源限制" name="resource">
+              <n-grid :cols="2" :x-gap="20" :y-gap="8" responsive="screen">
+                <n-grid-item>
+                  <n-form-item label="流量限制" path="traffic">
+                    <n-input-number
+                      v-model:value="editForm.traffic"
+                      :min="0"
+                      placeholder="请输入流量限制"
+                      style="width: 100%"
+                    >
+                      <template #suffix>GB</template>
+                    </n-input-number>
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item>
+                  <n-form-item label="隧道数量" path="proxies">
+                    <n-input-number
+                      v-model:value="editForm.proxies"
+                      :min="0"
+                      placeholder="请输入隧道数量"
+                      style="width: 100%"
+                    >
+                      <template #suffix>个</template>
+                    </n-input-number>
+                  </n-form-item>
+                </n-grid-item>
+              </n-grid>
+            </n-collapse-item>
+            <n-collapse-item title="带宽设置" name="bandwidth">
+              <n-grid :cols="2" :x-gap="20" :y-gap="8" responsive="screen">
+                <n-grid-item>
+                  <n-form-item label="出站带宽" path="out_limit">
+                    <n-input-number
+                      v-model:value="editForm.out_limit"
+                      :min="0"
+                      placeholder="请输入出站带宽"
+                      style="width: 100%"
+                    >
+                      <template #suffix>Mbps</template>
+                    </n-input-number>
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item>
+                  <n-form-item label="入站带宽" path="in_limit">
+                    <n-input-number
+                      v-model:value="editForm.in_limit"
+                      :min="0"
+                      placeholder="请输入入站带宽"
+                      style="width: 100%"
+                    >
+                      <template #suffix>Mbps</template>
+                    </n-input-number>
+                  </n-form-item>
+                </n-grid-item>
+              </n-grid>
+            </n-collapse-item>
+            <n-collapse-item title="海外带宽设置" name="overseas">
+              <n-grid :cols="2" :x-gap="20" :y-gap="8" responsive="screen">
+                <n-grid-item>
+                  <n-form-item label="海外出站" path="no_cn_out_limit">
+                    <n-input-number
+                      v-model:value="editForm.no_cn_out_limit"
+                      :min="0"
+                      placeholder="请输入海外出站带宽"
+                      style="width: 100%"
+                    >
+                      <template #suffix>Mbps</template>
+                    </n-input-number>
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item>
+                  <n-form-item label="海外入站" path="no_cn_in_limit">
+                    <n-input-number
+                      v-model:value="editForm.no_cn_in_limit"
+                      :min="0"
+                      placeholder="请输入海外入站带宽"
+                      style="width: 100%"
+                    >
+                      <template #suffix>Mbps</template>
+                    </n-input-number>
+                  </n-form-item>
+                </n-grid-item>
+              </n-grid>
+            </n-collapse-item>
+          </n-collapse>
+        </n-form>
 
-      <template #footer>
-        <NSpace justify="end">
-          <NButton size="small" @click="showEditModal = false">取消</NButton>
-          <NButton
+        <template #footer>
+          <n-space justify="end">
+            <n-button size="small" @click="showEditModal = false"
+              >取消</n-button
+            >
+            <n-button
+              type="primary"
+              size="small"
+              :loading="submitting"
+              @click="handleEditSubmit"
+            >
+              确定
+            </n-button>
+          </n-space>
+        </template>
+      </n-modal>
+
+      <n-modal
+        v-model:show="showBanReasonModal"
+        preset="dialog"
+        :title="isUnbanning ? '请输入解封原因' : '请输入封禁原因'"
+      >
+        <n-text> 输入封禁/解封原因（该原因会发送邮件给用户） </n-text>
+        <n-input
+          style="margin-top: 16px"
+          v-model:value="banReason"
+          type="textarea"
+          :placeholder="isUnbanning ? '请填写解封原因' : '请填写封禁原因'"
+          :autosize="{ minRows: 3, maxRows: 5 }"
+        />
+        <template #action>
+          <n-button @click="showBanReasonModal = false">取消</n-button>
+          <n-button
             type="primary"
-            size="small"
-            :loading="submitting"
-            @click="handleEditSubmit"
+            :disabled="!banReason.trim()"
+            @click="submitBanReason"
           >
             确定
-          </NButton>
-        </NSpace>
-      </template>
-    </NModal>
+          </n-button>
+        </template>
+      </n-modal>
 
-    <!-- 封禁/解封原因 -->
-    <NModal
-      v-model:show="showBanReasonModal"
-      preset="dialog"
-      :title="isUnbanning ? '请输入解封原因' : '请输入封禁原因'"
-    >
-      <n-text> 输入封禁/解封原因（该原因会发送邮件给用户） </n-text>
-      <NInput
-        style="margin-top: 16px"
-        v-model:value="banReason"
-        type="textarea"
-        :placeholder="isUnbanning ? '请填写解封原因' : '请填写封禁原因'"
-        :autosize="{ minRows: 3, maxRows: 5 }"
-      />
-      <template #action>
-        <NButton @click="showBanReasonModal = false">取消</NButton>
-        <NButton
-          type="primary"
-          :disabled="!banReason.trim()"
-          @click="submitBanReason"
-        >
-          确定
-        </NButton>
-      </template>
-    </NModal>
-
-    <!-- 修改状态原因 -->
-    <NModal
-      v-model:show="showEditReasonModal"
-      preset="dialog"
-      title="请输入修改账户状态原因"
-    >
-      <NInput
-        v-model:value="editReason"
-        type="textarea"
-        placeholder="请填写原因"
-        :autosize="{ minRows: 3, maxRows: 5 }"
-      />
-      <template #action>
-        <NButton @click="showEditReasonModal = false">取消</NButton>
-        <NButton
-          type="primary"
-          :disabled="!editReason.trim()"
-          @click="submitEditReason"
-        >
-          确定
-        </NButton>
-      </template>
-    </NModal>
-  </div>
+      <n-modal
+        v-model:show="showEditReasonModal"
+        preset="dialog"
+        title="请输入修改账户状态原因"
+      >
+        <n-input
+          v-model:value="editReason"
+          type="textarea"
+          placeholder="请填写原因"
+          :autosize="{ minRows: 3, maxRows: 5 }"
+        />
+        <template #action>
+          <n-button @click="showEditReasonModal = false">取消</n-button>
+          <n-button
+            type="primary"
+            :disabled="!editReason.trim()"
+            @click="submitEditReason"
+          >
+            确定
+          </n-button>
+        </template>
+      </n-modal>
+    </div>
+  </SecureArea>
 </template>
 
 <script lang="ts" setup>
 import { ref, h, computed, onMounted, nextTick, type Ref, watch } from 'vue'
 import {
-  NCard,
   NSpace,
-  NDataTable,
   NButton,
   useMessage,
   NTag,
-  NInput,
-  NSelect,
-  NIcon,
-  NModal,
-  NForm,
-  NFormItem,
-  NInputNumber,
-  NSwitch,
-  NGrid,
-  NGridItem,
   type SelectOption,
   type DataTableColumns,
   type FormInst,
   type FormRules,
-  NPagination,
 } from 'naive-ui'
 import { Search } from '@vicons/ionicons5'
+import SecureArea from '@/components/SecureArea.vue'
 import { adminApi } from '@/net'
 import type { User } from '@/net/admin/type'
 
 const message = useMessage()
 
-// 判断是否为移动端
 const isMobile = computed(() => {
   return window.innerWidth <= 768
 })
@@ -515,7 +498,6 @@ const columns: DataTableColumns<User> = [
 const formatTime = (ts: string | number) =>
   new Date(typeof ts === 'string' ? ts : ts * 1000).toLocaleString('zh-CN')
 
-// 监听分页变化，重新加载数据
 watch(
   [() => pagination.value.page, () => pagination.value.pageSize],
   () => {
@@ -524,8 +506,8 @@ watch(
   { deep: true },
 )
 
-/* ----------------- 编辑 / 封禁 / 解封 ----------------- */
 const showEditModal = ref(false)
+const expandedNames = ref<string[]>(['base'])
 const formRef = ref<FormInst | null>(null)
 const submitting = ref(false)
 const editForm = ref({
@@ -719,10 +701,8 @@ const loadData = async () => {
 
 onMounted(loadData)
 
-// 搜索防抖定时器
 let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null
 
-// 监听搜索输入，带防抖
 watch(
   () => filters.value.search,
   () => {
@@ -736,7 +716,6 @@ watch(
   },
 )
 
-// 监听其他筛选条件变化（无防抖）
 watch(
   [
     () => filters.value.group,
@@ -752,7 +731,6 @@ watch(
   { deep: true },
 )
 
-// 监听分页变化
 watch([() => pagination.value.page, () => pagination.value.pageSize], () => {
   loadData()
 })
@@ -764,40 +742,40 @@ const modalStyle = computed(() => ({
 </script>
 
 <style lang="scss" scoped>
-:deep(.n-input-number) {
+:deep(.ninput-number) {
   width: 100%;
 }
 
 @media (max-width: 768px) {
-  :deep(.n-card .n-card-header) {
+  :deep(.ncard .ncard-header) {
     padding: 16px 12px;
-    .n-card-header__main {
+    .ncard-header__main {
       font-size: 16px;
     }
   }
-  :deep(.n-card .n-card-content) {
+  :deep(.ncard .ncard-content) {
     padding: 12px;
   }
-  :deep(.n-data-table) {
+  :deep(.ndata-table) {
     font-size: 12px;
-    .n-data-table-th,
-    .n-data-table-td {
+    .ndata-table-th,
+    .ndata-table-td {
       padding: 8px 4px;
     }
   }
-  :deep(.n-form-item) {
+  :deep(.nform-item) {
     margin-bottom: 16px;
   }
-  :deep(.n-modal .n-card) {
+  :deep(.nmodal .ncard) {
     margin: 16px 8px;
   }
-  :deep(.n-modal .n-card .n-card-header) {
+  :deep(.nmodal .ncard .ncard-header) {
     padding: 16px;
   }
-  :deep(.n-modal .n-card .n-card-content) {
+  :deep(.nmodal .ncard .ncard-content) {
     padding: 16px;
   }
-  :deep(.n-button) {
+  :deep(.nbutton) {
     min-height: 32px;
   }
 }
@@ -806,10 +784,10 @@ const modalStyle = computed(() => ({
   .table-container {
     padding: 4px;
   }
-  :deep(.n-data-table) {
+  :deep(.ndata-table) {
     font-size: 11px;
   }
-  :deep(.n-modal .n-card) {
+  :deep(.nmodal .ncard) {
     margin: 8px 4px;
   }
 }

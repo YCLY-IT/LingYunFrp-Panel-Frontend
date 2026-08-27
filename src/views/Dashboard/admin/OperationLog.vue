@@ -1,201 +1,197 @@
 <template>
-  <div class="operation-log">
-    <NCard title="操作日志管理">
-      <NSpace vertical :size="12">
-        <div class="filter-row" style="display: flex; gap: 12px">
-          <NInput
-            v-model:value="filters.search"
-            placeholder="搜索用户名、操作类型或模块"
-            clearable
-            style="flex: 1"
-            @update:value="handleSearch"
-          >
-            <template #prefix>
-              <NIcon :component="Search" />
-            </template>
-          </NInput>
-          <NSelect
-            v-model:value="filters.module"
-            :options="moduleOptions"
-            placeholder="操作模块"
-            clearable
-            style="width: 180px"
-            @update:value="handleFilterChange"
-          />
-          <NSelect
-            v-model:value="filters.status"
-            :options="statusOptions"
-            placeholder="操作状态"
-            clearable
-            style="width: 140px"
-            @update:value="handleFilterChange"
-          />
-          <NButton type="error" @click="handleClear">
-            <template #icon>
-              <NIcon :component="Trash2" />
-            </template>
-            清空日志
-          </NButton>
-        </div>
-
-        <div class="table-container">
-          <NDataTable
-            :columns="columns"
-            :data="logs"
-            :loading="loading"
-            :pagination="false"
-            striped
-            :scroll-x="1000"
-          />
-        </div>
-
-        <div style="display: flex; justify-content: right">
-          <NPagination
-            v-model:page="pagination.page"
-            v-model:page-size="pagination.pageSize"
-            :item-count="pagination.itemCount"
-            :page-count="pagination.pageCount"
-            :page-sizes="pagination.pageSizes"
-            show-size-picker
-            @update:page="fetchLogs"
-            @update:page-size="handlePageSizeChange"
-          >
-            <template #prefix="{ itemCount }"> 共 {{ itemCount }} 条 </template>
-          </NPagination>
-        </div>
-      </NSpace>
-    </NCard>
-
-    <NModal
-      v-model:show="showDetailModal"
-      preset="card"
-      title="日志详情"
-      style="width: 600px"
-    >
-      <NTabs type="line" animated v-if="selectedLog">
-        <NTabPane name="basic" tab="基本信息">
-          <NDescriptions bordered :column="2">
-            <NDescriptionsItem label="ID" :span="1">{{
-              selectedLog.id
-            }}</NDescriptionsItem>
-            <NDescriptionsItem label="用户" :span="1"
-              >{{ selectedLog.user_name }} (ID:
-              {{ selectedLog.user_id }})</NDescriptionsItem
+  <SecureArea>
+    <div class="operationlog">
+      <n-card title="操作日志管理">
+        <n-space vertical :size="12">
+          <div class="filter-row" style="display: flex; gap: 12px">
+            <n-input
+              v-model:value="filters.search"
+              placeholder="搜索用户名、操作类型或模块"
+              clearable
+              style="flex: 1"
+              @update:value="handleSearch"
             >
-            <NDescriptionsItem label="操作时间" :span="2">{{
-              formatDate(selectedLog.operation_time)
-            }}</NDescriptionsItem>
-            <NDescriptionsItem label="操作IP" :span="1">{{
-              selectedLog.operation_ip
-            }}</NDescriptionsItem>
-            <NDescriptionsItem label="操作状态" :span="1">
-              <NTag
-                :type="
-                  selectedLog.operation_status === '成功' ? 'success' : 'error'
-                "
+              <template #prefix>
+                <n-icon :component="Search" />
+              </template>
+            </n-input>
+            <n-select
+              v-model:value="filters.module"
+              :options="moduleOptions"
+              placeholder="操作模块"
+              clearable
+              style="width: 180px"
+              @update:value="handleFilterChange"
+            />
+            <n-select
+              v-model:value="filters.status"
+              :options="statusOptions"
+              placeholder="操作状态"
+              clearable
+              style="width: 140px"
+              @update:value="handleFilterChange"
+            />
+            <n-button type="error" @click="handleClear">
+              <template #icon>
+                <n-icon :component="Trash2" />
+              </template>
+              清空日志
+            </n-button>
+          </div>
+
+          <div class="table-container">
+            <n-data-table
+              :columns="columns"
+              :data="logs"
+              :loading="loading"
+              :pagination="false"
+              striped
+              :scroll-x="1000"
+            />
+          </div>
+
+          <div style="display: flex; justify-content: right">
+            <n-pagination
+              v-model:page="pagination.page"
+              v-model:page-size="pagination.pageSize"
+              :item-count="pagination.itemCount"
+              :page-count="pagination.pageCount"
+              :page-sizes="pagination.pageSizes"
+              show-size-picker
+              @update:page="fetchLogs"
+              @update:page-size="handlePageSizeChange"
+            >
+              <template #prefix="{ itemCount }">
+                共 {{ itemCount }} 条
+              </template>
+            </n-pagination>
+          </div>
+        </n-space>
+      </n-card>
+
+      <n-modal
+        v-model:show="showDetailModal"
+        preset="card"
+        title="日志详情"
+        style="width: 600px"
+      >
+        <n-tabs type="line" animated v-if="selectedLog">
+          <n-tab-pane name="basic" tab="基本信息">
+            <n-descriptions bordered :column="2">
+              <n-descriptions-item label="ID" :span="1">{{
+                selectedLog.id
+              }}</n-descriptions-item>
+              <n-descriptions-item label="用户" :span="1"
+                >{{ selectedLog.user_name }} (ID:
+                {{ selectedLog.user_id }})</n-descriptions-item
               >
-                {{ selectedLog.operation_status }}
-              </NTag>
-            </NDescriptionsItem>
-            <NDescriptionsItem label="操作类型" :span="1">{{
-              selectedLog.operation_type
-            }}</NDescriptionsItem>
-            <NDescriptionsItem label="操作模块" :span="1">{{
-              selectedLog.operation_module
-            }}</NDescriptionsItem>
-            <NDescriptionsItem label="操作耗时" :span="1"
-              >{{ selectedLog.operation_duration }}ms</NDescriptionsItem
-            >
-            <NDescriptionsItem label="消息" :span="2">{{
-              selectedLog.message
-            }}</NDescriptionsItem>
-          </NDescriptions>
-        </NTabPane>
-        <NTabPane name="requestInfo" tab="请求信息">
-          <NDescriptions bordered :column="1">
-            <NDescriptionsItem label="请求方法">
-              <NTag type="info" size="small">{{
-                selectedLog.request_method
-              }}</NTag>
-            </NDescriptionsItem>
-            <NDescriptionsItem label="请求URL">
-              <code style="word-break: break-all">{{
-                selectedLog.request_url
-              }}</code>
-            </NDescriptionsItem>
-            <NDescriptionsItem label="操作IP">
-              {{ selectedLog.operation_ip }}
-            </NDescriptionsItem>
-            <NDescriptionsItem label="客户端类型 (User-Agent)">
-              <div style="word-break: break-all; font-size: 12px">
-                {{ selectedLog.client_type }}
-              </div>
-            </NDescriptionsItem>
-          </NDescriptions>
-        </NTabPane>
-        <NTabPane name="request" tab="请求数据">
-          <NDescriptions bordered :column="1">
-            <NDescriptionsItem
-              label="提交内容"
-              v-if="selectedLog.submit_content"
-            >
-              <pre style="overflow-x: auto">{{
-                JSON.stringify(selectedLog.submit_content, null, 2)
-              }}</pre>
-            </NDescriptionsItem>
-            <NDescriptionsItem v-if="!selectedLog.submit_content">
-              无提交内容
-            </NDescriptionsItem>
-          </NDescriptions>
-        </NTabPane>
-        <NTabPane name="status" tab="状态变更">
-          <NDescriptions bordered :column="1">
-            <NDescriptionsItem
-              label="操作前状态"
-              v-if="selectedLog.before_status"
-            >
-              <pre style="overflow-x: auto">{{
-                JSON.stringify(selectedLog.before_status, null, 2)
-              }}</pre>
-            </NDescriptionsItem>
-            <NDescriptionsItem v-if="!selectedLog.before_status">
-              无操作前状态
-            </NDescriptionsItem>
-            <NDescriptionsItem
-              label="操作后状态"
-              v-if="selectedLog.after_status"
-            >
-              <pre style="overflow-x: auto">{{
-                JSON.stringify(selectedLog.after_status, null, 2)
-              }}</pre>
-            </NDescriptionsItem>
-            <NDescriptionsItem v-if="!selectedLog.after_status">
-              无操作后状态
-            </NDescriptionsItem>
-          </NDescriptions>
-        </NTabPane>
-      </NTabs>
-    </NModal>
-  </div>
+              <n-descriptions-item label="操作时间" :span="2">{{
+                formatDate(selectedLog.operation_time)
+              }}</n-descriptions-item>
+              <n-descriptions-item label="操作IP" :span="1">{{
+                selectedLog.operation_ip
+              }}</n-descriptions-item>
+              <n-descriptions-item label="操作状态" :span="1">
+                <n-tag
+                  :type="
+                    selectedLog.operation_status === '成功'
+                      ? 'success'
+                      : 'error'
+                  "
+                >
+                  {{ selectedLog.operation_status }}
+                </n-tag>
+              </n-descriptions-item>
+              <n-descriptions-item label="操作类型" :span="1">{{
+                selectedLog.operation_type
+              }}</n-descriptions-item>
+              <n-descriptions-item label="操作模块" :span="1">{{
+                selectedLog.operation_module
+              }}</n-descriptions-item>
+              <n-descriptions-item label="操作耗时" :span="1"
+                >{{ selectedLog.operation_duration }}ms</n-descriptions-item
+              >
+              <n-descriptions-item label="消息" :span="2">{{
+                selectedLog.message
+              }}</n-descriptions-item>
+            </n-descriptions>
+          </n-tab-pane>
+          <n-tab-pane name="requestInfo" tab="请求信息">
+            <n-descriptions bordered :column="1">
+              <n-descriptions-item label="请求方法">
+                <n-tag type="info" size="small">{{
+                  selectedLog.request_method
+                }}</n-tag>
+              </n-descriptions-item>
+              <n-descriptions-item label="请求URL">
+                <code style="word-break: break-all">{{
+                  selectedLog.request_url
+                }}</code>
+              </n-descriptions-item>
+              <n-descriptions-item label="操作IP">
+                {{ selectedLog.operation_ip }}
+              </n-descriptions-item>
+              <n-descriptions-item label="客户端类型 (User-Agent)">
+                <div style="word-break: break-all; font-size: 12px">
+                  {{ selectedLog.client_type }}
+                </div>
+              </n-descriptions-item>
+            </n-descriptions>
+          </n-tab-pane>
+          <n-tab-pane name="request" tab="请求数据">
+            <n-descriptions bordered :column="1">
+              <n-descriptions-item
+                label="提交内容"
+                v-if="selectedLog.submit_content"
+              >
+                <pre style="overflow-x: auto">{{
+                  JSON.stringify(selectedLog.submit_content, null, 2)
+                }}</pre>
+              </n-descriptions-item>
+              <n-descriptions-item v-if="!selectedLog.submit_content">
+                无提交内容
+              </n-descriptions-item>
+            </n-descriptions>
+          </n-tab-pane>
+          <n-tab-pane name="status" tab="状态变更">
+            <n-descriptions bordered :column="1">
+              <n-descriptions-item
+                label="操作前状态"
+                v-if="selectedLog.before_status"
+              >
+                <pre style="overflow-x: auto">{{
+                  JSON.stringify(selectedLog.before_status, null, 2)
+                }}</pre>
+              </n-descriptions-item>
+              <n-descriptions-item v-if="!selectedLog.before_status">
+                无操作前状态
+              </n-descriptions-item>
+              <n-descriptions-item
+                label="操作后状态"
+                v-if="selectedLog.after_status"
+              >
+                <pre style="overflow-x: auto">{{
+                  JSON.stringify(selectedLog.after_status, null, 2)
+                }}</pre>
+              </n-descriptions-item>
+              <n-descriptions-item v-if="!selectedLog.after_status">
+                无操作后状态
+              </n-descriptions-item>
+            </n-descriptions>
+          </n-tab-pane>
+        </n-tabs>
+      </n-modal>
+    </div>
+  </SecureArea>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, h } from 'vue'
 import {
-  NCard,
   NSpace,
-  NInput,
-  NSelect,
-  NDataTable,
-  NPagination,
   NIcon,
   NButton,
-  NModal,
-  NDescriptions,
-  NDescriptionsItem,
   NTag,
-  NTabs,
-  NTabPane,
   type DataTableColumns,
   useDialog,
   useMessage,
@@ -207,6 +203,7 @@ import {
   clearAdminOperationLog,
 } from '@/net/admin/admin'
 import type { OperationLog } from '@/net/admin/type'
+import SecureArea from '@/components/SecureArea.vue'
 
 const dialog = useDialog()
 const message = useMessage()
@@ -259,10 +256,8 @@ const handlePageSizeChange = (size: number) => {
   fetchLogs()
 }
 
-// 搜索防抖定时器
 let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null
 
-// 处理搜索输入
 const handleSearch = () => {
   if (searchDebounceTimer) {
     clearTimeout(searchDebounceTimer)
@@ -273,7 +268,6 @@ const handleSearch = () => {
   }, 300)
 }
 
-// 处理筛选条件变化
 const handleFilterChange = () => {
   pagination.value.page = 1
   fetchLogs()
@@ -481,7 +475,7 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
-.operation-log {
+.operationlog {
   padding: 12px;
 }
 
@@ -489,33 +483,31 @@ onMounted(() => {
   overflow-x: auto;
 }
 
-/* 移动端适配 */
 @media (max-width: 768px) {
   .filter-row {
     flex-direction: column !important;
     gap: 8px !important;
   }
 
-  .filter-row .n-input {
+  .filter-row .ninput {
     width: 100% !important;
     flex: none !important;
   }
 
-  .filter-row .n-select {
+  .filter-row .nselect {
     width: 100% !important;
   }
 
-  .filter-row .n-button {
+  .filter-row .nbutton {
     width: 100% !important;
   }
 
-  /* 分页组件移动端适配 */
-  .operation-log :deep(.n-pagination) {
+  .operationlog :deep(.npagination) {
     flex-wrap: wrap;
     gap: 8px;
   }
 
-  .operation-log :deep(.n-pagination-prefix) {
+  .operationlog :deep(.npagination-prefix) {
     width: 100%;
     text-align: center;
     margin-bottom: 4px;
