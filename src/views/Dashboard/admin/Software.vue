@@ -1,276 +1,290 @@
 <template>
-  <div class="software-container">
-    <n-card title="软件管理">
-      <!-- 桌面端筛选 -->
-      <div v-if="!isMobile" class="software-sort-row">
-        <n-select
-          v-model:value="sortOptions.key"
-          :options="sortFieldOptions"
-          placeholder="排序字段"
-          clearable
-          class="software-sort-item"
-          @update:value="handleSortFieldChange"
-        />
-        <n-select
-          v-model:value="sortOptions.order"
-          :options="sortOrderOptions"
-          placeholder="排序方式"
-          clearable
-          class="software-sort-item"
-          @update:value="handleSortOrderChange"
-        />
-        <n-button
-          type="primary"
-          @click="handleAddSoftware"
-          class="software-sort-btn"
-          size="medium"
-        >
-          添加软件
-        </n-button>
-      </div>
-      <!-- 移动端筛选 -->
-      <n-space v-else vertical :size="8" style="width: 100%">
-        <n-grid :cols="2" :x-gap="8">
-          <n-grid-item>
-            <n-select
-              v-model:value="sortOptions.key"
-              :options="sortFieldOptions"
-              placeholder="排序字段"
-              clearable
-              style="width: 100%"
-              @update:value="handleSortFieldChange"
-            />
-          </n-grid-item>
-          <n-grid-item>
-            <n-select
-              v-model:value="sortOptions.order"
-              :options="sortOrderOptions"
-              placeholder="排序方式"
-              clearable
-              style="width: 100%"
-              @update:value="handleSortOrderChange"
-            />
-          </n-grid-item>
-        </n-grid>
-        <n-button
-          type="primary"
-          @click="handleAddSoftware"
-          style="width: 100%"
-          size="medium"
-        >
-          添加软件
-        </n-button>
-      </n-space>
-
-      <div class="table-container">
-        <n-data-table
-          :columns="columns"
-          :data="sortedSoftwareList"
-          :loading="initLoading"
-          :scroll-x="900"
-          size="medium"
-        />
-      </div>
-    </n-card>
-
-    <!-- 添加/编辑软件对话框 -->
-    <n-modal
-      v-model:show="showAddModal"
-      :title="editingSoftware ? '编辑软件' : '添加软件'"
-      preset="card"
-      :style="modalStyle"
-      :mask-closable="false"
-      @update:show="(show) => !show && handleModalClosed('software-modal')"
-    >
-      <n-form
-        ref="formRef"
-        :model="formValue"
-        :rules="rules"
-        label-placement="top"
-        label-width="auto"
-        require-mark-placement="right-hanging"
-      >
-        <n-form-item label="软件名称" path="name">
-          <n-input
-            v-model:value="formValue.name"
-            placeholder="请输入软件名称"
-          />
-        </n-form-item>
-        <n-form-item label="软件代号" path="code">
-          <n-input
-            v-model:value="formValue.code"
-            placeholder="请输入软件代号"
-          />
-        </n-form-item>
-        <n-form-item label="描述" path="description">
-          <n-input
-            v-model:value="formValue.description"
-            type="textarea"
-            placeholder="请输入软件描述"
-            :autosize="{ minRows: 3, maxRows: 5 }"
-          />
-        </n-form-item>
-        <n-form-item label="下载源" path="sourceId">
+  <SecureArea>
+    <div class="software-container">
+      <n-card title="软件管理">
+        <div v-if="!isMobile" class="software-sort-row">
           <n-select
-            v-model:value="formValue.sourceId"
-            :options="
-              downloadSources.map((source) => ({
-                label: source.name,
-                value: source.id,
-              }))
-            "
-            placeholder="请选择下载源"
+            v-model:value="sortOptions.key"
+            :options="sortFieldOptions"
+            placeholder="排序字段"
+            clearable
+            class="software-sort-item"
+            @update:value="handleSortFieldChange"
           />
-        </n-form-item>
-      </n-form>
-      <template #footer>
-        <n-space justify="end" :size="[8, 8]">
-          <n-button @click="handleCloseSoftwareModal" size="medium"
-            >取消</n-button
+          <n-select
+            v-model:value="sortOptions.order"
+            :options="sortOrderOptions"
+            placeholder="排序方式"
+            clearable
+            class="software-sort-item"
+            @update:value="handleSortOrderChange"
+          />
+          <n-button
+            type="primary"
+            @click="handleAddSoftware"
+            class="software-sort-btn"
+            size="medium"
           >
-          <n-button type="primary" @click="handleSubmit" size="medium"
-            >确定</n-button
-          >
-        </n-space>
-      </template>
-    </n-modal>
+            添加软件
+          </n-button>
+        </div>
 
-    <!-- 版本管理对话框 -->
-    <n-modal
-      v-model:show="showVersionModal"
-      title="版本管理"
-      preset="card"
-      :style="versionModalStyle"
-      :mask-closable="false"
-      @update:show="(show) => !show && handleModalClosed('version-modal')"
-    >
-      <n-space vertical :size="16">
-        <n-space justify="space-between" align="center">
-          <n-alert
-            v-if="editingSoftware"
-            type="info"
-            :bordered="false"
-            style="flex: 1"
+        <n-space v-else vertical :size="8" style="width: 100%">
+          <n-grid :cols="2" :x-gap="8">
+            <n-grid-item>
+              <n-select
+                v-model:value="sortOptions.key"
+                :options="sortFieldOptions"
+                placeholder="排序字段"
+                clearable
+                style="width: 100%"
+                @update:value="handleSortFieldChange"
+              />
+            </n-grid-item>
+            <n-grid-item>
+              <n-select
+                v-model:value="sortOptions.order"
+                :options="sortOrderOptions"
+                placeholder="排序方式"
+                clearable
+                style="width: 100%"
+                @update:value="handleSortOrderChange"
+              />
+            </n-grid-item>
+          </n-grid>
+          <n-button
+            type="primary"
+            @click="handleAddSoftware"
+            style="width: 100%"
+            size="medium"
           >
-            当前软件: {{ editingSoftware.name }} (ID: {{ editingSoftware.id }})
-          </n-alert>
-          <n-button type="primary" @click="handleAddVersion" size="small">
-            添加版本
+            添加软件
           </n-button>
         </n-space>
 
-        <div class="version-table-container">
+        <div class="table-container">
           <n-data-table
-            :columns="versionColumns"
-            :data="currentVersions"
-            :scroll-x="600"
-            size="small"
+            :columns="columns"
+            :data="sortedSoftwareList"
+            :loading="initLoading"
+            :scroll-x="900"
+            size="medium"
           />
         </div>
-      </n-space>
-      <template #footer>
-        <n-space justify="end" :size="[8, 8]">
-          <n-button @click="handleCloseVersionModal" size="small"
-            >关闭</n-button
-          >
-        </n-space>
-      </template>
-    </n-modal>
+      </n-card>
 
-    <!-- 添加/编辑版本对话框 -->
-    <n-modal
-      v-model:show="showAddVersionModal"
-      :title="editingVersion ? '编辑版本' : '添加版本'"
-      preset="card"
-      :style="modalStyle"
-      :mask-closable="false"
-      @update:show="(show) => !show && handleModalClosed('add-version-modal')"
-    >
-      <n-form
-        ref="versionFormRef"
-        :model="versionForm"
-        :rules="versionRules"
-        label-placement="top"
-        label-width="auto"
-        require-mark-placement="right-hanging"
+      <n-modal
+        v-model:show="showAddModal"
+        :title="editingSoftware ? '编辑软件' : '添加软件'"
+        preset="card"
+        :style="modalStyle"
+        :mask-closable="false"
+        @update:show="(show) => !show && handleModalClosed('software-modal')"
       >
-        <n-grid :cols="24" :x-gap="12">
-          <n-form-item-gi :span="12" label="版本号" path="version">
-            <n-input
-              v-model:value="versionForm.version"
-              placeholder="请输入版本号"
-            />
-          </n-form-item-gi>
-          <n-form-item-gi :span="12" label="文件大小(MB)" path="size">
-            <n-input-number
-              v-model:value="versionForm.size"
-              placeholder="请输入文件大小"
-              style="width: 100%"
-              :min="0"
-              :precision="2"
-            />
-          </n-form-item-gi>
-        </n-grid>
-
-        <n-form-item label="下载地址" path="download_url">
-          <n-input
-            v-model:value="versionForm.download_url"
-            placeholder="请输入下载地址"
-          />
-        </n-form-item>
-
-        <n-grid :cols="24" :x-gap="12">
-          <n-form-item-gi :span="12" label="操作系统" path="os">
-            <n-select
-              v-model:value="versionForm.os"
-              :options="osOptions"
-              placeholder="请选择操作系统"
-            />
-          </n-form-item-gi>
-          <n-form-item-gi :span="12" label="架构" path="arch">
-            <n-select
-              v-model:value="versionForm.arch"
-              :options="archOptions"
-              placeholder="请选择架构"
-            />
-          </n-form-item-gi>
-        </n-grid>
-
-        <n-form-item label="强制更新" path="force_update">
-          <n-checkbox v-model:checked="versionForm.force_update">
-            是否强制更新到此版本
-          </n-checkbox>
-          <template #feedback>
-            开启后，用户打开部分软件时会强制更新到此版本
-          </template>
-        </n-form-item>
-      </n-form>
-      <template #footer>
-        <n-space justify="end" :size="[8, 8]">
-          <n-button @click="handleCloseAddVersionModal" size="small"
-            >取消</n-button
+        <n-form
+          ref="formRef"
+          :model="formValue"
+          :rules="rules"
+          label-placement="top"
+          label-width="auto"
+          require-mark-placement="right-hanging"
+        >
+          <n-collapse
+            v-model:expanded-names="expandedNames"
+            accordion
+            :bordered="false"
           >
-          <n-button type="primary" @click="handleVersionSubmit" size="small"
-            >确定</n-button
-          >
+            <n-collapse-item title="基本信息" name="base">
+              <n-form-item label="软件名称" path="name">
+                <n-input
+                  v-model:value="formValue.name"
+                  placeholder="请输入软件名称"
+                />
+              </n-form-item>
+              <n-form-item label="软件代号" path="code">
+                <n-input
+                  v-model:value="formValue.code"
+                  placeholder="请输入软件代号"
+                />
+              </n-form-item>
+            </n-collapse-item>
+            <n-collapse-item title="详细描述" name="desc">
+              <n-form-item label="描述" path="description">
+                <n-input
+                  v-model:value="formValue.description"
+                  type="textarea"
+                  placeholder="请输入软件描述"
+                  :autosize="{ minRows: 3, maxRows: 5 }"
+                />
+              </n-form-item>
+            </n-collapse-item>
+            <n-collapse-item title="下载源" name="source">
+              <n-form-item label="下载源" path="sourceId">
+                <n-select
+                  v-model:value="formValue.sourceId"
+                  :options="
+                    downloadSources.map((source) => ({
+                      label: source.name,
+                      value: source.id,
+                    }))
+                  "
+                  placeholder="请选择下载源"
+                />
+              </n-form-item>
+            </n-collapse-item>
+          </n-collapse>
+        </n-form>
+        <template #footer>
+          <n-space justify="end" :size="[8, 8]">
+            <n-button @click="handleCloseSoftwareModal" size="medium"
+              >取消</n-button
+            >
+            <n-button type="primary" @click="handleSubmit" size="medium"
+              >确定</n-button
+            >
+          </n-space>
+        </template>
+      </n-modal>
+
+      <n-modal
+        v-model:show="showVersionModal"
+        title="版本管理"
+        preset="card"
+        :style="versionModalStyle"
+        :mask-closable="false"
+        @update:show="(show) => !show && handleModalClosed('versionmodal')"
+      >
+        <n-space vertical :size="16">
+          <n-space justify="space-between" align="center">
+            <n-alert
+              v-if="editingSoftware"
+              type="info"
+              :bordered="false"
+              style="flex: 1"
+            >
+              当前软件: {{ editingSoftware.name }} (ID:
+              {{ editingSoftware.id }})
+            </n-alert>
+            <n-button type="primary" @click="handleAddVersion" size="small">
+              添加版本
+            </n-button>
+          </n-space>
+
+          <div class="versiontable-container">
+            <n-data-table
+              :columns="versionColumns"
+              :data="currentVersions"
+              :scroll-x="600"
+              size="small"
+            />
+          </div>
         </n-space>
-      </template>
-    </n-modal>
-  </div>
+        <template #footer>
+          <n-space justify="end" :size="[8, 8]">
+            <n-button @click="handleCloseVersionModal" size="small"
+              >关闭</n-button
+            >
+          </n-space>
+        </template>
+      </n-modal>
+
+      <n-modal
+        v-model:show="showAddVersionModal"
+        :title="editingVersion ? '编辑版本' : '添加版本'"
+        preset="card"
+        :style="modalStyle"
+        :mask-closable="false"
+        @update:show="(show) => !show && handleModalClosed('add-versionmodal')"
+      >
+        <n-form
+          ref="versionFormRef"
+          :model="versionForm"
+          :rules="versionRules"
+          label-placement="top"
+          label-width="auto"
+          require-mark-placement="right-hanging"
+        >
+          <n-collapse
+            v-model:expanded-names="expandedNames"
+            accordion
+            :bordered="false"
+          >
+            <n-collapse-item title="版本信息" name="base">
+              <n-grid :cols="24" :x-gap="12">
+                <n-form-item-gi :span="12" label="版本号" path="version">
+                  <n-input
+                    v-model:value="versionForm.version"
+                    placeholder="请输入版本号"
+                  />
+                </n-form-item-gi>
+                <n-form-item-gi :span="12" label="文件大小(MB)" path="size">
+                  <n-input-number
+                    v-model:value="versionForm.size"
+                    placeholder="请输入文件大小"
+                    style="width: 100%"
+                    :min="0"
+                    :precision="2"
+                  />
+                </n-form-item-gi>
+              </n-grid>
+            </n-collapse-item>
+            <n-collapse-item title="下载与平台" name="download">
+              <n-form-item label="下载地址" path="download_url">
+                <n-input
+                  v-model:value="versionForm.download_url"
+                  placeholder="请输入下载地址"
+                />
+              </n-form-item>
+              <n-grid :cols="24" :x-gap="12">
+                <n-form-item-gi :span="12" label="操作系统" path="os">
+                  <n-select
+                    v-model:value="versionForm.os"
+                    :options="osOptions"
+                    placeholder="请选择操作系统"
+                  />
+                </n-form-item-gi>
+                <n-form-item-gi :span="12" label="架构" path="arch">
+                  <n-select
+                    v-model:value="versionForm.arch"
+                    :options="archOptions"
+                    placeholder="请选择架构"
+                  />
+                </n-form-item-gi>
+              </n-grid>
+            </n-collapse-item>
+            <n-collapse-item title="更新选项" name="update">
+              <n-form-item label="强制更新" path="force_update">
+                <n-checkbox v-model:checked="versionForm.force_update">
+                  是否强制更新到此版本
+                </n-checkbox>
+                <template #feedback>
+                  开启后，用户打开部分软件时会强制更新到此版本
+                </template>
+              </n-form-item>
+            </n-collapse-item>
+          </n-collapse>
+        </n-form>
+        <template #footer>
+          <n-space justify="end" :size="[8, 8]">
+            <n-button @click="handleCloseAddVersionModal" size="small"
+              >取消</n-button
+            >
+            <n-button type="primary" @click="handleVersionSubmit" size="small"
+              >确定</n-button
+            >
+          </n-space>
+        </template>
+      </n-modal>
+    </div>
+  </SecureArea>
 </template>
 
 <script setup lang="ts">
 import { ref, h, onMounted, onUnmounted, computed } from 'vue'
-import {
-  NButton,
-  NSpace,
-  useMessage,
-  NCheckbox,
-  NGrid,
-  NGridItem,
-} from 'naive-ui'
+import { NButton, NSpace, useMessage } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 import { adminApi } from '@/net'
+import SecureArea from '@/components/SecureArea.vue'
 import type { Software, SoftwareVersion } from '@/net/admin/type'
 
 interface DownloadSource {
@@ -283,7 +297,6 @@ interface DownloadSource {
 
 const message = useMessage()
 
-// 判断是否为移动端
 const isMobile = computed(() => {
   return window.innerWidth <= 768
 })
@@ -292,6 +305,7 @@ const loading = ref(false)
 const showAddModal = ref(false)
 const showVersionModal = ref(false)
 const showAddVersionModal = ref(false)
+const expandedNames = ref<string[]>(['base'])
 const editingSoftware = ref<Software | null>(null)
 const softwareList = ref<Software[]>([])
 const downloadSources = ref<DownloadSource[]>([])
@@ -340,7 +354,7 @@ const sortedSoftwareList = computed(() => {
         default:
           return 0
       }
-      // 主字段相同用ID次级排序
+
       if (aValue === bValue) {
         return sortOptions.value.order === 'asc' ? a.id - b.id : b.id - a.id
       }
@@ -357,7 +371,6 @@ const sortedSoftwareList = computed(() => {
 const handleSortFieldChange = () => {}
 const handleSortOrderChange = () => {}
 
-// 响应式样式计算
 const modalStyle = computed(() => {
   const isMobile = window.innerWidth <= 768
   return {
@@ -622,7 +635,7 @@ const handleAddVersion = () => {
     size: 0,
     force_update: false,
   }
-  window.$modalMutex?.open('add-version-modal')
+  window.$modalMutex?.open('add-versionmodal')
 }
 
 const handleEditVersion = (row: SoftwareVersion) => {
@@ -635,7 +648,7 @@ const handleEditVersion = (row: SoftwareVersion) => {
     size: row.size,
     force_update: row.force_update,
   }
-  window.$modalMutex?.open('add-version-modal')
+  window.$modalMutex?.open('add-versionmodal')
 }
 
 const handleCloseSoftwareModal = () => {
@@ -643,15 +656,14 @@ const handleCloseSoftwareModal = () => {
 }
 
 const handleCloseVersionModal = () => {
-  window.$modalMutex?.close('version-modal')
+  window.$modalMutex?.close('versionmodal')
 }
 
 const handleCloseAddVersionModal = () => {
   editingVersion.value = null
-  window.$modalMutex?.close('add-version-modal')
+  window.$modalMutex?.close('add-versionmodal')
 }
 
-// 处理弹窗关闭事件（包括手动关闭）
 const handleModalClosed = (modalName: string) => {
   window.$modalMutex?.close(modalName)
 }
@@ -673,7 +685,7 @@ const handleVersionManage = (row: Software) => {
     (version) => version.software_id === row.id,
   )
   console.log('过滤后的版本:', currentVersions.value)
-  window.$modalMutex?.open('version-modal')
+  window.$modalMutex?.open('versionmodal')
 }
 
 const handleDelete = async (row: Software) => {
@@ -789,7 +801,7 @@ const handleVersionSubmit = async () => {
       })
       message.success(data.message)
     }
-    window.$modalMutex?.close('add-version-modal')
+    window.$modalMutex?.close('add-versionmodal')
     versionForm.value = {
       version: '',
       download_url: '',
@@ -862,7 +874,6 @@ const getDownloadSource = async () => {
   }
 }
 
-// 初始化加载数据
 onMounted(async () => {
   initLoading.value = true
   await Promise.all([
@@ -879,13 +890,13 @@ onMounted(async () => {
   )
 
   unregisterVersionModal.value = window.$modalMutex?.register(
-    'version-modal',
+    'versionmodal',
     () => (showVersionModal.value = true),
     () => (showVersionModal.value = false),
   )
 
   unregisterAddVersionModal.value = window.$modalMutex?.register(
-    'add-version-modal',
+    'add-versionmodal',
     () => (showAddVersionModal.value = true),
     () => (showAddVersionModal.value = false),
   )
@@ -899,76 +910,74 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
-.version-table-container {
+.versiontable-container {
   overflow-x: auto;
 
-  :deep(.n-data-table) {
+  :deep(.ndata-table) {
     min-width: 600px;
   }
 }
 
-:deep(.n-input-number) {
+:deep(.ninput-number) {
   width: 100%;
 }
 
-// 移动端优化
 @media (max-width: 768px) {
-  :deep(.n-card .n-card-header) {
+  :deep(.ncard .ncard-header) {
     padding: 16px 12px;
 
-    .n-card-header__main {
+    .ncard-header__main {
       font-size: 16px;
     }
   }
 
-  :deep(.n-card .n-card-content) {
+  :deep(.ncard .ncard-content) {
     padding: 12px;
   }
 
-  :deep(.n-data-table) {
+  :deep(.ndata-table) {
     font-size: 12px;
 
-    .n-data-table-th {
+    .ndata-table-th {
       padding: 8px 4px;
     }
 
-    .n-data-table-td {
+    .ndata-table-td {
       padding: 8px 4px;
     }
   }
 
-  :deep(.n-form-item) {
+  :deep(.nform-item) {
     margin-bottom: 16px;
   }
 
-  :deep(.n-modal .n-card) {
+  :deep(.nmodal .ncard) {
     margin: 16px 8px;
   }
 
-  :deep(.n-modal .n-card .n-card-header) {
+  :deep(.nmodal .ncard .ncard-header) {
     padding: 16px;
   }
 
-  :deep(.n-modal .n-card .n-card-content) {
+  :deep(.nmodal .ncard .ncard-content) {
     padding: 16px;
   }
 
-  :deep(.n-button) {
+  :deep(.nbutton) {
     min-height: 32px;
   }
 }
 
-// 超小屏幕优化
 @media (max-width: 480px) {
   .software-container {
     padding: 4px;
   }
 
-  :deep(.n-data-table) {
+  :deep(.ndata-table) {
     font-size: 11px;
   }
 
-  :deep(.n-modal .n-card) {
+  :deep(.nmodal .ncard) {
     margin: 8px 4px;
   }
 }
@@ -992,6 +1001,5 @@ onUnmounted(() => {
   width: auto;
   padding: 0 40px;
   align-self: center;
-  /* 让按钮高度和小号下拉框一致 */
 }
 </style>

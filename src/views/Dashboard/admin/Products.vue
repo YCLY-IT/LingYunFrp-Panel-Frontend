@@ -1,433 +1,437 @@
 <template>
-  <div>
-    <NCard title="产品管理">
-      <NSpace vertical>
-        <!-- 桌面端筛选 -->
-        <div v-if="!isMobile" class="product-sort-row">
-          <n-select
-            v-model:value="sortOptions.key"
-            :options="sortFieldOptions"
-            placeholder="排序字段"
-            clearable
-            class="product-sort-item"
-            @update:value="handleSortFieldChange"
-          />
-          <n-select
-            v-model:value="sortOptions.order"
-            :options="sortOrderOptions"
-            placeholder="排序方式"
-            clearable
-            class="product-sort-item"
-            @update:value="handleSortOrderChange"
-          />
-          <n-button
-            type="primary"
-            @click="openAddModal"
-            class="product-sort-btn"
-            size="medium"
-          >
-            添加产品
-          </n-button>
-        </div>
-        <!-- 移动端筛选 -->
-        <NSpace v-else vertical :size="8" style="width: 100%">
-          <NGrid :cols="2" :x-gap="8">
-            <NGridItem>
-              <n-select
-                v-model:value="sortOptions.key"
-                :options="sortFieldOptions"
-                placeholder="排序字段"
-                clearable
-                style="width: 100%"
-                @update:value="handleSortFieldChange"
-              />
-            </NGridItem>
-            <NGridItem>
-              <n-select
-                v-model:value="sortOptions.order"
-                :options="sortOrderOptions"
-                placeholder="排序方式"
-                clearable
-                style="width: 100%"
-                @update:value="handleSortOrderChange"
-              />
-            </NGridItem>
-          </NGrid>
-          <n-button
-            type="primary"
-            @click="openAddModal"
-            style="width: 100%"
-            size="medium"
-          >
-            添加产品
-          </n-button>
-        </NSpace>
-        <div class="table-container">
-          <NDataTable
-            remote
-            :columns="productColumns"
-            :data="sortedProductsData"
-            :loading="loading"
-            :pagination="{ pageSize: 10 }"
-            :scroll-x="900"
-          />
-        </div>
-      </NSpace>
-    </NCard>
-
-    <NModal
-      v-model:show="showAddModal"
-      preset="dialog"
-      title="添加产品"
-      style="width: 600px; max-width: 90vw"
-    >
-      <NTabs v-model:value="activeTab" type="line" style="margin-top: 16px">
-        <NTabPane name="basic" tab="基本信息">
-          <NForm
-            ref="addFormRef"
-            :model="formValue"
-            :rules="productRules"
-            label-placement="left"
-            label-width="100px"
-          >
-            <NGrid :cols="2" :x-gap="20" :y-gap="8" responsive="screen">
-              <NGridItem span="2">
-                <NFormItem label="分组" path="type">
-                  <NSelect
-                    v-model:value="formValue.type"
-                    :options="groupsOptions"
-                    placeholder="请选择产品分组"
-                  />
-                </NFormItem>
-              </NGridItem>
-              <NGridItem span="2">
-                <NFormItem label="名称" path="name">
-                  <NInput
-                    v-model:value="formValue.name"
-                    placeholder="请输入产品名称"
-                    clearable
-                  />
-                </NFormItem>
-              </NGridItem>
-              <NGridItem span="2">
-                <NFormItem label="描述" path="desc">
-                  <NInput
-                    type="textarea"
-                    v-model:value="formValue.desc"
-                    placeholder="请输入产品描述"
-                    clearable
-                  />
-                </NFormItem>
-              </NGridItem>
-              <NGridItem>
-                <NFormItem label="价格" path="price">
-                  <NInputNumber
-                    v-model:value="formValue.price"
-                    placeholder="请输入产品价格"
-                    style="width: 100%"
-                  />
-                </NFormItem>
-              </NGridItem>
-              <NGridItem>
-                <NFormItem label="积分价格" path="pointPrice">
-                  <NInputNumber
-                    v-model:value="formValue.pointPrice"
-                    placeholder="请输入积分价格"
-                    style="width: 100%"
-                  />
-                </NFormItem>
-              </NGridItem>
-              <NGridItem>
-                <NFormItem label="是否为永久" path="isPermanent">
-                  <NSwitch v-model:value="formValue.isPermanent">
-                    <template #on>是</template>
-                    <template #off>否</template>
-                  </NSwitch>
-                </NFormItem>
-              </NGridItem>
-              <NGridItem span="2">
-                <NFormItem label="支付方式" path="payMethods">
-                  <NCheckboxGroup v-model:value="formValue.payMethods">
-                    <NSpace>
-                      <NCheckbox value="points">积分支付</NCheckbox>
-                      <NCheckbox value="money">金钱支付</NCheckbox>
-                    </NSpace>
-                  </NCheckboxGroup>
-                </NFormItem>
-              </NGridItem>
-              <NGridItem span="2">
-                <NAlert
-                  type="info"
-                  :show-icon="true"
-                  style="margin-bottom: 8px"
-                >
-                  产品默认以一个月为周期，如需永久产品请开启"是否为永久"开关
-                </NAlert>
-              </NGridItem>
-            </NGrid>
-          </NForm>
-        </NTabPane>
-        <NTabPane name="discount" tab="折扣规则">
-          <NAlert type="warning" :show-icon="true" style="margin-bottom: 16px">
-            请设置不同购买月数对应的折扣率，例如：购买3个月打9折
-          </NAlert>
-          <NSpace vertical style="width: 100%">
-            <NCollapse v-if="discountRulesList.length > 0">
-              <NCollapseItem
-                :title="`已设置 ${discountRulesList.length} 条折扣规则`"
-              >
-                <NSpace vertical>
-                  <NSpace
-                    v-for="(rule, index) in discountRulesList"
-                    :key="index"
-                    align="center"
-                  >
-                    <NInputNumber
-                      v-model:value="rule.months"
-                      :min="1"
-                      placeholder="月数"
-                      style="width: 100px"
-                    />
-                    <span>个月</span>
-                    <NInputNumber
-                      v-model:value="rule.discount"
-                      :min="0.01"
-                      :max="1"
-                      :step="0.01"
-                      placeholder="折扣"
-                      style="width: 100px"
-                    />
-                    <span>折</span>
-                    <NButton
-                      type="error"
-                      size="small"
-                      circle
-                      @click="removeDiscountRule(index)"
-                    >
-                      <template #icon>
-                        <n-icon><TrashOutline /></n-icon>
-                      </template>
-                    </NButton>
-                  </NSpace>
-                </NSpace>
-              </NCollapseItem>
-            </NCollapse>
-            <NText v-else type="info">暂无折扣规则</NText>
-            <NButton type="primary" size="small" @click="addDiscountRule">
-              <template #icon>
-                <n-icon><AddOutline /></n-icon>
-              </template>
-              添加折扣规则
-            </NButton>
-          </NSpace>
-        </NTabPane>
-      </NTabs>
-      <template #action>
-        <NSpace justify="end" style="margin-top: 16px">
-          <NButton @click="closeModal('add')" size="medium">取消</NButton>
-          <NButton type="primary" @click="handleSubmit" size="medium"
-            >确定</NButton
-          >
-        </NSpace>
-      </template>
-    </NModal>
-
-    <NModal
-      v-model:show="showEditModal"
-      preset="dialog"
-      title="编辑产品"
-      style="width: 600px; max-width: 90vw"
-    >
-      <NTabs v-model:value="activeTab" type="line" style="margin-top: 16px">
-        <NTabPane name="basic" tab="基本信息">
-          <NForm
-            ref="editFormRef"
-            :model="formValue"
-            :rules="productRules"
-            label-placement="left"
-            label-width="100px"
-          >
-            <NGrid :cols="2" :x-gap="20" :y-gap="8" responsive="screen">
-              <NGridItem span="2">
-                <NFormItem label="分组" path="type">
-                  <NSelect
-                    v-model:value="formValue.type"
-                    :options="groupsOptions"
-                    placeholder="请选择产品分组"
-                  />
-                </NFormItem>
-              </NGridItem>
-              <NGridItem span="2">
-                <NFormItem label="名称" path="name">
-                  <NInput
-                    v-model:value="formValue.name"
-                    placeholder="请输入产品名称"
-                    clearable
-                  />
-                </NFormItem>
-              </NGridItem>
-              <NGridItem span="2">
-                <NFormItem label="描述" path="desc">
-                  <NInput
-                    type="textarea"
-                    v-model:value="formValue.desc"
-                    placeholder="请输入产品描述"
-                    clearable
-                  />
-                </NFormItem>
-              </NGridItem>
-              <NGridItem>
-                <NFormItem label="价格" path="price">
-                  <NInputNumber
-                    v-model:value="formValue.price"
-                    placeholder="请输入产品价格"
-                    style="width: 100%"
-                  />
-                </NFormItem>
-              </NGridItem>
-              <NGridItem>
-                <NFormItem label="积分价格" path="pointPrice">
-                  <NInputNumber
-                    v-model:value="formValue.pointPrice"
-                    placeholder="请输入积分价格"
-                    style="width: 100%"
-                  />
-                </NFormItem>
-              </NGridItem>
-              <NGridItem>
-                <NFormItem label="是否为永久" path="isPermanent">
-                  <NSwitch v-model:value="formValue.isPermanent">
-                    <template #on>是</template>
-                    <template #off>否</template>
-                  </NSwitch>
-                </NFormItem>
-              </NGridItem>
-              <NGridItem span="2">
-                <NFormItem label="支付方式" path="payMethods">
-                  <NCheckboxGroup v-model:value="formValue.payMethods">
-                    <NSpace>
-                      <NCheckbox value="points">积分支付</NCheckbox>
-                      <NCheckbox value="money">金钱支付</NCheckbox>
-                    </NSpace>
-                  </NCheckboxGroup>
-                </NFormItem>
-              </NGridItem>
-            </NGrid>
-          </NForm>
-        </NTabPane>
-        <NTabPane name="discount" tab="折扣规则">
-          <NAlert type="warning" :show-icon="true" style="margin-bottom: 16px">
-            请设置不同购买月数对应的折扣率，例如：购买3个月打9折
-          </NAlert>
-          <NSpace vertical style="width: 100%">
-            <NCollapse v-if="discountRulesList.length > 0">
-              <NCollapseItem
-                :title="`已设置 ${discountRulesList.length} 条折扣规则`"
-              >
-                <NSpace vertical>
-                  <NSpace
-                    v-for="(rule, index) in discountRulesList"
-                    :key="index"
-                    align="center"
-                  >
-                    <NInputNumber
-                      v-model:value="rule.months"
-                      :min="1"
-                      placeholder="月数"
-                      style="width: 100px"
-                    />
-                    <span>个月</span>
-                    <NInputNumber
-                      v-model:value="rule.discount"
-                      :min="0.01"
-                      :max="1"
-                      :step="0.01"
-                      placeholder="折扣"
-                      style="width: 100px"
-                    />
-                    <span>折</span>
-                    <NButton
-                      type="error"
-                      size="small"
-                      circle
-                      @click="removeDiscountRule(index)"
-                    >
-                      <template #icon>
-                        <n-icon><TrashOutline /></n-icon>
-                      </template>
-                    </NButton>
-                  </NSpace>
-                </NSpace>
-              </NCollapseItem>
-            </NCollapse>
-            <NText v-else type="info">暂无折扣规则</NText>
-            <NButton
+  <SecureArea>
+    <div>
+      <n-card title="产品管理">
+        <n-space vertical>
+          <div v-if="!isMobile" class="product-sort-row">
+            <n-select
+              v-model:value="sortOptions.key"
+              :options="sortFieldOptions"
+              placeholder="排序字段"
+              clearable
+              class="product-sort-item"
+              @update:value="handleSortFieldChange"
+            />
+            <n-select
+              v-model:value="sortOptions.order"
+              :options="sortOrderOptions"
+              placeholder="排序方式"
+              clearable
+              class="product-sort-item"
+              @update:value="handleSortOrderChange"
+            />
+            <n-button
               type="primary"
-              size="small"
-              @click="addDiscountRule"
-              style="margin-top: 8px"
+              @click="openAddModal"
+              class="product-sort-btn"
+              size="medium"
             >
-              <template #icon>
-                <n-icon><AddOutline /></n-icon>
-              </template>
-              添加折扣规则
-            </NButton>
-          </NSpace>
-        </NTabPane>
-      </NTabs>
-      <template #action>
-        <NSpace justify="end" style="margin-top: 16px">
-          <NButton @click="closeModal('edit')" size="medium">取消</NButton>
-          <NButton type="primary" @click="handleSubmit" size="medium"
-            >确定</NButton
-          >
-        </NSpace>
-      </template>
-    </NModal>
-  </div>
+              添加产品
+            </n-button>
+          </div>
+
+          <n-space v-else vertical :size="8" style="width: 100%">
+            <n-grid :cols="2" :x-gap="8">
+              <n-grid-item>
+                <n-select
+                  v-model:value="sortOptions.key"
+                  :options="sortFieldOptions"
+                  placeholder="排序字段"
+                  clearable
+                  style="width: 100%"
+                  @update:value="handleSortFieldChange"
+                />
+              </n-grid-item>
+              <n-grid-item>
+                <n-select
+                  v-model:value="sortOptions.order"
+                  :options="sortOrderOptions"
+                  placeholder="排序方式"
+                  clearable
+                  style="width: 100%"
+                  @update:value="handleSortOrderChange"
+                />
+              </n-grid-item>
+            </n-grid>
+            <n-button
+              type="primary"
+              @click="openAddModal"
+              style="width: 100%"
+              size="medium"
+            >
+              添加产品
+            </n-button>
+          </n-space>
+          <div class="table-container">
+            <n-data-table
+              remote
+              :columns="productColumns"
+              :data="sortedProductsData"
+              :loading="loading"
+              :pagination="{ pageSize: 10 }"
+              :scroll-x="900"
+            />
+          </div>
+        </n-space>
+      </n-card>
+
+      <n-modal
+        v-model:show="showAddModal"
+        preset="dialog"
+        title="添加产品"
+        style="width: 600px; max-width: 90vw"
+      >
+        <n-tabs v-model:value="activeTab" type="line" style="margin-top: 16px">
+          <n-tab-pane name="basic" tab="基本信息">
+            <n-form
+              ref="addFormRef"
+              :model="formValue"
+              :rules="productRules"
+              label-placement="left"
+              label-width="100px"
+            >
+              <n-grid :cols="2" :x-gap="20" :y-gap="8" responsive="screen">
+                <n-grid-item span="2">
+                  <n-form-item label="分组" path="type">
+                    <n-select
+                      v-model:value="formValue.type"
+                      :options="groupsOptions"
+                      placeholder="请选择产品分组"
+                    />
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item span="2">
+                  <n-form-item label="名称" path="name">
+                    <n-input
+                      v-model:value="formValue.name"
+                      placeholder="请输入产品名称"
+                      clearable
+                    />
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item span="2">
+                  <n-form-item label="描述" path="desc">
+                    <n-input
+                      type="textarea"
+                      v-model:value="formValue.desc"
+                      placeholder="请输入产品描述"
+                      clearable
+                    />
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item>
+                  <n-form-item label="价格" path="price">
+                    <n-input-number
+                      v-model:value="formValue.price"
+                      placeholder="请输入产品价格"
+                      style="width: 100%"
+                    />
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item>
+                  <n-form-item label="积分价格" path="pointPrice">
+                    <n-input-number
+                      v-model:value="formValue.pointPrice"
+                      placeholder="请输入积分价格"
+                      style="width: 100%"
+                    />
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item>
+                  <n-form-item label="是否为永久" path="isPermanent">
+                    <n-switch v-model:value="formValue.isPermanent">
+                      <template #on>是</template>
+                      <template #off>否</template>
+                    </n-switch>
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item span="2">
+                  <n-form-item label="支付方式" path="payMethods">
+                    <n-checkbox-group v-model:value="formValue.payMethods">
+                      <n-space>
+                        <n-checkbox value="points">积分支付</n-checkbox>
+                        <n-checkbox value="money">金钱支付</n-checkbox>
+                      </n-space>
+                    </n-checkbox-group>
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item span="2">
+                  <n-alert
+                    type="info"
+                    :show-icon="true"
+                    style="margin-bottom: 8px"
+                  >
+                    产品默认以一个月为周期，如需永久产品请开启"是否为永久"开关
+                  </n-alert>
+                </n-grid-item>
+              </n-grid>
+            </n-form>
+          </n-tab-pane>
+          <n-tab-pane name="discount" tab="折扣规则">
+            <n-alert
+              type="warning"
+              :show-icon="true"
+              style="margin-bottom: 16px"
+            >
+              请设置不同购买月数对应的折扣率，例如：购买3个月打9折
+            </n-alert>
+            <n-space vertical style="width: 100%">
+              <n-collapse v-if="discountRulesList.length > 0">
+                <n-collapse-item
+                  :title="`已设置 ${discountRulesList.length} 条折扣规则`"
+                >
+                  <n-space vertical>
+                    <n-space
+                      v-for="(rule, index) in discountRulesList"
+                      :key="index"
+                      align="center"
+                    >
+                      <n-input-number
+                        v-model:value="rule.months"
+                        :min="1"
+                        placeholder="月数"
+                        style="width: 100px"
+                      />
+                      <span>个月</span>
+                      <n-input-number
+                        v-model:value="rule.discount"
+                        :min="0.01"
+                        :max="1"
+                        :step="0.01"
+                        placeholder="折扣"
+                        style="width: 100px"
+                      />
+                      <span>折</span>
+                      <n-button
+                        type="error"
+                        size="small"
+                        circle
+                        @click="removeDiscountRule(index)"
+                      >
+                        <template #icon>
+                          <n-icon><TrashOutline /></n-icon>
+                        </template>
+                      </n-button>
+                    </n-space>
+                  </n-space>
+                </n-collapse-item>
+              </n-collapse>
+              <n-text v-else type="info">暂无折扣规则</n-text>
+              <n-button type="primary" size="small" @click="addDiscountRule">
+                <template #icon>
+                  <n-icon><AddOutline /></n-icon>
+                </template>
+                添加折扣规则
+              </n-button>
+            </n-space>
+          </n-tab-pane>
+        </n-tabs>
+        <template #action>
+          <n-space justify="end" style="margin-top: 16px">
+            <n-button @click="closeModal('add')" size="medium">取消</n-button>
+            <n-button type="primary" @click="handleSubmit" size="medium"
+              >确定</n-button
+            >
+          </n-space>
+        </template>
+      </n-modal>
+
+      <n-modal
+        v-model:show="showEditModal"
+        preset="dialog"
+        title="编辑产品"
+        style="width: 600px; max-width: 90vw"
+      >
+        <n-tabs v-model:value="activeTab" type="line" style="margin-top: 16px">
+          <n-tab-pane name="basic" tab="基本信息">
+            <n-form
+              ref="editFormRef"
+              :model="formValue"
+              :rules="productRules"
+              label-placement="left"
+              label-width="100px"
+            >
+              <n-collapse
+                v-model:expanded-names="expandedNames"
+                accordion
+                :bordered="false"
+              >
+                <n-collapse-item title="基本信息" name="base">
+                  <n-grid :cols="2" :x-gap="20" :y-gap="8" responsive="screen">
+                    <n-grid-item span="2">
+                      <n-form-item label="分组" path="type">
+                        <n-select
+                          v-model:value="formValue.type"
+                          :options="groupsOptions"
+                          placeholder="请选择产品分组"
+                        />
+                      </n-form-item>
+                    </n-grid-item>
+                    <n-grid-item span="2">
+                      <n-form-item label="名称" path="name">
+                        <n-input
+                          v-model:value="formValue.name"
+                          placeholder="请输入产品名称"
+                          clearable
+                        />
+                      </n-form-item>
+                    </n-grid-item>
+                    <n-grid-item span="2">
+                      <n-form-item label="描述" path="desc">
+                        <n-input
+                          type="textarea"
+                          v-model:value="formValue.desc"
+                          placeholder="请输入产品描述"
+                          clearable
+                        />
+                      </n-form-item>
+                    </n-grid-item>
+                  </n-grid>
+                </n-collapse-item>
+                <n-collapse-item title="价格与支付" name="price">
+                  <n-grid :cols="2" :x-gap="20" :y-gap="8" responsive="screen">
+                    <n-grid-item>
+                      <n-form-item label="价格" path="price">
+                        <n-input-number
+                          v-model:value="formValue.price"
+                          placeholder="请输入产品价格"
+                          style="width: 100%"
+                        />
+                      </n-form-item>
+                    </n-grid-item>
+                    <n-grid-item>
+                      <n-form-item label="积分价格" path="pointPrice">
+                        <n-input-number
+                          v-model:value="formValue.pointPrice"
+                          placeholder="请输入积分价格"
+                          style="width: 100%"
+                        />
+                      </n-form-item>
+                    </n-grid-item>
+                    <n-grid-item>
+                      <n-form-item label="是否为永久" path="isPermanent">
+                        <n-switch v-model:value="formValue.isPermanent">
+                          <template #on>是</template>
+                          <template #off>否</template>
+                        </n-switch>
+                      </n-form-item>
+                    </n-grid-item>
+                    <n-grid-item span="2">
+                      <n-form-item label="支付方式" path="payMethods">
+                        <n-checkbox-group v-model:value="formValue.payMethods">
+                          <n-space>
+                            <n-checkbox value="points">积分支付</n-checkbox>
+                            <n-checkbox value="money">金钱支付</n-checkbox>
+                          </n-space>
+                        </n-checkbox-group>
+                      </n-form-item>
+                    </n-grid-item>
+                  </n-grid>
+                </n-collapse-item>
+              </n-collapse>
+            </n-form>
+          </n-tab-pane>
+          <n-tab-pane name="discount" tab="折扣规则">
+            <n-alert
+              type="warning"
+              :show-icon="true"
+              style="margin-bottom: 16px"
+            >
+              请设置不同购买月数对应的折扣率，例如：购买3个月打9折
+            </n-alert>
+            <n-space vertical style="width: 100%">
+              <n-collapse v-if="discountRulesList.length > 0">
+                <n-collapse-item
+                  :title="`已设置 ${discountRulesList.length} 条折扣规则`"
+                >
+                  <n-space vertical>
+                    <n-space
+                      v-for="(rule, index) in discountRulesList"
+                      :key="index"
+                      align="center"
+                    >
+                      <n-input-number
+                        v-model:value="rule.months"
+                        :min="1"
+                        placeholder="月数"
+                        style="width: 100px"
+                      />
+                      <span>个月</span>
+                      <n-input-number
+                        v-model:value="rule.discount"
+                        :min="0.01"
+                        :max="1"
+                        :step="0.01"
+                        placeholder="折扣"
+                        style="width: 100px"
+                      />
+                      <span>折</span>
+                      <n-button
+                        type="error"
+                        size="small"
+                        circle
+                        @click="removeDiscountRule(index)"
+                      >
+                        <template #icon>
+                          <n-icon><TrashOutline /></n-icon>
+                        </template>
+                      </n-button>
+                    </n-space>
+                  </n-space>
+                </n-collapse-item>
+              </n-collapse>
+              <n-text v-else type="info">暂无折扣规则</n-text>
+              <n-button
+                type="primary"
+                size="small"
+                @click="addDiscountRule"
+                style="margin-top: 8px"
+              >
+                <template #icon>
+                  <n-icon><AddOutline /></n-icon>
+                </template>
+                添加折扣规则
+              </n-button>
+            </n-space>
+          </n-tab-pane>
+        </n-tabs>
+        <template #action>
+          <n-space justify="end" style="margin-top: 16px">
+            <n-button @click="closeModal('edit')" size="medium">取消</n-button>
+            <n-button type="primary" @click="handleSubmit" size="medium"
+              >确定</n-button
+            >
+          </n-space>
+        </template>
+      </n-modal>
+    </div>
+  </SecureArea>
 </template>
 
 <script lang="ts" setup>
 import { h, onMounted, ref, watch, computed } from 'vue'
 import {
   NButton,
-  NCard,
-  NDataTable,
-  NForm,
-  NFormItem,
-  NInput,
-  NInputNumber,
-  NModal,
-  NSelect,
   NSpace,
-  NCheckbox,
-  NCheckboxGroup,
   NTag,
   useMessage,
   DataTableColumns,
   FormInst,
   FormRules,
-  NIcon,
-  NCollapse,
-  NCollapseItem,
-  NText,
-  NTabs,
-  NTabPane,
 } from 'naive-ui'
 import { TrashOutline, AddOutline } from '@vicons/ionicons5'
 import { adminApi } from '@/net'
 import { Group, Product } from '@/types'
+import SecureArea from '@/components/SecureArea.vue'
 
 const message = useMessage()
 
-// 判断是否为移动端
 const isMobile = computed(() => {
   return window.innerWidth <= 768
 })
 
 const loading = ref(false)
 
-// 表单相关
 const addFormRef = ref<FormInst | null>(null)
 const formValue = ref<Product>({
   id: 0,
@@ -444,14 +448,12 @@ const formValue = ref<Product>({
   discountRules: '',
 })
 
-// 折扣规则数组
 interface DiscountRule {
   months: number
   discount: number
 }
 const discountRulesList = ref<DiscountRule[]>([])
 
-// 当前激活的标签页
 const activeTab = ref('basic')
 
 const mode = ref<'add' | 'edit'>('add')
@@ -461,6 +463,7 @@ const groupsData = ref<Group[]>([])
 const groupsOptions = ref<{ label: string; value: string }[]>([])
 const showAddModal = ref(false)
 const showEditModal = ref(false)
+const expandedNames = ref<string[]>(['base'])
 
 const sortFieldOptions = [
   { label: 'ID', value: 'id' },
@@ -509,7 +512,7 @@ const sortedProductsData = computed(() => {
         default:
           return 0
       }
-      // 主字段相同用ID次级排序
+
       if (aValue === bValue) {
         return sortOptions.value.order === 'asc' ? a.id - b.id : b.id - a.id
       }
@@ -526,7 +529,6 @@ const sortedProductsData = computed(() => {
 const handleSortFieldChange = () => {}
 const handleSortOrderChange = () => {}
 
-// 过滤分组（排除 user 和 admin）
 watch(
   groupsData,
   (newGroups) => {
@@ -540,8 +542,6 @@ watch(
   { immediate: true },
 )
 
-// 表单验证规则
-// 将原有 productRules 替换为：
 const productRules: FormRules = {
   type: {
     required: true,
@@ -578,7 +578,6 @@ const productRules: FormRules = {
   },
 } satisfies FormRules
 
-// 表格列定义
 const productColumns: DataTableColumns<Product> = [
   { title: 'ID', key: 'id' },
   { title: '分组', key: 'type' },
@@ -672,7 +671,6 @@ const productColumns: DataTableColumns<Product> = [
   },
 ]
 
-// 关闭模态框
 const closeModal = (modalMode: 'add' | 'edit') => {
   if (modalMode === 'add') {
     showAddModal.value = false
@@ -683,7 +681,6 @@ const closeModal = (modalMode: 'add' | 'edit') => {
   }
 }
 
-// 重置表单
 const resetForm = () => {
   formValue.value = {
     id: 0,
@@ -703,17 +700,14 @@ const resetForm = () => {
   activeTab.value = 'basic'
 }
 
-// 添加折扣规则
 const addDiscountRule = () => {
   discountRulesList.value.push({ months: 3, discount: 0.9 })
 }
 
-// 删除折扣规则
 const removeDiscountRule = (index: number) => {
   discountRulesList.value.splice(index, 1)
 }
 
-// 将折扣规则列表转换为 JSON 字符串
 const convertDiscountRulesToJson = (): string => {
   if (discountRulesList.value.length === 0) return ''
   const rules: Record<string, number> = {}
@@ -723,7 +717,6 @@ const convertDiscountRulesToJson = (): string => {
   return JSON.stringify(rules)
 }
 
-// 将 JSON 字符串转换为折扣规则列表
 const parseDiscountRulesFromJson = (jsonStr: string) => {
   if (!jsonStr) {
     discountRulesList.value = []
@@ -742,13 +735,11 @@ const parseDiscountRulesFromJson = (jsonStr: string) => {
   }
 }
 
-// 打开添加模态框
 const openAddModal = () => {
   resetForm()
   showAddModal.value = true
 }
 
-// 打开编辑模态框
 const openEditModal = (product: Product) => {
   const paymentMethods = product.payMethod ? product.payMethod.split(';') : []
   formValue.value = { ...product, payMethods: paymentMethods }
@@ -758,7 +749,6 @@ const openEditModal = (product: Product) => {
   showEditModal.value = true
 }
 
-// 验证折扣规则
 const validateDiscountRules = (): boolean => {
   if (discountRulesList.value.length === 0) return true
 
@@ -778,12 +768,10 @@ const validateDiscountRules = (): boolean => {
   return true
 }
 
-// 提交产品表单
 const handleSubmit = async () => {
   try {
     await addFormRef.value?.validate()
 
-    // 验证折扣规则
     if (!validateDiscountRules()) {
       return
     }
@@ -828,7 +816,6 @@ const handleSubmit = async () => {
   }
 }
 
-// 删除产品
 const handleDeleteProduct = async (productId: number) => {
   try {
     const data = await adminApi.deleteProduct(productId)
@@ -843,7 +830,6 @@ const handleDeleteProduct = async (productId: number) => {
   }
 }
 
-// 获取产品列表
 const fetchProductsInfo = async () => {
   loading.value = true
   try {
@@ -879,7 +865,6 @@ const fetchProductsInfo = async () => {
   }
 }
 
-// 获取分组信息
 const fetchGroupsInfo = async () => {
   try {
     const data = await adminApi.getGroupList()
@@ -900,52 +885,52 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-:deep(.n-input-number) {
+:deep(.ninput-number) {
   width: 100%;
 }
-// 移动端优化
+
 @media (max-width: 768px) {
-  :deep(.n-card .n-card-header) {
+  :deep(.ncard .ncard-header) {
     padding: 16px 12px;
-    .n-card-header__main {
+    .ncard-header__main {
       font-size: 16px;
     }
   }
-  :deep(.n-card .n-card-content) {
+  :deep(.ncard .ncard-content) {
     padding: 12px;
   }
-  :deep(.n-data-table) {
+  :deep(.ndata-table) {
     font-size: 12px;
-    .n-data-table-th,
-    .n-data-table-td {
+    .ndata-table-th,
+    .ndata-table-td {
       padding: 8px 4px;
     }
   }
-  :deep(.n-form-item) {
+  :deep(.nform-item) {
     margin-bottom: 16px;
   }
-  :deep(.n-modal .n-card) {
+  :deep(.nmodal .ncard) {
     margin: 16px 8px;
   }
-  :deep(.n-modal .n-card .n-card-header) {
+  :deep(.nmodal .ncard .ncard-header) {
     padding: 16px;
   }
-  :deep(.n-modal .n-card .n-card-content) {
+  :deep(.nmodal .ncard .ncard-content) {
     padding: 16px;
   }
-  :deep(.n-button) {
+  :deep(.nbutton) {
     min-height: 32px;
   }
 }
-// 超小屏幕优化
+
 @media (max-width: 480px) {
   .table-container {
     padding: 4px;
   }
-  :deep(.n-data-table) {
+  :deep(.ndata-table) {
     font-size: 11px;
   }
-  :deep(.n-modal .n-card) {
+  :deep(.nmodal .ncard) {
     margin: 8px 4px;
   }
 }

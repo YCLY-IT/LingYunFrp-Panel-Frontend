@@ -1,908 +1,930 @@
 <template>
-  <div>
-    <NCard title="系统管理">
-      <NTabs type="line" animated @update:value="handleTabUpdate">
-        <NTabPane name="security" tab="基本">
-          <NForm
-            ref="securityFormRef"
-            :model="securityForm"
-            :rules="securityRules"
-            :label-placement="isMobile ? 'top' : 'left'"
-            :label-width="isMobile ? undefined : '120px'"
-            require-mark-placement="right-hanging"
-          >
-            <NGrid :cols="2" :x-gap="24" :y-gap="16" responsive="screen">
-              <NGridItem>
-                <NFormItem label="注册开关" path="allowRegister">
-                  <NSwitch
-                    v-model:value="securityForm.allowRegister"
-                    :rail-style="switchButtonRailStyle"
-                  >
-                    <template #checked>启用</template>
-                    <template #unchecked>禁用</template>
-                  </NSwitch>
-                </NFormItem>
-              </NGridItem>
-              <NGridItem>
-                <NFormItem label="登录开关" path="allowLogin">
-                  <NSwitch
-                    v-model:value="securityForm.allowLogin"
-                    :rail-style="switchButtonRailStyle"
-                  >
-                    <template #checked>启用</template>
-                    <template #unchecked>禁用</template>
-                  </NSwitch>
-                </NFormItem>
-              </NGridItem>
-              <NGridItem>
-                <NFormItem label="实名认证" path="allowRealName">
-                  <NSwitch
-                    v-model:value="securityForm.allowRealName"
-                    :rail-style="switchButtonRailStyle"
-                  >
-                    <template #checked>启用</template>
-                    <template #unchecked>禁用</template>
-                  </NSwitch>
-                </NFormItem>
-              </NGridItem>
-              <NGridItem>
-                <NFormItem label="签到功能" path="allowSign">
-                  <NSwitch
-                    v-model:value="securityForm.allowSign"
-                    :rail-style="switchButtonRailStyle"
-                  >
-                    <template #checked>启用</template>
-                    <template #unchecked>禁用</template>
-                  </NSwitch>
-                </NFormItem>
-              </NGridItem>
-              <NGridItem>
-                <NFormItem label="邮箱发送" path="allowEmail">
-                  <NSwitch
-                    v-model:value="securityForm.allowEmail"
-                    :rail-style="switchButtonRailStyle"
-                  >
-                    <template #checked>启用</template>
-                    <template #unchecked>禁用</template>
-                  </NSwitch>
-                </NFormItem>
-              </NGridItem>
-              <NGridItem>
-                <NFormItem label="短信发送" path="allowSms">
-                  <NSwitch
-                    v-model:value="securityForm.allowSms"
-                    :rail-style="switchButtonRailStyle"
-                  >
-                    <template #checked>启用</template>
-                    <template #unchecked>禁用</template>
-                  </NSwitch>
-                </NFormItem>
-              </NGridItem>
-              <NGridItem :span="isMobile ? 2 : 1">
-                <NFormItem label="签到积分范围">
-                  <div class="range-inputs">
-                    <NInputNumber
-                      v-model:value="securityForm.signPointsMin"
-                      :min="0"
-                      placeholder="最小值"
-                      class="range-input"
-                    />
-                    <span class="range-separator">-</span>
-                    <NInputNumber
-                      v-model:value="securityForm.signPointsMax"
-                      :min="0"
-                      placeholder="最大值"
-                      class="range-input"
-                    />
-                  </div>
-                </NFormItem>
-              </NGridItem>
-              <NGridItem :span="isMobile ? 2 : 1">
-                <NFormItem label="签到流量范围">
-                  <div class="range-inputs">
-                    <NInputNumber
-                      v-model:value="securityForm.signTrafficMin"
-                      :min="0"
-                      placeholder="最小值"
-                      class="range-input"
-                    >
-                      <template #suffix>MB</template>
-                    </NInputNumber>
-                    <span class="range-separator">-</span>
-                    <NInputNumber
-                      v-model:value="securityForm.signTrafficMax"
-                      :min="0"
-                      placeholder="最大值"
-                      class="range-input"
-                    >
-                      <template #suffix>MB</template>
-                    </NInputNumber>
-                  </div>
-                </NFormItem>
-              </NGridItem>
-            </NGrid>
-            <NDivider style="margin: 24px 0" />
-            <NSpace justify="end">
-              <NButton type="primary" @click="handleSaveSecurity"
-                >保存设置</NButton
-              >
-            </NSpace>
-          </NForm>
-        </NTabPane>
-
-        <NTabPane name="smtp" tab="邮件">
-          <NForm
-            ref="smtpFormRef"
-            :model="smtpForm"
-            :rules="smtpRules"
-            :label-placement="isMobile ? 'top' : 'left'"
-            :label-width="isMobile ? undefined : '120px'"
-            require-mark-placement="right-hanging"
-          >
-            <NGrid
-              :cols="isMobile ? 1 : 2"
-              :x-gap="24"
-              :y-gap="16"
-              responsive="screen"
+  <SecureArea>
+    <div>
+      <n-card title="系统管理">
+        <n-tabs type="line" animated @update:value="handleTabUpdate">
+          <n-tab-pane name="security" tab="基本">
+            <n-form
+              ref="securityFormRef"
+              :model="securityForm"
+              :rules="securityRules"
+              :label-placement="isMobile ? 'top' : 'left'"
+              :label-width="isMobile ? undefined : '120px'"
+              require-mark-placement="right-hanging"
             >
-              <NGridItem>
-                <NFormItem label="SMTP服务器" path="host">
-                  <NInput
-                    v-model:value="smtpForm.host"
-                    placeholder="请输入SMTP服务器地址"
-                  />
-                </NFormItem>
-              </NGridItem>
-              <NGridItem>
-                <NFormItem label="端口" path="port">
-                  <NInputNumber
-                    v-model:value="smtpForm.port"
-                    :min="1"
-                    :max="65535"
-                    placeholder="请输入端口号"
-                  />
-                </NFormItem>
-              </NGridItem>
-              <NGridItem>
-                <NFormItem label="加密方式" path="encryption">
-                  <NSelect
-                    v-model:value="smtpForm.encryption"
-                    :options="encryptionOptions"
-                    placeholder="请选择加密方式"
-                  />
-                </NFormItem>
-              </NGridItem>
-              <NGridItem>
-                <NFormItem label="用户名" path="username">
-                  <NInput
-                    v-model:value="smtpForm.username"
-                    placeholder="请输入邮箱用户名"
-                  />
-                </NFormItem>
-              </NGridItem>
-              <NGridItem>
-                <NFormItem label="密码" path="password">
-                  <NInput
-                    v-model:value="smtpForm.password"
-                    type="password"
-                    placeholder="请输入邮箱密码或授权码"
-                    show-password-on="click"
-                  />
-                </NFormItem>
-              </NGridItem>
-              <NGridItem>
-                <NFormItem label="发件人邮箱" path="fromEmail">
-                  <NInput
-                    v-model:value="smtpForm.fromEmail"
-                    placeholder="请输入发件人邮箱地址"
-                  />
-                </NFormItem>
-              </NGridItem>
-            </NGrid>
-            <NDivider style="margin: 24px 0" />
-            <NSpace justify="end">
-              <NButton type="primary" :loading="loading" @click="handleSaveSmtp"
-                >保存设置</NButton
-              >
-            </NSpace>
-          </NForm>
-        </NTabPane>
+              <n-grid :cols="2" :x-gap="24" :y-gap="16" responsive="screen">
+                <n-grid-item>
+                  <n-form-item label="注册开关" path="allowRegister">
+                    <n-switch
+                      v-model:value="securityForm.allowRegister"
+                      :rail-style="switchButtonRailStyle"
+                    >
+                      <template #checked>启用</template>
+                      <template #unchecked>禁用</template>
+                    </n-switch>
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item>
+                  <n-form-item label="登录开关" path="allowLogin">
+                    <n-switch
+                      v-model:value="securityForm.allowLogin"
+                      :rail-style="switchButtonRailStyle"
+                    >
+                      <template #checked>启用</template>
+                      <template #unchecked>禁用</template>
+                    </n-switch>
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item>
+                  <n-form-item label="实名认证" path="allowRealName">
+                    <n-switch
+                      v-model:value="securityForm.allowRealName"
+                      :rail-style="switchButtonRailStyle"
+                    >
+                      <template #checked>启用</template>
+                      <template #unchecked>禁用</template>
+                    </n-switch>
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item>
+                  <n-form-item label="签到功能" path="allowSign">
+                    <n-switch
+                      v-model:value="securityForm.allowSign"
+                      :rail-style="switchButtonRailStyle"
+                    >
+                      <template #checked>启用</template>
+                      <template #unchecked>禁用</template>
+                    </n-switch>
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item>
+                  <n-form-item label="邮箱发送" path="allowEmail">
+                    <n-switch
+                      v-model:value="securityForm.allowEmail"
+                      :rail-style="switchButtonRailStyle"
+                    >
+                      <template #checked>启用</template>
+                      <template #unchecked>禁用</template>
+                    </n-switch>
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item>
+                  <n-form-item label="短信发送" path="allowSms">
+                    <n-switch
+                      v-model:value="securityForm.allowSms"
+                      :rail-style="switchButtonRailStyle"
+                    >
+                      <template #checked>启用</template>
+                      <template #unchecked>禁用</template>
+                    </n-switch>
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item :span="isMobile ? 2 : 1">
+                  <n-form-item label="签到积分范围">
+                    <div class="range-inputs">
+                      <n-input-number
+                        v-model:value="securityForm.signPointsMin"
+                        :min="0"
+                        placeholder="最小值"
+                        class="range-input"
+                      />
+                      <span class="range-separator">-</span>
+                      <n-input-number
+                        v-model:value="securityForm.signPointsMax"
+                        :min="0"
+                        placeholder="最大值"
+                        class="range-input"
+                      />
+                    </div>
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item :span="isMobile ? 2 : 1">
+                  <n-form-item label="签到流量范围">
+                    <div class="range-inputs">
+                      <n-input-number
+                        v-model:value="securityForm.signTrafficMin"
+                        :min="0"
+                        placeholder="最小值"
+                        class="range-input"
+                      >
+                        <template #suffix>MB</template>
+                      </n-input-number>
+                      <span class="range-separator">-</span>
+                      <n-input-number
+                        v-model:value="securityForm.signTrafficMax"
+                        :min="0"
+                        placeholder="最大值"
+                        class="range-input"
+                      >
+                        <template #suffix>MB</template>
+                      </n-input-number>
+                    </div>
+                  </n-form-item>
+                </n-grid-item>
+              </n-grid>
+              <n-divider style="margin: 24px 0" />
+              <n-space justify="end">
+                <n-button type="primary" @click="handleSaveSecurity"
+                  >保存设置</n-button
+                >
+              </n-space>
+            </n-form>
+          </n-tab-pane>
 
-        <NTabPane name="sms" tab="短信">
-          <NAlert style="margin-bottom: 20px" title="短信配置" type="info">
-            注意目前只支持短信宝
-          </NAlert>
-          <NForm
-            ref="smsFormRef"
-            :model="smsForm"
-            :rules="smsRules"
-            :label-placement="isMobile ? 'top' : 'left'"
-            :label-width="isMobile ? undefined : '120px'"
-            require-mark-placement="right-hanging"
-          >
-            <NGrid
-              :cols="isMobile ? 1 : 2"
-              :x-gap="24"
-              :y-gap="16"
-              responsive="screen"
+          <n-tab-pane name="smtp" tab="邮件">
+            <n-form
+              ref="smtpFormRef"
+              :model="smtpForm"
+              :rules="smtpRules"
+              :label-placement="isMobile ? 'top' : 'left'"
+              :label-width="isMobile ? undefined : '120px'"
+              require-mark-placement="right-hanging"
             >
-              <NGridItem>
-                <NFormItem label="APPID" path="appId">
-                  <NInput
-                    v-model:value="smsForm.appId"
-                    placeholder="请输入APPID"
-                  />
-                </NFormItem>
-              </NGridItem>
-              <NGridItem>
-                <NFormItem label="TOKEN" path="smsToken">
-                  <NInput
-                    v-model:value="smsForm.smsToken"
-                    type="password"
-                    placeholder="请输入SecretKey"
-                    show-password-on="click"
-                  />
-                </NFormItem>
-              </NGridItem>
-              <NGridItem span="2">
-                <NFormItem label="模板" path="template">
-                  <NInput
-                    v-model:value="smsForm.template"
-                    placeholder="请输入短信模板"
-                  />
-                </NFormItem>
-              </NGridItem>
-            </NGrid>
-            <NDivider style="margin: 24px 0" />
-            <NSpace justify="end">
-              <NButton
+              <n-grid
+                :cols="isMobile ? 1 : 2"
+                :x-gap="24"
+                :y-gap="16"
+                responsive="screen"
+              >
+                <n-grid-item>
+                  <n-form-item label="SMTP服务器" path="host">
+                    <n-input
+                      v-model:value="smtpForm.host"
+                      placeholder="请输入SMTP服务器地址"
+                    />
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item>
+                  <n-form-item label="端口" path="port">
+                    <n-input-number
+                      v-model:value="smtpForm.port"
+                      :min="1"
+                      :max="65535"
+                      placeholder="请输入端口号"
+                    />
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item>
+                  <n-form-item label="加密方式" path="encryption">
+                    <n-select
+                      v-model:value="smtpForm.encryption"
+                      :options="encryptionOptions"
+                      placeholder="请选择加密方式"
+                    />
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item>
+                  <n-form-item label="用户名" path="username">
+                    <n-input
+                      v-model:value="smtpForm.username"
+                      placeholder="请输入邮箱用户名"
+                    />
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item>
+                  <n-form-item label="密码" path="password">
+                    <n-input
+                      v-model:value="smtpForm.password"
+                      type="password"
+                      placeholder="请输入邮箱密码或授权码"
+                      show-password-on="click"
+                    />
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item>
+                  <n-form-item label="发件人邮箱" path="fromEmail">
+                    <n-input
+                      v-model:value="smtpForm.fromEmail"
+                      placeholder="请输入发件人邮箱地址"
+                    />
+                  </n-form-item>
+                </n-grid-item>
+              </n-grid>
+              <n-divider style="margin: 24px 0" />
+              <n-space justify="end">
+                <n-button
+                  type="primary"
+                  :loading="loading"
+                  @click="handleSaveSmtp"
+                  >保存设置</n-button
+                >
+              </n-space>
+            </n-form>
+          </n-tab-pane>
+
+          <n-tab-pane name="sms" tab="短信">
+            <n-alert style="margin-bottom: 20px" title="短信配置" type="info">
+              注意目前只支持短信宝
+            </n-alert>
+            <n-form
+              ref="smsFormRef"
+              :model="smsForm"
+              :rules="smsRules"
+              :label-placement="isMobile ? 'top' : 'left'"
+              :label-width="isMobile ? undefined : '120px'"
+              require-mark-placement="right-hanging"
+            >
+              <n-grid
+                :cols="isMobile ? 1 : 2"
+                :x-gap="24"
+                :y-gap="16"
+                responsive="screen"
+              >
+                <n-grid-item>
+                  <n-form-item label="APPID" path="appId">
+                    <n-input
+                      v-model:value="smsForm.appId"
+                      placeholder="请输入APPID"
+                    />
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item>
+                  <n-form-item label="TOKEN" path="smsToken">
+                    <n-input
+                      v-model:value="smsForm.smsToken"
+                      type="password"
+                      placeholder="请输入SecretKey"
+                      show-password-on="click"
+                    />
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item span="2">
+                  <n-form-item label="模板" path="template">
+                    <n-input
+                      v-model:value="smsForm.template"
+                      placeholder="请输入短信模板"
+                    />
+                  </n-form-item>
+                </n-grid-item>
+              </n-grid>
+              <n-divider style="margin: 24px 0" />
+              <n-space justify="end">
+                <n-button
+                  type="primary"
+                  :loading="smsLoading"
+                  @click="handleSaveSms"
+                  >保存设置</n-button
+                >
+              </n-space>
+            </n-form>
+          </n-tab-pane>
+
+          <n-tab-pane name="downloads" tab="下载">
+            <div
+              :class="
+                isMobile ? 'download-filter-row-mobile' : 'download-filter-row'
+              "
+            >
+              <n-select
+                v-model:value="filterMode"
+                :options="filterModeOptions"
+                placeholder="筛选方式"
+                :class="
+                  isMobile
+                    ? 'download-filter-item-mobile'
+                    : 'download-filter-item'
+                "
+                style="min-width: 100px"
+              />
+              <n-input
+                v-model:value="filterKeyword"
+                placeholder="请输入关键词"
+                :class="
+                  isMobile
+                    ? 'download-filter-item-mobile'
+                    : 'download-filter-item'
+                "
+                clearable
+                @update:value="filterDownloadSources"
+              />
+              <n-select
+                v-model:value="sortOrder"
+                :options="sortOrderOptions"
+                placeholder="排序方式"
+                :class="
+                  isMobile
+                    ? 'download-filter-item-mobile'
+                    : 'download-filter-item'
+                "
+                style="min-width: 100px"
+                @update:value="filterDownloadSources"
+              />
+              <n-button
                 type="primary"
-                :loading="smsLoading"
-                @click="handleSaveSms"
-                >保存设置</NButton
+                @click="showAddSourceModal = true"
+                :class="
+                  isMobile
+                    ? 'download-filter-btn-mobile'
+                    : 'download-filter-btn'
+                "
+                size="small"
               >
-            </NSpace>
-          </NForm>
-        </NTabPane>
+                添加下载源
+              </n-button>
+            </div>
+            <n-space vertical>
+              <n-data-table
+                :columns="downloadSourceColumn"
+                :data="downloadSourcesData"
+                :bordered="false"
+              />
+            </n-space>
+          </n-tab-pane>
 
-        <NTabPane name="downloads" tab="下载">
-          <div
-            :class="
-              isMobile ? 'download-filter-row-mobile' : 'download-filter-row'
-            "
+          <n-tab-pane name="groups" tab="用户组">
+            <div
+              :class="isMobile ? 'group-filter-row-mobile' : 'group-filter-row'"
+            >
+              <n-select
+                v-model:value="groupFilterMode"
+                :options="groupFilterModeOptions"
+                placeholder="筛选方式"
+                :class="
+                  isMobile ? 'group-filter-item-mobile' : 'group-filter-item'
+                "
+                style="min-width: 100px"
+              />
+              <n-input
+                v-model:value="groupFilterKeyword"
+                placeholder="请输入关键词"
+                :class="
+                  isMobile ? 'group-filter-item-mobile' : 'group-filter-item'
+                "
+                clearable
+                @update:value="filterGroups"
+              />
+              <n-select
+                v-model:value="groupSortOrder"
+                :options="groupSortOrderOptions"
+                placeholder="排序方式"
+                :class="
+                  isMobile ? 'group-filter-item-mobile' : 'group-filter-item'
+                "
+                style="min-width: 100px"
+                @update:value="filterGroups"
+              />
+              <n-button
+                type="primary"
+                @click="showAddGroupModal = true"
+                :class="
+                  isMobile ? 'group-filter-btn-mobile' : 'group-filter-btn'
+                "
+                size="small"
+              >
+                添加用户组
+              </n-button>
+            </div>
+            <n-space vertical>
+              <n-data-table
+                :columns="groupColumns"
+                :data="filteredGroupsData"
+                :bordered="false"
+              />
+            </n-space>
+          </n-tab-pane>
+
+          <n-tab-pane name="broadcast" tab="通知管理">
+            <div
+              :class="
+                isMobile
+                  ? 'broadcast-filter-row-mobile'
+                  : 'broadcast-filter-row'
+              "
+            >
+              <n-select
+                v-model:value="broadcastFilterMode"
+                :options="broadcastFilterModeOptions"
+                placeholder="筛选方式"
+                :class="
+                  isMobile
+                    ? 'broadcast-filter-item-mobile'
+                    : 'broadcast-filter-item'
+                "
+                style="min-width: 100px"
+              />
+              <n-input
+                v-model:value="broadcastFilterKeyword"
+                placeholder="请输入关键词"
+                :class="
+                  isMobile
+                    ? 'broadcast-filter-item-mobile'
+                    : 'broadcast-filter-item'
+                "
+                clearable
+                @update:value="filterBroadcasts"
+              />
+              <n-select
+                v-model:value="broadcastSortOrder"
+                :options="broadcastSortOrderOptions"
+                placeholder="排序方式"
+                :class="
+                  isMobile
+                    ? 'broadcast-filter-item-mobile'
+                    : 'broadcast-filter-item'
+                "
+                style="min-width: 100px"
+                @update:value="filterBroadcasts"
+              />
+              <n-button
+                type="primary"
+                @click="showAddBroadcastModal = true"
+                :class="
+                  isMobile
+                    ? 'broadcast-filter-btn-mobile'
+                    : 'broadcast-filter-btn'
+                "
+                size="small"
+              >
+                添加通知
+              </n-button>
+            </div>
+            <n-space vertical>
+              <n-data-table
+                :columns="broadcastColumns"
+                :data="filteredBroadcastsData"
+                :bordered="false"
+                :scroll-x="1000"
+              />
+            </n-space>
+          </n-tab-pane>
+        </n-tabs>
+      </n-card>
+
+      <n-modal
+        v-model:show="showEditModal"
+        preset="dialog"
+        title="修改下载源"
+        :style="{ width: isMobile ? '90vw' : '500px' }"
+      >
+        <n-form
+          ref="editSourceFormRef"
+          :model="editSourceForm"
+          :rules="addSourceRules"
+        >
+          <n-collapse
+            v-model:expanded-names="sourceExpandedNames"
+            accordion
+            :bordered="false"
           >
-            <n-select
-              v-model:value="filterMode"
-              :options="filterModeOptions"
-              placeholder="筛选方式"
-              :class="
-                isMobile
-                  ? 'download-filter-item-mobile'
-                  : 'download-filter-item'
-              "
-              style="min-width: 100px"
-            />
-            <n-input
-              v-model:value="filterKeyword"
-              placeholder="请输入关键词"
-              :class="
-                isMobile
-                  ? 'download-filter-item-mobile'
-                  : 'download-filter-item'
-              "
-              clearable
-              @update:value="filterDownloadSources"
-            />
-            <n-select
-              v-model:value="sortOrder"
-              :options="sortOrderOptions"
-              placeholder="排序方式"
-              :class="
-                isMobile
-                  ? 'download-filter-item-mobile'
-                  : 'download-filter-item'
-              "
-              style="min-width: 100px"
-              @update:value="filterDownloadSources"
-            />
+            <n-collapse-item title="下载源信息" name="info">
+              <n-form-item label="Path" path="path">
+                <n-input
+                  v-model:value="editSourceForm.url"
+                  placeholder="请输入下载源 URL"
+                />
+              </n-form-item>
+              <n-form-item label="名称" path="name">
+                <n-input
+                  v-model:value="editSourceForm.name"
+                  placeholder="请输入下载名称"
+                />
+              </n-form-item>
+            </n-collapse-item>
+          </n-collapse>
+        </n-form>
+        <template #action>
+          <n-button @click="showEditModal = false">取消</n-button>
+          <n-button type="primary" @click="handleEditSource">确定</n-button>
+        </template>
+      </n-modal>
+
+      <n-modal
+        v-model:show="showAddSourceModal"
+        preset="dialog"
+        title="添加下载源"
+        :style="{ width: isMobile ? '90vw' : '500px' }"
+      >
+        <n-form
+          ref="addSourceFormRef"
+          :model="addSourceForm"
+          :rules="addSourceRules"
+        >
+          <n-collapse
+            v-model:expanded-names="sourceExpandedNames"
+            accordion
+            :bordered="false"
+          >
+            <n-collapse-item title="下载源信息" name="info">
+              <n-form-item label="Path" path="path">
+                <n-input
+                  v-model:value="addSourceForm.url"
+                  placeholder="请输入下载源 URL"
+                />
+              </n-form-item>
+              <n-form-item label="名称" path="name">
+                <n-input
+                  v-model:value="addSourceForm.name"
+                  placeholder="请输入下载名称"
+                />
+              </n-form-item>
+            </n-collapse-item>
+          </n-collapse>
+        </n-form>
+        <template #action>
+          <n-button @click="showAddSourceModal = false">取消</n-button>
+          <n-button type="primary" @click="handleAddDownloadSource"
+            >确定</n-button
+          >
+        </template>
+      </n-modal>
+
+      <n-modal
+        v-model:show="showAddGroupModal"
+        preset="dialog"
+        title="添加用户组"
+        style="width: 600px; max-width: 90vw"
+      >
+        <n-form
+          ref="groupFormRef"
+          :model="groupForm"
+          :rules="groupRules"
+          label-placement="left"
+          label-width="100px"
+          style="margin-top: 20px"
+        >
+          <n-collapse
+            v-model:expanded-names="groupExpandedNames"
+            accordion
+            :bordered="false"
+          >
+            <n-collapse-item title="基本信息" name="base">
+              <n-grid :cols="2" :x-gap="20" :y-gap="8" responsive="screen">
+                <n-grid-item span="2">
+                  <n-form-item label="组名" path="name">
+                    <n-input
+                      v-model:value="groupForm.name"
+                      placeholder="请输入用户组名称"
+                      clearable
+                    />
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item>
+                  <n-form-item label="显示名称" path="friendlyName">
+                    <n-input
+                      v-model:value="groupForm.friendlyName"
+                      placeholder="请输入显示名称"
+                      clearable
+                    />
+                  </n-form-item>
+                </n-grid-item>
+              </n-grid>
+            </n-collapse-item>
+            <n-collapse-item title="资源限制" name="resource">
+              <n-grid :cols="2" :x-gap="20" :y-gap="8" responsive="screen">
+                <n-grid-item>
+                  <n-form-item label="基础流量" path="traffic">
+                    <n-input-number
+                      v-model:value="groupForm.traffic"
+                      :min="0"
+                      placeholder="请输入基础流量"
+                      style="width: 100%"
+                    >
+                      <template #suffix>MB</template>
+                    </n-input-number>
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item>
+                  <n-form-item label="最大隧道数" path="proxies">
+                    <n-input-number
+                      v-model:value="groupForm.proxies"
+                      :min="0"
+                      placeholder="请输入最大隧道数"
+                      style="width: 100%"
+                    />
+                  </n-form-item>
+                </n-grid-item>
+              </n-grid>
+            </n-collapse-item>
+            <n-collapse-item title="带宽设置" name="bandwidth">
+              <n-grid :cols="2" :x-gap="20" :y-gap="8" responsive="screen">
+                <n-grid-item>
+                  <n-form-item label="出站带宽" path="out_limit">
+                    <n-input-number
+                      v-model:value="groupForm.out_limit"
+                      :min="0"
+                      placeholder="请输入出站带宽"
+                      style="width: 100%"
+                    >
+                      <template #suffix>Mbps</template>
+                    </n-input-number>
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item>
+                  <n-form-item label="入站带宽" path="in_limit">
+                    <n-input-number
+                      v-model:value="groupForm.in_limit"
+                      :min="0"
+                      placeholder="请输入入站带宽"
+                      style="width: 100%"
+                    >
+                      <template #suffix>Mbps</template>
+                    </n-input-number>
+                  </n-form-item>
+                </n-grid-item>
+              </n-grid>
+            </n-collapse-item>
+            <n-collapse-item title="海外带宽设置" name="overseas">
+              <n-grid :cols="2" :x-gap="20" :y-gap="8" responsive="screen">
+                <n-grid-item>
+                  <n-form-item label="海外出站" path="no_cn_out_limit">
+                    <n-input-number
+                      v-model:value="groupForm.no_cn_out_limit"
+                      :min="0"
+                      placeholder="请输入海外出站带宽"
+                      style="width: 100%"
+                    >
+                      <template #suffix>Mbps</template>
+                    </n-input-number>
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item>
+                  <n-form-item label="海外入站" path="no_cn_in_limit">
+                    <n-input-number
+                      v-model:value="groupForm.no_cn_in_limit"
+                      :min="0"
+                      placeholder="请输入海外入站带宽"
+                      style="width: 100%"
+                    >
+                      <template #suffix>Mbps</template>
+                    </n-input-number>
+                  </n-form-item>
+                </n-grid-item>
+              </n-grid>
+            </n-collapse-item>
+          </n-collapse>
+        </n-form>
+        <template #action>
+          <n-space justify="end" style="margin-top: 16px">
+            <n-button @click="showAddGroupModal = false" size="medium"
+              >取消</n-button
+            >
+            <n-button type="primary" @click="handleAddGroup" size="medium"
+              >确定</n-button
+            >
+          </n-space>
+        </template>
+      </n-modal>
+
+      <n-modal
+        v-model:show="showEditGroupModal"
+        preset="dialog"
+        title="修改用户组"
+        style="width: 600px; max-width: 90vw"
+      >
+        <n-form
+          ref="editGroupFormRef"
+          :model="editGroupForm"
+          :rules="groupRules"
+          label-placement="left"
+          label-width="100px"
+          style="margin-top: 20px"
+        >
+          <n-collapse
+            v-model:expanded-names="groupExpandedNames"
+            accordion
+            :bordered="false"
+          >
+            <n-collapse-item title="基本信息" name="base">
+              <n-grid :cols="2" :x-gap="20" :y-gap="8" responsive="screen">
+                <n-grid-item span="2">
+                  <n-form-item label="组名" path="name">
+                    <n-input
+                      v-model:value="editGroupForm.name"
+                      placeholder="请输入用户组名称"
+                      clearable
+                    />
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item>
+                  <n-form-item label="显示名称" path="friendlyName">
+                    <n-input
+                      v-model:value="editGroupForm.friendlyName"
+                      placeholder="请输入显示名称"
+                      clearable
+                    />
+                  </n-form-item>
+                </n-grid-item>
+              </n-grid>
+            </n-collapse-item>
+            <n-collapse-item title="资源限制" name="resource">
+              <n-grid :cols="2" :x-gap="20" :y-gap="8" responsive="screen">
+                <n-grid-item>
+                  <n-form-item label="基础流量" path="traffic">
+                    <n-input-number
+                      v-model:value="editGroupForm.traffic"
+                      :min="0"
+                      placeholder="请输入基础流量"
+                      style="width: 100%"
+                    >
+                      <template #suffix>MB</template>
+                    </n-input-number>
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item>
+                  <n-form-item label="最大隧道数" path="proxies">
+                    <n-input-number
+                      v-model:value="editGroupForm.proxies"
+                      :min="0"
+                      placeholder="请输入最大隧道数"
+                      style="width: 100%"
+                    />
+                  </n-form-item>
+                </n-grid-item>
+              </n-grid>
+            </n-collapse-item>
+            <n-collapse-item title="带宽设置" name="bandwidth">
+              <n-grid :cols="2" :x-gap="20" :y-gap="8" responsive="screen">
+                <n-grid-item>
+                  <n-form-item label="出站带宽" path="out_limit">
+                    <n-input-number
+                      v-model:value="editGroupForm.out_limit"
+                      :min="0"
+                      placeholder="请输入出站带宽"
+                      style="width: 100%"
+                    >
+                      <template #suffix>Mbps</template>
+                    </n-input-number>
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item>
+                  <n-form-item label="入站带宽" path="in_limit">
+                    <n-input-number
+                      v-model:value="editGroupForm.in_limit"
+                      :min="0"
+                      placeholder="请输入入站带宽"
+                      style="width: 100%"
+                    >
+                      <template #suffix>Mbps</template>
+                    </n-input-number>
+                  </n-form-item>
+                </n-grid-item>
+              </n-grid>
+            </n-collapse-item>
+            <n-collapse-item title="海外带宽设置" name="overseas">
+              <n-grid :cols="2" :x-gap="20" :y-gap="8" responsive="screen">
+                <n-grid-item>
+                  <n-form-item label="海外出站" path="no_cn_out_limit">
+                    <n-input-number
+                      v-model:value="editGroupForm.no_cn_out_limit"
+                      :min="0"
+                      placeholder="请输入海外出站带宽"
+                      style="width: 100%"
+                    >
+                      <template #suffix>Mbps</template>
+                    </n-input-number>
+                  </n-form-item>
+                </n-grid-item>
+                <n-grid-item>
+                  <n-form-item label="海外入站" path="no_cn_in_limit">
+                    <n-input-number
+                      v-model:value="editGroupForm.no_cn_in_limit"
+                      :min="0"
+                      placeholder="请输入海外入站带宽"
+                      style="width: 100%"
+                    >
+                      <template #suffix>Mbps</template>
+                    </n-input-number>
+                  </n-form-item>
+                </n-grid-item>
+              </n-grid>
+            </n-collapse-item>
+          </n-collapse>
+        </n-form>
+        <template #action>
+          <n-space justify="end" style="margin-top: 16px">
+            <n-button @click="showEditGroupModal = false" size="medium"
+              >取消</n-button
+            >
             <n-button
               type="primary"
-              @click="showAddSourceModal = true"
-              :class="
-                isMobile ? 'download-filter-btn-mobile' : 'download-filter-btn'
-              "
-              size="small"
+              @click="showSetUserGroupModal = true"
+              size="medium"
             >
-              添加下载源
+              确定
             </n-button>
-          </div>
-          <NSpace vertical>
-            <NDataTable
-              :columns="downloadSourceColumn"
-              :data="downloadSourcesData"
-              :bordered="false"
-            />
-          </NSpace>
-        </NTabPane>
+          </n-space>
+        </template>
+      </n-modal>
 
-        <NTabPane name="groups" tab="用户组">
-          <div
-            :class="isMobile ? 'group-filter-row-mobile' : 'group-filter-row'"
+      <n-modal
+        v-model:show="showSetUserGroupModal"
+        preset="dialog"
+        title="是否同步设置用户？"
+      >
+        <n-text>
+          同步设置用户将使所有用户的隧道数、带宽设置等与当前组一致。(除了修改过流量、隧道数、带宽设置的用户)
+        </n-text>
+        <template #action>
+          <n-button @click="handleCancelSetUserGroup">不设置</n-button>
+          <n-button type="primary" @click="handleSetUserGroup"
+            >直接提交</n-button
           >
-            <n-select
-              v-model:value="groupFilterMode"
-              :options="groupFilterModeOptions"
-              placeholder="筛选方式"
-              :class="
-                isMobile ? 'group-filter-item-mobile' : 'group-filter-item'
-              "
-              style="min-width: 100px"
-            />
+        </template>
+      </n-modal>
+
+      <n-modal
+        v-model:show="showAddBroadcastModal"
+        preset="dialog"
+        title="添加通知"
+        :style="{ width: isMobile ? '90vw' : '500px' }"
+      >
+        <n-form
+          ref="addBroadcastFormRef"
+          :model="addBroadcastForm"
+          :rules="broadcastRules"
+        >
+          <n-form-item label="标题" path="title">
             <n-input
-              v-model:value="groupFilterKeyword"
-              placeholder="请输入关键词"
-              :class="
-                isMobile ? 'group-filter-item-mobile' : 'group-filter-item'
-              "
-              clearable
-              @update:value="filterGroups"
+              v-model:value="addBroadcastForm.title"
+              placeholder="请输入通知标题"
             />
-            <n-select
-              v-model:value="groupSortOrder"
-              :options="groupSortOrderOptions"
-              placeholder="排序方式"
-              :class="
-                isMobile ? 'group-filter-item-mobile' : 'group-filter-item'
-              "
-              style="min-width: 100px"
-              @update:value="filterGroups"
-            />
-            <n-button
-              type="primary"
-              @click="showAddGroupModal = true"
-              :class="isMobile ? 'group-filter-btn-mobile' : 'group-filter-btn'"
-              size="small"
-            >
-              添加用户组
-            </n-button>
-          </div>
-          <NSpace vertical>
-            <NDataTable
-              :columns="groupColumns"
-              :data="filteredGroupsData"
-              :bordered="false"
-            />
-          </NSpace>
-        </NTabPane>
-
-        <NTabPane name="broadcast" tab="通知管理">
-          <div
-            :class="
-              isMobile ? 'broadcast-filter-row-mobile' : 'broadcast-filter-row'
-            "
-          >
-            <n-select
-              v-model:value="broadcastFilterMode"
-              :options="broadcastFilterModeOptions"
-              placeholder="筛选方式"
-              :class="
-                isMobile
-                  ? 'broadcast-filter-item-mobile'
-                  : 'broadcast-filter-item'
-              "
-              style="min-width: 100px"
-            />
+          </n-form-item>
+          <n-form-item label="内容" path="message">
             <n-input
-              v-model:value="broadcastFilterKeyword"
-              placeholder="请输入关键词"
-              :class="
-                isMobile
-                  ? 'broadcast-filter-item-mobile'
-                  : 'broadcast-filter-item'
-              "
-              clearable
-              @update:value="filterBroadcasts"
+              v-model:value="addBroadcastForm.message"
+              type="textarea"
+              placeholder="请输入通知内容"
+              :rows="5"
             />
+          </n-form-item>
+          <n-form-item label="类型" path="type">
             <n-select
-              v-model:value="broadcastSortOrder"
-              :options="broadcastSortOrderOptions"
-              placeholder="排序方式"
-              :class="
-                isMobile
-                  ? 'broadcast-filter-item-mobile'
-                  : 'broadcast-filter-item'
-              "
-              style="min-width: 100px"
-              @update:value="filterBroadcasts"
+              v-model:value="addBroadcastForm.type"
+              :options="broadcastTypeOptions"
+              placeholder="请选择通知类型"
             />
-            <n-button
-              type="primary"
-              @click="showAddBroadcastModal = true"
-              :class="
-                isMobile
-                  ? 'broadcast-filter-btn-mobile'
-                  : 'broadcast-filter-btn'
-              "
-              size="small"
-            >
-              添加通知
-            </n-button>
-          </div>
-          <NSpace vertical>
-            <NDataTable
-              :columns="broadcastColumns"
-              :data="filteredBroadcastsData"
-              :bordered="false"
-              :scroll-x="1000"
+          </n-form-item>
+        </n-form>
+        <template #action>
+          <n-button @click="showAddBroadcastModal = false">取消</n-button>
+          <n-button type="primary" @click="handleAddBroadcast">确定</n-button>
+        </template>
+      </n-modal>
+
+      <n-modal
+        v-model:show="showEditBroadcastModal"
+        preset="dialog"
+        title="修改通知"
+        :style="{ width: isMobile ? '90vw' : '500px' }"
+      >
+        <n-form
+          ref="editBroadcastFormRef"
+          :model="editBroadcastForm"
+          :rules="broadcastRules"
+        >
+          <n-form-item label="标题" path="title">
+            <n-input
+              v-model:value="editBroadcastForm.title"
+              placeholder="请输入通知标题"
             />
-          </NSpace>
-        </NTabPane>
-      </NTabs>
-    </NCard>
-
-    <!-- 编辑下载源模态框 -->
-    <NModal
-      v-model:show="showEditModal"
-      preset="dialog"
-      title="修改下载源"
-      :style="{ width: isMobile ? '90vw' : '500px' }"
-    >
-      <NForm
-        ref="editSourceFormRef"
-        :model="editSourceForm"
-        :rules="addSourceRules"
-      >
-        <NFormItem label="Path" path="path">
-          <NInput
-            v-model:value="editSourceForm.url"
-            placeholder="请输入下载源 URL"
-          />
-        </NFormItem>
-        <NFormItem label="名称" path="name">
-          <NInput
-            v-model:value="editSourceForm.name"
-            placeholder="请输入下载名称"
-          />
-        </NFormItem>
-      </NForm>
-      <template #action>
-        <NButton @click="showEditModal = false">取消</NButton>
-        <NButton type="primary" @click="handleEditSource">确定</NButton>
-      </template>
-    </NModal>
-
-    <!-- 添加下载源模态框 -->
-    <NModal
-      v-model:show="showAddSourceModal"
-      preset="dialog"
-      title="添加下载源"
-      :style="{ width: isMobile ? '90vw' : '500px' }"
-    >
-      <NForm
-        ref="addSourceFormRef"
-        :model="addSourceForm"
-        :rules="addSourceRules"
-      >
-        <NFormItem label="Path" path="path">
-          <NInput
-            v-model:value="addSourceForm.url"
-            placeholder="请输入下载源 URL"
-          />
-        </NFormItem>
-        <NFormItem label="名称" path="name">
-          <NInput
-            v-model:value="addSourceForm.name"
-            placeholder="请输入下载名称"
-          />
-        </NFormItem>
-      </NForm>
-      <template #action>
-        <NButton @click="showAddSourceModal = false">取消</NButton>
-        <NButton type="primary" @click="handleAddDownloadSource">确定</NButton>
-      </template>
-    </NModal>
-
-    <!-- 添加用户组模态框 -->
-    <NModal
-      v-model:show="showAddGroupModal"
-      preset="dialog"
-      title="添加用户组"
-      style="width: 600px; max-width: 90vw"
-    >
-      <NForm
-        ref="groupFormRef"
-        :model="groupForm"
-        :rules="groupRules"
-        label-placement="left"
-        label-width="100px"
-        style="margin-top: 20px"
-      >
-        <NGrid :cols="2" :x-gap="20" :y-gap="8" responsive="screen">
-          <NGridItem span="2">
-            <NFormItem label="组名" path="name">
-              <NInput
-                v-model:value="groupForm.name"
-                placeholder="请输入用户组名称"
-                clearable
-              />
-            </NFormItem>
-          </NGridItem>
-          <NGridItem>
-            <NFormItem label="显示名称" path="friendlyName">
-              <NInput
-                v-model:value="groupForm.friendlyName"
-                placeholder="请输入显示名称"
-                clearable
-              />
-            </NFormItem>
-          </NGridItem>
-          <NGridItem>
-            <NFormItem label="基础流量" path="traffic">
-              <NInputNumber
-                v-model:value="groupForm.traffic"
-                :min="0"
-                placeholder="请输入基础流量"
-                style="width: 100%"
-              >
-                <template #suffix>MB</template>
-              </NInputNumber>
-            </NFormItem>
-          </NGridItem>
-          <NGridItem>
-            <NFormItem label="最大隧道数" path="proxies">
-              <NInputNumber
-                v-model:value="groupForm.proxies"
-                :min="0"
-                placeholder="请输入最大隧道数"
-                style="width: 100%"
-              />
-            </NFormItem>
-          </NGridItem>
-          <NGridItem span="2">
-            <NDivider title-placement="left" style="margin: 16px 0"
-              >带宽设置</NDivider
-            >
-          </NGridItem>
-          <NGridItem>
-            <NFormItem label="出站带宽" path="out_limit">
-              <NInputNumber
-                v-model:value="groupForm.out_limit"
-                :min="0"
-                placeholder="请输入出站带宽"
-                style="width: 100%"
-              >
-                <template #suffix>Mbps</template>
-              </NInputNumber>
-            </NFormItem>
-          </NGridItem>
-          <NGridItem>
-            <NFormItem label="入站带宽" path="in_limit">
-              <NInputNumber
-                v-model:value="groupForm.in_limit"
-                :min="0"
-                placeholder="请输入入站带宽"
-                style="width: 100%"
-              >
-                <template #suffix>Mbps</template>
-              </NInputNumber>
-            </NFormItem>
-          </NGridItem>
-          <NGridItem span="2">
-            <NDivider title-placement="left" style="margin: 16px 0"
-              >海外带宽设置</NDivider
-            >
-          </NGridItem>
-          <NGridItem>
-            <NFormItem label="海外出站" path="no_cn_out_limit">
-              <NInputNumber
-                v-model:value="groupForm.no_cn_out_limit"
-                :min="0"
-                placeholder="请输入海外出站带宽"
-                style="width: 100%"
-              >
-                <template #suffix>Mbps</template>
-              </NInputNumber>
-            </NFormItem>
-          </NGridItem>
-          <NGridItem>
-            <NFormItem label="海外入站" path="no_cn_in_limit">
-              <NInputNumber
-                v-model:value="groupForm.no_cn_in_limit"
-                :min="0"
-                placeholder="请输入海外入站带宽"
-                style="width: 100%"
-              >
-                <template #suffix>Mbps</template>
-              </NInputNumber>
-            </NFormItem>
-          </NGridItem>
-        </NGrid>
-      </NForm>
-      <template #action>
-        <NSpace justify="end" style="margin-top: 16px">
-          <NButton @click="showAddGroupModal = false" size="medium"
-            >取消</NButton
-          >
-          <NButton type="primary" @click="handleAddGroup" size="medium"
-            >确定</NButton
-          >
-        </NSpace>
-      </template>
-    </NModal>
-
-    <!-- 编辑用户组模态框 -->
-    <NModal
-      v-model:show="showEditGroupModal"
-      preset="dialog"
-      title="修改用户组"
-      style="width: 600px; max-width: 90vw"
-    >
-      <NForm
-        ref="editGroupFormRef"
-        :model="editGroupForm"
-        :rules="groupRules"
-        label-placement="left"
-        label-width="100px"
-        style="margin-top: 20px"
-      >
-        <NGrid :cols="2" :x-gap="20" :y-gap="8" responsive="screen">
-          <NGridItem span="2">
-            <NFormItem label="组名" path="name">
-              <NInput
-                v-model:value="editGroupForm.name"
-                placeholder="请输入用户组名称"
-                clearable
-              />
-            </NFormItem>
-          </NGridItem>
-          <NGridItem>
-            <NFormItem label="显示名称" path="friendlyName">
-              <NInput
-                v-model:value="editGroupForm.friendlyName"
-                placeholder="请输入显示名称"
-                clearable
-              />
-            </NFormItem>
-          </NGridItem>
-          <NGridItem>
-            <NFormItem label="基础流量" path="traffic">
-              <NInputNumber
-                v-model:value="editGroupForm.traffic"
-                :min="0"
-                placeholder="请输入基础流量"
-                style="width: 100%"
-              >
-                <template #suffix>MB</template>
-              </NInputNumber>
-            </NFormItem>
-          </NGridItem>
-          <NGridItem>
-            <NFormItem label="最大隧道数" path="proxies">
-              <NInputNumber
-                v-model:value="editGroupForm.proxies"
-                :min="0"
-                placeholder="请输入最大隧道数"
-                style="width: 100%"
-              />
-            </NFormItem>
-          </NGridItem>
-          <NGridItem span="2">
-            <NDivider title-placement="left" style="margin: 16px 0"
-              >带宽设置</NDivider
-            >
-          </NGridItem>
-          <NGridItem>
-            <NFormItem label="出站带宽" path="out_limit">
-              <NInputNumber
-                v-model:value="editGroupForm.out_limit"
-                :min="0"
-                placeholder="请输入出站带宽"
-                style="width: 100%"
-              >
-                <template #suffix>Mbps</template>
-              </NInputNumber>
-            </NFormItem>
-          </NGridItem>
-          <NGridItem>
-            <NFormItem label="入站带宽" path="in_limit">
-              <NInputNumber
-                v-model:value="editGroupForm.in_limit"
-                :min="0"
-                placeholder="请输入入站带宽"
-                style="width: 100%"
-              >
-                <template #suffix>Mbps</template>
-              </NInputNumber>
-            </NFormItem>
-          </NGridItem>
-          <NGridItem span="2">
-            <NDivider title-placement="left" style="margin: 16px 0"
-              >海外带宽设置</NDivider
-            >
-          </NGridItem>
-          <NGridItem>
-            <NFormItem label="海外出站" path="no_cn_out_limit">
-              <NInputNumber
-                v-model:value="editGroupForm.no_cn_out_limit"
-                :min="0"
-                placeholder="请输入海外出站带宽"
-                style="width: 100%"
-              >
-                <template #suffix>Mbps</template>
-              </NInputNumber>
-            </NFormItem>
-          </NGridItem>
-          <NGridItem>
-            <NFormItem label="海外入站" path="no_cn_in_limit">
-              <NInputNumber
-                v-model:value="editGroupForm.no_cn_in_limit"
-                :min="0"
-                placeholder="请输入海外入站带宽"
-                style="width: 100%"
-              >
-                <template #suffix>Mbps</template>
-              </NInputNumber>
-            </NFormItem>
-          </NGridItem>
-        </NGrid>
-      </NForm>
-      <template #action>
-        <NSpace justify="end" style="margin-top: 16px">
-          <NButton @click="showEditGroupModal = false" size="medium"
-            >取消</NButton
-          >
-          <NButton
-            type="primary"
-            @click="showSetUserGroupModal = true"
-            size="medium"
-          >
-            确定
-          </NButton>
-        </NSpace>
-      </template>
-    </NModal>
-
-    <!-- 同步设置用户模态框 -->
-    <n-modal
-      v-model:show="showSetUserGroupModal"
-      preset="dialog"
-      title="是否同步设置用户？"
-    >
-      <n-text>
-        同步设置用户将使所有用户的隧道数、带宽设置等与当前组一致。(除了修改过流量、隧道数、带宽设置的用户)
-      </n-text>
-      <template #action>
-        <n-button @click="handleCancelSetUserGroup">不设置</n-button>
-        <n-button type="primary" @click="handleSetUserGroup">直接提交</n-button>
-      </template>
-    </n-modal>
-
-    <!-- 添加通知模态框 -->
-    <NModal
-      v-model:show="showAddBroadcastModal"
-      preset="dialog"
-      title="添加通知"
-      :style="{ width: isMobile ? '90vw' : '500px' }"
-    >
-      <NForm
-        ref="addBroadcastFormRef"
-        :model="addBroadcastForm"
-        :rules="broadcastRules"
-      >
-        <NFormItem label="标题" path="title">
-          <NInput
-            v-model:value="addBroadcastForm.title"
-            placeholder="请输入通知标题"
-          />
-        </NFormItem>
-        <NFormItem label="内容" path="message">
-          <NInput
-            v-model:value="addBroadcastForm.message"
-            type="textarea"
-            placeholder="请输入通知内容"
-            :rows="5"
-          />
-        </NFormItem>
-        <NFormItem label="类型" path="type">
-          <NSelect
-            v-model:value="addBroadcastForm.type"
-            :options="broadcastTypeOptions"
-            placeholder="请选择通知类型"
-          />
-        </NFormItem>
-      </NForm>
-      <template #action>
-        <NButton @click="showAddBroadcastModal = false">取消</NButton>
-        <NButton type="primary" @click="handleAddBroadcast">确定</NButton>
-      </template>
-    </NModal>
-
-    <!-- 编辑通知模态框 -->
-    <NModal
-      v-model:show="showEditBroadcastModal"
-      preset="dialog"
-      title="修改通知"
-      :style="{ width: isMobile ? '90vw' : '500px' }"
-    >
-      <NForm
-        ref="editBroadcastFormRef"
-        :model="editBroadcastForm"
-        :rules="broadcastRules"
-      >
-        <NFormItem label="标题" path="title">
-          <NInput
-            v-model:value="editBroadcastForm.title"
-            placeholder="请输入通知标题"
-          />
-        </NFormItem>
-        <NFormItem label="内容" path="message">
-          <NInput
-            v-model:value="editBroadcastForm.message"
-            type="textarea"
-            placeholder="请输入通知内容"
-            :rows="5"
-          />
-        </NFormItem>
-        <NFormItem label="类型" path="type">
-          <NSelect
-            v-model:value="editBroadcastForm.type"
-            :options="broadcastTypeOptions"
-            placeholder="请选择通知类型"
-          />
-        </NFormItem>
-      </NForm>
-      <template #action>
-        <NButton @click="showEditBroadcastModal = false">取消</NButton>
-        <NButton type="primary" @click="handleEditBroadcast">确定</NButton>
-      </template>
-    </NModal>
-  </div>
+          </n-form-item>
+          <n-form-item label="内容" path="message">
+            <n-input
+              v-model:value="editBroadcastForm.message"
+              type="textarea"
+              placeholder="请输入通知内容"
+              :rows="5"
+            />
+          </n-form-item>
+          <n-form-item label="类型" path="type">
+            <n-select
+              v-model:value="editBroadcastForm.type"
+              :options="broadcastTypeOptions"
+              placeholder="请选择通知类型"
+            />
+          </n-form-item>
+        </n-form>
+        <template #action>
+          <n-button @click="showEditBroadcastModal = false">取消</n-button>
+          <n-button type="primary" @click="handleEditBroadcast">确定</n-button>
+        </template>
+      </n-modal>
+    </div>
+  </SecureArea>
 </template>
 
 <script lang="ts" setup>
 import { ref, onMounted, h, computed } from 'vue'
-import {
-  NCard,
-  NTabs,
-  NTabPane,
-  NForm,
-  NFormItem,
-  NInput,
-  NInputNumber,
-  NSwitch,
-  NSpace,
-  NButton,
-  useMessage,
-  NDataTable,
-  NModal,
-  NSelect,
-  NGrid,
-  NGridItem,
-  NDivider,
-  NAlert,
-  NTag,
-} from 'naive-ui'
+import { NSpace, NButton, useMessage, NTag } from 'naive-ui'
 import type { FormRules, FormInst, DataTableColumns } from 'naive-ui'
 import { switchButtonRailStyle } from '@/constants/theme.ts'
 import type { DownloadSource, Group } from '@/types'
 import type { Broadcast } from '@/net/admin/type'
 import { adminApi } from '@/net'
 import type { ApiError } from '@/net/request'
+import SecureArea from '@/components/SecureArea.vue'
 
 const message = useMessage()
 
-// 判断是否为移动端
 const isMobile = computed(() => {
   return window.innerWidth <= 768
 })
 
-// 表单引用
 const securityFormRef = ref<FormInst | null>(null)
 const smtpFormRef = ref<FormInst | null>(null)
 const smsFormRef = ref<FormInst | null>(null)
 const showSetUserGroupModal = ref(false)
 
-// 表单数据
 const securityForm = ref({
   allowRegister: true,
   allowLogin: true,
@@ -931,7 +953,6 @@ const smsForm = ref({
   template: '',
 })
 
-// 加密方式选项
 const encryptionOptions = [
   { label: '无加密', value: 'none' },
   { label: 'SSL', value: 'ssl' },
@@ -947,15 +968,15 @@ const SetUserGroup = ref(false)
 const loading = ref(false)
 const smsLoading = ref(false)
 
-// 模态框状态
 const showEditModal = ref(false)
 const showAddSourceModal = ref(false)
 const showAddGroupModal = ref(false)
 const showEditGroupModal = ref(false)
+const groupExpandedNames = ref<string[]>(['base'])
+const sourceExpandedNames = ref<string[]>(['base'])
 const showAddBroadcastModal = ref(false)
 const showEditBroadcastModal = ref(false)
 
-// 表单数据
 const addSourceForm = ref<DownloadSource>({
   id: 0,
   name: '',
@@ -1010,7 +1031,6 @@ const editBroadcastForm = ref<Broadcast>({
   updated_at: '',
 })
 
-// 表单规则
 const securityRules: FormRules = {
   allowRegister: {
     required: true,
@@ -1162,7 +1182,6 @@ const broadcastRules: FormRules = {
   },
 }
 
-// 表格列定义
 const downloadSourceColumn: DataTableColumns<DownloadSource> = [
   {
     title: 'ID',
@@ -1212,7 +1231,6 @@ const downloadSourceColumn: DataTableColumns<DownloadSource> = [
   },
 ]
 
-// 格式化流量数值
 function formatTraffic(traffic: number): string {
   const value = traffic
   if (isNaN(value)) return String(traffic)
@@ -1476,7 +1494,6 @@ const handleCancelSetUserGroup = () => {
   handleEditGroup()
 }
 
-// 保存安全设置
 const handleSaveSecurity = async () => {
   try {
     await securityFormRef.value?.validate()
@@ -1500,7 +1517,6 @@ const handleSaveSecurity = async () => {
   }
 }
 
-// 过滤条件
 const filterModeOptions = [
   { label: 'ID', value: 'id' },
   { label: '名称', value: 'name' },
@@ -1513,7 +1529,6 @@ const filterMode = ref('id')
 const filterKeyword = ref('')
 const sortOrder = ref('asc')
 
-// 用户组筛选条件
 const groupFilterModeOptions = [
   { label: '组名', value: 'name' },
   { label: '显示名称', value: 'friendlyName' },
@@ -1526,7 +1541,6 @@ const groupFilterMode = ref('name')
 const groupFilterKeyword = ref('')
 const groupSortOrder = ref('asc')
 
-// 通知筛选条件
 const broadcastFilterModeOptions = [
   { label: '标题', value: 'title' },
   { label: '内容', value: 'message' },
@@ -1544,10 +1558,8 @@ const broadcastFilterMode = ref('title')
 const broadcastFilterKeyword = ref('')
 const broadcastSortOrder = ref('asc')
 
-// 原始数据副本
 const allDownloadSources = ref<DownloadSource[]>([])
 
-// 获取下载源列表
 const fetchDownloadSources = async () => {
   try {
     const data = await adminApi.getDownloadSources()
@@ -1565,7 +1577,6 @@ const fetchDownloadSources = async () => {
   }
 }
 
-// 过滤方法
 const filterDownloadSources = () => {
   let filtered = allDownloadSources.value
   if (filterKeyword.value) {
@@ -1589,7 +1600,6 @@ const filterDownloadSources = () => {
   downloadSourcesData.value = filtered
 }
 
-// 用户组过滤方法
 const filterGroups = () => {
   let filtered = groupsData.value
   if (groupFilterKeyword.value) {
@@ -1621,7 +1631,6 @@ const filterGroups = () => {
   filteredGroupsData.value = filtered
 }
 
-// 通知过滤方法
 const filterBroadcasts = () => {
   let filtered = broadcastsData.value
   if (broadcastFilterKeyword.value) {
@@ -1657,7 +1666,6 @@ const filterBroadcasts = () => {
   filteredBroadcastsData.value = filtered
 }
 
-// 获取所有系统设置
 const fetchAllSystemSettings = async () => {
   try {
     const data = await adminApi.getSystemSettings()
@@ -1690,7 +1698,6 @@ const fetchAllSystemSettings = async () => {
   }
 }
 
-// 获取用户组列表
 const fetchGroups = async () => {
   try {
     const data = await adminApi.getGroupList()
@@ -1712,7 +1719,6 @@ const fetchGroups = async () => {
   }
 }
 
-// 添加下载源
 const handleAddDownloadSource = async () => {
   if (!addSourceForm.value.name || !addSourceForm.value.url) {
     message.error('请填写完整信息')
@@ -1738,7 +1744,6 @@ const handleAddDownloadSource = async () => {
   }
 }
 
-// 编辑下载源
 const handleEditSource = async () => {
   if (!editSourceForm.value.name || !editSourceForm.value.url) {
     message.error('请填写完整信息')
@@ -1766,7 +1771,6 @@ const handleEditSource = async () => {
   showSetUserGroupModal.value = false
 }
 
-// 删除下载源
 const handleRemoveDownloadSource = async (id: number) => {
   try {
     const data = await adminApi.deleteDownloadSource(id)
@@ -1781,7 +1785,6 @@ const handleRemoveDownloadSource = async (id: number) => {
   }
 }
 
-// 添加用户组
 const handleAddGroup = async () => {
   try {
     const data = await adminApi.createGroup({
@@ -1817,7 +1820,6 @@ const handleAddGroup = async () => {
   }
 }
 
-// 编辑用户组
 const handleEditGroup = async () => {
   try {
     const data = await adminApi.updateGroup({
@@ -1845,7 +1847,6 @@ const handleEditGroup = async () => {
   }
 }
 
-// 删除用户组
 const handleRemoveGroup = async (id: number) => {
   try {
     const data = await adminApi.deleteGroup(id)
@@ -1860,7 +1861,6 @@ const handleRemoveGroup = async (id: number) => {
   }
 }
 
-// 获取通知列表
 const fetchBroadcasts = async () => {
   try {
     const data = await adminApi.getBroadcastList()
@@ -1875,7 +1875,6 @@ const fetchBroadcasts = async () => {
   }
 }
 
-// 添加通知
 const handleAddBroadcast = async () => {
   try {
     const data = await adminApi.createBroadcast({
@@ -1903,7 +1902,6 @@ const handleAddBroadcast = async () => {
   }
 }
 
-// 编辑通知
 const handleEditBroadcast = async () => {
   try {
     const data = await adminApi.updateBroadcast({
@@ -1932,7 +1930,6 @@ const handleEditBroadcast = async () => {
   }
 }
 
-// 删除通知
 const handleRemoveBroadcast = async (id: number) => {
   try {
     const data = await adminApi.deleteBroadcast(id)
@@ -1947,7 +1944,6 @@ const handleRemoveBroadcast = async (id: number) => {
   }
 }
 
-// 保存SMTP配置
 const handleSaveSmtp = async () => {
   loading.value = true
   try {
@@ -1972,7 +1968,6 @@ const handleSaveSmtp = async () => {
   }
 }
 
-// 保存短信配置
 const handleSaveSms = async () => {
   smsLoading.value = true
   try {
@@ -2031,11 +2026,9 @@ const fetchSmsSetting = async () => {
   }
 }
 
-// 切换标签时加载对应数据
 const handleTabUpdate = (tab: string) => {
   switch (tab) {
     case 'security':
-      // 安全设置已在初始化时获取，无需重新获取
       break
     case 'smtp':
       fetchSmtpSetting()
@@ -2055,7 +2048,6 @@ const handleTabUpdate = (tab: string) => {
   }
 }
 
-// 生命周期钩子 - 初始化加载基础设置
 onMounted(() => {
   fetchAllSystemSettings()
 })
@@ -2128,7 +2120,6 @@ onMounted(() => {
   align-self: center;
 }
 
-/* 移动端筛选区域样式 */
 .download-filter-row-mobile,
 .group-filter-row-mobile,
 .broadcast-filter-row-mobile {
@@ -2155,12 +2146,10 @@ onMounted(() => {
   align-self: stretch;
 }
 
-/* 移动端表格横向滚动 */
-:deep(.n-data-table-wrapper) {
+:deep(.ndata-table-wrapper) {
   overflow-x: auto;
 }
 
-/* 范围输入框样式 */
 .range-inputs {
   display: flex;
   align-items: center;
@@ -2176,7 +2165,6 @@ onMounted(() => {
   flex-shrink: 0;
 }
 
-/* 桌面端固定宽度 */
 @media screen and (min-width: 769px) {
   .range-input {
     flex: 0 0 auto;
@@ -2184,13 +2172,12 @@ onMounted(() => {
   }
 }
 
-/* 移动端表单优化 */
 @media screen and (max-width: 768px) {
-  :deep(.n-form-item) {
+  :deep(.nform-item) {
     margin-bottom: 16px;
   }
 
-  :deep(.n-form-item-label) {
+  :deep(.nform-item-label) {
     padding-bottom: 4px;
   }
 }
