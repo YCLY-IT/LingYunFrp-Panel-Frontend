@@ -185,16 +185,10 @@
                             >HTTPS</NTag
                           >
                           <NTag
-                            v-if="supportsStcp(node)"
+                            v-if="getStcpXtcpLabel(node)"
                             type="success"
                             size="small"
-                            >STCP</NTag
-                          >
-                          <NTag
-                            v-if="supportsXtcp(node)"
-                            type="success"
-                            size="small"
-                            >XTCP</NTag
+                            >{{ getStcpXtcpLabel(node) }}</NTag
                           >
                         </NSpace>
                       </div>
@@ -376,16 +370,10 @@
                             >HTTPS</NTag
                           >
                           <NTag
-                            v-if="supportsStcp(node)"
+                            v-if="getStcpXtcpLabel(node)"
                             type="success"
                             size="small"
-                            >STCP</NTag
-                          >
-                          <NTag
-                            v-if="supportsXtcp(node)"
-                            type="success"
-                            size="small"
-                            >XTCP</NTag
+                            >{{ getStcpXtcpLabel(node) }}</NTag
                           >
                         </NSpace>
                       </div>
@@ -568,16 +556,10 @@
                             >HTTPS</NTag
                           >
                           <NTag
-                            v-if="supportsStcp(node)"
+                            v-if="getStcpXtcpLabel(node)"
                             type="success"
                             size="small"
-                            >STCP</NTag
-                          >
-                          <NTag
-                            v-if="supportsXtcp(node)"
-                            type="success"
-                            size="small"
-                            >XTCP</NTag
+                            >{{ getStcpXtcpLabel(node) }}</NTag
                           >
                         </NSpace>
                       </div>
@@ -1074,12 +1056,14 @@ const supportsHttps = (node: any) => {
   return node.allowedProtocols.includes('https')
 }
 
-const supportsStcp = (node: any) => {
-  return node.allowedProtocols.includes('stcp')
-}
-
-const supportsXtcp = (node: any) => {
-  return node.allowedProtocols.includes('xtcp')
+// STCP/XTCP 合并标签：仅支持 STCP 显示 STCP，仅支持 XTCP 显示 XTCP，两者都支持显示 S(X)TCP
+const getStcpXtcpLabel = (node: any) => {
+  const stcp = node.allowedProtocols.includes('stcp')
+  const xtcp = node.allowedProtocols.includes('xtcp')
+  if (stcp && xtcp) return 'S(X)TCP'
+  if (stcp) return 'STCP'
+  if (xtcp) return 'XTCP'
+  return ''
 }
 
 // 获取负载状态的显示文本
@@ -1492,7 +1476,7 @@ const handleCreateFormCollapseUpdate = (names: string[]) => {
   .filter-card,
   .node-card {
     width: 100%;
-    max-width: 1200px; /* 增加最大宽度以适应三列布局 */
+    max-width: 1200px;
     margin: 0 auto;
 
     :deep(.n-card-header) {
@@ -1604,7 +1588,7 @@ const handleCreateFormCollapseUpdate = (names: string[]) => {
     grid-template-columns: repeat(1, 1fr) !important;
   }
   .protocol-select :deep(.n-base-selection-tags) {
-    max-height: 32px; // 只显示一行
+    max-height: 32px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
