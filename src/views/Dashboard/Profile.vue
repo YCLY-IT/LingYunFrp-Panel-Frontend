@@ -19,7 +19,10 @@
             </div>
           </div>
 
-          <div class="settings-grid">
+          <div
+            class="settings-grid"
+            :style="{ '--setting-icon-color': themeStore.primaryColor }"
+          >
             <!-- 修改用户名 -->
             <div class="setting-item" @click="showModal('changeUsername')">
               <div class="setting-icon">
@@ -514,6 +517,7 @@ import WelcomeCard from '@/components/WelcomeCard.vue'
 import { userApi } from '../../net'
 import { removeToken } from '../../net/token'
 import Statistic from '@/components/Statistic.vue'
+import { useThemeStore } from '@/stores/theme'
 import { Cropper, CircleStencil } from 'vue-advanced-cropper'
 import 'vue-advanced-cropper/dist/style.css'
 import md5 from 'blueimp-md5'
@@ -522,6 +526,8 @@ import packageData from '@/../package.json'
 import router from '@/router'
 
 const userInfoRef = ref<InstanceType<typeof userInfo>>()
+
+const themeStore = useThemeStore()
 
 // 消息提示
 const message = useMessage()
@@ -1164,6 +1170,10 @@ $transition-normal: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  color: var(--setting-icon-color);
+  :deep(svg) {
+    color: var(--setting-icon-color);
+  }
   i {
     width: 24px;
     height: 24px;
