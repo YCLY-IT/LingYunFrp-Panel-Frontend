@@ -69,10 +69,7 @@
     </NCard>
 
     <!-- 隧道有数据时 -->
-    <div
-      v-if="proxies.length"
-      :class="viewMode === 'grid' ? 'tunnel-grid' : 'tunnel-list'"
-    >
+    <div v-if="proxies.length" class="tunnel-container">
       <!-- 网格视图 -->
       <div v-if="viewMode === 'grid'" class="tunnel-grid">
         <template v-if="proxies.length">
@@ -2049,7 +2046,8 @@ function closeModal(modalName: string) {
 
   .tunnel-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    justify-content: start;
     gap: 20px;
     margin-bottom: 24px;
 
@@ -2141,7 +2139,7 @@ function closeModal(modalName: string) {
 
   .empty-center {
     width: 100%;
-    min-height: 200px; // 或 60vh，根据实际页面调整
+    min-height: 200px;
     display: flex;
     justify-content: center;
     align-items: center;
