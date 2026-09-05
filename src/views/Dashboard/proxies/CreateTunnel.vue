@@ -1409,9 +1409,9 @@ const handleCreate = async () => {
     closeModal('config')
     // 重置选中状态
     selectedNodeId.value = null
-  } catch (error) {
+  } catch (error: any) {
     const errorMsg = error || '服务器连接异常'
-    message.error(`创建失败: ${errorMsg}`)
+    message.error(`创建失败: ${errorMsg.message}`)
   } finally {
     loading.value = false
   }
@@ -1419,8 +1419,8 @@ const handleCreate = async () => {
 
 // 修改初始化顺序
 const init = async () => {
-  await fetchUserGroups() // 确保先获取用户组信息
-  fetchNodes() // 移除 setTimeout 直接调用
+  await fetchUserGroups()
+  fetchNodes()
 }
 
 onMounted(() => {
