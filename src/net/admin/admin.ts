@@ -12,6 +12,15 @@ import {
   ProductListApiResponse,
   CreateProductParams,
   UpdateProductParams,
+  ProductKindListApiResponse,
+  ProductKindApiResponse,
+  CreateProductKindParams,
+  UpdateProductKindParams,
+  ProductGrantListApiResponse,
+  GrantTargetListApiResponse,
+  CreateProductGrantParams,
+  UpdateProductGrantParams,
+  SellableProductKindListApiResponse,
   SoftwareListApiResponse,
   CreateSoftwareParams,
   UpdateSoftwareParams,
@@ -264,6 +273,95 @@ export async function deleteProduct(id: number): Promise<CodeResponse> {
   } catch (error) {
     throw error
   }
+}
+
+// 商品类型API
+export async function getProductKinds(): Promise<ProductKindListApiResponse> {
+  return await get<ProductKindListApiResponse>('/admin/products/kinds', {
+    headers: { Authorization: getToken() },
+  })
+}
+
+export async function createProductKind(
+  params: CreateProductKindParams,
+): Promise<CodeResponse> {
+  return await post<CodeResponse>('/admin/products/kinds', params, {
+    headers: { Authorization: getToken() },
+  })
+}
+
+export async function updateProductKind(
+  params: UpdateProductKindParams,
+): Promise<ProductKindApiResponse> {
+  const { id, ...body } = params
+  return await put<ProductKindApiResponse>(
+    `/admin/products/kinds/${id}`,
+    body,
+    {
+      headers: { Authorization: getToken() },
+    },
+  )
+}
+
+export async function deleteProductKind(id: number): Promise<CodeResponse> {
+  return await del<CodeResponse>(
+    `/admin/products/kinds/${id}`,
+    {},
+    {
+      headers: { Authorization: getToken() },
+    },
+  )
+}
+
+// 发放规则API
+export async function getProductGrants(): Promise<ProductGrantListApiResponse> {
+  return await get<ProductGrantListApiResponse>('/admin/products/grants', {
+    headers: { Authorization: getToken() },
+  })
+}
+
+// 发放目标白名单
+export async function getGrantTargets(): Promise<GrantTargetListApiResponse> {
+  return await get<GrantTargetListApiResponse>(
+    '/admin/products/grants/targets',
+    {
+      headers: { Authorization: getToken() },
+    },
+  )
+}
+
+export async function createProductGrant(
+  params: CreateProductGrantParams,
+): Promise<CodeResponse> {
+  return await post<CodeResponse>('/admin/products/grants', params, {
+    headers: { Authorization: getToken() },
+  })
+}
+
+export async function updateProductGrant(
+  params: UpdateProductGrantParams,
+): Promise<CodeResponse> {
+  const { id, ...body } = params
+  return await put<CodeResponse>(`/admin/products/grants/${id}`, body, {
+    headers: { Authorization: getToken() },
+  })
+}
+
+export async function deleteProductGrant(id: number): Promise<CodeResponse> {
+  return await del<CodeResponse>(
+    `/admin/products/grants/${id}`,
+    {},
+    {
+      headers: { Authorization: getToken() },
+    },
+  )
+}
+
+// 可售商品类型（用户组 + 商品类型）
+export async function getSellableProductKinds(): Promise<SellableProductKindListApiResponse> {
+  return await get<SellableProductKindListApiResponse>('/info/products/kinds', {
+    headers: { Authorization: getToken() },
+  })
 }
 
 // 软件管理API

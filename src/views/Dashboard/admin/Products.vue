@@ -2,77 +2,89 @@
   <SecureArea>
     <div>
       <n-card title="产品管理">
-        <n-space vertical>
-          <div v-if="!isMobile" class="product-sort-row">
-            <n-select
-              v-model:value="sortOptions.key"
-              :options="sortFieldOptions"
-              placeholder="排序字段"
-              clearable
-              class="product-sort-item"
-              @update:value="handleSortFieldChange"
-            />
-            <n-select
-              v-model:value="sortOptions.order"
-              :options="sortOrderOptions"
-              placeholder="排序方式"
-              clearable
-              class="product-sort-item"
-              @update:value="handleSortOrderChange"
-            />
-            <n-button
-              type="primary"
-              @click="openAddModal"
-              class="product-sort-btn"
-              size="medium"
-            >
-              添加产品
-            </n-button>
-          </div>
-
-          <n-space v-else vertical :size="8" style="width: 100%">
-            <n-grid :cols="2" :x-gap="8">
-              <n-grid-item>
+        <n-tabs v-model:value="mainTab" type="line">
+          <n-tab-pane name="products" tab="产品列表">
+            <n-space vertical>
+              <div v-if="!isMobile" class="product-sort-row">
                 <n-select
                   v-model:value="sortOptions.key"
                   :options="sortFieldOptions"
                   placeholder="排序字段"
                   clearable
-                  style="width: 100%"
+                  class="product-sort-item"
                   @update:value="handleSortFieldChange"
                 />
-              </n-grid-item>
-              <n-grid-item>
                 <n-select
                   v-model:value="sortOptions.order"
                   :options="sortOrderOptions"
                   placeholder="排序方式"
                   clearable
-                  style="width: 100%"
+                  class="product-sort-item"
                   @update:value="handleSortOrderChange"
                 />
-              </n-grid-item>
-            </n-grid>
-            <n-button
-              type="primary"
-              @click="openAddModal"
-              style="width: 100%"
-              size="medium"
-            >
-              添加产品
-            </n-button>
-          </n-space>
-          <div class="table-container">
-            <n-data-table
-              remote
-              :columns="productColumns"
-              :data="sortedProductsData"
-              :loading="loading"
-              :pagination="{ pageSize: 10 }"
-              :scroll-x="900"
-            />
-          </div>
-        </n-space>
+                <n-button
+                  type="primary"
+                  @click="openAddModal"
+                  class="product-sort-btn"
+                  size="medium"
+                >
+                  添加产品
+                </n-button>
+              </div>
+
+              <n-space v-else vertical :size="8" style="width: 100%">
+                <n-grid :cols="2" :x-gap="8">
+                  <n-grid-item>
+                    <n-select
+                      v-model:value="sortOptions.key"
+                      :options="sortFieldOptions"
+                      placeholder="排序字段"
+                      clearable
+                      style="width: 100%"
+                      @update:value="handleSortFieldChange"
+                    />
+                  </n-grid-item>
+                  <n-grid-item>
+                    <n-select
+                      v-model:value="sortOptions.order"
+                      :options="sortOrderOptions"
+                      placeholder="排序方式"
+                      clearable
+                      style="width: 100%"
+                      @update:value="handleSortOrderChange"
+                    />
+                  </n-grid-item>
+                </n-grid>
+                <n-button
+                  type="primary"
+                  @click="openAddModal"
+                  style="width: 100%"
+                  size="medium"
+                >
+                  添加产品
+                </n-button>
+              </n-space>
+              <div class="table-container">
+                <n-data-table
+                  remote
+                  :columns="productColumns"
+                  :data="sortedProductsData"
+                  :loading="loading"
+                  :pagination="{ pageSize: 10 }"
+                  :scroll-x="900"
+                />
+              </div>
+            </n-space>
+          </n-tab-pane>
+
+          <n-tab-pane name="kinds" tab="商品类型">
+            <ProductKinds @updated="fetchProductTypes" />
+          </n-tab-pane>
+
+          <n-tab-pane name="grants" tab="发放规则">
+            <ProductGrants @updated="fetchProductTypes" />
+          </n-tab-pane>
+        </n-tabs>
       </n-card>
 
       <n-modal
@@ -92,11 +104,11 @@
             >
               <n-grid :cols="2" :x-gap="20" :y-gap="8" responsive="screen">
                 <n-grid-item span="2">
-                  <n-form-item label="分组" path="type">
+                  <n-form-item label="商品类型" path="type">
                     <n-select
                       v-model:value="formValue.type"
-                      :options="groupsOptions"
-                      placeholder="请选择产品分组"
+                      :options="typeOptions"
+                      placeholder="请选择商品类型"
                     />
                   </n-form-item>
                 </n-grid-item>
@@ -259,11 +271,11 @@
                 <n-collapse-item title="基本信息" name="base">
                   <n-grid :cols="2" :x-gap="20" :y-gap="8" responsive="screen">
                     <n-grid-item span="2">
-                      <n-form-item label="分组" path="type">
+                      <n-form-item label="商品类型" path="type">
                         <n-select
                           v-model:value="formValue.type"
-                          :options="groupsOptions"
-                          placeholder="请选择产品分组"
+                          :options="typeOptions"
+                          placeholder="请选择商品类型"
                         />
                       </n-form-item>
                     </n-grid-item>
@@ -409,7 +421,7 @@
 </template>
 
 <script lang="ts" setup>
-import { h, onMounted, ref, watch, computed } from 'vue'
+import { h, onMounted, ref, computed } from 'vue'
 import {
   NButton,
   NSpace,
@@ -419,12 +431,18 @@ import {
   FormInst,
   FormRules,
 } from 'naive-ui'
+import type { SelectGroupOption, SelectOption } from 'naive-ui'
 import { TrashOutline, AddOutline } from '@vicons/ionicons5'
 import { adminApi } from '@/net'
-import { Group, Product } from '@/types'
+import { Product } from '@/types'
+import type { SellableProductKind } from '@/net/admin/type'
 import SecureArea from '@/components/SecureArea.vue'
+import ProductKinds from './products/ProductKinds.vue'
+import ProductGrants from './products/ProductGrants.vue'
 
 const message = useMessage()
+
+const mainTab = ref('products')
 
 const isMobile = computed(() => {
   return window.innerWidth <= 768
@@ -433,6 +451,7 @@ const isMobile = computed(() => {
 const loading = ref(false)
 
 const addFormRef = ref<FormInst | null>(null)
+const editFormRef = ref<FormInst | null>(null)
 const formValue = ref<Product>({
   id: 0,
   type: '',
@@ -459,15 +478,13 @@ const activeTab = ref('basic')
 const mode = ref<'add' | 'edit'>('add')
 const currentProduct = ref<Product | null>(null)
 const productsData = ref<Product[]>([])
-const groupsData = ref<Group[]>([])
-const groupsOptions = ref<{ label: string; value: string }[]>([])
 const showAddModal = ref(false)
 const showEditModal = ref(false)
 const expandedNames = ref<string[]>(['base'])
 
 const sortFieldOptions = [
   { label: 'ID', value: 'id' },
-  { label: '分组', value: 'type' },
+  { label: '类型', value: 'type' },
   { label: '名称', value: 'name' },
   { label: '价格', value: 'price' },
   { label: '积分价格', value: 'pointPrice' },
@@ -529,23 +546,37 @@ const sortedProductsData = computed(() => {
 const handleSortFieldChange = () => {}
 const handleSortOrderChange = () => {}
 
-watch(
-  groupsData,
-  (newGroups) => {
-    groupsOptions.value = newGroups
-      .filter((group) => !['user', 'admin'].includes(group.name))
-      .map((group) => ({
-        label: group.friendlyName,
-        value: group.name,
-      }))
-  },
-  { immediate: true },
-)
+// 商品类型下拉：用户组（groups）+ 商品类型（product_kinds），分组展示
+const typeOptions = ref<(SelectOption | SelectGroupOption)[]>([])
+
+const buildTypeOptions = (
+  groupItems: SelectOption[],
+  resourceItems: SelectOption[],
+) => {
+  const options: SelectGroupOption[] = []
+  if (groupItems.length) {
+    options.push({
+      type: 'group',
+      key: 'group',
+      label: '用户组',
+      children: groupItems,
+    })
+  }
+  if (resourceItems.length) {
+    options.push({
+      type: 'group',
+      key: 'resource',
+      label: '商品类型',
+      children: resourceItems,
+    })
+  }
+  return options
+}
 
 const productRules: FormRules = {
   type: {
     required: true,
-    message: '请选择产品分组',
+    message: '请选择商品类型',
     trigger: ['blur', 'change'],
   },
   name: {
@@ -580,7 +611,7 @@ const productRules: FormRules = {
 
 const productColumns: DataTableColumns<Product> = [
   { title: 'ID', key: 'id' },
-  { title: '分组', key: 'type' },
+  { title: '类型', key: 'type' },
   { title: '名称', key: 'name' },
   { title: '描述', key: 'desc' },
   {
@@ -737,6 +768,8 @@ const parseDiscountRulesFromJson = (jsonStr: string) => {
 
 const openAddModal = () => {
   resetForm()
+  mode.value = 'add'
+  currentProduct.value = null
   showAddModal.value = true
 }
 
@@ -770,7 +803,8 @@ const validateDiscountRules = (): boolean => {
 
 const handleSubmit = async () => {
   try {
-    await addFormRef.value?.validate()
+    const formRef = mode.value === 'add' ? addFormRef : editFormRef
+    await formRef.value?.validate()
 
     if (!validateDiscountRules()) {
       return
@@ -865,22 +899,64 @@ const fetchProductsInfo = async () => {
   }
 }
 
-const fetchGroupsInfo = async () => {
+const fetchProductTypes = async () => {
   try {
-    const data = await adminApi.getGroupList()
-    if (data.code === 0) {
-      groupsData.value = data.data.groups || data.data
-    } else {
-      message.error(data.message || '获取用户组列表失败')
+    // 优先：可售类型接口，category=group 为用户组，category=resource 为商品类型
+    const info = await adminApi.getSellableProductKinds()
+    if (info.code === 0 && info.data?.kinds?.length) {
+      const toOption = (item: SellableProductKind): SelectOption => ({
+        label: item.name ? `${item.name}（${item.code}）` : item.code,
+        value: item.code,
+      })
+      typeOptions.value = buildTypeOptions(
+        info.data.kinds
+          .filter((item) => item.category === 'group')
+          .map(toOption),
+        info.data.kinds
+          .filter((item) => item.category === 'resource')
+          .map(toOption),
+      )
+      return
     }
+  } catch {
+    // 接口不可用时走兜底
+  }
+
+  // 兜底：管理端商品类型 + 用户组列表
+  try {
+    const [kindsRes, groupsRes] = await Promise.all([
+      adminApi.getProductKinds(),
+      adminApi.getGroupList(),
+    ])
+
+    const resourceItems: SelectOption[] =
+      kindsRes.code === 0
+        ? (kindsRes.data?.kinds || []).map((item: any) => ({
+            label: item.name ? `${item.name}（${item.code}）` : item.code,
+            value: item.code,
+          }))
+        : []
+
+    const groups: any[] =
+      groupsRes.code === 0
+        ? (groupsRes.data as any)?.groups || (groupsRes.data as any) || []
+        : []
+    const groupItems: SelectOption[] = groups.map((group: any) => ({
+      label: group.friendlyName
+        ? `${group.friendlyName}（${group.name}）`
+        : group.name,
+      value: group.name,
+    }))
+
+    typeOptions.value = buildTypeOptions(groupItems, resourceItems)
   } catch (error: any) {
-    message.error(error?.response?.data?.message || '获取用户组列表失败')
+    message.error(error?.response?.data?.message || '获取商品类型失败')
   }
 }
 
 onMounted(() => {
   fetchProductsInfo()
-  fetchGroupsInfo()
+  fetchProductTypes()
 })
 </script>
 
