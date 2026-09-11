@@ -198,6 +198,81 @@ export interface UpdateProductParams extends CreateProductParams {
   id: number
 }
 
+// 商品类型相关类型
+export interface ProductKind {
+  id: number
+  code: string
+  name: string
+  grantCode: string
+  sort: number
+}
+
+export interface ProductKindListResponse {
+  kinds: ProductKind[]
+}
+
+export interface CreateProductKindParams {
+  code: string
+  name: string
+  grantCode: string
+  sort?: number
+}
+
+export interface UpdateProductKindParams extends CreateProductKindParams {
+  id: number
+}
+
+// 发放规则相关类型
+export interface ProductGrant {
+  id: number
+  grantCode: string
+  target: string
+  tableName: string
+  columnName: string
+  keyColumn: string
+  scale: number
+  sort: number
+}
+
+export interface ProductGrantListResponse {
+  grants: ProductGrant[]
+}
+
+// 发放目标白名单
+export interface GrantTarget {
+  target: string
+  label: string
+  table: string
+  column: string
+  keyColumn: string
+}
+
+export interface GrantTargetListResponse {
+  targets: GrantTarget[]
+}
+
+export interface CreateProductGrantParams {
+  grantCode: string
+  target: string
+  scale: number
+  sort?: number
+}
+
+export interface UpdateProductGrantParams extends CreateProductGrantParams {
+  id: number
+}
+
+// 可售商品类型（用户端，groups + product_kinds 合并）
+export interface SellableProductKind {
+  code: string
+  name: string
+  category: 'group' | 'resource'
+}
+
+export interface SellableProductKindListResponse {
+  kinds: SellableProductKind[]
+}
+
 // 软件管理相关类型
 export interface Software {
   id: number
@@ -375,6 +450,16 @@ export type ProxyListApiResponse = ApiBaseResponse<ProxyPaginatedResponse>
 export type ProxyApiResponse = ApiBaseResponse<Proxy>
 export type ProductListApiResponse = ApiBaseResponse<ProductListResponse>
 export type ProductApiResponse = ApiBaseResponse<Product>
+export type ProductKindListApiResponse =
+  ApiBaseResponse<ProductKindListResponse>
+export type ProductKindApiResponse = ApiBaseResponse<ProductKind>
+export type ProductGrantListApiResponse =
+  ApiBaseResponse<ProductGrantListResponse>
+export type ProductGrantApiResponse = ApiBaseResponse<ProductGrant>
+export type GrantTargetListApiResponse =
+  ApiBaseResponse<GrantTargetListResponse>
+export type SellableProductKindListApiResponse =
+  ApiBaseResponse<SellableProductKindListResponse>
 export type SoftwareListApiResponse = ApiBaseResponse<SoftwareListResponse>
 export type SoftwareApiResponse = ApiBaseResponse<Software>
 export type SoftwareVersionApiResponse = ApiBaseResponse<
