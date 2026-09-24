@@ -732,11 +732,6 @@ const rules: FormRules = {
     message: '请输入节点名称',
     trigger: ['blur', 'input'],
   },
-  ip: {
-    required: true,
-    message: '请输入IP地址',
-    trigger: ['blur', 'input'],
-  },
   token: {
     required: true,
     message: '请输入Token',

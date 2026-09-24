@@ -55,7 +55,6 @@
                 y-gap="8"
                 cols="3"
                 responsive="screen"
-                style="padding-top: 14px"
               >
                 <NGridItem
                   v-for="node in filteredNodes.filter(
@@ -1478,10 +1477,6 @@ const handleCreateFormCollapseUpdate = (names: string[]) => {
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
-
-    :deep(.n-card-header) {
-      border-bottom: 1px solid $border-color;
-    }
 
     :deep(.n-card__content) {
       padding: 16px;
