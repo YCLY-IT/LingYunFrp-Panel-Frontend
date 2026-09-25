@@ -218,6 +218,15 @@ const router = createRouter({
               },
             },
             {
+              path: 'redeem',
+              name: 'admin-redeem',
+              component: () => import('../views/Dashboard/admin/Redeem.vue'),
+              meta: {
+                title: '兑换码管理',
+                requiresAdmin: true,
+              },
+            },
+            {
               path: 'operation-log',
               name: 'admin-operation-log',
               component: () =>

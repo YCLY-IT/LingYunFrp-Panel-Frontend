@@ -39,6 +39,12 @@ import {
   CreateBroadcastParams,
   UpdateBroadcastParams,
   OperationLogListApiResponse,
+  RedeemCodeListApiResponse,
+  CreateRedeemCodesParams,
+  CreateRedeemCodesApiResponse,
+  ExportRedeemCodesParams,
+  ExportRedeemCodesApiResponse,
+  UpdateRedeemCodeStatusApiResponse,
 } from './type'
 import { ApiBaseResponse } from '../user/type'
 
@@ -672,6 +678,88 @@ export async function deleteAdminOperationLog(
 export async function clearAdminOperationLog(): Promise<CodeResponse> {
   return await post<CodeResponse>(
     '/admin/logs/operations/clear',
+    {},
+    {
+      headers: { Authorization: getToken() },
+    },
+  )
+}
+
+// 兑换码管理API
+export async function getRedeemCodeList(
+  page: number = 1,
+  pageSize: number = 20,
+  search?: string,
+  type?: string,
+  batch?: string,
+  status?: number,
+): Promise<RedeemCodeListApiResponse> {
+  const params = new URLSearchParams()
+  params.append('page', String(page))
+  params.append('pageSize', String(pageSize))
+  if (search) params.append('search', search)
+  if (type) params.append('type', type)
+  if (batch) params.append('batch', batch)
+  if (status !== undefined && status !== null) {
+    params.append('status', String(status))
+  }
+
+  return await get<RedeemCodeListApiResponse>(
+    `/admin/redeem/codes?${params.toString()}`,
+    {
+      headers: { Authorization: getToken() },
+    },
+  )
+}
+
+export async function createRedeemCodes(
+  params: CreateRedeemCodesParams,
+): Promise<CreateRedeemCodesApiResponse> {
+  return await post<CreateRedeemCodesApiResponse>(
+    '/admin/redeem/codes',
+    params,
+    {
+      headers: { Authorization: getToken() },
+    },
+  )
+}
+
+export async function exportRedeemCodes(
+  params: ExportRedeemCodesParams,
+): Promise<ExportRedeemCodesApiResponse> {
+  const search = new URLSearchParams()
+  if (params.type) search.append('type', params.type)
+  if (params.batch) search.append('batch', params.batch)
+  if (params.status !== undefined && params.status !== null) {
+    search.append('status', String(params.status))
+  }
+  if (params.limit) search.append('limit', String(params.limit))
+
+  const query = search.toString()
+  return await get<ExportRedeemCodesApiResponse>(
+    `/admin/redeem/codes/export${query ? `?${query}` : ''}`,
+    {
+      headers: { Authorization: getToken() },
+    },
+  )
+}
+
+export async function updateRedeemCodeStatus(
+  id: number,
+  status: number,
+): Promise<UpdateRedeemCodeStatusApiResponse> {
+  return await patch<UpdateRedeemCodeStatusApiResponse>(
+    `/admin/redeem/codes/${id}/status`,
+    { status },
+    {
+      headers: { Authorization: getToken() },
+    },
+  )
+}
+
+export async function deleteRedeemCode(id: number): Promise<CodeResponse> {
+  return await del<CodeResponse>(
+    `/admin/redeem/codes/${id}`,
     {},
     {
       headers: { Authorization: getToken() },

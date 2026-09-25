@@ -360,6 +360,32 @@ export interface ModalStates {
   changeRealname: boolean
 }
 
+// 兑换码相关类型
+export interface RedeemResult {
+  message: string
+  type: string
+  typeName: string
+  num: number
+  isPermanent: boolean
+  expiresAt: string
+}
+
+export interface RedeemRecord {
+  id: number
+  code: string
+  type: string
+  typeName: string
+  num: number
+  isPermanent: boolean
+  usedAt: string
+  expiresAt: string
+}
+
+export type RedeemCodeResponse = ApiBaseResponse<RedeemResult>
+export type RedeemRecordsResponse = ApiBaseResponse<
+  PaginatedResponse<RedeemRecord>
+>
+
 export type UpdateUsernameResponse = CodeResponse
 export type UpdateNicknameResponse = CodeResponse
 export type UpdatePasswordResponse = CodeResponse

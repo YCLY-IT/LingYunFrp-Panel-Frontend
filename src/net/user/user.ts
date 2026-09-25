@@ -29,6 +29,8 @@ import type {
   CheckPaymentStatusResponse,
   GitHubCommitsResponse,
   GroupResponse,
+  RedeemCodeResponse,
+  RedeemRecordsResponse,
   SignResponse,
   TrafficTrendResponse,
   UserInfoResponse,
@@ -382,4 +384,35 @@ export async function resetToken(): Promise<any> {
 
 export async function getHomeStats(): Promise<any> {
   return await get<any>('/public/stats')
+}
+
+// 使用兑换码
+export async function redeemCode(code: string): Promise<RedeemCodeResponse> {
+  return await post<RedeemCodeResponse>(
+    '/redeem/',
+    { code },
+    {
+      headers: {
+        Authorization: getToken(),
+      },
+    },
+  )
+}
+
+// 我的兑换记录
+export async function getRedeemRecords(
+  page: number = 1,
+  pageSize: number = 20,
+): Promise<RedeemRecordsResponse> {
+  const params = new URLSearchParams()
+  params.append('page', String(page))
+  params.append('pageSize', String(pageSize))
+  return await get<RedeemRecordsResponse>(
+    `/redeem/records?${params.toString()}`,
+    {
+      headers: {
+        Authorization: getToken(),
+      },
+    },
+  )
 }
