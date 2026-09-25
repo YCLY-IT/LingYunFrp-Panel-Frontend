@@ -3,14 +3,10 @@
 @custom-variant dark (&:where(.n-theme-dark, .n-theme-dark *));
 
 :root {
-  /* 主题主色。默认值与 stores/theme.ts 保持一致，运行时由 App.vue 写入行内样式覆盖。
-     naive-ui 只按组件内联注入 --n-<组件>-* 变量，从不全局定义主色，
-     所以这里必须自己声明，否则 var(--n-primary-color) 全是无效声明。 */
   --n-primary-color: #2080f0;
   --n-primary-color-hover: color-mix(in srgb, var(--n-primary-color) 84%, #fff);
   --n-primary-color-pressed: color-mix(in srgb, var(--n-primary-color) 84%, #000);
   --n-primary-color-suppl: color-mix(in srgb, var(--n-primary-color) 62%, #fff);
-  /* 主色派生的浅底 / 描边，供卡片等使用 */
   --n-primary-color-tint: color-mix(
     in srgb,
     var(--n-primary-color) 6%,
