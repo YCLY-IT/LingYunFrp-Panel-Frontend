@@ -16,6 +16,7 @@ import {
   CubeOutline,
   FileTrayFullOutline,
   DocumentTextOutline,
+  PricetagsOutline,
 } from '@vicons/ionicons5'
 import { NIcon, type MenuOption } from 'naive-ui'
 import { SaveIcon } from 'lucide-vue-next'
@@ -133,16 +134,22 @@ const adminMenuOptions: MenuOption = {
       icon: renderIcon(BuildOutline),
     },
     {
-      label: '系统管理',
-      key: 'admin-system',
-      link: '/dashboard/admin/system',
-      icon: renderIcon(SettingsOutline),
+      label: '兑换码管理',
+      key: 'admin-redeem',
+      link: '/dashboard/admin/redeem',
+      icon: renderIcon(PricetagsOutline),
     },
     {
       label: '操作日志',
       key: 'admin-operation-log',
       link: '/dashboard/admin/operation-log',
       icon: renderIcon(DocumentTextOutline),
+    },
+    {
+      label: '系统管理',
+      key: 'admin-system',
+      link: '/dashboard/admin/system',
+      icon: renderIcon(SettingsOutline),
     },
   ],
 }

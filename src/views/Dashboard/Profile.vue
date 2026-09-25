@@ -10,6 +10,33 @@
       class="flex gap-4 w-full max-md:flex-col max-md:p-3 max-md:gap-3 max-md:mx-2.5"
     >
       <div class="flex-1 flex flex-col gap-4 max-md:gap-3">
+        <n-card
+          class="rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.1)]"
+          title="兑换码"
+        >
+          <template #header-extra>
+            <n-button size="small" quaternary @click="openRedeemRecords">
+              兑换记录
+            </n-button>
+          </template>
+          <div class="flex gap-3 max-md:flex-col">
+            <n-input
+              v-model:value="redeemCode"
+              placeholder="请输入兑换码（不区分大小写，可忽略 - 与空格）"
+              clearable
+              :disabled="redeeming"
+              @keyup.enter="handleRedeem"
+            />
+            <n-button
+              type="primary"
+              :loading="redeeming"
+              class="max-md:w-full"
+              @click="handleRedeem"
+            >
+              立即兑换
+            </n-button>
+          </div>
+        </n-card>
         <!-- 账户设置区域 -->
         <n-card
           class="settings-card rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.1)]"
@@ -101,9 +128,6 @@
             </div>
           </div>
         </n-card>
-        <div class="welcome-card-container">
-          <WelcomeCard />
-        </div>
       </div>
       <div class="w-[450px] flex flex-col gap-4 max-md:w-full max-md:mt-3">
         <!-- 账户详情区域 -->
@@ -507,24 +531,65 @@
           >
         </div>
       </n-modal>
+
+      <!-- 我的兑换记录模态窗口 -->
+      <n-modal
+        v-model:show="modals.redeemRecords"
+        preset="card"
+        title="我的兑换记录"
+        :style="{ width: '780px', maxWidth: '95vw' }"
+      >
+        <div class="w-full min-w-0 overflow-x-auto">
+          <n-data-table
+            :columns="redeemColumns"
+            :data="redeemRecords"
+            :loading="recordsLoading"
+            :pagination="false"
+            striped
+            :scroll-x="720"
+          />
+        </div>
+        <div
+          class="flex justify-end mt-3 max-md:[&_.n-pagination]:flex-wrap max-md:[&_.n-pagination]:gap-2 max-md:[&_.n-pagination]:justify-center"
+        >
+          <n-pagination
+            v-model:page="redeemPagination.page"
+            v-model:page-size="redeemPagination.pageSize"
+            :item-count="redeemPagination.itemCount"
+            :page-count="redeemPagination.pageCount"
+            :page-sizes="redeemPagination.pageSizes"
+            show-size-picker
+            @update:page="fetchRedeemRecords"
+            @update:page-size="handleRedeemPageSizeChange"
+          >
+            <template #prefix="{ itemCount }">
+              共 {{ itemCount }} 条
+            </template>
+          </n-pagination>
+        </div>
+      </n-modal>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, h } from 'vue'
 import {
   NModal,
   NButton,
   NForm,
   NFormItem,
   NInput,
+  NDataTable,
+  NPagination,
+  NTag,
   useMessage,
   NTabs,
   NTabPane,
   NUpload,
   UploadFileInfo,
   useDialog,
+  type DataTableColumns,
 } from 'naive-ui'
 import {
   UserIcon,
@@ -534,8 +599,8 @@ import {
   KeyIcon,
 } from 'lucide-vue-next'
 import userInfo from '../../components/UserInfo.vue'
-import WelcomeCard from '@/components/WelcomeCard.vue'
 import { userApi } from '../../net'
+import type { RedeemRecord } from '@/net/user/type'
 import { removeToken } from '../../net/token'
 import Statistic from '@/components/Statistic.vue'
 import { useThemeStore } from '@/stores/theme'
@@ -571,6 +636,7 @@ const modals = reactive({
   changeNickname: false,
   changeRealname: false,
   changeResetToken: false,
+  redeemRecords: false,
 })
 
 // 表单数据
@@ -1078,6 +1144,140 @@ const handleResetToken = async () => {
     })
   }
 }
+// 兑换码相关状态
+const redeemCode = ref('')
+const redeeming = ref(false)
+const recordsLoading = ref(false)
+const redeemRecords = ref<RedeemRecord[]>([])
+const redeemPagination = ref({
+  page: 1,
+  pageSize: 10,
+  pageCount: 1,
+  itemCount: 0,
+  pageSizes: [
+    { label: '10 条/页', value: 10 },
+    { label: '20 条/页', value: 20 },
+    { label: '50 条/页', value: 50 },
+  ],
+})
+
+const formatRedeemDate = (dateStr: string) => {
+  if (!dateStr) return '-'
+  const date = new Date(dateStr)
+  if (Number.isNaN(date.getTime())) return dateStr
+  return date.toLocaleString('zh-CN', { hour12: false })
+}
+
+const redeemColumns: DataTableColumns<RedeemRecord> = [
+  {
+    title: '兑换码',
+    key: 'code',
+    minWidth: 200,
+    ellipsis: { tooltip: true },
+  },
+  {
+    title: '类型',
+    key: 'typeName',
+    minWidth: 90,
+    render: (row) => row.typeName || row.type || '-',
+  },
+  {
+    title: '数量',
+    key: 'num',
+    minWidth: 80,
+    render: (row) => `${row.num}${row.isPermanent ? '（永久）' : ''}`,
+  },
+  {
+    title: '兑换时间',
+    key: 'usedAt',
+    minWidth: 160,
+    render: (row) => formatRedeemDate(row.usedAt),
+  },
+  {
+    title: '到期时间',
+    key: 'expiresAt',
+    minWidth: 150,
+    render: (row) =>
+      row.expiresAt
+        ? formatRedeemDate(row.expiresAt)
+        : h(NTag, { size: 'small' }, { default: () => '不过期' }),
+  },
+]
+
+const handleRedeemPageSizeChange = (size: number) => {
+  redeemPagination.value.pageSize = size
+  redeemPagination.value.page = 1
+  fetchRedeemRecords()
+}
+
+// 打开兑换记录弹窗
+const openRedeemRecords = () => {
+  modals.redeemRecords = true
+  fetchRedeemRecords()
+}
+
+// 获取我的兑换记录
+const fetchRedeemRecords = async () => {
+  recordsLoading.value = true
+  try {
+    const res = await userApi.getRedeemRecords(
+      redeemPagination.value.page,
+      redeemPagination.value.pageSize,
+    )
+    if (res.code === 0 && res.data) {
+      redeemRecords.value = res.data.list || []
+      redeemPagination.value.itemCount = res.data.total || 0
+      redeemPagination.value.pageCount = res.data.totalPages || 1
+    } else {
+      redeemRecords.value = []
+      message.error(res.message || '获取兑换记录失败')
+    }
+  } catch (error: any) {
+    redeemRecords.value = []
+    message.error(error?.message || '获取兑换记录失败')
+  } finally {
+    recordsLoading.value = false
+  }
+}
+
+// 使用兑换码
+const handleRedeem = async () => {
+  const value = redeemCode.value.trim()
+  if (!value) {
+    message.warning('请输入兑换码')
+    return
+  }
+
+  redeeming.value = true
+  try {
+    const res = await userApi.redeemCode(value)
+    if (res.code === 0 && res.data) {
+      const data = res.data
+      const lines = [
+        data.message || '兑换成功',
+        `类型：${data.typeName || data.type}`,
+        `数量：${data.num}${data.isPermanent ? '（永久）' : ''}`,
+      ]
+      if (data.expiresAt) lines.push(`到期时间：${formatRedeemDate(data.expiresAt)}`)
+      dialog.success({
+        title: '兑换成功',
+        content: () =>
+          h('div', { style: 'white-space: pre-line' }, lines.join('\n')),
+        positiveText: '确定',
+      })
+      redeemCode.value = ''
+      redeemPagination.value.page = 1
+      await fetchRedeemRecords()
+    } else {
+      message.error(res.message || '兑换失败')
+    }
+  } catch (error: any) {
+    message.error(error?.message || '兑换失败')
+  } finally {
+    redeeming.value = false
+  }
+}
+
 // 组件卸载时清理
 onMounted(async () => {
   // 加载极验脚本

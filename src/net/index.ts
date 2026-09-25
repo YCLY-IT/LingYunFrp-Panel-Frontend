@@ -41,6 +41,8 @@ import {
   resetToken,
   checkPaymentStatus,
   getHomeStats,
+  redeemCode,
+  getRedeemRecords,
 } from './user/user'
 import {
   getUserList,
@@ -97,6 +99,11 @@ import {
   updateBroadcast,
   deleteBroadcast,
   toggleBroadcastTop,
+  getRedeemCodeList,
+  createRedeemCodes,
+  exportRedeemCodes,
+  updateRedeemCodeStatus,
+  deleteRedeemCode,
 } from './admin/admin'
 
 const userApi = {
@@ -141,6 +148,9 @@ const userApi = {
   resetToken,
   checkPaymentStatus,
   getHomeStats,
+  // 兑换码
+  redeemCode,
+  getRedeemRecords,
 }
 
 const adminApi = {
@@ -210,5 +220,11 @@ const adminApi = {
   updateBroadcast,
   deleteBroadcast,
   toggleBroadcastTop,
+  // 兑换码管理
+  getRedeemCodeList,
+  createRedeemCodes,
+  exportRedeemCodes,
+  updateRedeemCodeStatus,
+  deleteRedeemCode,
 }
 export { userApi, adminApi }

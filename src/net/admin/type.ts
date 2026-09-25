@@ -498,3 +498,71 @@ export interface OperationLog {
 export type OperationLogListApiResponse = ApiBaseResponse<
   PaginatedResponse<OperationLog>
 >
+
+// 兑换码管理相关类型
+export interface RedeemCode {
+  id: number
+  code: string
+  name: string
+  batch: string
+  type: string
+  typeName: string
+  num: number
+  isPermanent: boolean
+  status: number
+  statusText: string
+  remark: string
+  createdBy: string
+  usedBy: string
+  usedByName: string
+  usedAt: string
+  expiresAt: string
+  createdAt: string
+}
+
+export interface CreateRedeemCodesParams {
+  type: string
+  num: number
+  count: number
+  name?: string
+  batch?: string
+  remark?: string
+  isPermanent?: boolean
+  expiresAt?: string
+}
+
+export interface CreateRedeemCodesResult {
+  batch: string
+  count: number
+  codes: string[]
+  text: string
+}
+
+export interface ExportRedeemCodesParams {
+  type?: string
+  batch?: string
+  status?: number
+  limit?: number
+}
+
+export interface ExportRedeemCodesResult {
+  count: number
+  codes: string[]
+  text: string
+}
+
+export interface UpdateRedeemCodeStatusResult {
+  id: number
+  status: number
+  statusText: string
+}
+
+export type RedeemCodeListApiResponse = ApiBaseResponse<
+  PaginatedResponse<RedeemCode>
+>
+export type CreateRedeemCodesApiResponse =
+  ApiBaseResponse<CreateRedeemCodesResult>
+export type ExportRedeemCodesApiResponse =
+  ApiBaseResponse<ExportRedeemCodesResult>
+export type UpdateRedeemCodeStatusApiResponse =
+  ApiBaseResponse<UpdateRedeemCodeStatusResult>
