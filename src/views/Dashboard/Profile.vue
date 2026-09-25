@@ -1,17 +1,21 @@
 <template>
   <div class="profile">
-    <div class="statistic-container">
+    <div class="mb-[11px]">
       <Statistic
         :signRemainder="userInfoRef?.userInfo.signRemainder"
         ref="statisticRef"
       />
     </div>
-    <div class="page-container">
-      <div class="left-column">
+    <div
+      class="flex gap-4 w-full max-md:flex-col max-md:p-3 max-md:gap-3 max-md:mx-2.5"
+    >
+      <div class="flex-1 flex flex-col gap-4 max-md:gap-3">
         <!-- 账户设置区域 -->
-        <n-card class="settings-card">
-          <div class="card-header">
-            <h2 class="card-title">账户设置</h2>
+        <n-card
+          class="settings-card rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.1)]"
+        >
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-medium mb-4">账户设置</h2>
             <div class="tabs">
               <span class="tab active" style="margin-right: 10px"
                 >Settings</span
@@ -20,79 +24,79 @@
           </div>
 
           <div
-            class="settings-grid"
+            class="grid grid-cols-2 gap-4 max-[1200px]:grid-cols-1"
             :style="{ '--setting-icon-color': themeStore.primaryColor }"
           >
             <!-- 修改用户名 -->
-            <div class="setting-item" @click="showModal('changeUsername')">
-              <div class="setting-icon">
+            <div class="flex gap-3 p-3 rounded-md cursor-pointer transition-[background-color] duration-200 hover:bg-black/5" @click="showModal('changeUsername')">
+              <div class="w-10 h-10 flex items-center justify-center text-[var(--setting-icon-color)] [&_svg]:text-[var(--setting-icon-color)] [&_i]:w-6 [&_i]:h-6 [&_i]:block [&_i]:bg-center [&_i]:bg-no-repeat [&_i]:bg-contain max-md:w-8 max-md:h-8">
                 <UserIcon style="width: 50px; height: 50px; margin-top: 25px" />
               </div>
-              <div class="setting-content">
-                <h3 class="setting-title">修改用户名</h3>
-                <p class="setting-desc">点击这里可以修改您的用户名</p>
+              <div class="flex-1">
+                <h3 class="text-base font-medium mb-1 max-md:text-sm">修改用户名</h3>
+                <p class="text-sm text-[#666] m-0 max-md:text-xs">点击这里可以修改您的用户名</p>
               </div>
             </div>
 
             <!-- 更换昵称 -->
-            <div class="setting-item" @click="showModal('changeNickname')">
-              <div class="setting-icon">
+            <div class="flex gap-3 p-3 rounded-md cursor-pointer transition-[background-color] duration-200 hover:bg-black/5" @click="showModal('changeNickname')">
+              <div class="w-10 h-10 flex items-center justify-center text-[var(--setting-icon-color)] [&_svg]:text-[var(--setting-icon-color)] [&_i]:w-6 [&_i]:h-6 [&_i]:block [&_i]:bg-center [&_i]:bg-no-repeat [&_i]:bg-contain max-md:w-8 max-md:h-8">
                 <UserIcon style="width: 50px; height: 50px; margin-top: 25px" />
               </div>
-              <div class="setting-content">
-                <h3 class="setting-title">更换昵称</h3>
-                <p class="setting-desc">点击这里可以修改您的昵称</p>
+              <div class="flex-1">
+                <h3 class="text-base font-medium mb-1 max-md:text-sm">更换昵称</h3>
+                <p class="text-sm text-[#666] m-0 max-md:text-xs">点击这里可以修改您的昵称</p>
               </div>
             </div>
 
             <!-- 更改头像 -->
-            <div class="setting-item" @click="showModal('changeAvatar')">
-              <div class="setting-icon">
+            <div class="flex gap-3 p-3 rounded-md cursor-pointer transition-[background-color] duration-200 hover:bg-black/5" @click="showModal('changeAvatar')">
+              <div class="w-10 h-10 flex items-center justify-center text-[var(--setting-icon-color)] [&_svg]:text-[var(--setting-icon-color)] [&_i]:w-6 [&_i]:h-6 [&_i]:block [&_i]:bg-center [&_i]:bg-no-repeat [&_i]:bg-contain max-md:w-8 max-md:h-8">
                 <ImageUpIcon
                   style="width: 50px; height: 50px; margin-top: 25px"
                 />
               </div>
-              <div class="setting-content">
-                <h3 class="setting-title">更改头像</h3>
-                <p class="setting-desc">点击这里上传图片，可以更换您的头像</p>
+              <div class="flex-1">
+                <h3 class="text-base font-medium mb-1 max-md:text-sm">更改头像</h3>
+                <p class="text-sm text-[#666] m-0 max-md:text-xs">点击这里上传图片，可以更换您的头像</p>
               </div>
             </div>
 
             <!-- 修改密码 -->
-            <div class="setting-item" @click="showModal('changePassword')">
-              <div class="setting-icon">
+            <div class="flex gap-3 p-3 rounded-md cursor-pointer transition-[background-color] duration-200 hover:bg-black/5" @click="showModal('changePassword')">
+              <div class="w-10 h-10 flex items-center justify-center text-[var(--setting-icon-color)] [&_svg]:text-[var(--setting-icon-color)] [&_i]:w-6 [&_i]:h-6 [&_i]:block [&_i]:bg-center [&_i]:bg-no-repeat [&_i]:bg-contain max-md:w-8 max-md:h-8">
                 <LockIcon style="width: 50px; height: 50px; margin-top: 25px" />
               </div>
-              <div class="setting-content">
-                <h3 class="setting-title">修改密码</h3>
-                <p class="setting-desc">点击这里可以修改您的登录密码</p>
+              <div class="flex-1">
+                <h3 class="text-base font-medium mb-1 max-md:text-sm">修改密码</h3>
+                <p class="text-sm text-[#666] m-0 max-md:text-xs">点击这里可以修改您的登录密码</p>
               </div>
             </div>
 
             <!-- 实人认证 -->
             <div
               v-if="!UserInfo.isRealname"
-              class="setting-item"
+              class="flex gap-3 p-3 rounded-md cursor-pointer transition-[background-color] duration-200 hover:bg-black/5"
               @click="showModal('changeRealname')"
             >
-              <div class="setting-icon">
+              <div class="w-10 h-10 flex items-center justify-center text-[var(--setting-icon-color)] [&_svg]:text-[var(--setting-icon-color)] [&_i]:w-6 [&_i]:h-6 [&_i]:block [&_i]:bg-center [&_i]:bg-no-repeat [&_i]:bg-contain max-md:w-8 max-md:h-8">
                 <BadgeCheckIcon
                   style="width: 50px; height: 50px; margin-top: 25px"
                 />
               </div>
-              <div class="setting-content">
-                <h3 class="setting-title">实人认证</h3>
-                <p class="setting-desc">点击这里可以实人认证哦</p>
+              <div class="flex-1">
+                <h3 class="text-base font-medium mb-1 max-md:text-sm">实人认证</h3>
+                <p class="text-sm text-[#666] m-0 max-md:text-xs">点击这里可以实人认证哦</p>
               </div>
             </div>
             <!-- 重置Token -->
-            <div class="setting-item" @click="showModal('changeResetToken')">
-              <div class="setting-icon">
+            <div class="flex gap-3 p-3 rounded-md cursor-pointer transition-[background-color] duration-200 hover:bg-black/5" @click="showModal('changeResetToken')">
+              <div class="w-10 h-10 flex items-center justify-center text-[var(--setting-icon-color)] [&_svg]:text-[var(--setting-icon-color)] [&_i]:w-6 [&_i]:h-6 [&_i]:block [&_i]:bg-center [&_i]:bg-no-repeat [&_i]:bg-contain max-md:w-8 max-md:h-8">
                 <KeyIcon style="width: 50px; height: 50px; margin-top: 25px" />
               </div>
-              <div class="setting-content">
-                <h3 class="setting-title">重置Token</h3>
-                <p class="setting-desc">点击这里可以重置您的Token (退出登录)</p>
+              <div class="flex-1">
+                <h3 class="text-base font-medium mb-1 max-md:text-sm">重置Token</h3>
+                <p class="text-sm text-[#666] m-0 max-md:text-xs">点击这里可以重置您的Token (退出登录)</p>
               </div>
             </div>
           </div>
@@ -101,11 +105,17 @@
           <WelcomeCard />
         </div>
       </div>
-      <div class="right-column">
+      <div class="w-[450px] flex flex-col gap-4 max-md:w-full max-md:mt-3">
         <!-- 账户详情区域 -->
-        <n-card class="card account-details" size="medium" title="账户详情">
-          <div class="user-profile">
-            <div class="user-avatar">
+        <n-card
+          class="account-details rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.1)]"
+          size="medium"
+          title="账户详情"
+        >
+          <div class="flex items-center gap-4 mb-2 max-md:gap-3">
+            <div
+              class="w-20 h-20 rounded-lg overflow-hidden [&_img]:w-full [&_img]:h-full [&_img]:object-cover max-md:w-[60px] max-md:h-[60px]"
+            >
               <div
                 :style="{
                   backgroundImage: `url(${UserInfo.avatar})`,
@@ -118,14 +128,20 @@
                 alt="User Avatar"
               />
             </div>
-            <div class="user-info">
-              <h3 class="user-greeting">Hi, {{ UserInfo.nickname }}</h3>
+            <div class="flex-1 min-w-0">
+              <h3 class="text-lg font-medium mb-1 max-md:text-base">
+                Hi, {{ UserInfo.nickname }}
+              </h3>
               <span style="display: flex; font-size: 17px">今天过的还好吗</span>
-              <p class="user-email">{{ UserInfo.email }}</p>
+              <p class="text-sm text-[#666] m-0 max-md:text-xs">
+                {{ UserInfo.email }}
+              </p>
             </div>
           </div>
 
-          <div class="account-info-grid">
+          <div
+            class="min-[601px]:p-2.5 max-[600px]:flex max-[600px]:p-3 max-[600px]:overflow-x-auto max-[600px]:snap-x max-[600px]:snap-mandatory max-[600px]:gap-3 max-[600px]:[&::-webkit-scrollbar]:h-1 max-[600px]:[&::-webkit-scrollbar-thumb]:bg-[#888] max-[600px]:[&::-webkit-scrollbar-thumb]:rounded-sm"
+          >
             <userInfo ref="userInfoRef" />
           </div>
         </n-card>
@@ -167,7 +183,7 @@
               </n-button>
             </div>
           </n-form-item>
-          <div class="modal-actions">
+          <div class="flex justify-end gap-3 mt-6">
             <n-button @click="modals.changeUsername = false">取消</n-button>
             <n-button
               :loading="loading"
@@ -211,7 +227,7 @@
             />
           </n-form-item>
           <br />
-          <div class="modal-actions">
+          <div class="flex justify-end gap-3 mt-6">
             <n-button
               :loading="loading"
               type="primary"
@@ -259,7 +275,9 @@
             </n-tab-pane>
           </n-tabs>
           <n-form-item label="预览">
-            <div class="avatar-preview">
+            <div
+              class="w-[100px] h-[100px] rounded-lg overflow-hidden mx-auto [&_img]:w-full [&_img]:h-full [&_img]:object-cover"
+            >
               <template v-if="forms.avatar.avatarMode === 'upload'">
                 <div
                   :style="{
@@ -314,7 +332,7 @@
               </template>
             </div>
           </n-form-item>
-          <div class="modal-actions">
+          <div class="flex justify-end gap-3 mt-6">
             <n-button @click="modals.changeAvatar = false">取消</n-button>
             <n-button
               :loading="loading"
@@ -334,7 +352,10 @@
         style="width: 500px"
       >
         <div style="padding: 20px">
-          <div class="cropper-container" style="height: 360px">
+          <div
+            class="w-full relative [&_.vue-advanced-cropper__image]:opacity-100! [&_.vue-circle-stencil]:shadow-[0_0_0_9999px_rgba(0,0,0,0.4)] [&_.vue-circle-stencil]:border-2 [&_.vue-circle-stencil]:border-[var(--n-primary-color)] [&_.cropper-view-box]:rounded-full [&_.cropper-face]:rounded-full [&_.cropper-view-box]:outline-0 [&_.cropper-view-box]:shadow-[0_0_0_1px_var(--n-primary-color)]"
+            style="height: 360px"
+          >
             <Cropper
               ref="cropperRef"
               class="cropper"
@@ -361,7 +382,7 @@
               style="height: 400px"
             />
           </div>
-          <div class="modal-actions">
+          <div class="flex justify-end gap-3 mt-6">
             <n-button @click="cropperVisible = false">取消</n-button>
             <n-button type="primary" @click="handleCropConfirm">确认</n-button>
           </div>
@@ -401,7 +422,7 @@
               placeholder="请再次输入新密码"
             />
           </n-form-item>
-          <div class="modal-actions">
+          <div class="flex justify-end gap-3 mt-6">
             <n-button @click="modals.changePassword = false">取消</n-button>
             <n-button
               :loading="loading"
@@ -457,7 +478,7 @@
               </n-button>
             </div>
           </n-form-item>
-          <div class="modal-actions">
+          <div class="flex justify-end gap-3 mt-6">
             <n-button @click="modals.changeRealname = false">取消</n-button>
             <n-button
               :loading="loading"
@@ -479,7 +500,7 @@
         <div style="margin-bottom: 24px">
           此操作将重置您的Token（密钥），这将可能导致你的服务全部中断，并会导致当前账号强制退出登录。请确认是否继续？
         </div>
-        <div class="modal-actions">
+        <div class="flex justify-end gap-3 mt-6">
           <n-button @click="modals.changeResetToken = false">取消</n-button>
           <n-button type="error" @click="handleResetToken" :loading="loading"
             >确认重置</n-button
@@ -1070,315 +1091,4 @@ onMounted(async () => {
 })
 </script>
 
-<style lang="scss" scoped>
-// 基础变量
-$card-radius: 8px;
-$primary-spacing: 16px;
-$mobile-spacing: 12px;
-$card-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-$transition-normal: all 0.2s ease;
 
-// 容器样式
-.statistic-container {
-  margin-bottom: $primary-spacing - 5px;
-}
-
-.page-container {
-  display: flex;
-  gap: $primary-spacing;
-  width: calc(100%);
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    padding: $mobile-spacing;
-    gap: $mobile-spacing;
-    margin: 0 10px;
-  }
-}
-
-// 左侧列样式
-.left-column {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: $primary-spacing;
-
-  @media (max-width: 768px) {
-    gap: $mobile-spacing;
-  }
-}
-
-// 右侧列样式
-.right-column {
-  width: 450px;
-  display: flex;
-  flex-direction: column;
-  gap: $primary-spacing;
-
-  @media (max-width: 768px) {
-    width: 100%;
-    margin-top: $mobile-spacing;
-  }
-}
-
-// 卡片基础样式
-.card {
-  border-radius: $card-radius;
-  box-shadow: $card-shadow;
-
-  &-title {
-    font-size: 18px;
-    font-weight: 500;
-    margin: 0 0 $primary-spacing 0;
-  }
-
-  &-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: $primary-spacing;
-  }
-}
-
-// 设置网格
-.settings-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: $primary-spacing;
-
-  @media (max-width: 1200px) {
-    grid-template-columns: 1fr;
-  }
-}
-
-// 设置项样式
-.setting-item {
-  display: flex;
-  gap: 12px;
-  padding: 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-  }
-}
-
-.setting-icon {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--setting-icon-color);
-  :deep(svg) {
-    color: var(--setting-icon-color);
-  }
-  i {
-    width: 24px;
-    height: 24px;
-    display: block;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: contain;
-  }
-}
-
-.setting-content {
-  flex: 1;
-}
-
-.setting-title {
-  font-size: 16px;
-  font-weight: 500;
-  margin: 0 0 4px 0;
-}
-
-.setting-desc {
-  font-size: 14px;
-  color: #666;
-  margin: 0;
-}
-
-// 账户详情样式
-.account-details {
-  .user-profile {
-    display: flex;
-    align-items: center;
-    gap: $primary-spacing;
-    margin-bottom: 8px;
-
-    @media (max-width: 768px) {
-      gap: $mobile-spacing;
-    }
-  }
-
-  .user-avatar {
-    width: 80px;
-    height: 80px;
-    border-radius: $card-radius;
-    overflow: hidden;
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-  }
-
-  .user-info {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .user-greeting {
-    font-size: 18px;
-    font-weight: 500;
-    margin: 0 0 4px 0;
-  }
-
-  .user-email {
-    font-size: 14px;
-    color: #666;
-    margin: 0;
-  }
-}
-
-// 账户信息网格
-.account-info-grid {
-  @media (min-width: 601px) {
-    padding: 10px;
-  }
-
-  @media (max-width: 600px) {
-    display: flex;
-    padding: $mobile-spacing;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    gap: $mobile-spacing;
-
-    &::-webkit-scrollbar {
-      height: 4px;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      background: #888;
-      border-radius: 2px;
-    }
-
-    .user-info-item,
-    .user-info-item-right {
-      flex: 0 0 auto;
-      width: 160px;
-      scroll-snap-align: start;
-      background: rgba(0, 0, 0, 0.02);
-      padding: $mobile-spacing;
-      border-radius: 6px;
-
-      .user-info-label {
-        font-size: 12px;
-        color: #666;
-        margin-bottom: 4px;
-      }
-
-      .user-info-value {
-        font-size: 14px;
-        font-weight: 500;
-      }
-    }
-  }
-}
-
-// 模态框样式
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 24px;
-}
-
-.avatar-preview {
-  width: 100px;
-  height: 100px;
-  border-radius: $card-radius;
-  overflow: hidden;
-  margin: 0 auto;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-}
-
-// 移动端优化
-@media (max-width: 768px) {
-  .setting-icon {
-    width: 32px;
-    height: 32px;
-  }
-
-  .setting-title {
-    font-size: 14px;
-  }
-
-  .setting-desc {
-    font-size: 12px;
-  }
-
-  .user-avatar {
-    width: 60px;
-    height: 60px;
-  }
-
-  .user-greeting {
-    font-size: 16px;
-  }
-
-  .user-email {
-    font-size: 12px;
-  }
-}
-
-.cropper-container {
-  width: 100%;
-  position: relative;
-
-  :deep(.vue-advanced-cropper) {
-    .vue-advanced-cropper__image {
-      opacity: 1 !important;
-    }
-
-    .vue-circle-stencil {
-      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.4);
-      border: 2px solid #2080f0;
-    }
-  }
-}
-
-.preview-container {
-  margin-top: 20px;
-
-  .cropper-preview {
-    border: 2px solid #eee;
-  }
-}
-
-// 确保裁剪区域是圆形的
-:deep(.cropper-view-box),
-:deep(.cropper-face) {
-  border-radius: 50%;
-}
-
-:deep(.cropper-view-box) {
-  outline: 0;
-  box-shadow: 0 0 0 1px #39f;
-}
-
-.nickname-disabled-input :deep(.n-input__input) {
-  color: #333 !important;
-  background: #f5f5f5 !important;
-  opacity: 1 !important;
-}
-</style>

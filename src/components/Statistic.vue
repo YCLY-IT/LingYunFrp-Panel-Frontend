@@ -8,26 +8,34 @@
       :y-gap="20"
     >
       <n-gi v-for="(card, index) in cards" :key="index">
-        <n-card :title="card.title" size="small">
-          <n-flex justify="space-between">
-            <n-icon style="margin-top: 5px" size="32">
-              <component :is="card.icon" />
-            </n-icon>
-            <n-statistic tabular-nums>
-              <template #default>
-                <n-number-animation
-                  :from="0"
-                  :to="card.value"
-                  :precision="card.precision"
-                  show-separator
-                />
-              </template>
-              <template v-if="card.unit" #suffix>
-                {{ card.unit }}
-              </template>
-            </n-statistic>
-          </n-flex>
-        </n-card>
+        <RevealOnScroll
+          class="h-full"
+          :delay="index * 0.09"
+          :y="20"
+          :blur="6"
+          lift
+        >
+          <n-card :title="card.title" size="small" class="h-full">
+            <n-flex justify="space-between">
+              <n-icon style="margin-top: 5px" size="32">
+                <component :is="card.icon" />
+              </n-icon>
+              <n-statistic tabular-nums>
+                <template #default>
+                  <n-number-animation
+                    :from="0"
+                    :to="card.value"
+                    :precision="card.precision"
+                    show-separator
+                  />
+                </template>
+                <template v-if="card.unit" #suffix>
+                  {{ card.unit }}
+                </template>
+              </n-statistic>
+            </n-flex>
+          </n-card>
+        </RevealOnScroll>
       </n-gi>
     </n-grid>
   </div>
@@ -44,6 +52,7 @@ import {
 } from '@vicons/ionicons5'
 import { useMessage } from 'naive-ui'
 import { computed, markRaw, onMounted, ref } from 'vue'
+import RevealOnScroll from './motion/RevealOnScroll.vue'
 
 const traffic = ref<TrafficType>({} as TrafficType)
 
@@ -110,5 +119,3 @@ onMounted(() => {
   getUserTraffic()
 })
 </script>
-
-<style lang="scss" scoped></style>

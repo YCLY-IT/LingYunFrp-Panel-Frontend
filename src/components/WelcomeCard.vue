@@ -1,29 +1,50 @@
 <template>
-  <div class="welcome-card">
-    <div class="card-container" ref="cardRef">
+  <div class="flex items-center p-0 w-full">
+    <div
+      class="relative w-full! min-w-0! max-w-full! min-h-[250px] rounded-2xl overflow-hidden shadow-[0_4px_16px_rgba(0,0,0,0.08)] bg-white m-0 max-[600px]:min-h-[180px] max-[600px]:p-0 max-[600px]:rounded-[10px]"
+      ref="cardRef"
+    >
       <!-- 背景图片 -->
-      <img class="bg-img" src="/images/bg.png" alt="背景" />
+      <img
+        class="w-full h-full object-cover absolute inset-0 z-[1]"
+        src="/images/bg.png"
+        alt="背景"
+      />
 
       <!-- 内容层 -->
-      <div class="content-layer">
+      <div
+        class="relative z-[2] w-full h-full p-[24px_18px_18px_18px] flex flex-col justify-between box-border max-[600px]:p-[10px_12px_8px_12px] max-[600px]:gap-2"
+      >
         <!-- 顶部：欢迎语和天气 -->
-        <div class="row top-row">
-          <div class="welcome-title">
-            欢迎来到 <span class="brand">LingYunFrp</span>
+        <div
+          class="flex w-full justify-between items-start max-[600px]:flex-row! max-[600px]:items-start! max-[600px]:justify-between! max-[600px]:gap-2 max-[350px]:flex-col! max-[350px]:items-start! max-[350px]:justify-start! max-[350px]:gap-1"
+        >
+          <div
+            class="text-xl font-bold text-[#00334e] tracking-[1px] font-['msyh',sans-serif] max-[600px]:text-[15px] max-[600px]:mb-0.5"
+          >
+            欢迎来到 <span class="text-[var(--n-primary-color)] font-bold max-[600px]:text-[15px]">LingYunFrp</span>
           </div>
-          <div class="weather-box">
+          <div
+            class="flex items-start gap-2.5 max-[600px]:mt-1 max-[600px]:gap-1.5"
+          >
             <img
               :src="weatherIconSrc"
               :alt="weatherStore.weatherInfo.weather"
-              class="weather-icon"
+              class="w-[38px] h-[38px] mt-0.5 max-[600px]:w-7 max-[600px]:h-7 max-[600px]:mt-0"
             />
-            <div class="weather-info">
+            <div
+              class="flex flex-col text-[13px] text-[#00334e] gap-0.5 max-[600px]:text-[11px]"
+            >
               <div>{{ weatherStore.weatherInfo.weather }}</div>
-              <div class="weather-detail">
+              <div
+                class="text-[11px] text-[#00334e] flex gap-2.5 max-[600px]:text-[10px] max-[600px]:gap-1.5"
+              >
                 <span>温度: {{ weatherStore.weatherInfo.temp }}℃</span>
                 <span>湿度: {{ weatherStore.weatherInfo.humidity }}%RH</span>
               </div>
-              <div class="weather-detail">
+              <div
+                class="text-[11px] text-[#00334e] flex gap-2.5 max-[600px]:text-[10px] max-[600px]:gap-1.5"
+              >
                 <span
                   >风向: {{ weatherStore.weatherInfo.winddirection }}方</span
                 >
@@ -34,36 +55,68 @@
         </div>
 
         <!-- 中部：自定义文字 -->
-        <div class="row custom-row" v-if="customText">
-          <span class="custom-text">{{ customText }}</span>
+        <div class="flex w-full justify-center mt-2.5 max-[600px]:mt-1" v-if="customText">
+          <span
+            class="text-lg text-[var(--n-primary-color)] font-['msyh',sans-serif] font-bold tracking-[1px] max-[600px]:text-[13px]"
+            >{{ customText }}</span
+          >
         </div>
 
         <!-- 底部：访问信息 -->
-        <div class="row bottom-row">
-          <div class="info-list">
-            <div class="info-item">
-              <img src="/icon/ico/IP.png" class="info-icon" />
+        <div
+          class="flex w-full justify-between items-end mt-[18px] max-[600px]:flex-row! max-[600px]:items-start! max-[600px]:justify-between! max-[600px]:gap-2 max-[350px]:flex-col! max-[350px]:items-start! max-[350px]:justify-start! max-[350px]:gap-1"
+        >
+          <div class="flex flex-col gap-1.5 max-[600px]:gap-[3px]">
+            <div
+              class="flex items-center gap-1.5 text-xs text-[#00334e] font-['msyh',sans-serif] max-[600px]:text-[10px] max-[600px]:gap-1"
+            >
+              <img
+                src="/icon/ico/IP.png"
+                class="w-4 h-4 align-middle max-[600px]:w-[13px] max-[600px]:h-[13px]"
+              />
               <span>{{ visitorInfo.ip }}</span>
             </div>
-            <div class="info-item">
-              <img src="/icon/ico/system.png" class="info-icon" />
+            <div
+              class="flex items-center gap-1.5 text-xs text-[#00334e] font-['msyh',sans-serif] max-[600px]:text-[10px] max-[600px]:gap-1"
+            >
+              <img
+                src="/icon/ico/system.png"
+                class="w-4 h-4 align-middle max-[600px]:w-[13px] max-[600px]:h-[13px]"
+              />
               <span>{{ visitorInfo.os }}</span>
             </div>
-            <div class="info-item">
-              <img src="/icon/ico/bro.png" class="info-icon" />
+            <div
+              class="flex items-center gap-1.5 text-xs text-[#00334e] font-['msyh',sans-serif] max-[600px]:text-[10px] max-[600px]:gap-1"
+            >
+              <img
+                src="/icon/ico/bro.png"
+                class="w-4 h-4 align-middle max-[600px]:w-[13px] max-[600px]:h-[13px]"
+              />
               <span>{{ visitorInfo.browser }}</span>
             </div>
-            <div class="info-item">
-              <img src="/icon/ico/local.png" class="info-icon" />
+            <div
+              class="flex items-center gap-1.5 text-xs text-[#00334e] font-['msyh',sans-serif] max-[600px]:text-[10px] max-[600px]:gap-1"
+            >
+              <img
+                src="/icon/ico/local.png"
+                class="w-4 h-4 align-middle max-[600px]:w-[13px] max-[600px]:h-[13px]"
+              />
               <span>{{ location }}</span>
             </div>
           </div>
-          <div class="date-list">
-            <div class="info-item">
-              <img src="/icon/ico/time.png" class="info-icon" />
+          <div class="flex flex-col gap-1.5 max-[600px]:gap-[3px]">
+            <div
+              class="flex items-center gap-1.5 text-xs text-[#00334e] font-['msyh',sans-serif] max-[600px]:text-[10px] max-[600px]:gap-1"
+            >
+              <img
+                src="/icon/ico/time.png"
+                class="w-4 h-4 align-middle max-[600px]:w-[13px] max-[600px]:h-[13px]"
+              />
               <span>{{ currentDate }}</span>
             </div>
-            <div class="info-item">
+            <div
+              class="flex items-center gap-1.5 text-xs text-[#00334e] font-['msyh',sans-serif] max-[600px]:text-[10px] max-[600px]:gap-1"
+            >
               <span>更新时间: {{ weatherStore.weatherInfo.reporttime }}</span>
             </div>
           </div>
@@ -214,216 +267,3 @@ onMounted(() => {
   getVisitorInfo()
 })
 </script>
-
-<style lang="scss" scoped>
-.welcome-card {
-  display: flex;
-  align-items: center;
-  padding: 0;
-  width: 100%;
-}
-
-.card-container {
-  position: relative;
-  width: 100% !important;
-  min-width: 0 !important;
-  max-width: 100% !important;
-  min-height: 250px;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  background: #fff;
-  margin: 0;
-}
-
-.bg-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-}
-
-.content-layer {
-  position: relative;
-  z-index: 2;
-  width: 100%;
-  height: 100%;
-  padding: 24px 18px 18px 18px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  box-sizing: border-box;
-}
-
-.row {
-  display: flex;
-  width: 100%;
-}
-
-.top-row {
-  justify-content: space-between;
-  align-items: flex-start;
-}
-
-.welcome-title {
-  font-size: 20px;
-  font-weight: bold;
-  color: #00334e;
-  letter-spacing: 1px;
-  font-family: 'msyh', sans-serif;
-}
-
-.brand {
-  color: #1976d2;
-  font-weight: bold;
-}
-
-.weather-box {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-}
-
-.weather-icon {
-  width: 38px;
-  height: 38px;
-  margin-top: 2px;
-}
-
-.weather-info {
-  display: flex;
-  flex-direction: column;
-  font-size: 13px;
-  color: #00334e;
-  gap: 2px;
-}
-
-.weather-detail {
-  font-size: 11px;
-  color: #00334e;
-  display: flex;
-  gap: 10px;
-}
-
-.custom-row {
-  justify-content: center;
-  margin: 10px 0 0 0;
-}
-
-.custom-text {
-  font-size: 18px;
-  color: #1976d2;
-  font-family: 'msyh', sans-serif;
-  font-weight: bold;
-  letter-spacing: 1px;
-}
-
-.bottom-row {
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-top: 18px;
-}
-
-.info-list,
-.date-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.info-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: #00334e;
-  font-family: 'msyh', sans-serif;
-}
-
-.info-icon {
-  width: 16px;
-  height: 16px;
-  vertical-align: middle;
-}
-
-/* ----------- 移动端样式 ----------- */
-@media (max-width: 600px) {
-  .card-container {
-    width: 100% !important;
-    min-width: 0 !important;
-    min-height: 180px;
-    padding: 0;
-    border-radius: 10px;
-  }
-  .content-layer {
-    padding: 10px 12px 8px 12px; // 增加左右内边距
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  .row {
-    width: 100%;
-  }
-  .top-row,
-  .bottom-row {
-    flex-direction: row !important; // 保持左右分布
-    align-items: flex-start !important;
-    justify-content: space-between !important;
-    gap: 8px;
-    width: 100%;
-  }
-  .welcome-title {
-    font-size: 15px;
-    margin-bottom: 2px;
-  }
-  .brand {
-    font-size: 15px;
-  }
-  .weather-box {
-    margin-top: 4px;
-    gap: 6px;
-  }
-  .weather-icon {
-    width: 28px;
-    height: 28px;
-    margin-top: 0;
-  }
-  .weather-info {
-    font-size: 11px;
-  }
-  .weather-detail {
-    font-size: 10px;
-    gap: 6px;
-  }
-  .custom-row {
-    margin: 4px 0 0 0;
-  }
-  .custom-text {
-    font-size: 13px;
-  }
-  .info-list,
-  .date-list {
-    gap: 3px;
-  }
-  .info-item {
-    font-size: 10px;
-    gap: 4px;
-  }
-  .info-icon {
-    width: 13px;
-    height: 13px;
-  }
-}
-
-@media (max-width: 350px) {
-  .top-row,
-  .bottom-row {
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    justify-content: flex-start !important;
-    gap: 4px;
-  }
-}
-</style>

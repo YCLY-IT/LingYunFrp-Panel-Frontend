@@ -1,9 +1,11 @@
 <template>
   <SecureArea>
-    <div class="node-management">
-      <n-card title="节点管理" class="maincard">
+    <div
+      class="w-full [&_.disabled-row]:opacity-70 [&_.disabled-row]:bg-black/[0.02]"
+    >
+      <n-card title="节点管理" class="rounded-lg">
         <n-space vertical :size="16">
-          <div class="filter-container-grid">
+          <div class="mb-2">
             <n-grid v-if="!isMobile" :cols="24" :x-gap="16" :y-gap="8">
               <n-grid-item :span="12">
                 <n-input
@@ -174,7 +176,7 @@
               nodesStore.nodes.length === 0 &&
               !nodesStore.hasFilters
             "
-            class="empty-state"
+            class="flex justify-center items-center min-h-[200px] py-10"
           >
             <n-empty description="暂无数据" />
           </div>
@@ -311,7 +313,7 @@
               </n-grid-item>
 
               <n-form-item-gi label="允许用户组" path="group">
-                <div class="group-buttons">
+                <div class="flex flex-wrap gap-2">
                   <n-tag
                     v-for="group in groupsStore.groupOptions"
                     :key="group.value"
@@ -321,7 +323,7 @@
                         : 'default'
                     "
                     :disabled="group.value === 'admin'"
-                    class="group-tag"
+                    class="cursor-pointer p-[6px_12px] transition-all duration-200 ease-in-out hover:opacity-80"
                     :bordered="false"
                     @click="toggleGroup(group.value)"
                   >
@@ -338,7 +340,7 @@
               </n-form-item-gi>
 
               <n-form-item-gi label="允许协议" path="allow_type">
-                <div class="protocol-buttons">
+                <div class="flex flex-wrap gap-2">
                   <n-tag
                     v-for="protocol in protocolOptions"
                     :key="protocol.value"
@@ -347,7 +349,7 @@
                         ? 'primary'
                         : 'default'
                     "
-                    class="protocol-tag"
+                    class="cursor-pointer p-[6px_12px] transition-all duration-200 ease-in-out hover:opacity-80"
                     :bordered="false"
                     @click="toggleProtocol(protocol.value)"
                   >
@@ -491,7 +493,7 @@
               </n-grid-item>
 
               <n-form-item-gi label="允许用户组" path="group">
-                <div class="group-buttons">
+                <div class="flex flex-wrap gap-2">
                   <n-tag
                     v-for="group in groupsStore.groupOptions"
                     :key="group.value"
@@ -501,7 +503,7 @@
                         : 'default'
                     "
                     :disabled="group.value === 'admin'"
-                    class="group-tag"
+                    class="cursor-pointer p-[6px_12px] transition-all duration-200 ease-in-out hover:opacity-80"
                     :bordered="false"
                     @click="toggleGroup(group.value)"
                   >
@@ -518,7 +520,7 @@
               </n-form-item-gi>
 
               <n-form-item-gi label="允许协议" path="allow_type">
-                <div class="protocol-buttons">
+                <div class="flex flex-wrap gap-2">
                   <n-tag
                     v-for="protocol in protocolOptions"
                     :key="protocol.value"
@@ -527,7 +529,7 @@
                         ? 'primary'
                         : 'default'
                     "
-                    class="protocol-tag"
+                    class="cursor-pointer p-[6px_12px] transition-all duration-200 ease-in-out hover:opacity-80"
                     :bordered="false"
                     @click="toggleProtocol(protocol.value)"
                   >
@@ -557,7 +559,7 @@
           :style="{ width: isMobile ? '90vw' : '420px' }"
           :show-icon="false"
         >
-          <div class="confirm-text">
+          <div class="my-4 text-center">
             确定要{{ currentNode?.is_disabled ? '启用' : '禁用' }}节点 "{{
               currentNode?.name
             }}" 吗？
@@ -583,7 +585,7 @@
           :style="{ width: isMobile ? '90vw' : '420px' }"
           :show-icon="false"
         >
-          <div class="confirm-text">
+          <div class="my-4 text-center">
             确定要删除节点 "{{ currentNode?.name }}" 吗？此操作不可恢复！
           </div>
           <template #action>
@@ -1206,88 +1208,4 @@ const handleRandomPassword = () => {
 init()
 </script>
 
-<style scoped>
-.node-management {
-  width: 100%;
-}
 
-.maincard {
-  border-radius: 8px;
-}
-
-.filter-container-grid {
-  margin-bottom: 8px;
-}
-
-.add-button {
-  margin-left: auto;
-}
-
-.empty-state {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 200px;
-  padding: 40px 0;
-}
-
-.group-buttons,
-.protocol-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.group-tag,
-.protocol-tag {
-  cursor: pointer;
-  padding: 6px 12px;
-  transition: all 0.2s ease;
-}
-
-.group-tag:hover,
-.protocol-tag:hover {
-  opacity: 0.8;
-}
-
-.confirm-text {
-  margin: 16px 0;
-  text-align: center;
-}
-
-.node-modal :deep(.nform-item-label) {
-  font-weight: 500;
-}
-
-:deep(.ndata-table-th) {
-  background-color: var(--n-merged-th-color) !important;
-  font-weight: 600;
-}
-
-:deep(.ndata-table-tr:hover) {
-  background-color: rgba(0, 0, 0, 0.03);
-}
-
-:deep(.disabled-row) {
-  opacity: 0.7;
-  background-color: rgba(0, 0, 0, 0.02);
-}
-
-:deep(.ntag) {
-  font-size: 12px;
-}
-
-:deep(.nbutton) {
-  font-weight: 500;
-}
-
-@media (max-width: 900px) {
-  .filter-container-grid .ngrid {
-    flex-direction: column;
-  }
-  .filter-container-grid .ngrid-item {
-    width: 100% !important;
-    min-width: 0;
-  }
-}
-</style>

@@ -5,13 +5,16 @@
         <n-tabs v-model:value="mainTab" type="line">
           <n-tab-pane name="products" tab="产品列表">
             <n-space vertical>
-              <div v-if="!isMobile" class="product-sort-row">
+              <div
+                v-if="!isMobile"
+                class="flex gap-4 mb-3 w-full items-stretch"
+              >
                 <n-select
                   v-model:value="sortOptions.key"
                   :options="sortFieldOptions"
                   placeholder="排序字段"
                   clearable
-                  class="product-sort-item"
+                  class="flex-1 min-w-0 flex items-center"
                   @update:value="handleSortFieldChange"
                 />
                 <n-select
@@ -19,13 +22,13 @@
                   :options="sortOrderOptions"
                   placeholder="排序方式"
                   clearable
-                  class="product-sort-item"
+                  class="flex-1 min-w-0 flex items-center"
                   @update:value="handleSortOrderChange"
                 />
                 <n-button
                   type="primary"
                   @click="openAddModal"
-                  class="product-sort-btn"
+                  class="flex-none min-w-0 w-auto px-10 self-center"
                   size="medium"
                 >
                   添加产品
@@ -64,7 +67,7 @@
                   添加产品
                 </n-button>
               </n-space>
-              <div class="table-container">
+              <div class="max-[480px]:p-1">
                 <n-data-table
                   remote
                   :columns="productColumns"
@@ -960,75 +963,4 @@ onMounted(() => {
 })
 </script>
 
-<style lang="scss" scoped>
-:deep(.ninput-number) {
-  width: 100%;
-}
 
-@media (max-width: 768px) {
-  :deep(.ncard .ncard-header) {
-    padding: 16px 12px;
-    .ncard-header__main {
-      font-size: 16px;
-    }
-  }
-  :deep(.ncard .ncard-content) {
-    padding: 12px;
-  }
-  :deep(.ndata-table) {
-    font-size: 12px;
-    .ndata-table-th,
-    .ndata-table-td {
-      padding: 8px 4px;
-    }
-  }
-  :deep(.nform-item) {
-    margin-bottom: 16px;
-  }
-  :deep(.nmodal .ncard) {
-    margin: 16px 8px;
-  }
-  :deep(.nmodal .ncard .ncard-header) {
-    padding: 16px;
-  }
-  :deep(.nmodal .ncard .ncard-content) {
-    padding: 16px;
-  }
-  :deep(.nbutton) {
-    min-height: 32px;
-  }
-}
-
-@media (max-width: 480px) {
-  .table-container {
-    padding: 4px;
-  }
-  :deep(.ndata-table) {
-    font-size: 11px;
-  }
-  :deep(.nmodal .ncard) {
-    margin: 8px 4px;
-  }
-}
-
-.product-sort-row {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 12px;
-  width: 100%;
-  align-items: stretch;
-}
-.product-sort-item {
-  flex: 1 1 0;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-}
-.product-sort-btn {
-  flex: none;
-  min-width: unset;
-  width: auto;
-  padding: 0 40px;
-  align-self: center;
-}
-</style>

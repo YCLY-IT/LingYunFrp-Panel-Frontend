@@ -1,8 +1,13 @@
 <template>
-  <div class="operation-log">
+  <div
+    class="p-3 max-md:[&_.n-pagination]:flex-wrap max-md:[&_.n-pagination]:gap-2 max-md:[&_.n-pagination-prefix]:w-full max-md:[&_.n-pagination-prefix]:text-center max-md:[&_.n-pagination-prefix]:mb-1"
+  >
     <NCard title="操作日志">
       <NSpace vertical :size="12">
-        <div class="filter-row" style="display: flex; gap: 12px">
+        <div
+          class="flex gap-3 max-md:flex-col! max-md:gap-2! max-md:[&_.n-input]:w-full! max-md:[&_.n-input]:flex-none! max-md:[&_.n-select]:w-full!"
+          style="display: flex; gap: 12px"
+        >
           <NInput
             v-model:value="filters.search"
             placeholder="搜索操作类型、模块或消息"
@@ -32,7 +37,7 @@
           />
         </div>
 
-        <div class="table-container">
+        <div class="overflow-x-auto">
           <NDataTable
             :columns="columns"
             :data="logs"
@@ -401,42 +406,3 @@ onMounted(() => {
   fetchLogs()
 })
 </script>
-
-<style scoped lang="scss">
-.operation-log {
-  padding: 12px;
-}
-
-.table-container {
-  overflow-x: auto;
-}
-
-/* 移动端适配 */
-@media (max-width: 768px) {
-  .filter-row {
-    flex-direction: column !important;
-    gap: 8px !important;
-  }
-
-  .filter-row .n-input {
-    width: 100% !important;
-    flex: none !important;
-  }
-
-  .filter-row .n-select {
-    width: 100% !important;
-  }
-
-  /* 分页组件移动端适配 */
-  .operation-log :deep(.n-pagination) {
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .operation-log :deep(.n-pagination-prefix) {
-    width: 100%;
-    text-align: center;
-    margin-bottom: 4px;
-  }
-}
-</style>

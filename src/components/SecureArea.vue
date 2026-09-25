@@ -1,22 +1,21 @@
 <template>
   <div
     ref="rootRef"
-    class="secure-area"
-    :class="{ 'is-blurred': blurred }"
+    class="relative w-full"
     @contextmenu="onContextMenu"
     @copy="onCopy"
     @cut="onCopy"
     @dragstart="onCopy"
   >
     <div
-      class="secure-area__content"
-      :class="{ 'is-no-select': disableSelect }"
+      class="relative z-[1] min-h-[inherit] transition-[filter] duration-200 ease-in-out"
+      :class="{ 'select-none': disableSelect, 'blur-[14px]': blurred }"
     >
       <slot />
     </div>
     <div
       v-if="showWatermark"
-      class="secure-area__watermark"
+      class="absolute inset-0 z-[2] pointer-events-none bg-repeat [background-position:0_0]"
       :style="{ backgroundImage: `url(${watermarkDataUrl})` }"
       aria-hidden="true"
     />
@@ -28,7 +27,6 @@ import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 
 const props = withDefaults(
   defineProps<{
-    /** 管理员用户名（留空则自动从 localStorage 读取） */
     username?: string
     nickname?: string
     email?: string
@@ -151,7 +149,3 @@ onBeforeUnmount(() => {
   window.removeEventListener('keyup', handlePrintScreen)
 })
 </script>
-
-<style lang="scss" scoped>
-@use '../assets/styles/components/secureArea.scss';
-</style>

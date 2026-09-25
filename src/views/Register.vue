@@ -1,8 +1,10 @@
 <template>
-  <div class="register">
-    <NCard class="auth-card">
-      <div class="auth-header">
-        <div class="title-with-icon">
+  <div class="register flex min-h-[calc(100vh-59px)] overflow-x-hidden">
+    <NCard
+      class="w-full max-w-[420px] bg-transparent backdrop-blur-[8px] rounded-r-2xl! overflow-y-auto overflow-x-hidden"
+    >
+      <div class="text-center mb-6">
+        <div class="flex flex-col justify-center items-center gap-0 [&_svg]:text-[var(--n-primary-color)]">
           <NIcon size="32" :component="PersonAddOutline" />
           <h1>{{ packageData.title }}</h1>
           <span>后台管理系统</span>
@@ -10,17 +12,12 @@
         <br />
         <hr />
       </div>
-      <NSteps :current="current" :status="stepStatus" class="register-steps">
+      <NSteps :current="current" :status="stepStatus" class="mb-6">
         <NStep title="账户信息" />
         <NStep title="邮箱验证" />
         <NStep title="设置密码" />
       </NSteps>
-      <NForm
-        ref="formRef"
-        :model="formValue"
-        :rules="rules"
-        class="register-form"
-      >
+      <NForm ref="formRef" :model="formValue" :rules="rules" class="mt-2">
         <div v-show="current === 1">
           <NFormItem path="username" label="用户名">
             <NInput
@@ -83,7 +80,9 @@
               show-password-on="click"
             />
           </NFormItem>
-          <div class="form-footer">
+          <div
+            class="flex justify-center gap-2 text-sm mt-4 mb-2 [&_span]:text-[var(--n-text-color-2)] [&_a]:text-[var(--n-primary-color)] [&_a]:no-underline [&_a]:transition-all [&_a]:duration-200 [&_a]:ease-in [&_a:hover]:text-[var(--n-primary-color-pressed)]"
+          >
             <span>注册即代表您同意我们的</span>
             <RouterLink to="/terms">服务条款</RouterLink>
             <span>与</span>
@@ -91,7 +90,7 @@
           </div>
         </div>
 
-        <div class="steps-action">
+        <div class="flex gap-3 mt-2 [&_.n-button]:flex-1 [&_.n-button]:min-w-0">
           <NButton v-if="current > 1" secondary strong @click="prevStep">
             上一步
           </NButton>
@@ -117,7 +116,9 @@
           </NButton>
         </div>
 
-        <div class="form-footer login-link">
+        <div
+          class="flex justify-center gap-2 text-sm mt-2 mb-2 [&_span]:text-[var(--n-text-color-2)] [&_a]:text-[var(--n-primary-color)] [&_a]:no-underline [&_a]:transition-all [&_a]:duration-200 [&_a]:ease-in [&_a:hover]:text-[var(--n-primary-color-pressed)]"
+        >
           <span>已有账号？</span>
           <RouterLink to="/login">立即登录</RouterLink>
         </div>
@@ -382,49 +383,3 @@ onUnmounted(() => {
   document.body.style.overflowY = ''
 })
 </script>
-
-<style lang="scss" scoped>
-@use '../assets/styles/auth.scss';
-
-.register {
-  display: flex;
-  min-height: calc(100vh - 59px);
-}
-
-.auth-card {
-  background-color: transparent;
-  backdrop-filter: blur(8px);
-  border-radius: 0 16px 16px 0 !important;
-  overflow-y: auto;
-}
-
-.title-with-icon {
-  display: flex;
-  align-items: center;
-  gap: 0px;
-}
-
-.register-steps {
-  margin-bottom: 24px;
-}
-
-.register-form {
-  margin-top: 8px;
-}
-
-.steps-action {
-  display: flex;
-  gap: 12px;
-  margin-top: 8px;
-}
-.steps-action :deep(.n-button) {
-  flex: 1;
-  min-width: 0;
-}
-.register {
-  overflow-x: hidden;
-}
-.auth-card {
-  overflow-x: hidden;
-}
-</style>

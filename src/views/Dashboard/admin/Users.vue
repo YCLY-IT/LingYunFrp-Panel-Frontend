@@ -1,6 +1,6 @@
 <template>
   <SecureArea>
-    <div class="users">
+    <div>
       <n-card title="用户管理">
         <n-space vertical :size="12">
           <div style="display: flex">
@@ -106,7 +106,7 @@
             </n-grid>
           </n-space>
 
-          <div class="table-container">
+          <div class="max-[480px]:p-1">
             <n-data-table
               :columns="columns"
               :data="users"
@@ -741,54 +741,4 @@ const modalStyle = computed(() => ({
 }))
 </script>
 
-<style lang="scss" scoped>
-:deep(.ninput-number) {
-  width: 100%;
-}
 
-@media (max-width: 768px) {
-  :deep(.ncard .ncard-header) {
-    padding: 16px 12px;
-    .ncard-header__main {
-      font-size: 16px;
-    }
-  }
-  :deep(.ncard .ncard-content) {
-    padding: 12px;
-  }
-  :deep(.ndata-table) {
-    font-size: 12px;
-    .ndata-table-th,
-    .ndata-table-td {
-      padding: 8px 4px;
-    }
-  }
-  :deep(.nform-item) {
-    margin-bottom: 16px;
-  }
-  :deep(.nmodal .ncard) {
-    margin: 16px 8px;
-  }
-  :deep(.nmodal .ncard .ncard-header) {
-    padding: 16px;
-  }
-  :deep(.nmodal .ncard .ncard-content) {
-    padding: 16px;
-  }
-  :deep(.nbutton) {
-    min-height: 32px;
-  }
-}
-
-@media (max-width: 480px) {
-  .table-container {
-    padding: 4px;
-  }
-  :deep(.ndata-table) {
-    font-size: 11px;
-  }
-  :deep(.nmodal .ncard) {
-    margin: 8px 4px;
-  }
-}
-</style>

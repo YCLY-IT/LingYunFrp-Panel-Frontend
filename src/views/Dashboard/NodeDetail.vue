@@ -1,14 +1,21 @@
 <template>
-  <div class="node-detail-page">
+  <div class="p-5 min-h-full max-md:p-3 max-[480px]:p-2">
     <!-- 页面头部 -->
-    <n-card class="page-header-card" :bordered="false">
-      <div class="page-header">
+    <n-card
+      class="page-header-card mb-4 rounded-xl [&_.n-card-content]:p-[16px_20px] max-md:mb-3 max-md:[&_.n-card-content]:p-[12px_16px] max-[480px]:[&_.n-card-content]:p-[10px_12px]"
+      :bordered="false"
+    >
+      <div
+        class="page-header flex items-center gap-4 max-md:flex-wrap max-md:gap-3 max-md:[&_.n-radio-group]:w-full max-md:[&_.n-radio-button]:flex-1 max-md:[&_.n-radio-button]:text-center max-[480px]:gap-2"
+      >
         <n-button quaternary circle @click="goBack">
           <template #icon>
             <n-icon><ArrowBackOutline /></n-icon>
           </template>
         </n-button>
-        <div class="header-title">
+        <div
+          class="header-title flex-1 flex items-center gap-3 [&_h2]:m-0 [&_h2]:text-xl [&_h2]:font-semibold max-md:w-full max-md:order-[-1] max-md:[&_h2]:text-lg max-[480px]:[&_h2]:text-base"
+        >
           <h2>{{ nodeData?.node_name || '节点详情' }}</h2>
           <n-tag
             :type="nodeData?.isOnline ? 'success' : 'error'"
@@ -35,31 +42,42 @@
     </n-card>
 
     <!-- 加载状态 -->
-    <div v-if="loading" class="loading-container">
+    <div
+      v-if="loading"
+      class="flex flex-col items-center justify-center min-h-[400px]"
+    >
       <n-spin size="large" />
     </div>
 
     <template v-else-if="nodeData">
       <!-- 指标卡片区域 -->
-      <n-card class="metrics-section-card" :bordered="false">
-        <div class="metrics-section">
-          <div class="metric-card" :class="getCpuStatus(nodeData.cpu_usage)">
-            <div class="metric-icon">
+      <n-card
+        class="metrics-section-card mb-4 rounded-xl [&_.n-card-content]:p-5 max-md:mb-3 max-md:[&_.n-card-content]:p-4 max-[480px]:[&_.n-card-content]:p-3"
+        :bordered="false"
+      >
+        <div
+          class="metrics-section grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-4 mb-6 max-md:grid-cols-1 max-md:gap-3 max-md:mb-0"
+        >
+          <div
+            class="metric-card flex items-center gap-4 p-5 rounded-xl bg-[rgba(128,128,128,0.04)] border border-[rgba(128,128,128,0.06)] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)] max-md:p-4 max-md:gap-3 max-[480px]:p-3"
+            :class="getCpuStatus(nodeData.cpu_usage)"
+          >
+            <div class="metric-icon w-14 h-14 rounded-xl bg-white/50 flex items-center justify-center shrink-0 max-md:w-12 max-md:h-12 max-md:[&_.n-icon]:text-2xl! max-[480px]:w-10 max-[480px]:h-10 max-[480px]:[&_.n-icon]:text-xl!">
               <n-icon size="28"><HardwareChipOutline /></n-icon>
             </div>
-            <div class="metric-info">
-              <div class="metric-label">CPU 使用率</div>
-              <div class="metric-value">
+            <div class="metric-info flex-1 min-w-0">
+              <div class="metric-label text-[13px] text-[rgba(128,128,128,0.8)] mb-1.5 max-md:text-xs max-md:mb-1">CPU 使用率</div>
+              <div class="metric-value text-2xl font-bold text-black/85 leading-[1.2] max-md:text-xl max-[480px]:text-lg">
                 {{ (nodeData.cpu_usage || 0).toFixed(0) }}%
               </div>
-              <div class="metric-sub">
+              <div class="metric-sub text-xs text-[rgba(128,128,128,0.6)] mt-1.5 flex flex-wrap gap-2 max-md:text-[11px] max-md:mt-1">
                 平均 {{ cpuStats.avg }}% / 峰值 {{ cpuStats.max }}%
               </div>
             </div>
           </div>
 
           <div
-            class="metric-card"
+            class="metric-card flex items-center gap-4 p-5 rounded-xl bg-[rgba(128,128,128,0.04)] border border-[rgba(128,128,128,0.06)] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)] max-md:p-4 max-md:gap-3 max-[480px]:p-3"
             :class="
               getMemoryStatus(
                 nodeData.used_memory,
@@ -68,12 +86,12 @@
               )
             "
           >
-            <div class="metric-icon">
+            <div class="metric-icon w-14 h-14 rounded-xl bg-white/50 flex items-center justify-center shrink-0 max-md:w-12 max-md:h-12 max-md:[&_.n-icon]:text-2xl! max-[480px]:w-10 max-[480px]:h-10 max-[480px]:[&_.n-icon]:text-xl!">
               <n-icon size="28"><DesktopOutline /></n-icon>
             </div>
-            <div class="metric-info">
-              <div class="metric-label">内存使用率</div>
-              <div class="metric-value">
+            <div class="metric-info flex-1 min-w-0">
+              <div class="metric-label text-[13px] text-[rgba(128,128,128,0.8)] mb-1.5 max-md:text-xs max-md:mb-1">内存使用率</div>
+              <div class="metric-value text-2xl font-bold text-black/85 leading-[1.2] max-md:text-xl max-[480px]:text-lg">
                 {{
                   getMemoryPercentage(
                     nodeData.used_memory,
@@ -82,80 +100,80 @@
                   ).toFixed(0)
                 }}%
               </div>
-              <div class="metric-sub">
+              <div class="metric-sub text-xs text-[rgba(128,128,128,0.6)] mt-1.5 flex flex-wrap gap-2 max-md:text-[11px] max-md:mt-1">
                 平均 {{ memoryStats.avg }}% / 峰值 {{ memoryStats.max }}%
               </div>
             </div>
           </div>
 
-          <div class="metric-card info">
-            <div class="metric-icon">
+          <div class="metric-card flex items-center gap-4 p-5 rounded-xl bg-[rgba(128,128,128,0.04)] border border-[rgba(128,128,128,0.06)] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)] max-md:p-4 max-md:gap-3 max-[480px]:p-3 bg-[var(--n-primary-color-tint)]! border-[var(--n-primary-color-line)]! [&_.metric-icon]:text-[var(--n-primary-color)]">
+            <div class="metric-icon w-14 h-14 rounded-xl bg-white/50 flex items-center justify-center shrink-0 max-md:w-12 max-md:h-12 max-md:[&_.n-icon]:text-2xl! max-[480px]:w-10 max-[480px]:h-10 max-[480px]:[&_.n-icon]:text-xl!">
               <n-icon size="28"><PeopleOutline /></n-icon>
             </div>
-            <div class="metric-info">
-              <div class="metric-label">客户端连接</div>
-              <div class="metric-value">{{ nodeData.client_counts || 0 }}</div>
-              <div class="metric-sub">
+            <div class="metric-info flex-1 min-w-0">
+              <div class="metric-label text-[13px] text-[rgba(128,128,128,0.8)] mb-1.5 max-md:text-xs max-md:mb-1">客户端连接</div>
+              <div class="metric-value text-2xl font-bold text-black/85 leading-[1.2] max-md:text-xl max-[480px]:text-lg">{{ nodeData.client_counts || 0 }}</div>
+              <div class="metric-sub text-xs text-[rgba(128,128,128,0.6)] mt-1.5 flex flex-wrap gap-2 max-md:text-[11px] max-md:mt-1">
                 最高 {{ clientStats.max }} / 平均 {{ clientStats.avg }}
               </div>
             </div>
           </div>
 
-          <div class="metric-card info">
-            <div class="metric-icon">
+          <div class="metric-card flex items-center gap-4 p-5 rounded-xl bg-[rgba(128,128,128,0.04)] border border-[rgba(128,128,128,0.06)] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)] max-md:p-4 max-md:gap-3 max-[480px]:p-3 bg-[var(--n-primary-color-tint)]! border-[var(--n-primary-color-line)]! [&_.metric-icon]:text-[var(--n-primary-color)]">
+            <div class="metric-icon w-14 h-14 rounded-xl bg-white/50 flex items-center justify-center shrink-0 max-md:w-12 max-md:h-12 max-md:[&_.n-icon]:text-2xl! max-[480px]:w-10 max-[480px]:h-10 max-[480px]:[&_.n-icon]:text-xl!">
               <n-icon size="28"><LinkOutline /></n-icon>
             </div>
-            <div class="metric-info">
-              <div class="metric-label">当前连接数</div>
-              <div class="metric-value">{{ nodeData.cur_conns || 0 }}</div>
-              <div class="metric-sub">
+            <div class="metric-info flex-1 min-w-0">
+              <div class="metric-label text-[13px] text-[rgba(128,128,128,0.8)] mb-1.5 max-md:text-xs max-md:mb-1">当前连接数</div>
+              <div class="metric-value text-2xl font-bold text-black/85 leading-[1.2] max-md:text-xl max-[480px]:text-lg">{{ nodeData.cur_conns || 0 }}</div>
+              <div class="metric-sub text-xs text-[rgba(128,128,128,0.6)] mt-1.5 flex flex-wrap gap-2 max-md:text-[11px] max-md:mt-1">
                 最高 {{ connStats.max }} / 平均 {{ connStats.avg }}
               </div>
             </div>
           </div>
 
-          <div class="metric-card warning">
-            <div class="metric-icon">
+          <div class="metric-card flex items-center gap-4 p-5 rounded-xl bg-[rgba(128,128,128,0.04)] border border-[rgba(128,128,128,0.06)] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)] max-md:p-4 max-md:gap-3 max-[480px]:p-3 bg-[rgba(240,160,32,0.06)]! border-[rgba(240,160,32,0.15)]! [&_.metric-icon]:text-[#f0a020]">
+            <div class="metric-icon w-14 h-14 rounded-xl bg-white/50 flex items-center justify-center shrink-0 max-md:w-12 max-md:h-12 max-md:[&_.n-icon]:text-2xl! max-[480px]:w-10 max-[480px]:h-10 max-[480px]:[&_.n-icon]:text-xl!">
               <n-icon size="28"><GitNetworkOutline /></n-icon>
             </div>
-            <div class="metric-info">
-              <div class="metric-label">当前速度</div>
-              <div class="metric-value speed">
-                <span class="up"
+            <div class="metric-info flex-1 min-w-0">
+              <div class="metric-label text-[13px] text-[rgba(128,128,128,0.8)] mb-1.5 max-md:text-xs max-md:mb-1">当前速度</div>
+              <div class="metric-value text-base font-bold leading-[1.2] flex flex-col gap-1 max-md:text-sm max-[480px]:text-xs">
+                <span class="text-[#d03050]"
                   >↑{{ formatSpeed(nodeData.cur_rate_out_kb) }}</span
                 >
-                <span class="down"
+                <span class="text-[#36ad6a]"
                   >↓{{ formatSpeed(nodeData.cur_rate_in_kb) }}</span
                 >
               </div>
-              <div class="metric-sub">
+              <div class="metric-sub text-xs text-[rgba(128,128,128,0.6)] mt-1.5 flex flex-wrap gap-2 max-md:text-[11px] max-md:mt-1">
                 最高↑ {{ speedStats.maxOut }} / 最高↓ {{ speedStats.maxIn }}
               </div>
             </div>
           </div>
 
-          <div class="metric-card traffic">
-            <div class="metric-icon">
+          <div class="metric-card flex items-center gap-4 p-5 rounded-xl bg-[rgba(128,128,128,0.04)] border border-[rgba(128,128,128,0.06)] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)] max-md:p-4 max-md:gap-3 max-[480px]:p-3 bg-[rgba(144,96,240,0.06)]! border-[rgba(144,96,240,0.15)]! [&_.metric-icon]:text-[#9060f0]">
+            <div class="metric-icon w-14 h-14 rounded-xl bg-white/50 flex items-center justify-center shrink-0 max-md:w-12 max-md:h-12 max-md:[&_.n-icon]:text-2xl! max-[480px]:w-10 max-[480px]:h-10 max-[480px]:[&_.n-icon]:text-xl!">
               <n-icon size="28"><SwapVerticalOutline /></n-icon>
             </div>
-            <div class="metric-info">
-              <div class="metric-label">今日流量</div>
-              <div class="metric-value traffic">
-                <span class="up"
+            <div class="metric-info flex-1 min-w-0">
+              <div class="metric-label text-[13px] text-[rgba(128,128,128,0.8)] mb-1.5 max-md:text-xs max-md:mb-1">今日流量</div>
+              <div class="metric-value text-base font-bold leading-[1.2] flex flex-col gap-1 max-md:text-sm max-[480px]:text-xs">
+                <span class="text-[#d03050]"
                   >↑{{ formatTraffic(nodeData.today_in_traffic) }}</span
                 >
-                <span class="down"
+                <span class="text-[#36ad6a]"
                   >↓{{ formatTraffic(nodeData.today_out_traffic) }}</span
                 >
               </div>
-              <div class="metric-sub">
-                <span class="sub-item"
+              <div class="metric-sub text-xs text-[rgba(128,128,128,0.6)] mt-1.5 flex flex-wrap gap-2 max-md:text-[11px] max-md:mt-1">
+                <span class="whitespace-nowrap"
                   >累积↑{{ formatTraffic(nodeData.total_traffic_in) }}</span
                 >
-                <span class="sub-item"
+                <span class="whitespace-nowrap"
                   >累积↓{{ formatTraffic(nodeData.total_traffic_out) }}</span
                 >
-                <span class="sub-item"
+                <span class="whitespace-nowrap"
                   >总计{{
                     formatTraffic(
                       (nodeData.total_traffic_in || 0) +
@@ -170,13 +188,18 @@
       </n-card>
 
       <!-- 图表区域 -->
-      <n-card class="charts-section-card" :bordered="false">
-        <div class="charts-section">
+      <n-card
+        class="charts-section-card rounded-xl [&_.n-card-content]:p-5 max-md:[&_.n-card-content]:p-4 max-[480px]:[&_.n-card-content]:p-3"
+        :bordered="false"
+      >
+        <div
+          class="charts-section bg-[rgba(128,128,128,0.02)] rounded-xl border border-[rgba(128,128,128,0.06)] p-5 max-md:p-0 max-md:border-none max-md:bg-transparent"
+        >
           <n-tabs
             v-model:value="activeTab"
             type="line"
             animated
-            class="chart-tabs"
+            class="[&_.n-tabs-nav]:mb-4 [&_.n-tab-pane]:p-0 max-md:[&_.n-tabs-nav]:mb-3 max-md:[&_.n-tabs-nav_.n-tabs-tab]:p-[8px_12px] max-md:[&_.n-tabs-nav_.n-tabs-tab]:text-[13px]"
             @update:value="handleTabChange"
           >
             <n-tab-pane
@@ -184,38 +207,52 @@
               tab="性能监控"
               display-directive="show"
             >
-              <div class="chart-grid">
-                <div class="chart-card">
-                  <div class="chart-title">
+              <div
+                class="grid grid-cols-2 gap-5 h-[400px] max-md:grid-cols-1 max-md:gap-3 max-md:h-auto"
+              >
+                <div
+                  class="chart-card bg-[rgba(128,128,128,0.03)] rounded-xl p-4 border border-[rgba(128,128,128,0.06)] flex flex-col max-md:min-h-[280px] max-md:p-3 max-[480px]:min-h-[250px] max-[480px]:p-2.5"
+                >
+                  <div
+                    class="chart-title flex items-center gap-2 text-sm font-semibold mb-3 text-black/70 max-md:text-[13px] max-md:mb-2"
+                  >
                     <n-icon size="18" color="#18a058"
                       ><HardwareChipOutline
                     /></n-icon>
                     <span>CPU 使用率趋势</span>
                   </div>
-                  <div ref="cpuChartRef" class="chart-content"></div>
+                  <div ref="cpuChartRef" class="chart-content flex-1 min-h-0 w-full"></div>
                 </div>
-                <div class="chart-card">
-                  <div class="chart-title">
-                    <n-icon size="18" color="#2080f0"
+                <div
+                  class="chart-card bg-[rgba(128,128,128,0.03)] rounded-xl p-4 border border-[rgba(128,128,128,0.06)] flex flex-col max-md:min-h-[280px] max-md:p-3 max-[480px]:min-h-[250px] max-[480px]:p-2.5"
+                >
+                  <div
+                    class="chart-title flex items-center gap-2 text-sm font-semibold mb-3 text-black/70 max-md:text-[13px] max-md:mb-2"
+                  >
+                    <n-icon size="18" color="var(--n-primary-color)"
                       ><DesktopOutline
                     /></n-icon>
                     <span>内存使用率趋势</span>
                   </div>
-                  <div ref="memoryChartRef" class="chart-content"></div>
+                  <div ref="memoryChartRef" class="chart-content flex-1 min-h-0 w-full"></div>
                 </div>
               </div>
             </n-tab-pane>
 
             <n-tab-pane name="realtime" tab="实时速度" display-directive="show">
-              <div class="chart-grid single">
-                <div class="chart-card wide">
-                  <div class="chart-title">
+              <div class="grid grid-cols-1 gap-5 h-[400px] max-md:gap-3 max-md:h-auto">
+                <div
+                  class="chart-card bg-[rgba(128,128,128,0.03)] rounded-xl p-4 border border-[rgba(128,128,128,0.06)] flex flex-col col-span-full max-md:min-h-[280px] max-md:p-3 max-[480px]:min-h-[250px] max-[480px]:p-2.5"
+                >
+                  <div
+                    class="chart-title flex items-center gap-2 text-sm font-semibold mb-3 text-black/70 max-md:text-[13px] max-md:mb-2"
+                  >
                     <n-icon size="18" color="#d03050"
                       ><GitNetworkOutline
                     /></n-icon>
                     <span>当前速度趋势</span>
                   </div>
-                  <div ref="tunnelChartRef" class="chart-content"></div>
+                  <div ref="tunnelChartRef" class="chart-content flex-1 min-h-0 w-full"></div>
                 </div>
               </div>
             </n-tab-pane>
@@ -225,20 +262,30 @@
               tab="连接统计"
               display-directive="show"
             >
-              <div class="chart-grid">
-                <div class="chart-card">
-                  <div class="chart-title">
-                    <n-icon size="18" color="#2080f0"><PeopleOutline /></n-icon>
+              <div
+                class="grid grid-cols-2 gap-5 h-[400px] max-md:grid-cols-1 max-md:gap-3 max-md:h-auto"
+              >
+                <div
+                  class="chart-card bg-[rgba(128,128,128,0.03)] rounded-xl p-4 border border-[rgba(128,128,128,0.06)] flex flex-col max-md:min-h-[280px] max-md:p-3 max-[480px]:min-h-[250px] max-[480px]:p-2.5"
+                >
+                  <div
+                    class="chart-title flex items-center gap-2 text-sm font-semibold mb-3 text-black/70 max-md:text-[13px] max-md:mb-2"
+                  >
+                    <n-icon size="18" color="var(--n-primary-color)"><PeopleOutline /></n-icon>
                     <span>客户端连接趋势</span>
                   </div>
-                  <div ref="clientChartRef" class="chart-content"></div>
+                  <div ref="clientChartRef" class="chart-content flex-1 min-h-0 w-full"></div>
                 </div>
-                <div class="chart-card">
-                  <div class="chart-title">
+                <div
+                  class="chart-card bg-[rgba(128,128,128,0.03)] rounded-xl p-4 border border-[rgba(128,128,128,0.06)] flex flex-col max-md:min-h-[280px] max-md:p-3 max-[480px]:min-h-[250px] max-[480px]:p-2.5"
+                >
+                  <div
+                    class="chart-title flex items-center gap-2 text-sm font-semibold mb-3 text-black/70 max-md:text-[13px] max-md:mb-2"
+                  >
                     <n-icon size="18" color="#d03050"><LinkOutline /></n-icon>
                     <span>连接数趋势</span>
                   </div>
-                  <div ref="connChartRef" class="chart-content"></div>
+                  <div ref="connChartRef" class="chart-content flex-1 min-h-0 w-full"></div>
                 </div>
               </div>
             </n-tab-pane>
@@ -248,9 +295,15 @@
               tab="隧道类型"
               display-directive="show"
             >
-              <div class="chart-grid">
-                <div class="chart-card">
-                  <div class="chart-title">
+              <div
+                class="grid grid-cols-2 gap-5 h-[400px] max-md:grid-cols-1 max-md:gap-3 max-md:h-auto"
+              >
+                <div
+                  class="chart-card bg-[rgba(128,128,128,0.03)] rounded-xl p-4 border border-[rgba(128,128,128,0.06)] flex flex-col max-md:min-h-[280px] max-md:p-3 max-[480px]:min-h-[250px] max-[480px]:p-2.5"
+                >
+                  <div
+                    class="chart-title flex items-center gap-2 text-sm font-semibold mb-3 text-black/70 max-md:text-[13px] max-md:mb-2"
+                  >
                     <n-icon size="18" color="#f0a020"
                       ><GitNetworkOutline
                     /></n-icon>
@@ -258,17 +311,21 @@
                   </div>
                   <div
                     ref="proxyTypeHistoryChartRef"
-                    class="chart-content"
+                    class="chart-content flex-1 min-h-0 w-full"
                   ></div>
                 </div>
-                <div class="chart-card">
-                  <div class="chart-title">
+                <div
+                  class="chart-card bg-[rgba(128,128,128,0.03)] rounded-xl p-4 border border-[rgba(128,128,128,0.06)] flex flex-col max-md:min-h-[280px] max-md:p-3 max-[480px]:min-h-[250px] max-[480px]:p-2.5"
+                >
+                  <div
+                    class="chart-title flex items-center gap-2 text-sm font-semibold mb-3 text-black/70 max-md:text-[13px] max-md:mb-2"
+                  >
                     <n-icon size="18" color="#18a058"
                       ><GitNetworkOutline
                     /></n-icon>
                     <span>隧道类型分布</span>
                   </div>
-                  <div ref="proxyTypeChartRef" class="chart-content"></div>
+                  <div ref="proxyTypeChartRef" class="chart-content flex-1 min-h-0 w-full"></div>
                 </div>
               </div>
             </n-tab-pane>
@@ -277,7 +334,10 @@
       </n-card>
     </template>
 
-    <div v-else class="empty-container">
+    <div
+      v-else
+      class="flex flex-col items-center justify-center min-h-[400px]"
+    >
       <n-empty description="节点不存在或暂无数据" />
       <n-button type="primary" @click="goBack" style="margin-top: 16px">
         返回节点列表
@@ -489,19 +549,28 @@ const getTimeLabel = (recordTime: string) => {
 }
 
 // 获取CPU状态
+const METRIC_STATUS_CLASS = {
+  error:
+    'bg-[rgba(208,48,80,0.06)]! border-[rgba(208,48,80,0.15)]! [&_.metric-icon]:text-[#d03050]',
+  warning:
+    'bg-[rgba(240,160,32,0.06)]! border-[rgba(240,160,32,0.15)]! [&_.metric-icon]:text-[#f0a020]',
+  success:
+    'bg-[rgba(24,160,88,0.06)]! border-[rgba(24,160,88,0.15)]! [&_.metric-icon]:text-[#18a058]',
+} as const
+
 const getCpuStatus = (usage: number) => {
   const percentage = usage || 0
-  if (percentage >= 80) return 'error'
-  if (percentage >= 50) return 'warning'
-  return 'success'
+  if (percentage >= 80) return METRIC_STATUS_CLASS.error
+  if (percentage >= 50) return METRIC_STATUS_CLASS.warning
+  return METRIC_STATUS_CLASS.success
 }
 
 // 获取内存使用状态
 const getMemoryStatus = (used: number, total: number, free?: number) => {
   const percentage = getMemoryPercentage(used, total, free)
-  if (percentage >= 80) return 'error'
-  if (percentage >= 50) return 'warning'
-  return 'success'
+  if (percentage >= 80) return METRIC_STATUS_CLASS.error
+  if (percentage >= 50) return METRIC_STATUS_CLASS.warning
+  return METRIC_STATUS_CLASS.success
 }
 
 // 获取内存使用百分比
@@ -1224,442 +1293,4 @@ onUnmounted(() => {
 })
 </script>
 
-<style scoped lang="scss">
-.node-detail-page {
-  padding: 20px;
-  min-height: 100%;
-}
 
-// 页面头部卡片
-.page-header-card {
-  margin-bottom: 16px;
-  border-radius: 12px;
-
-  :deep(.n-card__content) {
-    padding: 16px 20px;
-  }
-}
-
-.page-header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-
-  .header-title {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-
-    h2 {
-      margin: 0;
-      font-size: 20px;
-      font-weight: 600;
-    }
-  }
-}
-
-// 指标区域卡片
-.metrics-section-card {
-  margin-bottom: 16px;
-  border-radius: 12px;
-
-  :deep(.n-card__content) {
-    padding: 20px;
-  }
-}
-
-// 图表区域卡片
-.charts-section-card {
-  border-radius: 12px;
-
-  :deep(.n-card__content) {
-    padding: 20px;
-  }
-}
-
-.loading-container,
-.empty-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 400px;
-}
-
-.metrics-section {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
-
-  .metric-card {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 20px;
-    border-radius: 12px;
-    background: rgba(128, 128, 128, 0.04);
-    border: 1px solid rgba(128, 128, 128, 0.06);
-    transition: all 0.3s ease;
-
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    }
-
-    &.success {
-      background: rgba(24, 160, 88, 0.06);
-      border-color: rgba(24, 160, 88, 0.15);
-      .metric-icon {
-        color: #18a058;
-      }
-    }
-
-    &.warning {
-      background: rgba(240, 160, 32, 0.06);
-      border-color: rgba(240, 160, 32, 0.15);
-      .metric-icon {
-        color: #f0a020;
-      }
-    }
-
-    &.error {
-      background: rgba(208, 48, 80, 0.06);
-      border-color: rgba(208, 48, 80, 0.15);
-      .metric-icon {
-        color: #d03050;
-      }
-    }
-
-    &.info {
-      background: rgba(32, 128, 240, 0.06);
-      border-color: rgba(32, 128, 240, 0.15);
-      .metric-icon {
-        color: #2080f0;
-      }
-    }
-
-    &.traffic {
-      background: rgba(144, 96, 240, 0.06);
-      border-color: rgba(144, 96, 240, 0.15);
-      .metric-icon {
-        color: #9060f0;
-      }
-    }
-
-    .metric-icon {
-      width: 56px;
-      height: 56px;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .metric-info {
-      flex: 1;
-      min-width: 0;
-
-      .metric-label {
-        font-size: 13px;
-        color: rgba(128, 128, 128, 0.8);
-        margin-bottom: 6px;
-      }
-
-      .metric-value {
-        font-size: 24px;
-        font-weight: 700;
-        color: rgba(0, 0, 0, 0.85);
-        line-height: 1.2;
-
-        &.speed,
-        &.traffic {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-          font-size: 16px;
-
-          .up {
-            color: #d03050;
-          }
-          .down {
-            color: #36ad6a;
-          }
-        }
-      }
-
-      .metric-sub {
-        font-size: 12px;
-        color: rgba(128, 128, 128, 0.6);
-        margin-top: 6px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-
-        .sub-item {
-          white-space: nowrap;
-        }
-      }
-    }
-  }
-}
-
-.charts-section {
-  background: rgba(128, 128, 128, 0.02);
-  border-radius: 12px;
-  border: 1px solid rgba(128, 128, 128, 0.06);
-  padding: 20px;
-
-  .chart-tabs {
-    :deep(.n-tabs-nav) {
-      margin-bottom: 16px;
-    }
-
-    :deep(.n-tab-pane) {
-      padding: 0;
-    }
-  }
-
-  .chart-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    height: 400px;
-
-    &.single {
-      grid-template-columns: 1fr;
-    }
-
-    .chart-card {
-      background: rgba(128, 128, 128, 0.03);
-      border-radius: 12px;
-      padding: 16px;
-      border: 1px solid rgba(128, 128, 128, 0.06);
-      display: flex;
-      flex-direction: column;
-
-      &.wide {
-        grid-column: 1 / -1;
-      }
-
-      .chart-title {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 14px;
-        font-weight: 600;
-        margin-bottom: 12px;
-        color: rgba(0, 0, 0, 0.7);
-      }
-
-      .chart-content {
-        flex: 1;
-        min-height: 0;
-        width: 100%;
-      }
-    }
-  }
-}
-
-// 响应式调整
-@media (max-width: 768px) {
-  .node-detail-page {
-    padding: 12px;
-  }
-
-  // 页面头部卡片移动端适配
-  .page-header-card {
-    margin-bottom: 12px;
-
-    :deep(.n-card__content) {
-      padding: 12px 16px;
-    }
-  }
-
-  .page-header {
-    flex-wrap: wrap;
-    gap: 12px;
-
-    .header-title {
-      width: 100%;
-      order: -1;
-
-      h2 {
-        font-size: 18px;
-      }
-    }
-
-    .n-radio-group {
-      width: 100%;
-
-      .n-radio-button {
-        flex: 1;
-        text-align: center;
-      }
-    }
-  }
-
-  // 指标区域卡片移动端适配
-  .metrics-section-card {
-    margin-bottom: 12px;
-
-    :deep(.n-card__content) {
-      padding: 16px;
-    }
-  }
-
-  .metrics-section {
-    grid-template-columns: 1fr;
-    gap: 12px;
-    margin-bottom: 0;
-
-    .metric-card {
-      padding: 16px;
-      gap: 12px;
-
-      .metric-icon {
-        width: 48px;
-        height: 48px;
-
-        .n-icon {
-          font-size: 24px !important;
-        }
-      }
-
-      .metric-info {
-        .metric-label {
-          font-size: 12px;
-          margin-bottom: 4px;
-        }
-
-        .metric-value {
-          font-size: 20px;
-
-          &.speed,
-          &.traffic {
-            font-size: 14px;
-          }
-        }
-
-        .metric-sub {
-          font-size: 11px;
-          margin-top: 4px;
-        }
-      }
-    }
-  }
-
-  // 图表区域卡片移动端适配
-  .charts-section-card {
-    :deep(.n-card__content) {
-      padding: 16px;
-    }
-  }
-
-  .charts-section {
-    padding: 0;
-    border: none;
-    background: transparent;
-
-    .chart-tabs {
-      :deep(.n-tabs-nav) {
-        margin-bottom: 12px;
-
-        .n-tabs-tab {
-          padding: 8px 12px;
-          font-size: 13px;
-        }
-      }
-    }
-
-    .chart-grid {
-      grid-template-columns: 1fr;
-      gap: 12px;
-      height: auto;
-
-      .chart-card {
-        min-height: 280px;
-        padding: 12px;
-
-        .chart-title {
-          font-size: 13px;
-          margin-bottom: 8px;
-        }
-      }
-    }
-  }
-}
-
-// 小屏幕手机适配
-@media (max-width: 480px) {
-  .node-detail-page {
-    padding: 8px;
-  }
-
-  .page-header-card {
-    :deep(.n-card__content) {
-      padding: 10px 12px;
-    }
-  }
-
-  .page-header {
-    gap: 8px;
-
-    .header-title {
-      h2 {
-        font-size: 16px;
-      }
-    }
-  }
-
-  .metrics-section-card {
-    :deep(.n-card__content) {
-      padding: 12px;
-    }
-  }
-
-  .metrics-section {
-    .metric-card {
-      padding: 12px;
-
-      .metric-icon {
-        width: 40px;
-        height: 40px;
-
-        .n-icon {
-          font-size: 20px !important;
-        }
-      }
-
-      .metric-info {
-        .metric-value {
-          font-size: 18px;
-
-          &.speed,
-          &.traffic {
-            font-size: 12px;
-          }
-        }
-      }
-    }
-  }
-
-  .charts-section-card {
-    :deep(.n-card__content) {
-      padding: 12px;
-    }
-  }
-
-  .charts-section {
-    .chart-grid {
-      .chart-card {
-        min-height: 250px;
-        padding: 10px;
-      }
-    }
-  }
-}
-</style>

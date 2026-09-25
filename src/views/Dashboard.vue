@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import { darkTheme } from 'naive-ui'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { motion, useReducedMotion } from 'motion-v'
 import LeftMenu from '@/components/LeftMenu.vue'
 import TopMenu from '@/components/TopMenu.vue'
+import { springSoft } from '@/utils/motion'
+
+const reducedMotion = useReducedMotion()
 
 const collapsed = ref(false)
 const isMobile = ref(window.innerWidth <= 768)
@@ -29,11 +33,18 @@ defineExpose({
 </script>
 
 <template>
-  <div>
+  <div class="h-full">
     <NLayout position="absolute">
-      <NLayoutHeader bordered style="height: 64px; padding: 0">
-        <TopMenu />
-      </NLayoutHeader>
+      <motion.div
+        :initial="reducedMotion ? false : { y: -48, opacity: 0 }"
+        :animate="reducedMotion ? undefined : { y: 0, opacity: 1 }"
+        :transition="springSoft"
+        class="h-16"
+      >
+        <NLayoutHeader bordered style="height: 64px; padding: 0">
+          <TopMenu />
+        </NLayoutHeader>
+      </motion.div>
       <NLayout has-sider position="absolute" style="top: 64px">
         <NLayoutSider
           v-if="!isMobile"
@@ -61,7 +72,3 @@ defineExpose({
     </NLayout>
   </div>
 </template>
-
-<style lang="scss">
-@use '../assets/styles/dashboard.scss';
-</style>

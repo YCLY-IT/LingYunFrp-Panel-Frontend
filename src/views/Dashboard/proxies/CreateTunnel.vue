@@ -1,7 +1,12 @@
 <template>
-  <div class="content-grid">
+  <div
+    class="flex flex-col justify-center gap-5 max-md:[&_.node-card_.n-grid]:grid-cols-1!"
+  >
     <!-- 搜索和区域筛选 -->
-    <NCard title="筛选选项" class="filter-card">
+    <NCard
+      title="筛选选项"
+      class="filter-card w-full max-w-[1200px] mx-auto [&_.n-card-content]:p-4 max-[1200px]:max-w-[900px]"
+    >
       <NSpace vertical size="medium">
         <NInput
           style="margin-top: 10px"
@@ -16,11 +21,14 @@
           </template>
         </NInput>
 
-        <div class="filter-row" style="margin-top: 5px">
-          <div class="group-filter">
+        <div
+          class="flex items-center gap-[30px] w-full min-w-0 flex-nowrap max-md:flex-col max-md:gap-2.5 max-md:flex-wrap"
+          style="margin-top: 5px"
+        >
+          <div class="flex-none max-md:w-full max-md:m-0">
             <NText>用户组筛选：</NText>
             <NSelect
-              class="group-select"
+              class="group-select w-[250px] max-w-full min-w-0 box-border max-md:w-full!"
               style="width: 300px"
               v-model:value="selectedGroup"
               :options="[{ label: '全部', value: 'all' }, ...groupList]"
@@ -28,10 +36,10 @@
               placeholder="请选择用户组"
             />
           </div>
-          <div class="protocol-filter">
+          <div class="flex-1 min-w-0 max-md:w-full max-md:m-0">
             <NText>协议筛选：</NText>
             <NSelect
-              class="protocol-select"
+              class="protocol-select w-[340px] max-w-full min-w-0 box-border max-md:w-full! max-md:[&_.n-base-selection-tags]:max-h-8 max-md:[&_.n-base-selection-tags]:overflow-hidden max-md:[&_.n-base-selection-tags]:whitespace-nowrap max-md:[&_.n-base-selection-tags]:text-ellipsis max-md:[&_.n-base-selection-tags]:block"
               style="width: 100%"
               v-model:value="selectedProtocols"
               :options="protocolOptions"
@@ -45,7 +53,10 @@
     </NCard>
 
     <!-- 节点选择卡片 - 修改为折叠篮按地区分组 -->
-    <NCard title="选择节点" class="node-card">
+    <NCard
+      title="选择节点"
+      class="node-card w-full max-w-[1200px] mx-auto [&_.n-card-content]:p-4 max-[1200px]:max-w-[900px]"
+    >
       <NSpin :show="nodeLoading" tip="节点加载中...">
         <NSpace vertical>
           <NCollapse v-model:expanded-names="expandedRegion">
@@ -67,14 +78,14 @@
                     @click="handleNodeSelect(node)"
                     :class="[
                       {
-                        'selected-node': selectedNodeId === node.value,
-                        'node-offline': !node.isOnline,
+                        'shadow-[0_0_4px_rgba(33,150,243,0.15)] bg-[rgba(33,150,243,0.02)] border-[rgba(33,150,243,0.3)]! hover:bg-[rgba(33,150,243,0.04)]': selectedNodeId === node.value,
+                        'grayscale-[0.4] opacity-50': !node.isOnline,
                       },
                     ]"
-                    class="node-item"
+                    class="border border-[var(--n-border-color)] transition-all duration-200 ease-in cursor-pointer h-full relative"
                   >
-                    <div class="node-header">
-                      <div class="node-title">
+                    <div class="flex justify-between items-start mb-2">
+                      <div class="flex items-center gap-2 flex-1 min-w-0">
                         <NTag type="info" size="small"># {{ node.id }}</NTag>
                         <NTooltip trigger="hover">
                           <template #trigger>
@@ -134,7 +145,7 @@
                       node.description
                     }}</NText>
                     <NSpace vertical style="margin-top: 4px">
-                      <div class="info-item">
+                      <div class="flex items-start mb-[2px] last:mb-0">
                         <NSpace wrap>
                           <NTag
                             v-for="group in node.allowGroups.filter(
@@ -151,7 +162,10 @@
                           </NTag>
                         </NSpace>
                       </div>
-                      <div class="info-item" style="margin-top: -1px">
+                      <div
+                        class="flex items-start mb-[2px] last:mb-0"
+                        style="margin-top: -1px"
+                      >
                         <NSpace wrap>
                           <NTag
                             v-if="supportsTcp(node)"
@@ -191,7 +205,10 @@
                           >
                         </NSpace>
                       </div>
-                      <div class="info-item" style="margin-top: -1px">
+                      <div
+                        class="flex items-start mb-[2px] last:mb-0"
+                        style="margin-top: -1px"
+                      >
                         <NSpace wrap>
                           <NTag type="warning" size="small">
                             {{ node.portRange.min }} - {{ node.portRange.max }}
@@ -216,7 +233,7 @@
                 v-if="
                   filteredNodes.filter((n) => n.location === 'cn').length === 0
                 "
-                class="no-results"
+                class="py-10 text-center"
               >
                 <NEmpty description="没有找到符合条件的节点" />
               </div>
@@ -240,14 +257,14 @@
                     @click="handleNodeSelect(node)"
                     :class="[
                       {
-                        'selected-node': selectedNodeId === node.value,
-                        'node-offline': !node.isOnline,
+                        'shadow-[0_0_4px_rgba(33,150,243,0.15)] bg-[rgba(33,150,243,0.02)] border-[rgba(33,150,243,0.3)]! hover:bg-[rgba(33,150,243,0.04)]': selectedNodeId === node.value,
+                        'grayscale-[0.4] opacity-50': !node.isOnline,
                       },
                     ]"
-                    class="node-item"
+                    class="border border-[var(--n-border-color)] transition-all duration-200 ease-in cursor-pointer h-full relative"
                   >
-                    <div class="node-header">
-                      <div class="node-title">
+                    <div class="flex justify-between items-start mb-2">
+                      <div class="flex items-center gap-2 flex-1 min-w-0">
                         <NTag type="info" size="small"># {{ node.id }}</NTag>
                         <NTooltip trigger="hover">
                           <template #trigger>
@@ -319,7 +336,7 @@
                       node.description
                     }}</NText>
                     <NSpace vertical style="margin-top: 4px">
-                      <div class="info-item">
+                      <div class="flex items-start mb-[2px] last:mb-0">
                         <NSpace wrap>
                           <NTag
                             v-for="group in node.allowGroups.filter(
@@ -336,7 +353,10 @@
                           </NTag>
                         </NSpace>
                       </div>
-                      <div class="info-item" style="margin-top: -1px">
+                      <div
+                        class="flex items-start mb-[2px] last:mb-0"
+                        style="margin-top: -1px"
+                      >
                         <NSpace wrap>
                           <NTag
                             v-if="supportsTcp(node)"
@@ -376,7 +396,10 @@
                           >
                         </NSpace>
                       </div>
-                      <div class="info-item" style="margin-top: -1px">
+                      <div
+                        class="flex items-start mb-[2px] last:mb-0"
+                        style="margin-top: -1px"
+                      >
                         <NSpace wrap>
                           <NTag type="warning" size="small">
                             {{ node.portRange.min }} - {{ node.portRange.max }}
@@ -402,7 +425,7 @@
                   filteredNodes.filter((n) => n.location === 'cn-out')
                     .length === 0
                 "
-                class="no-results"
+                class="py-10 text-center"
               >
                 <NEmpty description="没有找到符合条件的节点" />
               </div>
@@ -426,14 +449,14 @@
                     @click="handleNodeSelect(node)"
                     :class="[
                       {
-                        'selected-node': selectedNodeId === node.value,
-                        'node-offline': !node.isOnline,
+                        'shadow-[0_0_4px_rgba(33,150,243,0.15)] bg-[rgba(33,150,243,0.02)] border-[rgba(33,150,243,0.3)]! hover:bg-[rgba(33,150,243,0.04)]': selectedNodeId === node.value,
+                        'grayscale-[0.4] opacity-50': !node.isOnline,
                       },
                     ]"
-                    class="node-item"
+                    class="border border-[var(--n-border-color)] transition-all duration-200 ease-in cursor-pointer h-full relative"
                   >
-                    <div class="node-header">
-                      <div class="node-title">
+                    <div class="flex justify-between items-start mb-2">
+                      <div class="flex items-center gap-2 flex-1 min-w-0">
                         <NTag type="info" size="small"># {{ node.id }}</NTag>
                         <NTooltip trigger="hover">
                           <template #trigger>
@@ -505,7 +528,7 @@
                       node.description
                     }}</NText>
                     <NSpace vertical style="margin-top: 4px">
-                      <div class="info-item">
+                      <div class="flex items-start mb-[2px] last:mb-0">
                         <NSpace wrap>
                           <NTag
                             v-for="group in node.allowGroups.filter(
@@ -522,7 +545,10 @@
                           </NTag>
                         </NSpace>
                       </div>
-                      <div class="info-item" style="margin-top: -1px">
+                      <div
+                        class="flex items-start mb-[2px] last:mb-0"
+                        style="margin-top: -1px"
+                      >
                         <NSpace wrap>
                           <NTag
                             v-if="supportsTcp(node)"
@@ -562,7 +588,10 @@
                           >
                         </NSpace>
                       </div>
-                      <div class="info-item" style="margin-top: -1px">
+                      <div
+                        class="flex items-start mb-[2px] last:mb-0"
+                        style="margin-top: -1px"
+                      >
                         <NSpace wrap>
                           <NTag type="warning" size="small">
                             {{ node.portRange.min }} - {{ node.portRange.max }}
@@ -587,7 +616,7 @@
                 v-if="
                   filteredNodes.filter((n) => n.location === 'out').length === 0
                 "
-                class="no-results"
+                class="py-10 text-center"
               >
                 <NEmpty description="没有找到符合条件的节点" />
               </div>
@@ -718,7 +747,7 @@
             </NFormItem>
 
             <NFormItem label="每个IP最大下载速率" path="ipLimitIn">
-              <div class="speed-input-group">
+              <div class="flex gap-2 items-center">
                 <NInputNumber
                   v-model:value="formValue.ipLimitIn"
                   :min="0"
@@ -733,7 +762,7 @@
               </div>
             </NFormItem>
             <NFormItem label="每个IP最大上传速率" path="ipLimitOut">
-              <div class="speed-input-group">
+              <div class="flex gap-2 items-center">
                 <NInputNumber
                   v-model:value="formValue.ipLimitOut"
                   :min="0"
@@ -798,39 +827,39 @@
     >
       <div>
         <p>您即将创建以下隧道配置：</p>
-        <div class="tunnel-confirm-details">
-          <div class="confirm-item">
-            <span class="confirm-label">节点：</span>
+        <div class="bg-[rgba(33,150,243,0.05)] rounded-lg p-4 my-3">
+          <div class="flex mb-2 last:mb-0">
+            <span class="w-[100px] text-[var(--n-text-color-2)] font-medium">节点：</span>
             <span>{{ selectedNode?.name || '未选择' }}</span>
           </div>
-          <div class="confirm-item">
-            <span class="confirm-label">隧道名称：</span>
+          <div class="flex mb-2 last:mb-0">
+            <span class="w-[100px] text-[var(--n-text-color-2)] font-medium">隧道名称：</span>
             <span>{{ formValue.name }}</span>
           </div>
-          <div class="confirm-item">
-            <span class="confirm-label">本地地址：</span>
+          <div class="flex mb-2 last:mb-0">
+            <span class="w-[100px] text-[var(--n-text-color-2)] font-medium">本地地址：</span>
             <span>{{ formValue.localAddr }}:{{ formValue.localPort }}</span>
           </div>
-          <div class="confirm-item">
-            <span class="confirm-label">协议类型：</span>
+          <div class="flex mb-2 last:mb-0">
+            <span class="w-[100px] text-[var(--n-text-color-2)] font-medium">协议类型：</span>
             <span>{{ formValue.type.toUpperCase() }}</span>
           </div>
           <div
             v-if="formValue.type === 'http' || formValue.type === 'https'"
-            class="confirm-item"
+            class="flex mb-2 last:mb-0"
           >
-            <span class="confirm-label">绑定域名：</span>
+            <span class="w-[100px] text-[var(--n-text-color-2)] font-medium">绑定域名：</span>
             <span>{{ domainTags.join(', ') }}</span>
           </div>
           <div
             v-if="['tcp', 'udp'].includes(formValue.type)"
-            class="confirm-item"
+            class="flex mb-2 last:mb-0"
           >
-            <span class="confirm-label">远程端口：</span>
+            <span class="w-[100px] text-[var(--n-text-color-2)] font-medium">远程端口：</span>
             <span>{{ formValue.remotePort }}</span>
           </div>
         </div>
-        <p class="confirm-warning">
+        <p class="text-sm mt-3">
           请确认以上信息无误，点击确认后将创建隧道。
         </p>
       </div>
@@ -1460,239 +1489,4 @@ const handleCreateFormCollapseUpdate = (names: string[]) => {
 }
 </script>
 
-<style lang="scss" scoped>
-@use '@/assets/styles/variables' as *;
-.divider-line {
-  border-bottom: 1px solid $divider-color;
-  margin: 16px 0;
-}
-.content-grid {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 20px;
 
-  .filter-card,
-  .node-card {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-
-    :deep(.n-card__content) {
-      padding: 16px;
-    }
-  }
-
-  .node-item {
-    border: 1px solid $border-color;
-    transition: $transition-all;
-    cursor: pointer;
-    height: 100%;
-    position: relative;
-  }
-
-  .selected-node {
-    box-shadow: 0 0 4px rgba($primary-color, 0.15);
-    background-color: rgba($primary-color, 0.02);
-    border-color: rgba($primary-color, 0.3) !important;
-
-    &:hover {
-      background-color: rgba($primary-color, 0.04);
-    }
-  }
-
-  .node-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 8px;
-
-    .node-title {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex: 1;
-      min-width: 0;
-    }
-
-    // .node-tags {
-    //   display: flex;
-    //   gap: 4px;
-    // }
-  }
-
-  .info-item {
-    display: flex;
-    align-items: flex-start;
-    margin-bottom: 2px;
-    &:last-child {
-      margin-bottom: 0;
-    }
-  }
-
-  .no-results {
-    padding: 40px 0;
-    text-align: center;
-  }
-}
-
-/* 确认弹窗样式 */
-.tunnel-confirm-details {
-  background-color: rgba($primary-color, 0.05);
-  border-radius: 8px;
-  padding: 16px;
-  margin: 12px 0;
-}
-
-.confirm-item {
-  display: flex;
-  margin-bottom: 8px;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-
-  .confirm-label {
-    width: 100px;
-    color: $text-color-2;
-    font-weight: 500;
-  }
-}
-
-.confirm-warning {
-  font-size: 14px;
-  margin-top: 12px;
-}
-
-.speed-input-group {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-/* 添加响应式布局 */
-@media (max-width: 1200px) {
-  .content-grid .node-card,
-  .content-grid .filter-card {
-    max-width: 900px;
-  }
-}
-
-@media (max-width: 768px) {
-  .content-grid .node-card :deep(.n-grid) {
-    grid-template-columns: repeat(1, 1fr) !important;
-  }
-  .protocol-select :deep(.n-base-selection-tags) {
-    max-height: 32px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    display: block;
-  }
-}
-
-/* 区域筛选标签最初始样式 */
-.region-tags-row {
-  display: flex;
-  gap: 16px;
-  flex-wrap: nowrap;
-
-  .n-tag {
-    border-radius: 16px !important;
-  }
-}
-
-/* 新增用户组筛选标签样式 */
-.group-tags-row {
-  display: flex;
-  gap: 16px;
-  flex-wrap: nowrap;
-  .n-tag {
-    border-radius: 16px !important;
-  }
-}
-
-.node-offline {
-  filter: grayscale(0.4);
-  opacity: 0.5;
-}
-
-.node-tags :deep(.n-tag) {
-  margin-left: -1px;
-}
-
-.filter-row {
-  display: flex;
-  align-items: center;
-  gap: 30px;
-  width: 100%;
-  min-width: 0;
-  flex-wrap: nowrap;
-}
-
-.region-filter {
-  flex: 0 0 auto;
-}
-
-.group-filter {
-  flex: 0 0 auto;
-}
-
-.protocol-filter {
-  flex: 1 1 0;
-  min-width: 0;
-}
-
-.protocol-select {
-  width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
-}
-
-@media (max-width: 768px) {
-  .filter-row {
-    flex-direction: column;
-    gap: 10px;
-    width: 100%;
-    flex-wrap: wrap;
-  }
-  .region-filter,
-  .group-filter,
-  .protocol-filter {
-    width: 100%;
-  }
-  .group-select,
-  .protocol-select {
-    width: 100% !important;
-    min-width: 0;
-    max-width: 100%;
-  }
-}
-
-/* PC端 */
-.group-select {
-  width: 250px;
-  max-width: 100%;
-}
-
-.protocol-select {
-  width: 340px;
-  max-width: 100%;
-}
-
-/* 移动端 */
-@media (max-width: 768px) {
-  .group-select,
-  .protocol-select {
-    width: 100%;
-    min-width: 0;
-    max-width: 100%;
-    box-sizing: border-box;
-  }
-  .group-filter,
-  .protocol-filter {
-    width: 100%;
-    margin: 0;
-  }
-}
-</style>

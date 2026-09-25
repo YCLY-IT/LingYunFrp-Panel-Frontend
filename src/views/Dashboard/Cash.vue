@@ -1,18 +1,18 @@
 <template>
-  <div class="cash">
+  <div class="cash select-none [&_p]:my-2 [&_p]:text-[var(--n-text-color-2)]">
     <NSpin :show="loading" description="正在加载产品...">
-      <div class="content-grid">
+      <div class="grid gap-5">
         <NCard title="增值服务">
-          <div class="service-cards">
+          <div class="grid grid-cols-3 items-start gap-5 max-md:grid-cols-1">
             <!-- 动态渲染产品卡片 -->
             <NCard
               v-for="product in products"
               :key="product.id"
-              class="service-card"
+              class="service-card relative"
               :title="product.name"
             >
               <!-- 永久标签 -->
-              <div v-if="product.isPermanent" class="permanent-badge">
+              <div v-if="product.isPermanent" class="permanent-badge absolute top-[10px] right-[10px] bg-[#f5a623] text-white p-[2px_8px] rounded-xl text-xs font-bold flex items-center gap-1 z-[1] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1)] [&_.n-icon]:text-sm">
                 <NIcon><InfiniteOutline /></NIcon>
                 <span>永久</span>
               </div>
@@ -24,28 +24,28 @@
                   product.type !== 'traffic' &&
                   product.type !== 'proxies'
                 "
-                class="price"
+                class="price text-2xl text-[var(--n-primary-color)] my-4"
               >
-                ¥{{ product.price }} <span class="unit">/ 永久</span>
+                ¥{{ product.price }} <span class="unit text-sm text-[var(--n-text-color-2)]">/ 永久</span>
               </div>
-              <div v-else-if="product.type === 'traffic'" class="price">
-                ¥{{ product.price }} <span class="unit">/ GB</span>
+              <div v-else-if="product.type === 'traffic'" class="price text-2xl text-[var(--n-primary-color)] my-4">
+                ¥{{ product.price }} <span class="unit text-sm text-[var(--n-text-color-2)]">/ GB</span>
               </div>
-              <div v-else-if="product.type === 'proxies'" class="price">
-                ¥{{ product.price }} <span class="unit">/ 个</span>
+              <div v-else-if="product.type === 'proxies'" class="price text-2xl text-[var(--n-primary-color)] my-4">
+                ¥{{ product.price }} <span class="unit text-sm text-[var(--n-text-color-2)]">/ 个</span>
               </div>
-              <div v-else class="price">
-                ¥{{ product.price }} <span class="unit">/ 月</span>
+              <div v-else class="price text-2xl text-[var(--n-primary-color)] my-4">
+                ¥{{ product.price }} <span class="unit text-sm text-[var(--n-text-color-2)]">/ 月</span>
               </div>
 
               <!-- 使用无序列表显示产品描述，每一行作为一个列表项 -->
-              <ul class="features-list">
+              <ul class="features-list p-0 my-3 mx-5">
                 <li
                   v-for="(line, index) in product.desc
                     .split('\n')
                     .filter((line) => line.trim() !== '')"
                   :key="index"
-                  class="feature-item"
+                  class="feature-item flex items-center gap-2 mb-2 text-[var(--n-text-color-2)]"
                 >
                   <span>{{ line }}</span>
                 </li>
@@ -81,12 +81,12 @@
         closable
         @close="showPurchaseSidebar = false"
       >
-        <div v-if="selectedProduct" class="purchase-sidebar-content">
+        <div v-if="selectedProduct" class="py-4">
           <!-- 购买时长/数量配置 -->
           <NCard
             title="购买时长"
             size="small"
-            class="config-card"
+            class="config-card mb-3 last:mb-0 [&_.n-card-header]:py-3 [&_.n-card-header]:px-4 [&_.n-card-content]:py-3 [&_.n-card-content]:px-4"
             v-if="
               !selectedProduct.isPermanent &&
               selectedProduct.discountInfo?.has_discount
@@ -146,7 +146,7 @@
               </NSpace>
             </NRadioGroup>
           </NCard>
-          <NCard title="购买数量" size="small" class="config-card" v-else>
+          <NCard title="购买数量" size="small" class="config-card mb-3 last:mb-0 [&_.n-card-header]:py-3 [&_.n-card-header]:px-4 [&_.n-card-content]:py-3 [&_.n-card-content]:px-4" v-else>
             <!-- 流量和隧道类型始终显示输入框，其他永久产品不显示 -->
             <div
               v-if="
@@ -157,7 +157,7 @@
             >
               <div
                 v-if="selectedProduct.type === 'traffic'"
-                class="input-group"
+                class="flex items-center gap-2"
               >
                 <NInputNumber
                   v-model:value="selectedProduct.selectedAmount"
@@ -165,11 +165,11 @@
                   :max="200"
                   placeholder="输入购买数量(GB)"
                 />
-                <span class="unit-label">GB</span>
+                <span class="text-center text-[var(--n-text-color-2)] text-sm whitespace-nowrap">GB</span>
               </div>
               <div
                 v-else-if="selectedProduct.type === 'proxies'"
-                class="input-group"
+                class="flex items-center gap-2"
               >
                 <NInputNumber
                   v-model:value="selectedProduct.selectedAmount"
@@ -177,28 +177,28 @@
                   :max="200"
                   placeholder="输入购买数量(个)"
                 />
-                <span class="unit-label">个</span>
+                <span class="text-center text-[var(--n-text-color-2)] text-sm whitespace-nowrap">个</span>
               </div>
-              <div v-else class="input-group">
+              <div v-else class="flex items-center gap-2">
                 <NInputNumber
                   v-model:value="selectedProduct.selectedAmount"
                   :min="1"
                   :max="200"
                   placeholder="输入购买数量"
                 />
-                <span class="unit-label">月</span>
+                <span class="text-center text-[var(--n-text-color-2)] text-sm whitespace-nowrap">月</span>
               </div>
             </div>
             <!-- 其他永久产品固定数量为1 -->
-            <div v-else class="permanent-note">
+            <div v-else class="flex items-center justify-center my-3 text-[var(--n-primary-color)] text-sm [&_.n-icon]:mr-2">
               <NIcon><InformationCircle /></NIcon>
               <span>一次性永久购买</span>
             </div>
           </NCard>
 
           <!-- 支付方式选择 -->
-          <NCard title="支付方式" size="small" class="config-card">
-            <div class="payment-options">
+          <NCard title="支付方式" size="small" class="config-card mb-3 last:mb-0 [&_.n-card-header]:py-3 [&_.n-card-header]:px-4 [&_.n-card-content]:py-3 [&_.n-card-content]:px-4">
+            <div class="mt-3">
               <NRadioGroup v-model:value="selectedProduct.isPoint">
                 <NSpace vertical style="width: 100%">
                   <NRadio
@@ -208,7 +208,7 @@
                   >
                     <NSpace align="center" style="width: 100%">
                       <svg
-                        class="payment-icon"
+                        class="w-[28px] h-[28px] align-middle mr-2"
                         viewBox="0 0 1024 1024"
                         version="1.1"
                         xmlns="http://www.w3.org/2000/svg"
@@ -268,7 +268,7 @@
                   >
                     <NSpace align="center" style="width: 100%">
                       <svg
-                        class="payment-icon"
+                        class="w-[28px] h-[28px] align-middle mr-2"
                         viewBox="0 0 512 512"
                         xmlns="http://www.w3.org/2000/svg"
                         xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -285,7 +285,7 @@
               </NRadioGroup>
             </div>
             <div
-              class="payment-note"
+              class="mt-2 flex items-center text-[#ff4d4f] text-xs text-center [&_.n-icon]:mr-1"
               v-if="!selectedProduct.payMethods.includes('points')"
             >
               <NIcon><InformationCircle /></NIcon>
@@ -294,10 +294,10 @@
           </NCard>
 
           <!-- 价格预览 -->
-          <NCard title="价格预览" size="small" class="config-card">
-            <div class="price-preview">
+          <NCard title="价格预览" size="small" class="config-card mb-3 last:mb-0 [&_.n-card-header]:py-3 [&_.n-card-header]:px-4 [&_.n-card-content]:py-3 [&_.n-card-content]:px-4">
+            <div class="bg-[var(--n-color-hover)] p-4 rounded-lg">
               <div
-                class="price-item"
+                class="flex justify-between mb-2 text-sm text-[var(--n-text-color-2)] last:mb-0"
                 v-if="!selectedProduct.discountInfo?.has_discount"
               >
                 <span>单价：</span>
@@ -310,12 +310,12 @@
                   {{ selectedProduct.isPoint ? '积分' : '元' }}</span
                 >
               </div>
-              <div class="price-item" v-if="!selectedProduct.isPermanent">
+              <div class="flex justify-between mb-2 text-sm text-[var(--n-text-color-2)] last:mb-0" v-if="!selectedProduct.isPermanent">
                 <span>时长：</span>
                 <span>{{ selectedProduct.selectedAmount || 1 }} 个月</span>
               </div>
               <div
-                class="price-item"
+                class="flex justify-between mb-2 text-sm text-[var(--n-text-color-2)] last:mb-0"
                 v-if="calculateSavedAmount(selectedProduct) > 0"
               >
                 <span>原价：</span>
@@ -328,7 +328,7 @@
                 </span>
               </div>
               <div
-                class="price-item"
+                class="flex justify-between mb-2 text-sm text-[var(--n-text-color-2)] last:mb-0"
                 v-if="calculateSavedAmount(selectedProduct) > 0"
               >
                 <span>优惠：</span>
@@ -337,10 +337,10 @@
                   {{ selectedProduct.isPoint ? '积分' : '元' }}
                 </span>
               </div>
-              <div class="price-item total">
+              <div class="flex justify-between mt-3 pt-3 border-t border-[var(--n-border-color)] text-base font-semibold text-[var(--n-text-color)] last:mb-0">
                 <span>总计：</span>
                 <span
-                  class="total-price"
+                  class="text-[#ff6b6b] text-lg"
                   style="color: #f0a020; font-size: 18px; font-weight: bold"
                 >
                   {{ calculateTotalPrice(selectedProduct) }}
@@ -370,21 +370,21 @@
       title="扫码支付"
       :style="{ width: '400px' }"
     >
-      <div class="qr-code-container">
-        <div v-if="qrCodeUrl" class="qr-code-wrapper">
+      <div class="text-center py-5">
+        <div v-if="qrCodeUrl" class="flex flex-col items-center gap-4">
           <n-qr-code
             :value="qrCodeUrl"
             alt="支付二维码"
-            class="qr-code-image"
+            class="border-2 border-[#f0f0f0] rounded-xl p-4 bg-white shadow-[0_4px_12px_rgba(0,0,0,0.1)]"
             :size="200"
             error-correction-level="M"
           />
-          <p class="qr-code-tip">请使用支付宝扫描二维码完成支付</p>
-          <p class="countdown-tip">
+          <p class="text-[#666] text-sm mt-2">请使用支付宝扫描二维码完成支付</p>
+          <p class="text-[#ff4d4f] text-xs mt-2 font-bold">
             支付窗口将在 {{ formatCountdown(countdownTime) }} 后自动关闭
           </p>
         </div>
-        <div v-else class="qr-code-loading">
+        <div v-else class="flex justify-center items-center min-h-[300px]">
           <NSpin size="large" description="正在生成支付二维码..." />
         </div>
       </div>
@@ -711,270 +711,4 @@ onMounted(() => {
 })
 </script>
 
-<style lang="scss" scoped>
-@use '@/assets/styles/variables' as *;
-@use '@/assets/styles/cash' as *;
 
-.unit-label {
-  text-align: center;
-  color: $text-color-2;
-  font-size: 12px;
-  margin-top: 4px;
-}
-
-.payment-options {
-  margin: 12px 0;
-}
-
-.option-label {
-  margin-bottom: 8px;
-  font-weight: bold;
-  color: $text-color;
-}
-
-.option-buttons {
-  display: flex;
-}
-
-.active {
-  background-color: $primary-color !important;
-}
-
-.price-display {
-  margin: 12px 0;
-  font-weight: bold;
-  text-align: center;
-  color: $text-color;
-}
-
-/* 新增样式：支付方式提示 */
-.payment-note {
-  margin: 8px 0;
-  color: #ff4d4f;
-  font-size: 12px;
-  text-align: center;
-}
-
-/* 新增样式：确保每行内容和图标在同一行 */
-.feature-line {
-  display: flex;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.feature-icon {
-  margin-right: 8px;
-  color: $primary-color;
-}
-
-/* 新增样式：无序列表样式 */
-.features-list {
-  padding: 0;
-  margin: 12px 20px;
-}
-
-/* 新增样式：永久产品提示 */
-.permanent-note {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 12px 0;
-  color: $primary-color;
-  font-size: 14px;
-}
-
-.permanent-note .n-icon {
-  margin-right: 8px;
-}
-
-/* 新增样式：永久标签 */
-.permanent-badge {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background-color: #f5a623;
-  color: white;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  z-index: 1;
-  box-shadow: $box-shadow;
-}
-
-.permanent-badge .n-icon {
-  font-size: 14px;
-}
-
-/* 确保卡片有相对定位，以便永久标签可以正确定位 */
-.service-card {
-  position: relative;
-}
-
-/* 二维码容器样式 */
-.qr-code-container {
-  text-align: center;
-  padding: 20px 0;
-}
-
-.qr-code-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-}
-
-.qr-code-image {
-  border: 2px solid #f0f0f0;
-  border-radius: 12px;
-  padding: 16px;
-  background: white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.qr-code-tip {
-  color: #666;
-  font-size: 14px;
-  margin-top: 8px;
-}
-
-.countdown-tip {
-  color: #ff4d4f;
-  font-size: 12px;
-  margin-top: 8px;
-  font-weight: bold;
-}
-
-.qr-code-loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 300px;
-}
-
-/* 购买侧边栏样式 */
-.purchase-sidebar-content {
-  padding: 16px 0;
-}
-
-.product-info {
-  margin-bottom: 24px;
-  padding: 16px;
-  background-color: $bg-color-hover;
-  border-radius: 8px;
-}
-
-.price-summary {
-  text-align: center;
-}
-
-.purchase-config {
-  margin-bottom: 24px;
-}
-
-/* 配置卡片样式 */
-.config-card {
-  margin-bottom: 12px;
-}
-
-.config-card:last-child {
-  margin-bottom: 0;
-}
-
-/* 调整配置卡片内部间距 */
-.config-card .n-card-header {
-  padding: 12px 16px;
-}
-
-.config-card .n-card__content {
-  padding: 12px 16px;
-}
-
-.config-section {
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid $border-color;
-}
-
-.config-section:last-child {
-  border-bottom: none;
-}
-
-.config-section h4 {
-  margin-bottom: 12px;
-  color: $text-color;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.input-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.unit-label {
-  color: $text-color-2;
-  font-size: 14px;
-  white-space: nowrap;
-}
-
-.payment-options {
-  margin-top: 12px;
-}
-
-.payment-note {
-  margin-top: 8px;
-  display: flex;
-  align-items: center;
-  color: #ff4d4f;
-  font-size: 12px;
-}
-
-.payment-note .n-icon {
-  margin-right: 4px;
-}
-
-.price-preview {
-  background-color: $bg-color-hover;
-  padding: 16px;
-  border-radius: 8px;
-}
-
-.price-item {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 8px;
-  font-size: 14px;
-  color: $text-color-2;
-}
-
-.price-item:last-child {
-  margin-bottom: 0;
-}
-
-.price-item.total {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid $border-color;
-  font-size: 16px;
-  font-weight: 600;
-  color: $text-color;
-}
-
-.total-price {
-  color: #ff6b6b;
-  font-size: 18px;
-}
-
-/* 支付图标样式 */
-.payment-icon {
-  width: 28px;
-  height: 28px;
-  vertical-align: middle;
-  margin-right: 8px;
-}
-</style>

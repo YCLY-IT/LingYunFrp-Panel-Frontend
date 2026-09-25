@@ -1,9 +1,11 @@
 <template>
-  <div class="privacy">
+  <div class="p-5 max-w-[1000px] mx-auto">
     <n-card>
-      <div v-if="loading" class="loading">加载中...</div>
-      <div v-else-if="error" class="error">{{ error }}</div>
-      <div v-else class="markdown-content" v-html="renderedNotice" />
+      <div v-if="loading" class="text-center p-10 text-base">加载中...</div>
+      <div v-else-if="error" class="text-center p-10 text-base text-[#ff4d4f]">
+        {{ error }}
+      </div>
+      <div v-else class="legal-md" v-html="renderedNotice" />
     </n-card>
   </div>
 </template>
@@ -50,45 +52,3 @@ const renderedNotice = computed(() => {
   }
 })
 </script>
-
-<style lang="scss" scoped>
-.privacy {
-  padding: 20px;
-  max-width: 1000px;
-  margin: 0 auto;
-}
-
-.markdown-content {
-  transform: translateY(-10px);
-  font-size: 14px;
-  line-height: 1.7;
-
-  :deep(h1) {
-    font-size: 1.8em;
-    margin: 1em 0;
-  }
-
-  :deep(a) {
-    color: #0366d6;
-    text-decoration: none;
-  }
-}
-
-.loading,
-.error {
-  text-align: center;
-  padding: 40px;
-  font-size: 16px;
-}
-
-.error {
-  color: #ff4d4f;
-}
-.markdown-content a {
-  color: inherit;
-  text-decoration: none;
-}
-.markdown-content a:hover {
-  text-decoration: underline;
-}
-</style>

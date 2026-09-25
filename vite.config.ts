@@ -5,6 +5,7 @@ import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
+import tailwindcss from '@tailwindcss/vite'
 
 const projectRoot = import.meta.dirname
 
@@ -64,6 +65,7 @@ export default defineConfig({
   plugins: [
     vue(),
     vueJsx(),
+    tailwindcss(),
     AutoImport({
       imports: [
         'vue',
