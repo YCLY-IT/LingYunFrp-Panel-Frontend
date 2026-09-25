@@ -1,6 +1,11 @@
 <template>
-  <div class="node-status-container">
-    <n-card title="节点状态监控" class="node-card">
+  <div
+    class="node-status-container max-md:p-2 max-md:[&_.n-grid]:grid-cols-1! max-md:[&_.n-card-header__extra_.n-space]:gap-2! max-md:[&_.n-card-header__extra_.n-button]:text-xs max-[600px]:[&_.n-grid]:grid-cols-1! max-[480px]:[&_.n-pagination_.n-pagination-item]:min-w-7 max-[480px]:[&_.n-pagination_.n-pagination-item]:h-7 max-[480px]:[&_.n-pagination_.n-pagination-item]:text-xs max-md:[&_.node-card_.n-card-header]:p-[12px_16px] max-md:[&_.node-card_.n-card-content]:p-3 max-md:[&_.stat-card]:mb-2 max-md:[&_.stat-card_.n-statistic__label]:text-xs max-md:[&_.stat-card_.n-statistic-value]:text-xl"
+  >
+    <n-card
+      title="节点状态监控"
+      class="node-card rounded-xl shadow-[0_2px_8px_rgba(128,128,128,0.15)]"
+    >
       <template #header-extra>
         <n-space>
           <n-button @click="toggleView" secondary size="small">
@@ -29,7 +34,7 @@
         <!-- 节点状态统计 -->
         <n-grid :cols="5" :x-gap="16" :y-gap="16" responsive="screen">
           <n-gi>
-            <n-card embedded class="stat-card">
+            <n-card embedded class="stat-card rounded-lg transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(128,128,128,0.2)] mb-0">
               <n-statistic label="在线节点" :value="onlineNodesCount">
                 <template #prefix>
                   <n-icon color="#18a058">
@@ -40,10 +45,10 @@
             </n-card>
           </n-gi>
           <n-gi>
-            <n-card embedded class="stat-card">
+            <n-card embedded class="stat-card rounded-lg transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(128,128,128,0.2)] mb-0">
               <n-statistic label="总客户端数" :value="totalClients">
                 <template #prefix>
-                  <n-icon color="#2080f0">
+                  <n-icon color="var(--n-primary-color)">
                     <PeopleOutline />
                   </n-icon>
                 </template>
@@ -51,7 +56,7 @@
             </n-card>
           </n-gi>
           <n-gi>
-            <n-card embedded class="stat-card">
+            <n-card embedded class="stat-card rounded-lg transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(128,128,128,0.2)] mb-0">
               <n-statistic label="总隧道数" :value="totalTunnels">
                 <template #prefix>
                   <n-icon color="#f0a020">
@@ -62,7 +67,7 @@
             </n-card>
           </n-gi>
           <n-gi>
-            <n-card embedded class="stat-card">
+            <n-card embedded class="stat-card rounded-lg transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(128,128,128,0.2)] mb-0">
               <n-statistic
                 label="今日上传流量"
                 :value="formatTrafficValue(todayInTraffic)"
@@ -81,7 +86,7 @@
             </n-card>
           </n-gi>
           <n-gi>
-            <n-card embedded class="stat-card">
+            <n-card embedded class="stat-card rounded-lg transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(128,128,128,0.2)] mb-0">
               <n-statistic
                 label="今日下载流量"
                 :value="formatTrafficValue(todayOutTraffic)"
@@ -104,7 +109,7 @@
         <!-- 视图切换内容 -->
         <div v-if="viewMode === 'table'">
           <!-- 表格视图 -->
-          <div class="status-table-scroll">
+          <div class="max-[600px]:overflow-x-auto">
             <n-data-table
               :columns="columns"
               :data="nodeData"
@@ -112,7 +117,7 @@
               :bordered="false"
               :loading="loading"
               striped
-              class="node-table"
+              class="node-table rounded-lg overflow-hidden max-[600px]:min-w-[700px] max-[600px]:w-max max-[600px]:[&_table]:min-w-[700px] max-[600px]:[&_table]:w-max"
             />
           </div>
         </div>
@@ -122,106 +127,139 @@
           <n-grid :cols="2" :x-gap="16" :y-gap="16" responsive="screen">
             <n-gi v-for="node in paginatedNodes" :key="node.node_name">
               <n-card
-                class="node-card-beautiful"
+                class="group rounded-xl transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-hidden hover:shadow-[0_8px_24px_rgba(128,128,128,0.18)] hover:-translate-y-0.5"
                 hoverable
                 @click="goToNodeDetail(node)"
                 style="cursor: pointer"
               >
                 <!-- 头部：节点名称和状态 -->
-                <div class="node-card-header">
-                  <div class="node-title-row">
+                <div
+                  class="flex items-center justify-between p-[12px_16px] bg-[linear-gradient(135deg,rgba(128,128,128,0.04)_0%,rgba(128,128,128,0.08)_100%)] border-b border-[rgba(128,128,128,0.1)] max-md:p-[10px_12px] max-[480px]:flex-col max-[480px]:items-start max-[480px]:gap-2"
+                >
+                  <div class="flex items-center gap-2 max-md:gap-1.5">
                     <n-icon
                       size="18"
                       :color="node.isOnline ? '#18a058' : '#d03050'"
                     >
                       <ServerOutline />
                     </n-icon>
-                    <span class="node-name">{{ node.node_name }}</span>
-                    <span class="node-id">#{{ node.id }}</span>
+                    <span class="text-[15px] font-semibold max-md:text-sm">{{
+                      node.node_name
+                    }}</span>
+                    <span
+                      class="text-[11px] opacity-50 bg-[rgba(128,128,128,0.1)] p-[2px_6px] rounded max-md:text-[10px]"
+                      >#{{ node.id }}</span
+                    >
                   </div>
                   <n-tag
                     :type="node.isOnline ? 'success' : 'error'"
                     :bordered="false"
                     size="small"
                     round
-                    class="status-tag"
+                    class="text-[11px] max-[480px]:self-end"
                   >
                     {{ node.isOnline ? '在线' : '离线' }}
                   </n-tag>
                 </div>
 
                 <!-- 主体内容 -->
-                <div class="node-card-body">
+                <div
+                  class="flex items-center p-4 gap-16 max-md:flex-col max-md:p-3 max-md:gap-4"
+                >
                   <!-- CPU 圆形进度 -->
-                  <div class="cpu-wrapper">
+                  <div class="shrink-0">
                     <div
-                      class="cpu-ring"
+                      class="w-[120px] h-[120px] rounded-full flex items-center justify-center relative shadow-[inset_0_2px_4px_rgba(128,128,128,0.15)] max-md:w-[100px] max-md:h-[100px] max-[480px]:w-[90px] max-[480px]:h-[90px]"
                       :style="getCpuRingStyle(node.cpu_usage)"
                     >
-                      <div class="cpu-center">
+                      <div
+                        class="w-24 h-24 bg-[var(--n-color,rgba(255,255,255,0.9))] rounded-full flex flex-col items-center justify-center shadow-[0_2px_8px_rgba(128,128,128,0.12)] max-md:w-20 max-md:h-20 max-[480px]:w-[72px] max-[480px]:h-[72px]"
+                      >
                         <span
-                          class="cpu-value"
+                          class="text-[28px] font-bold leading-none max-md:text-[22px] max-[480px]:text-xl"
                           :style="{ color: getCpuColor(node.cpu_usage) }"
                         >
                           {{ (node.cpu_usage || 0).toFixed(0) }}%
                         </span>
-                        <span class="cpu-label">CPU</span>
+                        <span
+                          class="text-[13px] opacity-50 mt-1.5 max-md:text-[11px]"
+                          >CPU</span
+                        >
                       </div>
                     </div>
                   </div>
 
                   <!-- 数据指标 -->
-                  <div class="metrics-wrapper">
+                  <div
+                    class="flex-1 flex flex-col gap-2.5 max-md:w-full max-md:gap-2"
+                  >
                     <!-- 客户端 -->
-                    <div class="metric-box">
-                      <div class="metric-icon-wrapper blue">
+                    <div class="flex items-center gap-2.5">
+                      <div
+                        class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 bg-[linear-gradient(135deg,var(--n-primary-color)_0%,var(--n-primary-color-hover)_100%)] max-md:w-6 max-md:h-6"
+                      >
                         <n-icon size="16" color="#fff"
                           ><PeopleOutline
                         /></n-icon>
                       </div>
-                      <div class="metric-content">
-                        <span class="metric-value">{{
+                      <div class="flex flex-col gap-0.5">
+                        <span
+                          class="text-base font-semibold leading-none max-md:text-sm">
+                          {{
                           node.client_counts || 0
                         }}</span>
-                        <span class="metric-label">客户端</span>
+                        <span class="text-[11px] opacity-50 max-md:text-[10px]">客户端</span>
                       </div>
                     </div>
 
                     <!-- 上传 -->
-                    <div class="metric-box">
-                      <div class="metric-icon-wrapper red">
+                    <div class="flex items-center gap-2.5">
+                      <div
+                        class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 bg-[linear-gradient(135deg,#d03050_0%,#f05070_100%)] max-md:w-6 max-md:h-6"
+                      >
                         <n-icon size="14" color="#fff"
                           ><ArrowUpOutline
                         /></n-icon>
                       </div>
-                      <div class="metric-content">
-                        <span class="metric-value small">{{
+                      <div class="flex flex-col gap-0.5">
+                        <span
+                          class="text-[13px] font-semibold leading-none max-md:text-xs">
+                          {{
                           formatTraffic(node.today_in_traffic)
                         }}</span>
-                        <span class="metric-label">今日上传</span>
+                        <span class="text-[11px] opacity-50 max-md:text-[10px]">今日上传</span>
                       </div>
                     </div>
 
                     <!-- 下载 -->
-                    <div class="metric-box">
-                      <div class="metric-icon-wrapper green">
+                    <div class="flex items-center gap-2.5">
+                      <div
+                        class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 bg-[linear-gradient(135deg,#18a058_0%,#36c070_100%)] max-md:w-6 max-md:h-6"
+                      >
                         <n-icon size="14" color="#fff"
                           ><ArrowDownOutline
                         /></n-icon>
                       </div>
-                      <div class="metric-content">
-                        <span class="metric-value small">{{
+                      <div class="flex flex-col gap-0.5">
+                        <span
+                          class="text-[13px] font-semibold leading-none max-md:text-xs">
+                          {{
                           formatTraffic(node.today_out_traffic)
                         }}</span>
-                        <span class="metric-label">今日下载</span>
+                        <span class="text-[11px] opacity-50 max-md:text-[10px]">今日下载</span>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 <!-- 底部箭头 -->
-                <div class="node-card-footer">
-                  <n-icon size="18" depth="3" class="arrow-icon"
+                <div
+                  class="flex justify-end p-[0_16px_12px_16px] max-md:p-[0_12px_10px_12px]"
+                >
+                  <n-icon
+                    size="18"
+                    depth="3"
+                    class="opacity-30 transition-all duration-300 group-hover:opacity-80 group-hover:translate-x-1"
                     ><ChevronForwardOutline
                   /></n-icon>
                 </div>
@@ -400,7 +438,7 @@ const columns = [
       h(
         'a',
         {
-          style: 'cursor: pointer; color: #2080f0;',
+          style: 'cursor: pointer; color: var(--n-primary-color);',
           onClick: () => goToNodeDetail(row),
         },
         row.node_name,
@@ -524,634 +562,4 @@ onMounted(() => {
 })
 </script>
 
-<style lang="scss" scoped>
-$radius-card: 12px;
-$radius-inner: 8px;
-$shadow-card: 0 2px 8px rgba(128, 128, 128, 0.15);
-$shadow-card-hover: 0 4px 12px rgba(128, 128, 128, 0.2);
-$shadow-card-hover-strong: 0 8px 24px rgba(128, 128, 128, 0.2);
-$gap-main: 16px;
-$gap-small: 8px;
 
-.node-card {
-  border-radius: $radius-card;
-  box-shadow: $shadow-card;
-}
-
-.stat-card {
-  border-radius: $radius-inner;
-  transition: all 0.3s ease;
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: $shadow-card-hover;
-  }
-  margin-bottom: 0;
-}
-
-.node-item-card {
-  border-radius: $radius-inner;
-  transition: all 0.3s ease;
-  height: 100%;
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: $shadow-card-hover-strong;
-  }
-}
-
-.node-card-beautiful {
-  border-radius: 12px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow: hidden;
-
-  &:hover {
-    box-shadow: 0 8px 24px rgba(128, 128, 128, 0.18);
-    transform: translateY(-2px);
-  }
-
-  .node-card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 16px;
-    background: linear-gradient(
-      135deg,
-      rgba(128, 128, 128, 0.04) 0%,
-      rgba(128, 128, 128, 0.08) 100%
-    );
-    border-bottom: 1px solid rgba(128, 128, 128, 0.1);
-
-    .node-title-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-
-      .node-name {
-        font-size: 15px;
-        font-weight: 600;
-      }
-
-      .node-id {
-        font-size: 11px;
-        opacity: 0.5;
-        background: rgba(128, 128, 128, 0.1);
-        padding: 2px 6px;
-        border-radius: 4px;
-      }
-    }
-
-    .status-tag {
-      font-size: 11px;
-    }
-  }
-
-  .node-card-body {
-    display: flex;
-    align-items: center;
-    padding: 16px;
-    gap: 64px;
-  }
-
-  .cpu-wrapper {
-    flex-shrink: 0;
-
-    .cpu-ring {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      box-shadow: inset 0 2px 4px rgba(128, 128, 128, 0.15);
-
-      .cpu-center {
-        width: 96px;
-        height: 96px;
-        background: var(--n-color, rgba(255, 255, 255, 0.9));
-        border-radius: 50%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 2px 8px rgba(128, 128, 128, 0.12);
-
-        .cpu-value {
-          font-size: 28px;
-          font-weight: 700;
-          line-height: 1;
-        }
-
-        .cpu-label {
-          font-size: 13px;
-          opacity: 0.5;
-          margin-top: 6px;
-        }
-      }
-    }
-  }
-
-  .metrics-wrapper {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .metric-box {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-    .metric-icon-wrapper {
-      width: 28px;
-      height: 28px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-
-      &.blue {
-        background: linear-gradient(135deg, #2080f0 0%, #4098ff 100%);
-      }
-
-      &.red {
-        background: linear-gradient(135deg, #d03050 0%, #f05070 100%);
-      }
-
-      &.green {
-        background: linear-gradient(135deg, #18a058 0%, #36c070 100%);
-      }
-    }
-
-    .metric-content {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-
-      .metric-value {
-        font-size: 16px;
-        font-weight: 600;
-        line-height: 1;
-
-        &.small {
-          font-size: 13px;
-        }
-      }
-
-      .metric-label {
-        font-size: 11px;
-        opacity: 0.5;
-      }
-    }
-  }
-
-  .node-card-footer {
-    display: flex;
-    justify-content: flex-end;
-    padding: 0 16px 12px 16px;
-
-    .arrow-icon {
-      opacity: 0.3;
-      transition: all 0.3s;
-    }
-  }
-
-  &:hover .arrow-icon {
-    opacity: 0.8;
-    transform: translateX(4px);
-  }
-}
-
-.node-table {
-  border-radius: $radius-inner;
-  overflow: hidden;
-}
-
-@media (max-width: 768px) {
-  // 统计卡片区域：一行只显示1个
-  .n-grid {
-    grid-template-columns: 1fr !important;
-  }
-  .stat-card {
-    margin-bottom: $gap-small;
-  }
-}
-
-@media (max-width: 600px) {
-  .status-table-scroll {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  .node-table {
-    min-width: 700px;
-    width: max-content;
-  }
-  .node-table :deep(table) {
-    min-width: 700px;
-    width: max-content;
-  }
-  // 卡片视图一列
-  .n-grid {
-    grid-template-columns: 1fr !important;
-  }
-  .node-item-card {
-    margin-bottom: $gap-main;
-  }
-}
-
-// 移动端适配优化
-@media (max-width: 768px) {
-  .node-status-container {
-    padding: 8px;
-  }
-
-  .node-card {
-    :deep(.n-card-header) {
-      padding: 12px 16px;
-    }
-
-    :deep(.n-card__content) {
-      padding: 12px;
-    }
-  }
-
-  // 统计卡片在移动端显示优化
-  .stat-card {
-    :deep(.n-statistic) {
-      .n-statistic__label {
-        font-size: 12px;
-      }
-      .n-statistic-value {
-        font-size: 20px;
-      }
-    }
-  }
-
-  // 节点卡片在移动端优化
-  .node-card-beautiful {
-    .node-card-header {
-      padding: 10px 12px;
-
-      .node-title-row {
-        gap: 6px;
-
-        .node-name {
-          font-size: 14px;
-        }
-
-        .node-id {
-          font-size: 10px;
-        }
-      }
-    }
-
-    .node-card-body {
-      flex-direction: column;
-      padding: 12px;
-      gap: 16px;
-    }
-
-    .cpu-wrapper {
-      .cpu-ring {
-        width: 100px;
-        height: 100px;
-
-        .cpu-center {
-          width: 80px;
-          height: 80px;
-
-          .cpu-value {
-            font-size: 22px;
-          }
-
-          .cpu-label {
-            font-size: 11px;
-          }
-        }
-      }
-    }
-
-    .metrics-wrapper {
-      width: 100%;
-      gap: 8px;
-    }
-
-    .metric-box {
-      .metric-icon-wrapper {
-        width: 24px;
-        height: 24px;
-      }
-
-      .metric-content {
-        .metric-value {
-          font-size: 14px;
-
-          &.small {
-            font-size: 12px;
-          }
-        }
-
-        .metric-label {
-          font-size: 10px;
-        }
-      }
-    }
-
-    .node-card-footer {
-      padding: 0 12px 10px 12px;
-    }
-  }
-
-  // 头部按钮区域优化
-  :deep(.n-card-header__extra) {
-    .n-space {
-      gap: 8px !important;
-    }
-
-    .n-button {
-      font-size: 12px;
-    }
-  }
-}
-
-// 小屏幕手机适配
-@media (max-width: 480px) {
-  .node-card-beautiful {
-    .node-card-header {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 8px;
-
-      .status-tag {
-        align-self: flex-end;
-      }
-    }
-
-    .cpu-wrapper {
-      .cpu-ring {
-        width: 90px;
-        height: 90px;
-
-        .cpu-center {
-          width: 72px;
-          height: 72px;
-
-          .cpu-value {
-            font-size: 20px;
-          }
-        }
-      }
-    }
-  }
-
-  // 分页组件在移动端优化
-  :deep(.n-pagination) {
-    .n-pagination-item {
-      min-width: 28px;
-      height: 28px;
-      font-size: 12px;
-    }
-  }
-}
-
-// 节点详情模态框样式
-.node-detail-modal {
-  :deep(.n-card-header) {
-    padding: 16px 20px;
-    border-bottom: 1px solid rgba(128, 128, 128, 0.1);
-  }
-
-  :deep(.n-card__content) {
-    padding: 0;
-  }
-}
-
-// 详情布局 - 左侧指标 + 右侧图表
-.detail-layout {
-  display: flex;
-  height: calc(90vh - 70px);
-  overflow: hidden;
-}
-
-// 左侧指标侧边栏
-.metrics-sidebar {
-  width: 280px;
-  min-width: 280px;
-  padding: 20px;
-  background: rgba(128, 128, 128, 0.02);
-  border-right: 1px solid rgba(128, 128, 128, 0.08);
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-
-  .metric-card {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 16px;
-    border-radius: 12px;
-    background: rgba(128, 128, 128, 0.04);
-    border: 1px solid rgba(128, 128, 128, 0.06);
-    transition: all 0.3s ease;
-
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    }
-
-    &.success {
-      background: rgba(24, 160, 88, 0.06);
-      border-color: rgba(24, 160, 88, 0.15);
-      .metric-icon {
-        color: #18a058;
-      }
-    }
-
-    &.warning {
-      background: rgba(240, 160, 32, 0.06);
-      border-color: rgba(240, 160, 32, 0.15);
-      .metric-icon {
-        color: #f0a020;
-      }
-    }
-
-    &.error {
-      background: rgba(208, 48, 80, 0.06);
-      border-color: rgba(208, 48, 80, 0.15);
-      .metric-icon {
-        color: #d03050;
-      }
-    }
-
-    &.info {
-      background: rgba(32, 128, 240, 0.06);
-      border-color: rgba(32, 128, 240, 0.15);
-      .metric-icon {
-        color: #2080f0;
-      }
-    }
-
-    &.traffic {
-      background: rgba(144, 96, 240, 0.06);
-      border-color: rgba(144, 96, 240, 0.15);
-      .metric-icon {
-        color: #9060f0;
-      }
-    }
-
-    .metric-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 10px;
-      background: rgba(255, 255, 255, 0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .metric-info {
-      flex: 1;
-      min-width: 0;
-
-      .metric-label {
-        font-size: 12px;
-        color: rgba(128, 128, 128, 0.8);
-        margin-bottom: 4px;
-      }
-
-      .metric-value {
-        font-size: 20px;
-        font-weight: 700;
-        color: rgba(0, 0, 0, 0.85);
-        line-height: 1.2;
-
-        &.speed,
-        &.traffic {
-          display: flex;
-          flex-direction: column;
-          gap: 2px;
-          font-size: 14px;
-
-          .up {
-            color: #d03050;
-          }
-          .down {
-            color: #36ad6a;
-          }
-        }
-      }
-
-      .metric-sub {
-        font-size: 11px;
-        color: rgba(128, 128, 128, 0.6);
-        margin-top: 4px;
-      }
-    }
-  }
-}
-
-// 右侧图表区域
-.charts-area {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-
-  .chart-tabs {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-
-    :deep(.n-tabs-nav) {
-      padding: 0 20px;
-      border-bottom: 1px solid rgba(128, 128, 128, 0.08);
-    }
-
-    :deep(.n-tabs-pane-wrapper) {
-      flex: 1;
-      overflow: hidden;
-    }
-
-    :deep(.n-tab-pane) {
-      height: 100%;
-      padding: 20px;
-    }
-  }
-
-  .chart-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    height: 100%;
-
-    &.single {
-      grid-template-columns: 1fr;
-    }
-
-    .chart-card {
-      background: rgba(128, 128, 128, 0.03);
-      border-radius: 12px;
-      padding: 16px;
-      border: 1px solid rgba(128, 128, 128, 0.06);
-      display: flex;
-      flex-direction: column;
-
-      &.wide {
-        grid-column: 1 / -1;
-      }
-
-      .chart-title {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 14px;
-        font-weight: 600;
-        margin-bottom: 12px;
-        color: rgba(0, 0, 0, 0.7);
-      }
-
-      .chart-content {
-        flex: 1;
-        min-height: 0;
-        width: 100%;
-      }
-    }
-  }
-}
-
-// 响应式调整
-@media (max-width: 1200px) {
-  .detail-layout {
-    flex-direction: column;
-  }
-
-  .metrics-sidebar {
-    width: 100%;
-    min-width: auto;
-    max-height: 200px;
-    flex-direction: row;
-    flex-wrap: wrap;
-    padding: 12px;
-
-    .metric-card {
-      flex: 1;
-      min-width: 200px;
-    }
-  }
-
-  .charts-area {
-    .chart-grid {
-      grid-template-columns: 1fr;
-      overflow-y: auto;
-
-      .chart-card {
-        min-height: 300px;
-      }
-    }
-  }
-}
-</style>

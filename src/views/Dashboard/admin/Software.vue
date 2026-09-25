@@ -1,14 +1,17 @@
 <template>
   <SecureArea>
-    <div class="software-container">
+    <div class="max-[480px]:p-1">
       <n-card title="软件管理">
-        <div v-if="!isMobile" class="software-sort-row">
+        <div
+          v-if="!isMobile"
+          class="flex gap-4 mb-3 w-full items-stretch"
+        >
           <n-select
             v-model:value="sortOptions.key"
             :options="sortFieldOptions"
             placeholder="排序字段"
             clearable
-            class="software-sort-item"
+            class="flex-1 min-w-0 flex items-center"
             @update:value="handleSortFieldChange"
           />
           <n-select
@@ -16,13 +19,13 @@
             :options="sortOrderOptions"
             placeholder="排序方式"
             clearable
-            class="software-sort-item"
+            class="flex-1 min-w-0 flex items-center"
             @update:value="handleSortOrderChange"
           />
           <n-button
             type="primary"
             @click="handleAddSoftware"
-            class="software-sort-btn"
+            class="flex-none min-w-0 w-auto px-10 self-center"
             size="medium"
           >
             添加软件
@@ -170,7 +173,7 @@
             </n-button>
           </n-space>
 
-          <div class="versiontable-container">
+          <div class="overflow-x-auto">
             <n-data-table
               :columns="versionColumns"
               :data="currentVersions"
@@ -909,97 +912,4 @@ onUnmounted(() => {
 })
 </script>
 
-<style lang="scss" scoped>
-.versiontable-container {
-  overflow-x: auto;
 
-  :deep(.ndata-table) {
-    min-width: 600px;
-  }
-}
-
-:deep(.ninput-number) {
-  width: 100%;
-}
-
-@media (max-width: 768px) {
-  :deep(.ncard .ncard-header) {
-    padding: 16px 12px;
-
-    .ncard-header__main {
-      font-size: 16px;
-    }
-  }
-
-  :deep(.ncard .ncard-content) {
-    padding: 12px;
-  }
-
-  :deep(.ndata-table) {
-    font-size: 12px;
-
-    .ndata-table-th {
-      padding: 8px 4px;
-    }
-
-    .ndata-table-td {
-      padding: 8px 4px;
-    }
-  }
-
-  :deep(.nform-item) {
-    margin-bottom: 16px;
-  }
-
-  :deep(.nmodal .ncard) {
-    margin: 16px 8px;
-  }
-
-  :deep(.nmodal .ncard .ncard-header) {
-    padding: 16px;
-  }
-
-  :deep(.nmodal .ncard .ncard-content) {
-    padding: 16px;
-  }
-
-  :deep(.nbutton) {
-    min-height: 32px;
-  }
-}
-
-@media (max-width: 480px) {
-  .software-container {
-    padding: 4px;
-  }
-
-  :deep(.ndata-table) {
-    font-size: 11px;
-  }
-
-  :deep(.nmodal .ncard) {
-    margin: 8px 4px;
-  }
-}
-
-.software-sort-row {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 12px;
-  width: 100%;
-  align-items: stretch;
-}
-.software-sort-item {
-  flex: 1 1 0;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-}
-.software-sort-btn {
-  flex: none;
-  min-width: unset;
-  width: auto;
-  padding: 0 40px;
-  align-self: center;
-}
-</style>

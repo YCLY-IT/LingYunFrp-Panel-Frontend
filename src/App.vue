@@ -1,26 +1,28 @@
 <template>
-  <NConfigProvider :theme="theme" :theme-overrides="themeOverrides">
-    <NDialogProvider>
-      <NMessageProvider>
-        <NNotificationProvider>
-          <NLoadingBarProvider>
-            <GlobalEggs />
-            <AppContent />
-          </NLoadingBarProvider>
-        </NNotificationProvider>
-      </NMessageProvider>
-    </NDialogProvider>
-  </NConfigProvider>
-  <svg class="defs-only" aria-hidden="true">
-    <defs>
-      <filter id="colorblind" color-interpolation-filters="sRGB">
-        <feColorMatrix
-          type="matrix"
-          values="0.567 0.433 0 0 0 0.558 0.442 0 0 0 0 0.242 0.758 0 0 0 0 0 1 0"
-        />
-      </filter>
-    </defs>
-  </svg>
+  <MotionConfig reduced-motion="user">
+    <NConfigProvider :theme="theme" :theme-overrides="themeOverrides">
+      <NDialogProvider>
+        <NMessageProvider>
+          <NNotificationProvider>
+            <NLoadingBarProvider>
+              <GlobalEggs />
+              <AppContent />
+            </NLoadingBarProvider>
+          </NNotificationProvider>
+        </NMessageProvider>
+      </NDialogProvider>
+    </NConfigProvider>
+    <svg class="defs-only" aria-hidden="true">
+      <defs>
+        <filter id="colorblind" color-interpolation-filters="sRGB">
+          <feColorMatrix
+            type="matrix"
+            values="0.567 0.433 0 0 0 0.558 0.442 0 0 0 0 0.242 0.758 0 0 0 0 0 1 0"
+          />
+        </filter>
+      </defs>
+    </svg>
+  </MotionConfig>
 </template>
 
 <script setup lang="ts">
@@ -34,6 +36,7 @@ import {
   darkTheme,
   lightTheme,
 } from 'naive-ui'
+import { MotionConfig } from 'motion-v'
 import AppContent from './components/AppContent.vue'
 import GlobalEggs from './components/GlobalEggs.vue'
 import { useThemeStore } from './stores/theme'
@@ -249,11 +252,20 @@ onMounted(async () => {
     document.documentElement.style.setProperty(
       '--n-color-hover-shadow',
       `${primaryColor}1F`,
-    ) // 12% 透明度
+    )
   }
   updateHoverShadowColor()
 
   watch(() => themeStore.primaryColor, updateHoverShadowColor)
+  const updatePrimaryColor = () => {
+    document.documentElement.style.setProperty(
+      '--n-primary-color',
+      themeStore.primaryColor,
+    )
+  }
+  updatePrimaryColor()
+
+  watch(() => themeStore.primaryColor, updatePrimaryColor)
 
   window.addEventListener('pointerdown', detectInputMethod)
 })
@@ -271,43 +283,3 @@ provide('theme', {
   toggleTheme,
 })
 </script>
-
-<style lang="scss">
-@use './assets/styles/transitions.scss';
-input,
-textarea,
-select {
-  font-size: 16px !important;
-}
-
-@media screen and (max-width: 768px) {
-  input,
-  textarea,
-  select {
-    font-size: 16px !important;
-  }
-}
-</style>
-
-<style lang="scss">
-@use './assets/styles/index.scss';
-html,
-body {
-  margin: 0;
-  padding: 0;
-}
-
-#app {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* 确保SVG滤镜不占用空间 */
-.defs-only {
-  position: absolute;
-  width: 0;
-  height: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-</style>

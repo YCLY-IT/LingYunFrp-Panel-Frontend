@@ -1,8 +1,13 @@
 <template>
   <div class="tunnel-manager">
-    <NCard class="header-card" title="管理隧道">
-      <div class="toolbar">
-        <div class="search-box">
+    <NCard
+      class="header-card rounded-lg shadow-[0_2px_12px_rgba(0,0,0,0.08)] mb-6"
+      title="管理隧道"
+    >
+      <div
+        class="toolbar p-2.5 flex flex-wrap gap-4 items-center max-md:flex-col max-md:items-stretch"
+      >
+        <div class="search-box flex-1 min-w-[200px]">
           <NInput
             v-model:value="searchText"
             placeholder="搜索隧道..."
@@ -17,12 +22,14 @@
           </NInput>
         </div>
 
-        <div class="toolbar-right">
+        <div
+          class="toolbar-right flex gap-3 items-center flex-wrap max-md:justify-between max-[480px]:w-full max-[480px]:gap-2"
+        >
           <NButtonGroup>
             <NButton
               :type="viewMode === 'grid' ? 'primary' : 'default'"
               @click="viewMode = 'grid'"
-              class="view-btn"
+              class="view-btn min-w-20 max-[480px]:flex-1 max-[480px]:min-w-0 max-[480px]:max-w-[140px]"
             >
               <template #icon>
                 <NIcon>
@@ -30,12 +37,12 @@
                 </NIcon>
               </template>
               <span class="view-text">网格</span
-              ><span class="view-suffix">视图</span>
+              ><span class="view-suffix max-[480px]:hidden">视图</span>
             </NButton>
             <NButton
               :type="viewMode === 'list' ? 'primary' : 'default'"
               @click="viewMode = 'list'"
-              class="view-btn"
+              class="view-btn min-w-20 max-[480px]:flex-1 max-[480px]:min-w-0 max-[480px]:max-w-[140px]"
             >
               <template #icon>
                 <NIcon>
@@ -43,11 +50,15 @@
                 </NIcon>
               </template>
               <span class="view-text">列表</span
-              ><span class="view-suffix">视图</span>
+              ><span class="view-suffix max-[480px]:hidden">视图</span>
             </NButton>
           </NButtonGroup>
 
-          <NButton type="info" @click="handleRefresh" class="refresh-btn">
+          <NButton
+            type="info"
+            @click="handleRefresh"
+            class="refresh-btn whitespace-nowrap max-[480px]:flex-1 max-[480px]:min-w-0 max-[480px]:max-w-[140px]"
+          >
             <template #icon>
               <NIcon>
                 <RefreshOutline />
@@ -56,7 +67,11 @@
             刷新
           </NButton>
 
-          <NButton type="primary" @click="createTunnel" class="create-btn">
+          <NButton
+            type="primary"
+            @click="createTunnel"
+            class="create-btn whitespace-nowrap max-[480px]:w-full max-[480px]:mt-2 max-[480px]:text-sm"
+          >
             <template #icon>
               <NIcon>
                 <AddOutline />
@@ -71,22 +86,27 @@
     <!-- 隧道有数据时 -->
     <div v-if="proxies.length" class="tunnel-container">
       <!-- 网格视图 -->
-      <div v-if="viewMode === 'grid'" class="tunnel-grid">
+      <div
+        v-if="viewMode === 'grid'"
+        class="grid grid-cols-[repeat(auto-fill,minmax(360px,1fr))] justify-start gap-5 mb-6 max-md:grid-cols-1"
+      >
         <template v-if="proxies.length">
           <NCard
             v-for="proxy in proxies"
             :key="proxy.proxyId"
-            class="tunnel-card"
+            class="tunnel-card rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-px transition-all duration-300 ease-in-out hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] hover:-translate-y-0.5"
             @click="isMobile ? handleSelect('view', proxy) : undefined"
             :style="isMobile ? 'cursor:pointer;' : ''"
           >
-            <div class="tunnel-header">
-              <div class="tunnel-title-area">
-                <h3 class="tunnel-title">
+            <div class="flex justify-between items-start mb-3 gap-2">
+              <div class="flex-1 min-w-0">
+                <h3
+                  class="text-base font-semibold m-0 whitespace-nowrap overflow-hidden text-ellipsis"
+                >
                   {{ proxy.proxyName }}
                 </h3>
               </div>
-              <div class="tunnel-meta">
+              <div class="flex flex-wrap gap-1.5 justify-end shrink-0">
                 <NTag type="info" size="small">#{{ proxy.proxyId }}</NTag>
                 <NTag
                   :type="proxy.isOnline ? 'success' : 'error'"
@@ -104,9 +124,9 @@
               </div>
             </div>
 
-            <div class="tunnel-info">
-              <div class="info-badges">
-                <NTag type="info" size="small" class="info-badge">
+            <div class="mb-2.5">
+              <div class="flex gap-2.5 mb-2.5">
+                <NTag type="info" size="small" class="info-badge inline-flex items-center gap-1">
                   <template #icon>
                     <NIcon><GitNetworkOutline /></NIcon>
                   </template>
@@ -115,7 +135,7 @@
                 <NTag
                   :type="getNodeTagType(getNodeLocation(proxy.nodeId))"
                   size="small"
-                  class="info-badge"
+                  class="info-badge inline-flex items-center gap-1"
                 >
                   <template #icon>
                     <NIcon><ServerOutline /></NIcon>
@@ -124,19 +144,19 @@
                 </NTag>
               </div>
 
-              <div class="info-domain">
+              <div>
                 <div
                   v-if="
                     proxy.proxyType === 'http' || proxy.proxyType === 'https'
                   "
-                  class="domain-list"
+                  class="flex flex-wrap gap-2"
                 >
                   <NTag
                     v-for="domain in JSON.parse(proxy.domain || '[]')"
                     :key="domain"
                     type="success"
                     size="small"
-                    class="domain-tag"
+                    class="inline-flex items-center gap-1"
                     style="cursor: pointer"
                     @click="() => openUrl(proxy.proxyType, domain)"
                   >
@@ -150,7 +170,7 @@
                   v-else
                   type="success"
                   size="small"
-                  class="port-tag"
+                  class="inline-flex items-center gap-1"
                   style="cursor: pointer"
                   @click="() => copyRemoteAddress(proxy)"
                 >
@@ -165,12 +185,14 @@
             </div>
 
             <template #action>
-              <div class="tunnel-actions">
+              <div
+                class="max-[480px]:w-full max-[480px]:flex max-[480px]:flex-row max-[480px]:justify-center max-[480px]:items-center max-[480px]:gap-4"
+              >
                 <NButton
                   quaternary
                   size="small"
                   @click.stop="handleSelect('view', proxy)"
-                  class="action-btn"
+                  class="max-[480px]:flex-1 max-[480px]:min-w-0 max-[480px]:max-w-[140px] max-[480px]:mx-1 max-[480px]:rounded-lg max-[480px]:h-10 max-[480px]:flex max-[480px]:justify-center max-[480px]:items-center"
                 >
                   <template #icon>
                     <NIcon>
@@ -187,7 +209,7 @@
                   <NButton
                     quaternary
                     size="small"
-                    class="action-btn"
+                    class="max-[480px]:flex-1 max-[480px]:min-w-0 max-[480px]:max-w-[140px] max-[480px]:mx-1 max-[480px]:rounded-lg max-[480px]:h-10 max-[480px]:flex max-[480px]:justify-center max-[480px]:items-center"
                     @click.stop
                   >
                     <template #icon>
@@ -212,7 +234,7 @@
           :data="proxies"
           :pagination="false"
           :bordered="false"
-          class="data-table"
+          class="data-table rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.06)] overflow-hidden"
         />
       </div>
     </div>
@@ -235,8 +257,8 @@
     </div>
 
     <!-- 隧道无数据时 -->
-    <div v-else class="empty-center">
-      <NEmpty description="暂无隧道" class="no-data">
+    <div v-else class="w-full min-h-[200px] flex justify-center items-center">
+      <NEmpty description="暂无隧道" class="no-data text-center">
         <template #extra>
           <NButton type="primary" @click="createTunnel">
             <template #icon>
@@ -259,9 +281,9 @@
       class="detail-modal"
     >
       <template #header>
-        <div class="modal-header">
+        <div class="modal-header flex justify-between items-center [&_h2]:m-0 [&_h2]:text-xl">
           <h2>隧道详细信息</h2>
-          <div v-if="selectedProxy" class="modal-status">
+          <div v-if="selectedProxy" class="flex gap-2">
             <NTag
               :type="selectedProxy.isOnline ? 'success' : 'error'"
               size="small"
@@ -293,38 +315,38 @@
 
       <div
         v-if="selectedProxy"
-        class="modal-content"
+        class="modal-content py-4"
         :class="{
-          'proxy-detail-container':
+          'proxy-detail-container max-md:flex-col':
             selectedProxy.proxyType === 'http' ||
             selectedProxy.proxyType === 'https',
         }"
       >
         <div class="proxy-detail-left">
-          <div class="detail-section">
-            <h3 class="section-title">基本信息</h3>
-            <div class="detail-grid">
-              <div class="modal-info-item">
-                <span class="label">隧道名称：</span>
-                <span class="value">{{ selectedProxy.proxyName }}</span>
+          <div class="detail-section mb-6">
+            <h3 class="text-base font-semibold mb-4 mt-0 text-[#333] pb-2 border-b border-[#eee]">基本信息</h3>
+            <div class="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-4">
+              <div class="modal-info-item mb-3">
+                <span class="text-sm text-[#666] mr-2">隧道名称：</span>
+                <span class="text-sm">{{ selectedProxy.proxyName }}</span>
               </div>
-              <div class="modal-info-item">
-                <span class="label">协议类型：</span>
-                <span class="value">{{
+              <div class="modal-info-item mb-3">
+                <span class="text-sm text-[#666] mr-2">协议类型：</span>
+                <span class="text-sm">{{
                   selectedProxy.proxyType.toUpperCase()
                 }}</span>
               </div>
-              <div class="modal-info-item">
-                <span class="label">本地端口：</span>
-                <span class="value">{{ selectedProxy.localPort }}</span>
+              <div class="modal-info-item mb-3">
+                <span class="text-sm text-[#666] mr-2">本地端口：</span>
+                <span class="text-sm">{{ selectedProxy.localPort }}</span>
               </div>
-              <div class="modal-info-item">
-                <span class="label">本地地址：</span>
-                <span class="value">{{ selectedProxy.localIp }}</span>
+              <div class="modal-info-item mb-3">
+                <span class="text-sm text-[#666] mr-2">本地地址：</span>
+                <span class="text-sm">{{ selectedProxy.localIp }}</span>
               </div>
-              <div class="modal-info-item">
-                <span class="label">节点名称：</span>
-                <span class="value">{{
+              <div class="modal-info-item mb-3">
+                <span class="text-sm text-[#666] mr-2">节点名称：</span>
+                <span class="text-sm">{{
                   getNodeLabel(selectedProxy.nodeId).split(' - ')[1]
                 }}</span>
               </div>
@@ -337,11 +359,11 @@
               selectedProxy.proxyType === 'https'
             "
           >
-            <div class="detail-section">
-              <h3 class="section-title">域名信息</h3>
-              <div class="modal-info-item">
-                <span class="label">绑定域名：</span>
-                <div class="value domain-tags">
+            <div class="detail-section mb-6">
+              <h3 class="text-base font-semibold mb-4 mt-0 text-[#333] pb-2 border-b border-[#eee]">域名信息</h3>
+              <div class="modal-info-item mb-3">
+                <span class="text-sm text-[#666] mr-2">绑定域名：</span>
+                <div class="text-sm flex flex-wrap gap-2 mt-2">
                   <NTag
                     size="small"
                     v-for="domain in JSON.parse(selectedProxy.domain || '[]')"
@@ -367,11 +389,11 @@
             </div>
           </template>
           <template v-else>
-            <div class="detail-section">
-              <h3 class="section-title">连接信息</h3>
-              <div class="modal-info-item">
-                <span class="label">链接地址：</span>
-                <span class="value connection-value">
+            <div class="detail-section mb-6">
+              <h3 class="text-base font-semibold mb-4 mt-0 text-[#333] pb-2 border-b border-[#eee]">连接信息</h3>
+              <div class="modal-info-item mb-3">
+                <span class="text-sm text-[#666] mr-2">链接地址：</span>
+                <span class="text-sm font-mono p-[2px_6px] rounded">
                   {{
                     nodeOptions.find(
                       (node) => node.value === selectedProxy?.nodeId,
@@ -390,12 +412,12 @@
           "
         >
           <div class="proxy-detail-right">
-            <div class="detail-section">
-              <h3 class="section-title">域名解析配置</h3>
+            <div class="detail-section mb-6">
+              <h3 class="text-base font-semibold mb-4 mt-0 text-[#333] pb-2 border-b border-[#eee]">域名解析配置</h3>
               <NAlert type="info" style="margin-bottom: 16px"
                 >添加以下信息至您的域名解析配置后，服务才会生效。</NAlert
               >
-              <NTable size="small" :single-line="false" class="dns-table">
+              <NTable size="small" :single-line="false" class="dns-table [&_th]:bg-[#f5f7fa] [&_th]:font-semibold [&_td]:break-all [&_td]:[overflow-wrap:break-word]">
                 <thead>
                   <tr>
                     <th>根域名</th>
@@ -438,7 +460,7 @@
       </div>
 
       <template #footer>
-        <div class="modal-footer">
+        <div class="flex justify-end gap-3">
           <NButton @click="closeModal('detail')">
             <template #icon>
               <NIcon>
@@ -500,7 +522,7 @@
       class="edit-tunnel-modal"
     >
       <template #header>
-        <div class="modal-header">
+        <div class="modal-header flex justify-between items-center [&_h2]:m-0 [&_h2]:text-xl">
           <h2>编辑隧道</h2>
         </div>
       </template>
@@ -548,7 +570,9 @@
               label="远程端口"
               path="remotePort"
             >
-              <div class="port-input-group">
+              <div
+                class="port-input-group flex gap-2 items-center [&_.get-port-btn]:ml-2 [&_.get-port-btn]:whitespace-nowrap max-[480px]:flex-col max-[480px]:items-stretch max-[480px]:gap-2 max-[480px]:[&_.get-port-btn]:ml-0 max-[480px]:[&_.get-port-btn]:w-full"
+              >
                 <NInputNumber
                   v-model:value="editForm.remotePort"
                   :min="1"
@@ -582,7 +606,7 @@
               v-if="['stcp', 'xtcp'].includes(editForm.proxyType)"
               label="访问密钥"
               path="accessKey"
-              class="advanced-form-item"
+              class="advanced-form-item mb-0 [&_.n-form-item-label]:text-[13px] [&_.n-form-item-label]:pb-1 [&_.n-form-item-feedback-wrapper]:min-h-0"
             >
               <NInput
                 v-model:value="editForm.accessKey"
@@ -598,12 +622,12 @@
               </NText>
             </template>
 
-            <div class="advanced-settings">
+            <div class="flex flex-col gap-5 p-5 max-md:gap-3">
               <!-- 第一行：Proxy Protocol -->
               <NFormItem
                 label="Proxy Protocol"
                 path="proxyProtocolVersion"
-                class="advanced-form-item"
+                class="advanced-form-item mb-0 [&_.n-form-item-label]:text-[13px] [&_.n-form-item-label]:pb-1 [&_.n-form-item-feedback-wrapper]:min-h-0"
               >
                 <NSelect
                   v-model:value="editForm.proxyProtocolVersion"
@@ -617,23 +641,25 @@
               </NFormItem>
 
               <!-- 第二行：速率限制 -->
-              <div class="rate-limit-row">
+              <div class="grid gap-4 max-md:grid-cols-1 max-md:gap-3">
                 <NFormItem
                   label="每个IP最大下载速率"
                   path="ipLimitIn"
-                  class="advanced-form-item"
+                  class="advanced-form-item mb-0 [&_.n-form-item-label]:text-[13px] [&_.n-form-item-label]:pb-1 [&_.n-form-item-feedback-wrapper]:min-h-0"
                 >
-                  <div class="speed-input-group">
+                  <div
+                    class="speed-input-group flex! gap-2! items-center! flex-row!"
+                  >
                     <NInputNumber
                       v-model:value="editForm.ipLimitIn"
                       :min="0"
                       placeholder="请输入最大下载速率"
-                      class="speed-input"
+                      class="speed-input flex-1"
                     />
                     <NSelect
                       v-model:value="editForm.ipLimitInUnit"
                       :options="speedUnitOptions"
-                      class="speed-unit-select"
+                      class="speed-unit-select w-[90px] max-md:w-full"
                     />
                   </div>
                 </NFormItem>
@@ -641,19 +667,21 @@
                 <NFormItem
                   label="每个IP最大上传速率"
                   path="ipLimitOut"
-                  class="advanced-form-item"
+                  class="advanced-form-item mb-0 [&_.n-form-item-label]:text-[13px] [&_.n-form-item-label]:pb-1 [&_.n-form-item-feedback-wrapper]:min-h-0"
                 >
-                  <div class="speed-input-group">
+                  <div
+                    class="speed-input-group flex! gap-2! items-center! flex-row!"
+                  >
                     <NInputNumber
                       v-model:value="editForm.ipLimitOut"
                       :min="0"
                       placeholder="请输入最大上传速率"
-                      class="speed-input"
+                      class="speed-input flex-1"
                     />
                     <NSelect
                       v-model:value="editForm.ipLimitOutUnit"
                       :options="speedUnitOptions"
-                      class="speed-unit-select"
+                      class="speed-unit-select w-[90px] max-md:w-full"
                     />
                   </div>
                 </NFormItem>
@@ -662,10 +690,14 @@
               <!-- 第三行：开关选项 -->
               <NFormItem
                 :label="isMobile ? '' : '其他选项'"
-                class="advanced-form-item switch-row"
+                class="advanced-form-item switch-row mb-0 [&_.n-form-item-label]:text-[13px] [&_.n-form-item-label]:pb-1 [&_.n-form-item-feedback-wrapper]:min-h-0 [&_.n-form-item-label]:w-auto! [&_.n-form-item-label]:min-w-[80px]!"
               >
-                <div class="switch-group-outer">
-                  <div class="switch-group">
+                <div
+                  class="switch-group-outer flex justify-center max-[480px]:w-full! max-[480px]:flex! max-[480px]:justify-center!"
+                >
+                  <div
+                    class="switch-group flex flex-row justify-center items-center gap-6 [&>*]:flex-none [&>*]:flex [&>*]:justify-center [&>*]:min-w-0 max-md:flex-col max-md:gap-3 max-md:items-start max-[480px]:flex-row! max-[480px]:justify-center! max-[480px]:items-center! max-[480px]:gap-[60px]! max-[480px]:w-full!"
+                  >
                     <NSwitch
                       v-model:value="editForm.useEncryption"
                       :rail-style="switchButtonRailStyle"
@@ -689,7 +721,7 @@
       </NForm>
 
       <template #footer>
-        <div class="modal-footer">
+        <div class="flex justify-end gap-3">
           <NButton @click="closeModal('edit')">取消</NButton>
           <NButton
             style="margin-left: 8px"
@@ -734,8 +766,8 @@
       title="启动参数和配置文件"
     >
       <template #header>
-        <div class="modal-header">
-          <div v-if="selectedProxy" class="config-info">
+        <div class="modal-header flex justify-between items-center [&_h2]:m-0 [&_h2]:text-xl">
+          <div v-if="selectedProxy" class="flex gap-2">
             <NTag type="info" size="small">{{
               selectedProxy.proxyType.toUpperCase()
             }}</NTag>
@@ -746,7 +778,7 @@
         </div>
       </template>
 
-      <div class="config-modal-container">
+      <div class="my-4">
         <NCollapse
           v-model:expanded-names="expandedNames"
           :on-update:expanded-names="handleUpdateExpanded"
@@ -756,18 +788,18 @@
             name="args"
             v-if="selectedProxy?.proxyType !== 'https'"
           >
-            <div class="code-container">
+            <div class="border border-[#eee] rounded-md mb-3">
               <NScrollbar style="max-height: 200px; overflow: auto">
                 <NCode :code="runArgs" language="yaml" :hljs="hljs" />
               </NScrollbar>
             </div>
-            <div class="code-note">
+            <div class="text-sm text-[#666] mt-2">
               此命令仅适用于 amd64 架构的 Windows 系统。
             </div>
           </NCollapseItem>
 
           <NCollapseItem title="配置文件" name="config">
-            <NAlert type="info" class="config-alert" title="友情提示">
+            <NAlert type="info" class="mb-4" title="友情提示">
               此处是为专业用户准备的配置文件,
               请不要在没有判断能力的情况下随意修改,
               否则隧道可能无法正常启动。<br />
@@ -776,17 +808,17 @@
 
             <NAlert
               type="warning"
-              class="config-alert"
+              class="mb-4"
               title="HTTPS 隧道配置修改提示"
               v-if="selectedProxy?.proxyType == 'https'"
             >
               请修改相关 SSL 配置, 否则隧道无法正常启动。
             </NAlert>
 
-            <NTabs v-model:value="configFormat" type="line" class="config-tabs">
+            <NTabs v-model:value="configFormat" type="line" class="mt-5">
               <NTabPane name="toml" tab="Toml">
                 <NSpin :show="loading && configFormat === 'toml'">
-                  <div class="code-container">
+                  <div class="border border-[#eee] rounded-md mb-3">
                     <NScrollbar style="max-height: 500px; overflow: auto">
                       <NCode :code="tomlContent" language="toml" :hljs="hljs" />
                     </NScrollbar>
@@ -796,7 +828,7 @@
 
               <NTabPane name="json" tab="Json">
                 <NSpin :show="loading && configFormat === 'json'">
-                  <div class="code-container">
+                  <div class="border border-[#eee] rounded-md mb-3">
                     <NScrollbar style="max-height: 500px; overflow: auto">
                       <NCode :code="jsonContent" language="json" :hljs="hljs" />
                     </NScrollbar>
@@ -806,7 +838,7 @@
 
               <NTabPane name="yml" tab="Yaml">
                 <NSpin :show="loading && configFormat === 'yml'">
-                  <div class="code-container">
+                  <div class="border border-[#eee] rounded-md mb-3">
                     <NScrollbar style="max-height: 500px; overflow: auto">
                       <NCode :code="ymlContent" language="yaml" :hljs="hljs" />
                     </NScrollbar>
@@ -816,7 +848,7 @@
 
               <NTabPane name="ini" tab="Ini">
                 <NSpin :show="loading && configFormat === 'ini'">
-                  <div class="code-container">
+                  <div class="border border-[#eee] rounded-md mb-3">
                     <NScrollbar style="max-height: 500px; overflow: auto">
                       <NCode :code="iniContent" language="ini" :hljs="hljs" />
                     </NScrollbar>
@@ -829,7 +861,7 @@
       </div>
 
       <template #footer>
-        <div class="modal-footer">
+        <div class="flex justify-end gap-3">
           <NButton @click="closeModal('config')">
             <template #icon>
               <NIcon>
@@ -2003,507 +2035,5 @@ function closeModal(modalName: string) {
 }
 </script>
 
-<style lang="scss" scoped>
-.tunnel-manager {
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
-    Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 
-  .header-card {
-    border-radius: 8px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-    margin-bottom: 24px;
 
-    .toolbar {
-      padding: 10px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-      align-items: center;
-
-      .search-box {
-        flex: 1;
-        min-width: 200px;
-      }
-
-      .toolbar-right {
-        display: flex;
-        gap: 12px;
-        align-items: center;
-        flex-wrap: wrap;
-
-        .view-btn {
-          min-width: 80px;
-        }
-
-        .refresh-btn,
-        .create-btn {
-          white-space: nowrap;
-        }
-      }
-    }
-  }
-
-  .tunnel-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-    justify-content: start;
-    gap: 20px;
-    margin-bottom: 24px;
-
-    .tunnel-card {
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-      padding: 1px;
-      transition: all 0.3s ease;
-
-      &:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        transform: translateY(-2px);
-      }
-
-      .tunnel-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 12px;
-        gap: 8px;
-
-        .tunnel-title-area {
-          flex: 1;
-          min-width: 0;
-
-          .tunnel-title {
-            font-size: 16px;
-            font-weight: 600;
-            margin: 0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-          }
-        }
-
-        .tunnel-meta {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 6px;
-          justify-content: flex-end;
-          flex-shrink: 0;
-        }
-      }
-
-      .tunnel-info {
-        margin-bottom: 10px;
-
-        .info-badges {
-          display: flex;
-          gap: 10px;
-          margin-bottom: 10px;
-
-          .info-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-          }
-        }
-
-        .info-domain {
-          .domain-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-          }
-
-          .domain-tag,
-          .port-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-          }
-        }
-      }
-    }
-  }
-
-  .tunnel-list {
-    .data-table {
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-      overflow: hidden;
-    }
-  }
-
-  .no-data {
-    text-align: center;
-  }
-
-  .empty-center {
-    width: 100%;
-    min-height: 200px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  // Modal styles
-  .detail-modal {
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-
-      h2 {
-        margin: 0;
-        font-size: 20px;
-      }
-
-      .modal-status {
-        display: flex;
-        gap: 8px;
-      }
-    }
-
-    .modal-content {
-      padding: 16px 0;
-
-      .detail-section {
-        margin-bottom: 24px;
-
-        .section-title {
-          font-size: 16px;
-          font-weight: 600;
-          margin: 0 0 16px 0;
-          color: #333;
-          padding-bottom: 8px;
-          border-bottom: 1px solid #eee;
-        }
-
-        .detail-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-          gap: 16px;
-        }
-      }
-
-      .modal-info-item {
-        margin-bottom: 12px;
-
-        .label {
-          font-size: 14px;
-          color: #666;
-          margin-right: 8px;
-        }
-
-        .value {
-          font-size: 14px;
-          &.connection-value {
-            font-family: monospace;
-            padding: 2px 6px;
-            border-radius: 4px;
-          }
-        }
-
-        .domain-tags {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 8px;
-          margin-top: 8px;
-        }
-      }
-
-      .dns-table {
-        :deep(th) {
-          background-color: #f5f7fa;
-          font-weight: 600;
-        }
-
-        :deep(td) {
-          word-break: break-all;
-          overflow-wrap: break-word;
-        }
-      }
-    }
-
-    .modal-footer {
-      display: flex;
-      justify-content: flex-end;
-      gap: 12px;
-    }
-  }
-
-  .edit-form {
-    .port-input-group {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      .get-port-btn {
-        margin-left: 8px;
-        white-space: nowrap;
-      }
-    }
-
-    .speed-input-group {
-      display: flex !important;
-      gap: 8px !important;
-      align-items: center !important;
-      flex-direction: row !important;
-    }
-
-    .switch-group-outer {
-      display: flex;
-      justify-content: center;
-    }
-
-    .switch-group {
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-      align-items: center;
-      gap: 40px;
-      > * {
-        flex: 0 0 auto;
-        display: flex;
-        justify-content: center;
-        min-width: 0;
-      }
-    }
-  }
-
-  .config-dialog {
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-
-      h2 {
-        margin: 0;
-        font-size: 20px;
-      }
-
-      .config-info {
-        display: flex;
-        gap: 8px;
-      }
-    }
-
-    .config-modal-container {
-      margin: 16px 0;
-
-      .code-container {
-        border: 1px solid #eee;
-        border-radius: 6px;
-        margin-bottom: 12px;
-      }
-
-      .code-note {
-        font-size: 14px;
-        color: #666;
-        margin-top: 8px;
-      }
-
-      .config-alert {
-        margin-bottom: 16px;
-      }
-
-      .config-tabs {
-        margin-top: 20px;
-      }
-    }
-  }
-
-  @media (max-width: 768px) {
-    .header-card {
-      .toolbar {
-        flex-direction: column;
-        align-items: stretch;
-
-        .toolbar-right {
-          justify-content: space-between;
-        }
-      }
-    }
-
-    .tunnel-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .proxy-detail-container {
-      flex-direction: column;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .view-suffix {
-      display: none;
-    }
-
-    .tunnel-actions {
-      width: 100%;
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-      align-items: center;
-      gap: 16px;
-      .action-btn {
-        flex: 1 1 0;
-        min-width: 0;
-        max-width: 140px;
-        margin: 0 4px;
-        border-radius: 8px;
-        height: 40px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-    }
-
-    .toolbar-right {
-      width: 100%;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      .create-btn {
-        width: 100%;
-        margin-top: 8px;
-        font-size: 14px;
-      }
-      .view-btn,
-      .refresh-btn {
-        flex: 1 1 0;
-        min-width: 0;
-        max-width: 140px;
-      }
-    }
-
-    .switch-group-outer {
-      width: 100% !important;
-      display: flex !important;
-      justify-content: center !important;
-    }
-    .switch-group {
-      display: flex !important;
-      flex-direction: row !important;
-      justify-content: center !important;
-      align-items: center !important;
-      gap: 60px !important;
-      width: 100% !important;
-    }
-  }
-}
-
-.port-input-group {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  .get-port-btn {
-    margin-left: 8px;
-    white-space: nowrap;
-  }
-}
-
-@media (max-width: 480px) {
-  .port-input-group {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-    .get-port-btn {
-      margin-left: 0;
-      width: 100%;
-    }
-  }
-
-  .speed-input-group {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-  }
-}
-
-// 高级设置布局
-.advanced-settings {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  padding: 20px;
-
-  .advanced-form-item {
-    margin-bottom: 0;
-
-    :deep(.n-form-item-label) {
-      font-size: 13px;
-      padding-bottom: 4px;
-    }
-
-    :deep(.n-form-item-feedback-wrapper) {
-      min-height: 0;
-    }
-
-    &.switch-row {
-      :deep(.n-form-item-label) {
-        width: auto;
-        min-width: 80px;
-      }
-    }
-  }
-
-  .rate-limit-row {
-    display: grid;
-    gap: 16px;
-
-    .advanced-form-item {
-      margin-bottom: 0;
-    }
-  }
-
-  .speed-input-group {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-
-    .speed-input {
-      flex: 1;
-    }
-
-    .speed-unit-select {
-      width: 90px;
-    }
-  }
-
-  .switch-group {
-    display: flex;
-    gap: 24px;
-    align-items: center;
-
-    .n-switch {
-      margin-left: 0 !important;
-    }
-  }
-}
-
-// 移动端适配
-@media (max-width: 768px) {
-  .advanced-settings {
-    gap: 12px;
-
-    .rate-limit-row {
-      grid-template-columns: 1fr;
-      gap: 12px;
-    }
-
-    .speed-input-group {
-      flex-direction: column;
-      align-items: stretch;
-
-      .speed-unit-select {
-        width: 100%;
-      }
-    }
-
-    .switch-group {
-      flex-direction: column;
-      gap: 12px;
-      align-items: flex-start;
-    }
-  }
-}
-</style>

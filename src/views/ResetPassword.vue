@@ -1,8 +1,10 @@
 <template>
-  <div class="forget">
-    <NCard class="auth-card">
-      <div class="auth-header">
-        <div class="title-with-icon">
+  <div class="forget flex min-h-[calc(100vh-59px)] overflow-x-hidden">
+    <NCard
+      class="w-full max-w-[420px] bg-transparent backdrop-blur-[8px] rounded-r-2xl! overflow-y-auto overflow-x-hidden"
+    >
+      <div class="text-center mb-6">
+        <div class="flex flex-col justify-center items-center gap-0 [&_svg]:text-[var(--n-primary-color)]">
           <NIcon size="32" :component="PersonAddOutline" />
           <h1>{{ packageData.title }}</h1>
           <span>后台管理系统</span>
@@ -10,16 +12,15 @@
         <br />
         <hr />
       </div>
-      <NSteps :current="current" :status="stepStatus" class="register-steps">
+      <NSteps
+        :current="current"
+        :status="stepStatus"
+        class="mb-6 justify-center [&_.n-step]:flex-none [&_.n-step-splitor]:flex-none [&_.n-step-splitor]:w-20"
+      >
         <NStep title="邮箱验证" />
         <NStep title="设置密码" />
       </NSteps>
-      <NForm
-        ref="formRef"
-        :model="formValue"
-        :rules="rules"
-        class="register-form"
-      >
+      <NForm ref="formRef" :model="formValue" :rules="rules" class="mt-2">
         <div v-show="current === 1">
           <NFormItem path="email" label="邮箱">
             <NInputGroup>
@@ -69,7 +70,7 @@
           </NFormItem>
         </div>
 
-        <div class="steps-action">
+        <div class="flex gap-3 mt-2 [&_.n-button]:flex-1 [&_.n-button]:min-w-0">
           <NButton v-if="current > 1" secondary strong @click="prevStep">
             上一步
           </NButton>
@@ -94,7 +95,9 @@
             {{ isSubmitting ? '提交中...' : '提交' }}
           </NButton>
         </div>
-        <div class="form-footer login-link">
+        <div
+          class="flex justify-center gap-2 text-sm mt-2 mb-2 [&_span]:text-[var(--n-text-color-2)] [&_a]:text-[var(--n-primary-color)] [&_a]:no-underline [&_a]:transition-all [&_a]:duration-200 [&_a]:ease-in [&_a:hover]:text-[var(--n-primary-color-pressed)]"
+        >
           <span>我才没有忘记呢, 我要</span>
           <RouterLink to="/login">立即登录</RouterLink>
         </div>
@@ -341,59 +344,3 @@ onUnmounted(() => {
   document.body.style.overflowY = ''
 })
 </script>
-
-<style lang="scss" scoped>
-@use '../assets/styles/auth.scss';
-
-.forget {
-  display: flex;
-  min-height: calc(100vh - 59px);
-}
-
-.auth-card {
-  background-color: transparent;
-  backdrop-filter: blur(8px);
-  border-radius: 0 16px 16px 0 !important;
-  width: 100%;
-  max-width: 420px;
-  overflow-y: auto;
-}
-
-.title-with-icon {
-  display: flex;
-  align-items: center;
-  gap: 0px;
-}
-
-.register-steps {
-  margin-bottom: 24px;
-  justify-content: center;
-}
-.register-steps :deep(.n-step) {
-  flex: none;
-}
-.register-steps :deep(.n-step-splitor) {
-  flex: none;
-  width: 80px;
-}
-
-.register-form {
-  margin-top: 8px;
-}
-
-.steps-action {
-  display: flex;
-  gap: 12px;
-  margin-top: 8px;
-}
-.steps-action :deep(.n-button) {
-  flex: 1;
-  min-width: 0;
-}
-.forget {
-  overflow-x: hidden;
-}
-.auth-card {
-  overflow-x: hidden;
-}
-</style>

@@ -1,23 +1,23 @@
 <template>
   <div>
-    <div class="user-info-scroll-wrapper">
-      <div class="user-info-grid">
+    <div class="max-[600px]:overflow-x-auto">
+      <div class="grid grid-cols-2 gap-5 max-[600px]:w-max">
         <template v-if="loading">
-          <div v-for="i in 8" :key="i" class="user-info-item">
+          <div v-for="i in 8" :key="i" class="flex flex-col relative p-0.5 gap-2">
             <NSkeleton :sharp="false" size="medium" />
           </div>
         </template>
         <template v-else>
-          <div class="user-info-item">
-            <div class="user-info-label">用户昵称</div>
-            <div class="user-info-value">
+          <div class="flex flex-col relative p-0.5 gap-2">
+            <div class="text-sm text-[var(--n-text-color-2)]">用户昵称</div>
+            <div class="whitespace-nowrap text-sm text-[var(--n-text-color)]">
               {{ userInfo.nickname }}
             </div>
           </div>
 
-          <div class="user-info-item-right">
-            <div class="user-info-label">实名认证</div>
-            <div class="user-info-value">
+          <div class="ml-5 flex flex-col relative p-0.5 gap-2">
+            <div class="text-sm text-[var(--n-text-color-2)]">实名认证</div>
+            <div class="whitespace-nowrap text-sm text-[var(--n-text-color)]">
               <NTag
                 :type="userInfo.isRealname ? 'success' : 'default'"
                 size="small"
@@ -27,67 +27,67 @@
             </div>
           </div>
 
-          <div class="user-info-item">
-            <div class="user-info-label">用户组</div>
-            <div class="user-info-value">
+          <div class="flex flex-col relative p-0.5 gap-2">
+            <div class="text-sm text-[var(--n-text-color-2)]">用户组</div>
+            <div class="whitespace-nowrap text-sm text-[var(--n-text-color)]">
               <NTag type="info" size="small">
                 {{ userInfo.friendlyGroup }}
               </NTag>
             </div>
           </div>
 
-          <div class="user-info-item-right">
-            <div class="user-info-label">注册时间</div>
-            <div class="user-info-value">{{ formattedRegTime }}</div>
+          <div class="ml-5 flex flex-col relative p-0.5 gap-2">
+            <div class="text-sm text-[var(--n-text-color-2)]">注册时间</div>
+            <div class="whitespace-nowrap text-sm text-[var(--n-text-color)]">{{ formattedRegTime }}</div>
           </div>
 
-          <div class="user-info-item">
-            <div class="user-info-label">注册邮箱</div>
-            <div class="user-info-value">{{ userInfo.email }}</div>
+          <div class="flex flex-col relative p-0.5 gap-2">
+            <div class="text-sm text-[var(--n-text-color-2)]">注册邮箱</div>
+            <div class="whitespace-nowrap text-sm text-[var(--n-text-color)]">{{ userInfo.email }}</div>
           </div>
 
-          <div class="user-info-item-right">
-            <div class="user-info-label">隧道数量</div>
-            <div class="user-info-value">
+          <div class="ml-5 flex flex-col relative p-0.5 gap-2">
+            <div class="text-sm text-[var(--n-text-color-2)]">隧道数量</div>
+            <div class="whitespace-nowrap text-sm text-[var(--n-text-color)]">
               {{ userInfo.usedProxies }} / {{ userInfo.maxProxies }}
             </div>
           </div>
-          <div class="user-info-item">
-            <div class="user-info-label">剩余流量</div>
-            <div class="user-info-value">
+          <div class="flex flex-col relative p-0.5 gap-2">
+            <div class="text-sm text-[var(--n-text-color-2)]">剩余流量</div>
+            <div class="whitespace-nowrap text-sm text-[var(--n-text-color)]">
               {{ formattedTraffic }}
             </div>
           </div>
-          <div class="user-info-item-right">
-            <div class="user-info-label">剩余积分</div>
-            <div class="user-info-value">{{ userInfo.point }} 分</div>
+          <div class="ml-5 flex flex-col relative p-0.5 gap-2">
+            <div class="text-sm text-[var(--n-text-color-2)]">剩余积分</div>
+            <div class="whitespace-nowrap text-sm text-[var(--n-text-color)]">{{ userInfo.point }} 分</div>
           </div>
-          <div class="user-info-item">
-            <div class="user-info-label">国内入站带宽</div>
-            <div class="user-info-value">{{ userInfo.inlimit / 128 }} Mbps</div>
+          <div class="flex flex-col relative p-0.5 gap-2">
+            <div class="text-sm text-[var(--n-text-color-2)]">国内入站带宽</div>
+            <div class="whitespace-nowrap text-sm text-[var(--n-text-color)]">{{ userInfo.inlimit / 128 }} Mbps</div>
           </div>
 
-          <div class="user-info-item-right">
-            <div class="user-info-label">国内出站带宽</div>
-            <div class="user-info-value">
+          <div class="ml-5 flex flex-col relative p-0.5 gap-2">
+            <div class="text-sm text-[var(--n-text-color-2)]">国内出站带宽</div>
+            <div class="whitespace-nowrap text-sm text-[var(--n-text-color)]">
               {{ userInfo.outlimit / 128 }} Mbps
             </div>
           </div>
-          <div class="user-info-item">
-            <div class="user-info-label">海外出站带宽</div>
-            <div class="user-info-value">
+          <div class="flex flex-col relative p-0.5 gap-2">
+            <div class="text-sm text-[var(--n-text-color-2)]">海外出站带宽</div>
+            <div class="whitespace-nowrap text-sm text-[var(--n-text-color)]">
               {{ userInfo.noCNOutlimit / 128 }} Mbps
             </div>
           </div>
-          <div class="user-info-item-right">
-            <div class="user-info-label">海外入站带宽</div>
-            <div class="user-info-value">
+          <div class="ml-5 flex flex-col relative p-0.5 gap-2">
+            <div class="text-sm text-[var(--n-text-color-2)]">海外入站带宽</div>
+            <div class="whitespace-nowrap text-sm text-[var(--n-text-color)]">
               {{ userInfo.noCNInlimit / 128 }} Mbps
             </div>
           </div>
-          <div class="user-info-item">
-            <div class="user-info-value">
-              <NSpace class="token-section">
+          <div class="flex flex-col relative p-0.5 gap-2">
+            <div class="whitespace-nowrap text-sm text-[var(--n-text-color)]">
+              <NSpace class="justify-self-start flex relative mt-[3px]">
                 <NButton
                   text
                   type="primary"
@@ -103,7 +103,7 @@
             </div>
           </div>
         </template>
-        <NSpace class="user-info-item-right" vertical :size="4">
+        <NSpace class="ml-5 flex flex-col relative p-0.5 gap-2" vertical :size="4">
           <NButton
             text
             type="primary"
@@ -122,7 +122,7 @@
       </div>
     </div>
     <br />
-    <NAlert class="user-info-item" type="info" show-icon>
+    <NAlert class="flex flex-col relative p-0.5 gap-2" type="info" show-icon>
       <NText depth="3" style="font-size: 13px"
         >签到可以获得<NText type="primary"> 积分</NText> 和
         <NText type="primary">流量 </NText> 噢!(๑´ڡ`๑)
@@ -284,7 +284,3 @@ defineExpose({
   userInfo,
 })
 </script>
-
-<style lang="scss" scoped>
-@use '../assets/styles/components/userInfo.scss';
-</style>

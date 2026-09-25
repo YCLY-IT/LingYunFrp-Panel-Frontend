@@ -1,6 +1,8 @@
 <template>
-  <div class="min-h-screen bg-gray-50 p-6">
-    <div class="max-w-4xl w-full mx-auto px-2 sm:px-6">
+  <div
+    class="w-full"
+  >
+    <div class="w-full mx-auto px-2 sm:px-6">
       <n-space vertical size="large" class="mt-6">
         <!-- 面板信息卡片 -->
         <n-card title="面板信息" hoverable>
@@ -59,7 +61,7 @@
             <n-grid-item>
               <n-thing>
                 <template #avatar>
-                  <n-avatar color="#2080f0">
+                  <n-avatar color="var(--n-primary-color)">
                     <n-icon><Shield /></n-icon>
                   </n-avatar>
                 </template>
@@ -221,7 +223,7 @@
                 </n-thing>
                 <n-thing style="margin-top: 16px">
                   <template #avatar>
-                    <n-icon size="24" color="#2080f0"><Github /></n-icon>
+                    <n-icon size="24" color="var(--n-primary-color)"><Github /></n-icon>
                   </template>
                   <template #header>GitHub</template>
                   <template #description>{{ packageData.github }}</template>
@@ -257,13 +259,14 @@
     <n-modal
       v-model:show="showCommitModal"
       preset="card"
+      class="[&_.n-card]:mb-4 max-md:[&_.n-card-header]:flex-col! max-md:[&_.n-card-header]:items-start! max-md:[&_.n-card-header]:gap-2 max-md:[&_.n-card-header__main]:text-base max-md:[&_.n-card-header__extra]:w-full"
       style="width: 800px; max-width: 95vw"
       :bordered="false"
       size="huge"
       aria-modal="true"
     >
       <template #header>
-        <div class="modal-header">
+        <div class="py-2">
           <n-space align="center" :size="12">
             <n-avatar
               :src="currentCommit?.author?.avatar_url || '/icon/github.png'"
@@ -274,7 +277,7 @@
               <n-text strong style="font-size: 16px">
                 {{ currentCommit?.author?.login || 'Unknown' }}
               </n-text>
-              <div class="commit-sha">
+              <div class="mt-1">
                 <n-text code depth="3" style="font-size: 12px">
                   {{ currentCommit?.sha?.substring(0, 7) || 'Unknown' }}
                 </n-text>
@@ -286,48 +289,54 @@
 
       <n-tabs type="line" animated :tab-style="{ padding: '12px 24px' }">
         <n-tab-pane name="message" tab="提交信息">
-          <div class="tab-content">
-            <div class="markdown-content" v-html="renderedCommitMessage" />
+          <div class="py-5 min-h-[300px]">
+            <div class="commit-markdown" v-html="renderedCommitMessage" />
           </div>
         </n-tab-pane>
 
         <n-tab-pane name="details" tab="提交详情">
-          <div class="tab-content">
+          <div class="py-5 min-h-[300px]">
             <n-space vertical :size="20">
-              <div class="detail-item">
-                <div class="detail-label">
+              <div
+                class="flex flex-col gap-2 p-4 bg-[var(--n-color-modal)] rounded-lg transition-all duration-300 ease-in-out border border-[var(--n-border-color)] hover:-translate-y-0.5 hover:shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
+              >
+                <div class="flex items-center gap-2 text-sm">
                   <n-icon size="16">
                     <Clock />
                   </n-icon>
                   <n-text strong>提交时间</n-text>
                 </div>
-                <div class="detail-value">
+                <div class="pl-6 text-sm">
                   <n-text>{{
                     formatDate(currentCommit?.commit?.author?.date || '')
                   }}</n-text>
                 </div>
               </div>
 
-              <div class="detail-item">
-                <div class="detail-label">
+              <div
+                class="flex flex-col gap-2 p-4 bg-[var(--n-color-modal)] rounded-lg transition-all duration-300 ease-in-out border border-[var(--n-border-color)] hover:-translate-y-0.5 hover:shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
+              >
+                <div class="flex items-center gap-2 text-sm">
                   <n-icon size="16">
                     <Hash />
                   </n-icon>
                   <n-text strong>完整 SHA</n-text>
                 </div>
-                <div class="detail-value">
+                <div class="pl-6 text-sm">
                   <n-text code>{{ currentCommit?.sha || 'Unknown' }}</n-text>
                 </div>
               </div>
 
-              <div class="detail-item">
-                <div class="detail-label">
+              <div
+                class="flex flex-col gap-2 p-4 bg-[var(--n-color-modal)] rounded-lg transition-all duration-300 ease-in-out border border-[var(--n-border-color)] hover:-translate-y-0.5 hover:shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
+              >
+                <div class="flex items-center gap-2 text-sm">
                   <n-icon size="16">
                     <Github />
                   </n-icon>
                   <n-text strong>提交链接</n-text>
                 </div>
-                <div class="detail-value">
+                <div class="pl-6 text-sm">
                   <n-button
                     text
                     type="primary"
@@ -338,14 +347,16 @@
                 </div>
               </div>
 
-              <div class="detail-item">
-                <div class="detail-label">
+              <div
+                class="flex flex-col gap-2 p-4 bg-[var(--n-color-modal)] rounded-lg transition-all duration-300 ease-in-out border border-[var(--n-border-color)] hover:-translate-y-0.5 hover:shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
+              >
+                <div class="flex items-center gap-2 text-sm">
                   <n-icon size="16">
                     <Mail />
                   </n-icon>
                   <n-text strong>作者邮箱</n-text>
                 </div>
-                <div class="detail-value">
+                <div class="pl-6 text-sm">
                   <n-text>{{
                     currentCommit?.commit?.author?.email || 'Unknown'
                   }}</n-text>
@@ -580,220 +591,4 @@ onMounted(() => {
 })
 </script>
 
-<style scoped>
-.n-card {
-  margin-bottom: 16px;
-}
 
-.modal-header {
-  padding: 8px 0;
-}
-
-.commit-sha {
-  margin-top: 4px;
-}
-
-.tab-content {
-  padding: 20px 0;
-  min-height: 300px;
-}
-
-.detail-item {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 16px;
-  background: var(--n-color-modal);
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  border: 1px solid var(--n-border-color);
-}
-
-.detail-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.detail-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-}
-
-.detail-value {
-  padding-left: 24px;
-  font-size: 14px;
-}
-
-.markdown-content {
-  font-size: 14px;
-  line-height: 1.8;
-  max-height: 450px;
-  overflow-y: auto;
-  padding: 20px;
-  background: var(--n-color-modal);
-  border: 1px solid var(--n-border-color);
-  border-radius: 12px;
-}
-
-.markdown-content :deep(h1),
-.markdown-content :deep(h2),
-.markdown-content :deep(h3),
-.markdown-content :deep(h4),
-.markdown-content :deep(h5),
-.markdown-content :deep(h6) {
-  margin: 20px 0 12px 0;
-  font-weight: 600;
-  line-height: 1.4;
-}
-
-.markdown-content :deep(h1) {
-  font-size: 1.6em;
-  border-bottom: 2px solid var(--n-border-color);
-  padding-bottom: 10px;
-  margin-top: 0;
-}
-
-.markdown-content :deep(h2) {
-  font-size: 1.4em;
-  border-bottom: 1px solid var(--n-border-color);
-  padding-bottom: 8px;
-}
-
-.markdown-content :deep(h3) {
-  font-size: 1.2em;
-}
-
-.markdown-content :deep(p) {
-  margin: 12px 0;
-}
-
-.markdown-content :deep(ul),
-.markdown-content :deep(ol) {
-  margin: 12px 0;
-  padding-left: 28px;
-}
-
-.markdown-content :deep(li) {
-  margin: 6px 0;
-  line-height: 1.6;
-}
-
-.markdown-content :deep(code) {
-  background: var(--n-code-color);
-  padding: 3px 8px;
-  border-radius: 6px;
-  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-  font-size: 0.9em;
-  border: 1px solid var(--n-border-color);
-}
-
-.markdown-content :deep(pre) {
-  background: var(--n-scrollbar-color);
-  padding: 20px;
-  border-radius: 12px;
-  overflow-x: auto;
-  margin: 16px 0;
-  border: 1px solid var(--n-border-color);
-}
-
-.markdown-content :deep(pre code) {
-  background: transparent;
-  padding: 0;
-  color: inherit;
-  border: none;
-}
-
-.markdown-content :deep(blockquote) {
-  border-left: 4px solid var(--n-primary-color);
-  padding: 16px 20px;
-  margin: 16px 0;
-  background: var(--n-color-modal);
-  border-radius: 8px;
-  border: 1px solid var(--n-border-color);
-  border-left-width: 4px;
-}
-
-.markdown-content :deep(a) {
-  color: var(--n-primary-color);
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-.markdown-content :deep(a:hover) {
-  text-decoration: underline;
-}
-
-.markdown-content :deep(table) {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 16px 0;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.markdown-content :deep(th),
-.markdown-content :deep(td) {
-  border: 1px solid var(--n-border-color);
-  padding: 12px 16px;
-  text-align: left;
-}
-
-.markdown-content :deep(th) {
-  background: var(--n-color-modal);
-  font-weight: 600;
-}
-
-.markdown-content :deep(tr:nth-child(even)) {
-  background: var(--n-color-modal);
-}
-
-.markdown-content :deep(tr:hover) {
-  background: var(--n-color-hover);
-}
-
-.markdown-content :deep(hr) {
-  border: none;
-  border-top: 2px solid var(--n-border-color);
-  margin: 24px 0;
-}
-
-.markdown-content :deep(img) {
-  max-width: 100%;
-  border-radius: 8px;
-  margin: 12px 0;
-}
-
-.markdown-content :deep(strong) {
-  font-weight: 600;
-}
-
-.markdown-content :deep(em) {
-  font-style: italic;
-}
-
-/* 移动端适配 */
-@media (max-width: 768px) {
-  /* 功能特性网格改为单列 */
-  :deep(.n-grid) {
-    grid-template-columns: 1fr !important;
-  }
-
-  /* 卡片标题和按钮垂直排列 */
-  :deep(.n-card-header) {
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    gap: 8px;
-  }
-
-  :deep(.n-card-header__main) {
-    font-size: 16px;
-  }
-
-  :deep(.n-card-header__extra) {
-    width: 100%;
-  }
-}
-</style>

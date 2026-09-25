@@ -19,13 +19,13 @@
               style="width: 100%"
               @update:value="handleFilterChange"
             />
-            <div class="proxy-sort-filter-row">
+            <div class="flex gap-4 mb-2 w-full">
               <n-select
                 v-model:value="sortOptions.key"
                 :options="sortFieldOptions"
                 placeholder="排序字段"
                 clearable
-                class="proxy-sort-item"
+                class="flex-1 min-w-0"
                 @update:value="handleSortFieldChange"
               />
               <n-select
@@ -33,7 +33,7 @@
                 :options="sortOrderOptions"
                 placeholder="排序方式"
                 clearable
-                class="proxy-sort-item"
+                class="flex-1 min-w-0"
                 @update:value="handleSortOrderChange"
               />
               <n-select
@@ -41,7 +41,7 @@
                 :options="proxyTypeOptions"
                 placeholder="协议"
                 clearable
-                class="proxy-sort-item"
+                class="flex-1 min-w-0"
                 @update:value="handleFilterChange"
               />
               <n-select
@@ -49,7 +49,7 @@
                 :options="onlineOptions"
                 placeholder="在线状态"
                 clearable
-                class="proxy-sort-item"
+                class="flex-1 min-w-0"
                 @update:value="handleFilterChange"
               />
               <n-select
@@ -57,7 +57,7 @@
                 :options="banOptions"
                 placeholder="封禁状态"
                 clearable
-                class="proxy-sort-item"
+                class="flex-1 min-w-0"
                 @update:value="handleFilterChange"
               />
             </div>
@@ -181,7 +181,7 @@
         v-model:show="showEditModal"
         preset="dialog"
         title="编辑隧道"
-        class="edit-modal"
+        class="max-md:w-[95vw]! max-md:max-w-[95vw]! max-md:mx-auto! max-[480px]:w-[98vw]! max-[480px]:max-w-[98vw]!"
         :style="modalStyle"
       >
         <n-form
@@ -262,7 +262,9 @@
                 label="远程端口"
                 path="remotePort"
               >
-                <div class="remote-port-container">
+                <div
+                  class="flex gap-2 items-center w-full max-md:flex-col max-md:items-stretch max-md:gap-2"
+                >
                   <n-input-number
                     v-model:value="editForm.remotePort"
                     :min="1"
@@ -298,7 +300,9 @@
                 />
               </n-form-item>
               <n-form-item label="每个IP最大下载速率" path="ipLimitIn">
-                <div class="speed-input-group">
+                <div
+                  class="flex gap-2 items-center max-md:flex-col max-md:items-stretch max-md:gap-2"
+                >
                   <n-input-number
                     v-model:value="editForm.ipLimitIn"
                     :min="0"
@@ -313,7 +317,9 @@
                 </div>
               </n-form-item>
               <n-form-item label="每个IP最大上传速率" path="ipLimitOut">
-                <div class="speed-input-group">
+                <div
+                  class="flex gap-2 items-center max-md:flex-col max-md:items-stretch max-md:gap-2"
+                >
                   <n-input-number
                     v-model:value="editForm.ipLimitOut"
                     :min="0"
@@ -328,7 +334,9 @@
                 </div>
               </n-form-item>
               <n-form-item label="其他选项">
-                <div class="switch-container">
+                <div
+                  class="flex gap-4 flex-wrap max-md:flex-col max-md:gap-3"
+                >
                   <n-switch
                     v-model:value="editForm.useEncryption"
                     :rail-style="switchButtonRailStyle"
@@ -1395,202 +1403,4 @@ onMounted(() => {
 })
 </script>
 
-<style lang="scss" scoped>
-.remote-port-container {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  width: 100%;
-}
 
-.switch-container {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.speed-input-group {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.filter-space {
-  flex-wrap: wrap;
-}
-
-.proxy-sort-filter-row {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 8px;
-  width: 100%;
-}
-
-.proxy-sort-item {
-  flex: 1 1 0;
-  min-width: 0;
-}
-
-@media (max-width: 768px) {
-  .ncard {
-    margin: 0 !important;
-    border-radius: 0 !important;
-  }
-
-  .edit-modal {
-    width: 95vw !important;
-    max-width: 95vw !important;
-    margin: 0 auto !important;
-  }
-
-  .nmodal {
-    padding: 8px !important;
-  }
-
-  .nform {
-    padding-top: 8px !important;
-  }
-
-  .nform-item {
-    margin-bottom: 12px !important;
-
-    .nform-item-label {
-      font-size: 14px !important;
-      min-width: 80px !important;
-      width: 80px !important;
-    }
-  }
-
-  .ninput,
-  .nselect,
-  .ninput-number {
-    font-size: 16px !important;
-    min-height: 40px !important;
-  }
-
-  .nbutton {
-    font-size: 14px !important;
-    min-height: 36px !important;
-    padding: 0 12px !important;
-    margin-right: 4px !important;
-  }
-
-  .ndata-table {
-    overflow-x: auto;
-    font-size: 12px !important;
-
-    .ndata-table-table {
-      min-width: 800px;
-    }
-
-    .ndata-table-th,
-    .ndata-table-td {
-      padding: 8px 4px !important;
-      font-size: 12px !important;
-    }
-  }
-
-  .filter-space {
-    .nselect {
-      min-width: 100px !important;
-      width: 100px !important;
-    }
-  }
-
-  .remote-port-container {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-
-    .ninput-number {
-      width: 100% !important;
-    }
-
-    .nbutton {
-      width: 100% !important;
-      margin-right: 0 !important;
-    }
-  }
-
-  .switch-container {
-    flex-direction: column;
-    gap: 12px;
-
-    .nswitch {
-      width: 100% !important;
-    }
-  }
-
-  .speed-input-group {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-  }
-
-  .nspace {
-    gap: 8px !important;
-  }
-
-  .npagination {
-    .npagination-item {
-      min-width: 32px !important;
-      height: 32px !important;
-      font-size: 12px !important;
-    }
-
-    .npagination-size-picker {
-      .nselect {
-        min-width: 80px !important;
-      }
-    }
-  }
-
-  .ntag {
-    font-size: 11px !important;
-    padding: 2px 6px !important;
-    max-width: 120px !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-  }
-}
-
-@media (max-width: 480px) {
-  .edit-modal {
-    width: 98vw !important;
-    max-width: 98vw !important;
-  }
-
-  .nform-item {
-    .nform-item-label {
-      min-width: 70px !important;
-      width: 70px !important;
-      font-size: 13px !important;
-    }
-  }
-
-  .ndata-table {
-    .ndata-table-table {
-      min-width: 700px;
-    }
-
-    .ndata-table-th,
-    .ndata-table-td {
-      padding: 6px 2px !important;
-      font-size: 11px !important;
-    }
-  }
-
-  .filter-space {
-    .nselect {
-      min-width: 90px !important;
-      width: 90px !important;
-    }
-  }
-
-  .ntag {
-    font-size: 10px !important;
-    padding: 1px 4px !important;
-    max-width: 100px !important;
-  }
-}
-</style>

@@ -81,40 +81,40 @@
                 </n-grid-item>
                 <n-grid-item :span="isMobile ? 2 : 1">
                   <n-form-item label="签到积分范围">
-                    <div class="range-inputs">
+                    <div class="flex items-center gap-2">
                       <n-input-number
                         v-model:value="securityForm.signPointsMin"
                         :min="0"
                         placeholder="最小值"
-                        class="range-input"
+                        class="flex-1 min-[769px]:flex-none min-[769px]:w-[110px]"
                       />
-                      <span class="range-separator">-</span>
+                      <span class="leading-[34px] shrink-0">-</span>
                       <n-input-number
                         v-model:value="securityForm.signPointsMax"
                         :min="0"
                         placeholder="最大值"
-                        class="range-input"
+                        class="flex-1 min-[769px]:flex-none min-[769px]:w-[110px]"
                       />
                     </div>
                   </n-form-item>
                 </n-grid-item>
                 <n-grid-item :span="isMobile ? 2 : 1">
                   <n-form-item label="签到流量范围">
-                    <div class="range-inputs">
+                    <div class="flex items-center gap-2">
                       <n-input-number
                         v-model:value="securityForm.signTrafficMin"
                         :min="0"
                         placeholder="最小值"
-                        class="range-input"
+                        class="flex-1 min-[769px]:flex-none min-[769px]:w-[110px]"
                       >
                         <template #suffix>MB</template>
                       </n-input-number>
-                      <span class="range-separator">-</span>
+                      <span class="leading-[34px] shrink-0">-</span>
                       <n-input-number
                         v-model:value="securityForm.signTrafficMax"
                         :min="0"
                         placeholder="最大值"
-                        class="range-input"
+                        class="flex-1 min-[769px]:flex-none min-[769px]:w-[110px]"
                       >
                         <template #suffix>MB</template>
                       </n-input-number>
@@ -272,7 +272,9 @@
           <n-tab-pane name="downloads" tab="下载">
             <div
               :class="
-                isMobile ? 'download-filter-row-mobile' : 'download-filter-row'
+                isMobile
+                  ? 'flex flex-col gap-3 mb-4 w-full'
+                  : 'flex gap-4 mb-3 w-full items-stretch'
               "
             >
               <n-select
@@ -281,8 +283,8 @@
                 placeholder="筛选方式"
                 :class="
                   isMobile
-                    ? 'download-filter-item-mobile'
-                    : 'download-filter-item'
+                    ? 'w-full flex items-center'
+                    : 'flex-1 min-w-0 flex items-center'
                 "
                 style="min-width: 100px"
               />
@@ -291,8 +293,8 @@
                 placeholder="请输入关键词"
                 :class="
                   isMobile
-                    ? 'download-filter-item-mobile'
-                    : 'download-filter-item'
+                    ? 'w-full flex items-center'
+                    : 'flex-1 min-w-0 flex items-center'
                 "
                 clearable
                 @update:value="filterDownloadSources"
@@ -303,8 +305,8 @@
                 placeholder="排序方式"
                 :class="
                   isMobile
-                    ? 'download-filter-item-mobile'
-                    : 'download-filter-item'
+                    ? 'w-full flex items-center'
+                    : 'flex-1 min-w-0 flex items-center'
                 "
                 style="min-width: 100px"
                 @update:value="filterDownloadSources"
@@ -314,8 +316,8 @@
                 @click="showAddSourceModal = true"
                 :class="
                   isMobile
-                    ? 'download-filter-btn-mobile'
-                    : 'download-filter-btn'
+                    ? 'w-full h-9 self-stretch'
+                    : 'flex-none min-w-0 w-auto px-4 h-8 self-center'
                 "
                 size="small"
               >
@@ -333,14 +335,14 @@
 
           <n-tab-pane name="groups" tab="用户组">
             <div
-              :class="isMobile ? 'group-filter-row-mobile' : 'group-filter-row'"
+              :class="isMobile ? 'flex flex-col gap-3 mb-4 w-full' : 'flex gap-4 mb-3 w-full items-stretch'"
             >
               <n-select
                 v-model:value="groupFilterMode"
                 :options="groupFilterModeOptions"
                 placeholder="筛选方式"
                 :class="
-                  isMobile ? 'group-filter-item-mobile' : 'group-filter-item'
+                  isMobile ? 'w-full flex items-center' : 'flex-1 min-w-0 flex items-center'
                 "
                 style="min-width: 100px"
               />
@@ -348,7 +350,7 @@
                 v-model:value="groupFilterKeyword"
                 placeholder="请输入关键词"
                 :class="
-                  isMobile ? 'group-filter-item-mobile' : 'group-filter-item'
+                  isMobile ? 'w-full flex items-center' : 'flex-1 min-w-0 flex items-center'
                 "
                 clearable
                 @update:value="filterGroups"
@@ -358,7 +360,7 @@
                 :options="groupSortOrderOptions"
                 placeholder="排序方式"
                 :class="
-                  isMobile ? 'group-filter-item-mobile' : 'group-filter-item'
+                  isMobile ? 'w-full flex items-center' : 'flex-1 min-w-0 flex items-center'
                 "
                 style="min-width: 100px"
                 @update:value="filterGroups"
@@ -367,7 +369,7 @@
                 type="primary"
                 @click="showAddGroupModal = true"
                 :class="
-                  isMobile ? 'group-filter-btn-mobile' : 'group-filter-btn'
+                  isMobile ? 'w-full h-9 self-stretch' : 'flex-none min-w-0 w-auto px-4 h-8 self-center'
                 "
                 size="small"
               >
@@ -387,8 +389,8 @@
             <div
               :class="
                 isMobile
-                  ? 'broadcast-filter-row-mobile'
-                  : 'broadcast-filter-row'
+                  ? 'flex flex-col gap-3 mb-4 w-full'
+                  : 'flex gap-4 mb-3 w-full items-stretch'
               "
             >
               <n-select
@@ -397,8 +399,8 @@
                 placeholder="筛选方式"
                 :class="
                   isMobile
-                    ? 'broadcast-filter-item-mobile'
-                    : 'broadcast-filter-item'
+                    ? 'w-full flex items-center'
+                    : 'flex-1 min-w-0 flex items-center'
                 "
                 style="min-width: 100px"
               />
@@ -407,8 +409,8 @@
                 placeholder="请输入关键词"
                 :class="
                   isMobile
-                    ? 'broadcast-filter-item-mobile'
-                    : 'broadcast-filter-item'
+                    ? 'w-full flex items-center'
+                    : 'flex-1 min-w-0 flex items-center'
                 "
                 clearable
                 @update:value="filterBroadcasts"
@@ -419,8 +421,8 @@
                 placeholder="排序方式"
                 :class="
                   isMobile
-                    ? 'broadcast-filter-item-mobile'
-                    : 'broadcast-filter-item'
+                    ? 'w-full flex items-center'
+                    : 'flex-1 min-w-0 flex items-center'
                 "
                 style="min-width: 100px"
                 @update:value="filterBroadcasts"
@@ -430,8 +432,8 @@
                 @click="showAddBroadcastModal = true"
                 :class="
                   isMobile
-                    ? 'broadcast-filter-btn-mobile'
-                    : 'broadcast-filter-btn'
+                    ? 'w-full h-9 self-stretch'
+                    : 'flex-none min-w-0 w-auto px-4 h-8 self-center'
                 "
                 size="small"
               >
@@ -2053,132 +2055,4 @@ onMounted(() => {
 })
 </script>
 
-<style scoped>
-.download-filter-row {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 12px;
-  width: 100%;
-  align-items: stretch;
-}
-.download-filter-item {
-  flex: 1 1 0;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-}
-.download-filter-btn {
-  flex: none;
-  min-width: unset;
-  width: auto;
-  padding: 0 16px;
-  height: 32px;
-  align-self: center;
-}
 
-.group-filter-row {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 12px;
-  width: 100%;
-  align-items: stretch;
-}
-.group-filter-item {
-  flex: 1 1 0;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-}
-.group-filter-btn {
-  flex: none;
-  min-width: unset;
-  width: auto;
-  padding: 0 16px;
-  height: 32px;
-  align-self: center;
-}
-
-.broadcast-filter-row {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 12px;
-  width: 100%;
-  align-items: stretch;
-}
-.broadcast-filter-item {
-  flex: 1 1 0;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-}
-.broadcast-filter-btn {
-  flex: none;
-  min-width: unset;
-  width: auto;
-  padding: 0 16px;
-  height: 32px;
-  align-self: center;
-}
-
-.download-filter-row-mobile,
-.group-filter-row-mobile,
-.broadcast-filter-row-mobile {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 16px;
-  width: 100%;
-}
-
-.download-filter-item-mobile,
-.group-filter-item-mobile,
-.broadcast-filter-item-mobile {
-  width: 100%;
-  display: flex;
-  align-items: center;
-}
-
-.download-filter-btn-mobile,
-.group-filter-btn-mobile,
-.broadcast-filter-btn-mobile {
-  width: 100%;
-  height: 36px;
-  align-self: stretch;
-}
-
-:deep(.ndata-table-wrapper) {
-  overflow-x: auto;
-}
-
-.range-inputs {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.range-input {
-  flex: 1;
-}
-
-.range-separator {
-  line-height: 34px;
-  flex-shrink: 0;
-}
-
-@media screen and (min-width: 769px) {
-  .range-input {
-    flex: 0 0 auto;
-    width: 110px;
-  }
-}
-
-@media screen and (max-width: 768px) {
-  :deep(.nform-item) {
-    margin-bottom: 16px;
-  }
-
-  :deep(.nform-item-label) {
-    padding-bottom: 4px;
-  }
-}
-</style>

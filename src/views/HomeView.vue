@@ -1,40 +1,90 @@
 <template>
-  <n-config-provider>
-    <n-scrollbar class="home-scrollbar" :style="{ height: scrollbarHeight }">
-      <div class="landing-page">
-        <!-- 英雄区域 -->
-        <section class="hero">
-          <div class="container">
-            <div class="hero-content">
-              <div class="hero-text">
-                <h2 class="hero-title">
-                  <span :style="{ color: themeStore.primaryColor }">{{
-                    packageData.title
-                  }}</span>
+  <div>
+    <n-scrollbar
+      class="home-scrollbar overflow-hidden [&_.n-scrollbar-container]:h-full"
+      :style="{ height: scrollbarHeight }"
+    >
+      <div
+        class="landing-page text-[var(--n-text-color)] bg-[var(--n-color)] [--navbar-height:56px]"
+      >
+        <section
+          class="hero relative min-h-[calc(100vh-var(--navbar-height,56px))] flex items-center overflow-hidden max-md:[--navbar-height:65px] max-md:py-10"
+        >
+          <div
+            class="hero-bg absolute inset-0 bg-cover bg-center blur-[4px] scale-105"
+            aria-hidden="true"
+          />
+          <div
+            class="absolute inset-0 z-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.45),rgba(0,0,0,0.35))]"
+            aria-hidden="true"
+          />
+          <div
+            class="hero-aurora z-0 left-[6%] top-[10%] w-[38vw] h-[38vw] bg-[var(--n-primary-color,#18a058)]"
+            aria-hidden="true"
+          />
+          <div
+            class="hero-aurora hero-aurora--slow z-0 right-[2%] top-[24%] w-[32vw] h-[32vw] bg-[#2080f0]"
+            aria-hidden="true"
+          />
+          <div
+            class="hero-aurora z-0 left-[36%] bottom-[2%] w-[26vw] h-[26vw] bg-[#9060f0]"
+            aria-hidden="true"
+          />
+          <div class="hero-grid z-0" aria-hidden="true" />
+
+          <div
+            class="max-w-[1200px] mb-10 px-[60px] max-md:px-4"
+          >
+            <motion.div
+              class="relative z-[1] flex items-center gap-10 max-md:flex-col max-md:gap-[30px] min-[768px]:max-[1023px]:gap-[30px]"
+              initial="hidden"
+              animate="show"
+              :variants="staggerContainer(0.1, 0.08)"
+            >
+              <div class="flex-1">
+                <motion.h2
+                  class="text-[clamp(28px,5vw,48px)] font-extrabold leading-[1.2] mb-10 text-white [text-shadow:0_2px_12px_rgba(0,0,0,0.35)] min-[768px]:max-[1023px]:text-[40px]"
+                  :variants="fadeUp"
+                >
+                  <span
+                    class="brand-sheen"
+                    :style="{ color: themeStore.primaryColor }"
+                    >{{ packageData.title }}</span
+                  >
                   内网穿透
-                </h2>
-                <p class="hero-description">
+                </motion.h2>
+                <motion.p
+                  class="text-[clamp(16px,2.5vw,18px)] leading-[1.6] mb-8 max-w-[560px] text-white/92 [text-shadow:0_1px_8px_rgba(0,0,0,0.3)]"
+                  :variants="fadeUp"
+                >
                   免费、易用、安全、稳定、快速、极低占用
-                </p>
-                <div class="hero-actions">
+                </motion.p>
+                <motion.div
+                  class="mt-8 [&_.n-button]:text-white/92"
+                  :variants="fadeUp"
+                >
                   <n-space :vertical="isMobile" :size="isMobile ? 12 : 16">
                     <template v-if="!isLogin">
-                      <n-button
-                        type="primary"
-                        :size="isMobile ? 'medium' : 'large'"
-                        block
-                        @click="router.push('/login')"
-                        >立即登录
-                      </n-button>
+                      <div class="btn-shine rounded-full">
+                        <n-button
+                          type="primary"
+                          :size="isMobile ? 'medium' : 'large'"
+                          block
+                          @click="router.push('/login')"
+                          >立即登录
+                        </n-button>
+                      </div>
                     </template>
                     <template v-else>
-                      <n-button
-                        type="primary"
-                        :size="isMobile ? 'medium' : 'large'"
-                        block
-                        @click="router.push('/dashboard')"
-                        >管理面板
-                      </n-button>
+                      <div class="btn-shine rounded-full">
+                        <n-button
+                          type="primary"
+                          :size="isMobile ? 'medium' : 'large'"
+                          block
+                          @click="router.push('/dashboard')"
+                          >管理面板
+                        </n-button>
+                      </div>
                     </template>
                     <n-button
                       :size="isMobile ? 'medium' : 'large'"
@@ -43,173 +93,289 @@
                       >了解更多</n-button
                     >
                   </n-space>
-                </div>
+                </motion.div>
               </div>
-            </div>
+            </motion.div>
           </div>
         </section>
 
-        <!-- 特性区域 -->
-        <section class="features" id="features-section">
-          <div class="container">
-            <div class="section-header">
-              <h2 class="section-title">为什么选择我们的 FRP 服务</h2>
-              <p class="section-description">
+        <section
+          class="py-10 bg-[var(--n-color-modal)] min-[768px]:max-[1023px]:py-[50px]"
+          id="features-section"
+        >
+          <div class="max-w-[1200px] mx-auto mb-10 px-[20px] max-md:px-4">
+            <motion.div
+              class="text-center mb-10 max-md:mb-[30px]"
+              :variants="fadeUp"
+              initial="hidden"
+              while-in-view="show"
+              :in-view-options="viewportOnce"
+            >
+              <h2 class="text-[clamp(24px,4vw,36px)] font-bold mb-4 text-[var(--n-text-color)] min-[768px]:max-[1023px]:text-[32px]">为什么选择我们的 FRP 服务</h2>
+              <p class="text-[clamp(14px,2vw,18px)] text-[var(--n-text-color-3)] max-w-[700px] mx-auto leading-[1.6]">
                 我们提供简单易用、安全可靠的内网穿透服务，满足您的各种需求
               </p>
-            </div>
-            <n-grid
-              :cols="quickStartGridCols"
-              responsive="screen"
-              :x-gap="isMobile ? 16 : 24"
-              :y-gap="isMobile ? 16 : 24"
+            </motion.div>
+            <motion.div
+              initial="hidden"
+              while-in-view="show"
+              :variants="staggerContainer(0.08)"
+              :in-view-options="viewportOnce"
             >
-              <n-grid-item v-for="feature in features" :key="feature.title">
-                <n-card class="feature-card">
-                  <div class="feature-icon">
-                    <n-icon :size="isMobile ? 28 : 36" :depth="3">
-                      <component :is="feature.icon" />
-                    </n-icon>
-                  </div>
-                  <h3 class="feature-title">{{ feature.title }}</h3>
-                  <p class="feature-description">{{ feature.description }}</p>
-                </n-card>
-              </n-grid-item>
-            </n-grid>
-          </div>
-        </section>
-
-        <!-- 使用场景 -->
-        <section class="use-cases">
-          <div class="container">
-            <div class="section-header">
-              <h2 class="section-title">适用场景</h2>
-              <p class="section-description">
-                {{ packageData.title }} 可以应用于多种场景，满足您的不同需求
-              </p>
-            </div>
-            <n-timeline>
-              <n-timeline-item
-                v-for="(useCase, index) in useCases"
-                :key="index"
-                :type="useCase.type"
-                :title="useCase.title"
+              <n-grid
+                :cols="quickStartGridCols"
+                responsive="screen"
+                :x-gap="isMobile ? 16 : 24"
+                :y-gap="isMobile ? 16 : 24"
               >
-                <n-card>
-                  <div class="use-case-content">
-                    <div class="use-case-text">
-                      <p>{{ useCase.description }}</p>
-                    </div>
-                  </div>
-                </n-card>
-              </n-timeline-item>
-            </n-timeline>
-          </div>
-        </section>
-
-        <!-- 服务优势 -->
-        <section class="advantages">
-          <div class="container">
-            <div class="section-header">
-              <h2 class="section-title">服务优势</h2>
-              <p class="section-description">
-                选择 {{ packageData.title }}，享受专业的内网穿透服务体验
-              </p>
-            </div>
-            <n-grid
-              :cols="gridCols"
-              responsive="screen"
-              :x-gap="isMobile ? 16 : 24"
-              :y-gap="isMobile ? 16 : 24"
-            >
-            </n-grid>
-          </div>
-        </section>
-
-        <!-- 快速开始 -->
-        <section class="quick-start">
-          <div class="container">
-            <div class="section-header">
-              <h2 class="section-title">快速开始</h2>
-              <p class="section-description">
-                只需几个简单步骤，即可开始使用 {{ packageData.title }} 服务
-              </p>
-            </div>
-            <n-grid
-              :cols="gridCols"
-              responsive="screen"
-              :x-gap="isMobile ? 16 : 24"
-              :y-gap="isMobile ? 16 : 24"
-            >
-              <n-grid-item
-                v-for="(step, index) in quickStartSteps"
-                :key="index"
-              >
-                <n-card
-                  class="step-card"
-                  :class="{ 'step-card-active': index === 0 - 1 }"
-                  :style="{ animationDelay: `${index * 0.2}s` }"
-                >
-                  <template #header>
-                    <div class="step-header">
-                      <div class="step-number">{{ index + 1 }}</div>
-                      <div class="step-icon">
-                        <n-icon :size="isMobile ? 32 : 40" :depth="3">
-                          <component :is="step.icon" />
+                <n-grid-item v-for="feature in features" :key="feature.title">
+                  <motion.div
+                    class="h-full card-glow rounded-2xl"
+                    :variants="fadeUpSm"
+                    :while-hover="hoverLift"
+                    @pointermove="handleCardPointerMove"
+                  >
+                    <n-card
+                      class="h-full flex flex-col items-center text-center p-[24px_16px] max-md:p-[20px_16px]"
+                    >
+                      <div class="mb-5 text-[var(--n-primary-color)]">
+                        <n-icon :size="isMobile ? 28 : 36" :depth="3">
+                          <component :is="feature.icon" />
                         </n-icon>
                       </div>
-                    </div>
-                  </template>
-                  <div class="step-content">
-                    <h3 class="step-title">{{ step.title }}</h3>
-                    <p class="step-description">{{ step.description }}</p>
-                  </div>
-                  <div
-                    class="step-arrow"
-                    v-if="index < quickStartSteps.length - 1"
-                  >
-                    <n-icon :size="isMobile ? 20 : 2">
-                      <ArrowRightIcon />
-                    </n-icon>
-                  </div>
-                </n-card>
-              </n-grid-item>
+                      <h3
+                        class="text-[clamp(16px,2.5vw,20px)] font-semibold mb-3 text-[var(--n-text-color)]"
+                      >
+                        {{ feature.title }}
+                      </h3>
+                      <p
+                        class="text-[var(--n-text-color-3)] leading-[1.6] text-[clamp(13px,2vw,15px)]"
+                      >
+                        {{ feature.description }}
+                      </p>
+                    </n-card>
+                  </motion.div>
+                </n-grid-item>
+              </n-grid>
+            </motion.div>
+          </div>
+        </section>
+
+        <section class="py-10 min-[768px]:max-[1023px]:py-[50px]">
+          <div class="max-w-[1200px] mx-auto mb-10 px-[20px] max-md:px-4">
+            <motion.div
+              class="text-center mb-10 max-md:mb-[30px]"
+              :variants="fadeUp"
+              initial="hidden"
+              while-in-view="show"
+              :in-view-options="viewportOnce"
+            >
+              <h2 class="text-[clamp(24px,4vw,36px)] font-bold mb-4 text-[var(--n-text-color)] min-[768px]:max-[1023px]:text-[32px]">适用场景</h2>
+              <p class="text-[clamp(14px,2vw,18px)] text-[var(--n-text-color-3)] max-w-[700px] mx-auto leading-[1.6]">
+                {{ packageData.title }} 可以应用于多种场景，满足您的不同需求
+              </p>
+            </motion.div>
+            <motion.div
+              initial="hidden"
+              while-in-view="show"
+              :variants="staggerContainer(0.1)"
+              :in-view-options="viewportOnce"
+            >
+              <n-timeline>
+                <n-timeline-item
+                  v-for="(useCase, index) in useCases"
+                  :key="index"
+                  :type="useCase.type"
+                  :title="useCase.title"
+                >
+                  <motion.div :variants="slideInLeft" :while-hover="hoverLift">
+                    <n-card>
+                      <div class="flex items-center gap-6">
+                        <div class="flex-1">
+                          <p>{{ useCase.description }}</p>
+                        </div>
+                      </div>
+                    </n-card>
+                  </motion.div>
+                </n-timeline-item>
+              </n-timeline>
+            </motion.div>
+          </div>
+        </section>
+
+        <section
+          class="py-10 bg-[var(--n-color-modal)] min-[768px]:max-[1023px]:py-[50px]"
+        >
+          <div class="max-w-[1200px] mx-auto mb-10 px-[60px] max-md:px-4">
+            <motion.div
+              class="text-center mb-10 max-md:mb-[30px]"
+              :variants="fadeUp"
+              initial="hidden"
+              while-in-view="show"
+              :in-view-options="viewportOnce"
+            >
+              <h2 class="text-[clamp(24px,4vw,36px)] font-bold mb-4 text-[var(--n-text-color)] min-[768px]:max-[1023px]:text-[32px]">服务优势</h2>
+              <p class="text-[clamp(14px,2vw,18px)] text-[var(--n-text-color-3)] max-w-[700px] mx-auto leading-[1.6]">
+                选择 {{ packageData.title }}，享受专业的内网穿透服务体验
+              </p>
+            </motion.div>
+            <n-grid
+              :cols="gridCols"
+              responsive="screen"
+              :x-gap="isMobile ? 16 : 24"
+              :y-gap="isMobile ? 16 : 24"
+            >
             </n-grid>
           </div>
         </section>
 
-        <!-- 常见问题 -->
-        <section class="faq">
-          <div class="container">
-            <div class="section-header">
-              <h2 class="section-title">常见问题</h2>
-              <p class="section-description">了解更多关于我们服务的信息</p>
-            </div>
-            <n-collapse>
-              <n-collapse-item
-                v-for="(item, index) in faqItems"
-                :key="index"
-                :title="item.question"
-                :name="index"
+        <section
+          class="py-[60px] bg-[var(--n-color-modal)] mt-10 max-md:py-10 max-md:mt-6 min-[768px]:max-[1023px]:py-[50px]"
+        >
+          <div
+            class="max-w-[1200px] mx-auto mb-10 px-[20px] max-md:px-4 max-md:mb-6"
+          >
+            <motion.div
+              class="text-center mb-10 max-md:mb-[30px]"
+              :variants="fadeUp"
+              initial="hidden"
+              while-in-view="show"
+              :in-view-options="viewportOnce"
+            >
+              <h2 class="text-[clamp(24px,4vw,36px)] font-bold mb-4 text-[var(--n-text-color)] min-[768px]:max-[1023px]:text-[32px]">快速开始</h2>
+              <p class="text-[clamp(14px,2vw,18px)] text-[var(--n-text-color-3)] max-w-[700px] mx-auto leading-[1.6]">
+                只需几个简单步骤，即可开始使用 {{ packageData.title }} 服务
+              </p>
+            </motion.div>
+            <motion.div
+              initial="hidden"
+              while-in-view="show"
+              :variants="staggerContainer(0.12)"
+              :in-view-options="viewportOnce"
+            >
+              <n-grid
+                :cols="gridCols"
+                responsive="screen"
+                :x-gap="isMobile ? 16 : 24"
+                :y-gap="isMobile ? 16 : 24"
               >
-                {{ item.answer }}
-              </n-collapse-item>
-            </n-collapse>
+                <n-grid-item
+                  v-for="(step, index) in quickStartSteps"
+                  :key="index"
+                >
+                  <motion.div
+                    class="h-full"
+                    :variants="fadeUpSm"
+                    :while-hover="hoverLiftShadow"
+                  >
+                    <n-card
+                      class="step-card group relative text-center h-full group-hover:[&_.step-icon]:scale-110 max-md:min-w-0 max-md:max-w-full max-md:p-[24px_20px] min-[768px]:max-[1023px]:min-w-[180px] min-[768px]:max-[1023px]:max-w-[240px] min-[768px]:max-[1023px]:p-[28px_20px]"
+                      :class="{
+                        'border border-[var(--n-primary-color)] [&_.step-number]:bg-[var(--n-primary-color)] [&_.step-number]:text-white [&_.step-icon]:text-[var(--n-primary-color)] [&_.step-title]:text-[var(--n-primary-color)]':
+                          index === 0 - 1,
+                      }"
+                    >
+                      <template #header>
+                        <div
+                          class="flex flex-col items-center relative pt-5 max-[767px]:pt-1"
+                        >
+                          <div
+                            class="w-8 h-8 bg-[var(--n-color-modal)] text-[var(--n-text-color)] rounded-full flex items-center justify-center font-bold text-sm shadow-[0_4px_8px_rgba(0,0,0,0.1)] mb-3 max-[767px]:w-7 max-[767px]:h-7 max-[767px]:text-xs max-[767px]:mb-2"
+                          >
+                            {{ index + 1 }}
+                          </div>
+                          <div
+                            class="step-icon mb-4 text-[var(--n-primary-color)] transition-all duration-300 ease-in-out max-[767px]:mb-3"
+                          >
+                            <n-icon :size="isMobile ? 32 : 40" :depth="3">
+                              <component :is="step.icon" />
+                            </n-icon>
+                          </div>
+                        </div>
+                      </template>
+                      <div class="py-2 max-[767px]:py-1">
+                        <h3
+                          class="text-[clamp(16px,2.5vw,18px)] font-semibold mb-3 text-[var(--n-text-color)] transition-colors duration-300 ease-in-out max-[767px]:text-base max-[767px]:mb-2"
+                        >
+                          {{ step.title }}
+                        </h3>
+                        <p
+                          class="text-[var(--n-text-color-3)] leading-[1.6] text-[clamp(13px,2vw,14px)] transition-colors duration-300 ease-in-out max-[767px]:text-[13px]"
+                        >
+                          {{ step.description }}
+                        </p>
+                      </div>
+                      <div
+                        class="absolute -right-[25px] top-1/2 -translate-y-1/2 text-[var(--n-primary-color)] z-[1] max-[767px]:hidden"
+                        v-if="index < quickStartSteps.length - 1"
+                      >
+                        <n-icon :size="isMobile ? 20 : 2">
+                          <ArrowRightIcon />
+                        </n-icon>
+                      </div>
+                    </n-card>
+                  </motion.div>
+                </n-grid-item>
+              </n-grid>
+            </motion.div>
           </div>
         </section>
 
-        <!-- 联系我们 -->
-        <section class="contact">
-          <div class="container">
-            <div class="contact-content">
-              <div class="contact-text">
-                <h2 class="section-title">准备好开始了吗？</h2>
-                <p class="section-description">
+        <section class="py-10 min-[768px]:max-[1023px]:py-[50px]">
+          <div class="max-w-[1200px] mx-auto mb-10 px-[20px] max-md:px-4">
+            <motion.div
+              class="text-center mb-10 max-md:mb-[30px]"
+              :variants="fadeUp"
+              initial="hidden"
+              while-in-view="show"
+              :in-view-options="viewportOnce"
+            >
+              <h2 class="text-[clamp(24px,4vw,36px)] font-bold mb-4 text-[var(--n-text-color)] min-[768px]:max-[1023px]:text-[32px]">常见问题</h2>
+              <p class="text-[clamp(14px,2vw,18px)] text-[var(--n-text-color-3)] max-w-[700px] mx-auto leading-[1.6]">了解更多关于我们服务的信息</p>
+            </motion.div>
+            <motion.div
+              :variants="fadeUp"
+              initial="hidden"
+              while-in-view="show"
+              :in-view-options="viewportOnce"
+            >
+              <n-collapse>
+                <n-collapse-item
+                  v-for="(item, index) in faqItems"
+                  :key="index"
+                  :title="item.question"
+                  :name="index"
+                >
+                  {{ item.answer }}
+                </n-collapse-item>
+              </n-collapse>
+            </motion.div>
+          </div>
+        </section>
+
+        <section
+          class="py-10 bg-[var(--n-color-modal)] min-[768px]:max-[1023px]:py-[50px]"
+        >
+          <div class="max-w-[1200px] mx-auto mb-10 px-[20px] max-md:px-4">
+            <motion.div
+              class="flex items-center justify-between gap-10 max-md:flex-col max-md:text-center max-md:gap-6"
+              :variants="staggerContainer(0.1)"
+              initial="hidden"
+              while-in-view="show"
+              :in-view-options="viewportOnce"
+            >
+              <motion.div class="flex-1" :variants="slideInLeft">
+                <h2 class="text-[clamp(24px,4vw,36px)] font-bold mb-4 text-[var(--n-text-color)] min-[768px]:max-[1023px]:text-[32px]">准备好开始了吗？</h2>
+                <p class="text-[clamp(14px,2vw,18px)] text-[var(--n-text-color-3)] leading-[1.6]">
                   立即注册，开始使用我们的
                   {{ packageData.title }} 服务，享受高速稳定的内网穿透体验。
                 </p>
-              </div>
-              <div class="contact-action">
+              </motion.div>
+              <motion.div
+                class="contact-action"
+                :variants="fadeUpSm"
+                :while-hover="hoverLift"
+              >
                 <template v-if="!isLogin">
                   <n-button
                     type="primary"
@@ -228,55 +394,73 @@
                     >管理面板
                   </n-button>
                 </template>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           </div>
         </section>
 
-        <!-- 页脚 -->
-        <footer class="footer">
-          <div class="container">
-            <div class="footer-content">
-              <div class="footer-logo">
+        <footer class="pt-10 pb-5 bg-[var(--n-color)]">
+          <motion.div
+            class="max-w-[1200px] mx-auto mb-10 px-[20px] max-md:px-4"
+            :variants="fadeUp"
+            initial="hidden"
+            while-in-view="show"
+            :in-view-options="viewportOnce"
+          >
+            <div
+              class="flex justify-between mb-[30px] max-md:flex-col max-md:gap-5 max-md:text-center"
+            >
+              <div class="max-w-[300px] max-md:max-w-none max-md:w-full">
                 <n-gradient-text type="primary" :size="isMobile ? 20 : 24">{{
                   packageData.title
                 }}</n-gradient-text>
-                <p class="footer-description">专业的内网穿透服务提供商</p>
+                <p
+                  class="mt-4 text-[var(--n-text-color-3)] text-[clamp(13px,2vw,15px)]"
+                >
+                  专业的内网穿透服务提供商
+                </p>
               </div>
               <div class="footer-links"></div>
             </div>
 
-            <!-- 统计组件 - 页脚内居中显示 -->
-            <div class="footer-statistic">
+            <div
+              class="flex justify-center w-full mt-20 -mb-[60px] max-md:mt-4 max-md:mb-0"
+            >
               <La />
             </div>
 
-            <div class="footer-bottom">
-              <div class="footer-copyright">
+            <div
+              class="flex justify-between items-center pt-5 flex-wrap gap-4 max-md:flex-col max-md:text-center max-md:gap-3"
+            >
+              <div
+                class="text-[var(--n-text-color-3)] text-[clamp(12px,2vw,14px)] leading-[1.5]"
+              >
                 © {{ new Date().getFullYear() }} {{ packageData.title }} 服务.
                 保留所有权利.<br />
                 Powered By
                 <a
-                  class="section-description"
+                  class="text-[var(--n-text-color-3)] transition-colors duration-200 ease-in no-underline hover:text-[var(--n-primary-color)]"
                   :href="packageData.ycly"
                   target="_blank"
                   >云创联跃IT</a
                 >
               </div>
-              <div class="footer-social">
-                <a :href="packageData.github" class="social-link">
+              <div
+                class="flex gap-4 max-md:order-1 max-md:my-2 max-md:min-w-full max-md:max-w-full"
+              >
+                <a :href="packageData.github" class="text-[var(--n-text-color-3)] transition-colors duration-200 ease-in no-underline hover:text-[var(--n-primary-color)]">
                   <n-icon :size="isMobile ? 20 : 25"><GithubIcon /></n-icon>
                 </a>
-                <a :href="packageData.ycly" class="social-link">
+                <a :href="packageData.ycly" class="text-[var(--n-text-color-3)] transition-colors duration-200 ease-in no-underline hover:text-[var(--n-primary-color)]">
                   <n-icon :size="isMobile ? 20 : 25"><CloudIcon /></n-icon>
                 </a>
               </div>
             </div>
-          </div>
+          </motion.div>
         </footer>
       </div>
     </n-scrollbar>
-  </n-config-provider>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -301,6 +485,16 @@ import {
 import router from '@/router'
 import La from '@/components/La.vue'
 import { useThemeStore } from '@/stores/theme'
+import { motion } from 'motion-v'
+import {
+  fadeUp,
+  fadeUpSm,
+  slideInLeft,
+  staggerContainer,
+  viewportOnce,
+  hoverLift,
+  hoverLiftShadow,
+} from '@/utils/motion'
 
 const themeStore = useThemeStore()
 const isLogin = ref(false)
@@ -329,6 +523,15 @@ const quickStartGridCols = computed(() => {
 
 const handleResize = () => {
   windowWidth.value = window.innerWidth
+}
+
+/** 特性卡片：把指针相对坐标写入 CSS 变量，驱动跟随光晕 */
+const handleCardPointerMove = (event: PointerEvent) => {
+  const el = event.currentTarget as HTMLElement | null
+  if (!el) return
+  const rect = el.getBoundingClientRect()
+  el.style.setProperty('--mx', `${event.clientX - rect.left}px`)
+  el.style.setProperty('--my', `${event.clientY - rect.top}px`)
 }
 
 onMounted(() => {
@@ -470,11 +673,9 @@ function loadUserInfo() {
 
 onMounted(() => {
   const bgUrl = BING_BG_URL
-  const loginEl = document.querySelector('.hero') as HTMLElement
-  if (loginEl) {
-    loginEl.style.backgroundImage = `url('${bgUrl}')`
-    loginEl.style.backgroundSize = 'cover'
-    loginEl.style.backgroundPosition = 'center'
+  const heroBg = document.querySelector('.hero-bg') as HTMLElement
+  if (heroBg) {
+    heroBg.style.backgroundImage = `url('${bgUrl}')`
   }
   loadUserInfo()
   document.documentElement.classList.add('home-scroll-lock')
@@ -493,583 +694,6 @@ onUnmounted(() => {
 })
 </script>
 
-<style lang="scss" scoped>
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 
-.home-scrollbar {
-  overflow: hidden;
 
-  :deep(.n-scrollbar-container) {
-    height: 100%;
-  }
-}
 
-.landing-page {
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
-    Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  color: var(--n-text-color);
-  background-color: var(--n-color);
-  --navbar-height: 56px;
-
-  .container {
-    max-width: 1200px;
-    margin-bottom: 40px;
-    padding: 0 60px;
-  }
-
-  // 英雄区域样式
-  .hero {
-    position: relative;
-    min-height: calc(72vh - var(--navbar-height, 56px));
-    display: flex;
-    align-items: center;
-    padding: 125px 0;
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-
-    &::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(
-        180deg,
-        rgba(0, 0, 0, 0.45),
-        rgba(0, 0, 0, 0.35)
-      );
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(12px);
-      z-index: 0;
-    }
-
-    .hero-content {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      align-items: center;
-      gap: 40px;
-
-      .hero-text {
-        flex: 1;
-
-        .hero-title {
-          font-size: clamp(28px, 5vw, 48px);
-          font-weight: 800;
-          line-height: 1.2;
-          margin-bottom: 40px;
-          color: #ffffff;
-          text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
-        }
-
-        .hero-description {
-          font-size: clamp(16px, 2.5vw, 18px);
-          line-height: 1.6;
-          margin-bottom: 32px;
-          max-width: 560px;
-          color: rgba(255, 255, 255, 0.92);
-          text-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);
-        }
-
-        .hero-actions {
-          margin-top: 32px;
-          .n-button {
-            color: rgba(255, 255, 255, 0.92);
-          }
-        }
-      }
-    }
-  }
-
-  // 特性区域样式
-  .features {
-    padding: 40px 0;
-    background-color: var(--n-color-modal);
-
-    .section-header {
-      text-align: center;
-      margin-bottom: 40px;
-
-      .section-title {
-        font-size: clamp(24px, 4vw, 36px);
-        font-weight: 700;
-        margin-bottom: 16px;
-        color: var(--n-text-color);
-      }
-
-      .section-description {
-        font-size: clamp(14px, 2vw, 18px);
-        color: var(--n-text-color-3);
-        max-width: 700px;
-        margin: 0 auto;
-        line-height: 1.6;
-      }
-    }
-
-    .feature-card {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      padding: 24px 16px;
-      transition: transform 0.3s ease;
-
-      &:hover {
-        transform: translateY(-5px);
-      }
-
-      .feature-icon {
-        margin-bottom: 20px;
-        color: var(--n-primary-color);
-      }
-
-      .feature-title {
-        font-size: clamp(16px, 2.5vw, 20px);
-        font-weight: 600;
-        margin-bottom: 12px;
-        color: var(--n-text-color);
-      }
-
-      .feature-description {
-        color: var(--n-text-color-3);
-        line-height: 1.6;
-        font-size: clamp(13px, 2vw, 15px);
-      }
-    }
-  }
-
-  // 使用场景样式
-  .use-cases {
-    padding: 40px 0;
-
-    .use-case-content {
-      display: flex;
-      align-items: center;
-      gap: 24px;
-
-      .use-case-text {
-        flex: 1;
-      }
-    }
-  }
-
-  // 快速开始样式
-  .quick-start {
-    padding: 60px 0;
-    background-color: var(--n-color-modal);
-    margin-top: 40px;
-
-    .step-card {
-      position: relative;
-      text-align: center;
-      transition: all 0.3s ease;
-      animation: fadeInUp 0.6s ease forwards;
-      opacity: 0;
-      transform: translateY(30px);
-      height: 100%;
-
-      .step-header {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        position: relative;
-        padding-top: 20px;
-      }
-
-      &:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-
-        .step-icon {
-          transform: scale(1.1);
-        }
-      }
-
-      &.step-card-active {
-        border: 1px solid var(--n-primary-color);
-
-        .step-number {
-          background: var(--n-primary-color);
-          color: white;
-        }
-
-        .step-icon {
-          color: var(--n-primary-color);
-        }
-
-        .step-title {
-          color: var(--n-primary-color);
-        }
-      }
-
-      .step-number {
-        width: 32px;
-        height: 32px;
-        background: var(--n-color-modal);
-        color: var(--n-text-color);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 14px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        margin-bottom: 12px;
-      }
-
-      .step-icon {
-        margin-bottom: 16px;
-        color: var(--n-primary-color);
-        transition: all 0.3s ease;
-      }
-
-      .step-content {
-        padding: 8px 0;
-
-        .step-title {
-          font-size: clamp(16px, 2.5vw, 18px);
-          font-weight: 600;
-          margin-bottom: 12px;
-          color: var(--n-text-color);
-          transition: color 0.3s ease;
-        }
-
-        .step-description {
-          color: var(--n-text-color-3);
-          line-height: 1.6;
-          font-size: clamp(13px, 2vw, 14px);
-          transition: color 0.3s ease;
-        }
-      }
-
-      .step-arrow {
-        position: absolute;
-        right: -25px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--n-primary-color);
-        z-index: 1;
-
-        @media (max-width: 767px) {
-          display: none;
-        }
-      }
-
-      @media (max-width: 767px) {
-        .step-number {
-          width: 28px;
-          height: 28px;
-          font-size: 12px;
-        }
-
-        .step-content {
-          padding: 4px 0;
-
-          .step-title {
-            font-size: 16px;
-            margin-bottom: 8px;
-          }
-
-          .step-description {
-            font-size: 13px;
-          }
-        }
-      }
-    }
-  }
-
-  // 服务优势样式
-  .advantages {
-    padding: 40px 0;
-    background-color: var(--n-color-modal);
-
-    .advantage-card {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      padding: 24px 16px;
-      transition: transform 0.3s ease;
-
-      &:hover {
-        transform: translateY(-5px);
-      }
-
-      .advantage-icon {
-        margin-bottom: 20px;
-        color: var(--n-primary-color);
-      }
-
-      .advantage-title {
-        font-size: clamp(16px, 2.5vw, 20px);
-        font-weight: 600;
-        margin-bottom: 12px;
-        color: var(--n-text-color);
-      }
-
-      .advantage-description {
-        color: var(--n-text-color-3);
-        line-height: 1.6;
-        font-size: clamp(13px, 2vw, 15px);
-      }
-    }
-  }
-
-  // FAQ 样式
-  .faq {
-    padding: 40px 0;
-  }
-
-  // 联系我们样式
-  .contact {
-    padding: 40px 0;
-    background-color: var(--n-color-modal);
-
-    .contact-content {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 40px;
-
-      .contact-text {
-        flex: 1;
-      }
-    }
-  }
-
-  // 页脚样式
-  .footer {
-    padding: 40px 0 20px;
-    background-color: var(--n-color);
-    border-top: 1px solid var(--n-border-color);
-
-    .footer-statistic {
-      display: flex;
-      justify-content: center;
-      width: 100%;
-      margin-top: 80px;
-      margin-bottom: -60px;
-    }
-
-    .footer-content {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 30px;
-
-      .footer-logo {
-        max-width: 300px;
-
-        .footer-description {
-          margin-top: 16px;
-          color: var(--n-text-color-3);
-          font-size: clamp(13px, 2vw, 15px);
-        }
-      }
-    }
-
-    .footer-bottom {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-top: 20px;
-      border-top: 1px solid var(--n-border-color);
-      flex-wrap: wrap;
-      gap: 16px;
-
-      .footer-copyright {
-        color: var(--n-text-color-3);
-        font-size: clamp(12px, 2vw, 14px);
-        line-height: 1.5;
-      }
-
-      .footer-social {
-        display: flex;
-        gap: 16px;
-
-        .social-link {
-          color: var(--n-text-color-3);
-          transition: color 0.2s ease;
-          text-decoration: none;
-
-          &:hover {
-            color: var(--n-primary-color);
-          }
-        }
-      }
-    }
-  }
-
-  // 响应式样式
-  @media (max-width: 767px) {
-    .container {
-      padding: 0 16px;
-    }
-
-    .hero {
-      --navbar-height: 65px;
-      padding: 60px 0;
-      background-attachment: scroll;
-
-      .hero-content {
-        flex-direction: column;
-        text-align: left;
-        gap: 30px;
-      }
-    }
-
-    .features,
-    .use-cases,
-    .advantages,
-    .quick-start,
-    .faq,
-    .contact {
-      padding: 40px 0;
-    }
-
-    .quick-start {
-      .quick-start-grid {
-        flex-direction: column;
-        gap: 16px;
-      }
-
-      .step-card {
-        min-width: auto;
-        max-width: 100%;
-        padding: 24px 20px;
-      }
-    }
-
-    .section-header {
-      margin-bottom: 30px;
-    }
-
-    .feature-card,
-    .advantage-card {
-      padding: 20px 16px;
-    }
-
-    .contact-content {
-      flex-direction: column;
-      text-align: center;
-      gap: 24px;
-    }
-
-    .footer-content {
-      flex-direction: column;
-      gap: 20px;
-      text-align: center;
-    }
-
-    .footer-bottom {
-      flex-direction: column;
-      text-align: center;
-      gap: 12px;
-
-      .footer-social {
-        order: 1;
-        margin: 8px 0;
-        min-width: 100%;
-        max-width: 100%;
-      }
-    }
-  }
-
-  @media (min-width: 768px) and (max-width: 1023px) {
-    .hero-title {
-      font-size: 40px;
-    }
-
-    .section-title {
-      font-size: 32px;
-    }
-
-    .hero-content {
-      gap: 30px;
-    }
-
-    .features,
-    .use-cases,
-    .advantages,
-    .quick-start,
-    .faq,
-    .contact {
-      padding: 50px 0;
-    }
-
-    .quick-start {
-      .quick-start-grid {
-        gap: 16px;
-      }
-
-      .step-card {
-        min-width: 180px;
-        max-width: 240px;
-        padding: 28px 20px;
-      }
-    }
-  }
-
-  // 链接样式
-  a {
-    text-decoration: none;
-    color: #3498db;
-    transition: all 0.3s ease;
-    position: relative;
-
-    &:hover {
-      color: #2980b9;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-    }
-
-    &:active {
-      color: #1c6ea4;
-    }
-
-    &:after {
-      content: '';
-      position: absolute;
-      width: 0;
-      height: 2px;
-      bottom: -2px;
-      left: 0;
-      background-color: #3498db;
-      transition: width 0.3s ease;
-    }
-
-    &:hover::after {
-      width: 100%;
-    }
-  }
-
-  // 动画关键帧
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-}
-</style>
-
-<!-- 全局：首页锁定 html/body 滚动，杜绝原生滚动条 -->
-<style lang="scss">
-html.home-scroll-lock,
-html.home-scroll-lock body {
-  overflow: hidden;
-}
-</style>

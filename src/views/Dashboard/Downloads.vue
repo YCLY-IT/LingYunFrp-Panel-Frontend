@@ -1,19 +1,19 @@
 <template>
-  <div class="downloads">
+  <div>
     <NSpin :show="loading">
       <NCard title="产品下载">
         <template #header>
-          <div class="card-header">
+          <div>
             <NText depth="3">选择下载源和产品，获取最新版本</NText>
           </div>
         </template>
 
         <NTabs type="line" animated>
           <NTabPane name="download" tab="文件下载">
-            <div class="dl-tab">
-              <div class="filter-bar">
-                <div class="flt-item">
-                  <span class="flt-label">下载源</span>
+            <div class="pt-1">
+              <div class="flex flex-wrap gap-4 items-end mb-6">
+                <div>
+                  <span class="block text-[13px] text-[var(--n-text-color-3)] mb-1.5">下载源</span>
                   <NSelect
                     v-model:value="srcId"
                     :options="srcOpts"
@@ -22,8 +22,8 @@
                     @update:value="onSrcChange"
                   />
                 </div>
-                <div class="flt-item">
-                  <span class="flt-label">产品</span>
+                <div>
+                  <span class="block text-[13px] text-[var(--n-text-color-3)] mb-1.5">产品</span>
                   <NSelect
                     v-model:value="prodId"
                     :options="prodOpts"
@@ -32,8 +32,8 @@
                     @update:value="onProdChange"
                   />
                 </div>
-                <div v-if="curProd" class="flt-item">
-                  <span class="flt-label">版本</span>
+                <div v-if="curProd">
+                  <span class="block text-[13px] text-[var(--n-text-color-3)] mb-1.5">版本</span>
                   <NSelect
                     v-model:value="ver"
                     :options="verOpts"
@@ -43,8 +43,8 @@
                   />
                 </div>
                 <template v-if="curProd && !isDocker">
-                  <div class="flt-item">
-                    <span class="flt-label">系统</span>
+                  <div>
+                    <span class="block text-[13px] text-[var(--n-text-color-3)] mb-1.5">系统</span>
                     <NSelect
                       v-model:value="os"
                       :options="osOpts"
@@ -52,8 +52,8 @@
                       style="min-width: 130px"
                     />
                   </div>
-                  <div class="flt-item">
-                    <span class="flt-label">架构</span>
+                  <div>
+                    <span class="block text-[13px] text-[var(--n-text-color-3)] mb-1.5">架构</span>
                     <NSelect
                       v-model:value="arch"
                       :options="archOpts"
@@ -65,26 +65,31 @@
                 </template>
               </div>
 
-              <div v-if="curProd" class="product-panel">
-                <div class="product-head">
+              <div
+                v-if="curProd"
+                class="bg-[var(--n-color-embedded)] rounded-lg p-5"
+              >
+                <div class="flex items-center gap-2.5 [&_h3]:m-0">
                   <h3>{{ curProd.name }}</h3>
                   <NTag v-if="isDocker" type="info" size="small">Docker</NTag>
                 </div>
                 <div
                   v-if="curProd.description"
-                  class="product-desc"
+                  class="mt-3 leading-[1.7] text-[var(--n-text-color-2)] [&_a]:text-[var(--n-color-primary)]"
                   v-html="descHtml"
                 />
 
                 <NDivider />
 
-                <div v-if="isDocker" class="docker-block">
+                <div v-if="isDocker" class="[&_p]:mt-0 [&_p]:mb-2">
                   <NAlert type="info">
                     <template #icon>
                       <NIcon><InfoIcon /></NIcon>
                     </template>
                     <p>使用以下命令拉取镜像：</p>
-                    <div class="cmd-line">
+                    <div
+                      class="flex items-center gap-2 bg-[var(--n-color)] rounded-md p-[6px_6px_6px_12px]"
+                    >
                       <NCode>{{ dockerCmd }}</NCode>
                       <NButton text size="small" @click="copyDockerCmd">
                         <template #icon>
@@ -95,7 +100,7 @@
                   </NAlert>
                 </div>
 
-                <div v-else class="btn-row">
+                <div v-else class="flex gap-3">
                   <NButton secondary :disabled="!ready" @click="copyLink">
                     <template #icon>
                       <NIcon><CopyIcon /></NIcon>
@@ -118,7 +123,7 @@
               <NEmpty
                 v-else
                 description="请选择下载源和产品"
-                style="margin-top: 60px"
+                class="mt-20 mb-20"
               >
                 <template #icon>
                   <NIcon size="48"><DownloadIcon /></NIcon>
@@ -128,9 +133,9 @@
           </NTabPane>
 
           <NTabPane name="overview" tab="产品总览">
-            <div class="ov-tab">
+            <div class="pt-1">
               <div class="ov-flt">
-                <span class="flt-label" style="margin-bottom: 6px">下载源</span>
+                <span class="block text-[13px] text-[var(--n-text-color-3)] mb-1.5" style="margin-bottom: 6px">下载源</span>
                 <NSelect
                   :value="ovSrc"
                   :options="ovSrcOpts"
@@ -385,13 +390,13 @@ const overCols: DataTableColumns<any> = [
       })
       const sortedKeys = [...grouped.keys()].sort((a, b) => b.localeCompare(a))
       if (!sortedKeys.length) {
-        return h('div', { class: 'expand-none' }, '暂无版本')
+        return h('div', { class: 'text-[13px] text-[var(--n-text-color-3)]' }, '暂无版本')
       }
       return h(
         'div',
-        { class: 'expand-list' },
+        { class: 'py-1' },
         sortedKeys.map((verName) =>
-          h('div', { class: 'expand-row' }, [
+          h('div', { class: 'flex items-center gap-2.5 py-[3px]' }, [
             h(
               NTag,
               { type: 'success', size: 'small', round: true },
@@ -399,7 +404,7 @@ const overCols: DataTableColumns<any> = [
             ),
             h(
               'span',
-              { class: 'expand-archs' },
+              { class: 'text-[13px] text-[var(--n-text-color-3)]' },
               grouped.get(verName)!.join(', '),
             ),
           ]),
@@ -416,97 +421,3 @@ const overCols: DataTableColumns<any> = [
 
 const overPg = { pageSize: 12, pageSizes: [10, 12, 20, 30] }
 </script>
-
-<style lang="scss" scoped>
-.downloads {
-  .card-header h2 {
-    margin: 0;
-  }
-
-  .dl-tab {
-    padding-top: 4px;
-
-    .filter-bar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-      align-items: flex-end;
-      margin-bottom: 24px;
-    }
-
-    .flt-item {
-      .flt-label {
-        display: block;
-        font-size: 13px;
-        color: var(--n-text-color-3);
-        margin-bottom: 6px;
-      }
-    }
-
-    .product-panel {
-      background: var(--n-color-embedded);
-      border-radius: 8px;
-      padding: 20px;
-
-      .product-head {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        h3 {
-          margin: 0;
-        }
-      }
-
-      .product-desc {
-        margin-top: 12px;
-        line-height: 1.7;
-        color: var(--n-text-color-2);
-        :deep(a) {
-          color: var(--n-color-primary);
-        }
-      }
-
-      .btn-row {
-        display: flex;
-        gap: 12px;
-      }
-
-      .docker-block {
-        p {
-          margin: 0 0 8px;
-        }
-        .cmd-line {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          background: var(--n-color);
-          border-radius: 6px;
-          padding: 6px 6px 6px 12px;
-        }
-      }
-    }
-  }
-
-  .ov-tab {
-    padding-top: 4px;
-
-    :deep(.expand-list) {
-      padding: 4px 0;
-      .expand-row {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 3px 0;
-        .expand-archs {
-          font-size: 13px;
-          color: var(--n-text-color-3);
-        }
-      }
-      .expand-none {
-        font-size: 13px;
-        color: var(--n-text-color-3);
-      }
-    }
-  }
-}
-</style>

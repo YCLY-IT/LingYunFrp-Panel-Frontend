@@ -1,4 +1,5 @@
 <template>
+  <RouteProgress />
   <HomeMenu v-if="!isDashboard && isReady" />
   <RouterView v-slot="{ Component }">
     <transition name="fade" mode="out-in" appear>

@@ -1,9 +1,12 @@
 <template>
   <SecureArea>
-    <div class="operationlog">
+    <div class="p-3">
       <n-card title="操作日志管理">
         <n-space vertical :size="12">
-          <div class="filter-row" style="display: flex; gap: 12px">
+          <div
+            class="flex gap-3 max-md:flex-col! max-md:gap-2!"
+            style="display: flex; gap: 12px"
+          >
             <n-input
               v-model:value="filters.search"
               placeholder="搜索用户名、操作类型或模块"
@@ -39,7 +42,7 @@
             </n-button>
           </div>
 
-          <div class="table-container">
+          <div class="overflow-x-auto">
             <n-data-table
               :columns="columns"
               :data="logs"
@@ -473,44 +476,3 @@ onMounted(() => {
   fetchLogs()
 })
 </script>
-
-<style scoped lang="scss">
-.operationlog {
-  padding: 12px;
-}
-
-.table-container {
-  overflow-x: auto;
-}
-
-@media (max-width: 768px) {
-  .filter-row {
-    flex-direction: column !important;
-    gap: 8px !important;
-  }
-
-  .filter-row .ninput {
-    width: 100% !important;
-    flex: none !important;
-  }
-
-  .filter-row .nselect {
-    width: 100% !important;
-  }
-
-  .filter-row .nbutton {
-    width: 100% !important;
-  }
-
-  .operationlog :deep(.npagination) {
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .operationlog :deep(.npagination-prefix) {
-    width: 100%;
-    text-align: center;
-    margin-bottom: 4px;
-  }
-}
-</style>

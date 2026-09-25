@@ -1,8 +1,13 @@
 <template>
-  <div class="home gradient-bg">
+  <div
+    class="home gradient-bg min-h-screen transition-[background] duration-500 [&_.n-card-header]:relative [&_.n-card-header]:z-[5] [&_.n-card-header]:box-border [&_.n-card-content]:overflow-hidden [&_.n-card-content]:relative [&_.n-card-content]:z-[1] [&_.n-card-content]:box-border [&_.n-collapse-item]:[--n-item-margin:12px_0_0_0]!"
+  >
     <!-- 用户卡片 -->
     <div class="content-info">
-      <n-card :loading="loading" class="user-card">
+      <n-card
+        :loading="loading"
+        class="user-card w-full max-md:w-full! max-md:max-w-full max-md:min-w-0 max-md:[&_.n-space]:flex! max-md:[&_.n-space]:flex-row! max-md:[&_.n-space]:items-center! max-md:[&_.n-space]:flex-nowrap! max-md:[&_.user-card-avatar]:w-12! max-md:[&_.user-card-avatar]:h-12! max-md:[&_.user-card-avatar]:flex max-md:[&_.user-card-avatar]:items-center max-md:[&_.user-card-avatar]:justify-center max-md:[&_.user-card-avatar]:shrink-0 max-md:[&_.user-card-avatar>div]:w-12! max-md:[&_.user-card-avatar>div]:h-12! max-md:[&_.user-card-avatar>div]:rounded-full! max-md:[&_.user-card-avatar>div]:mt-0! max-md:[&_.user-card-avatar>div]:scale-150! max-md:[&_.user-card-avatar>div]:bg-cover! max-md:[&_.user-card-avatar>div]:bg-center! max-md:[&_.user-card-avatar>div]:block! max-md:[&_h3]:text-left! max-md:[&_h3]:break-all max-md:[&_p]:text-left! max-md:[&_p]:break-all"
+      >
         <n-space>
           <div class="user-card-avatar" @click="handleAvatarClick">
             <div
@@ -22,24 +27,34 @@
             />
           </div>
           <div style="margin-left: 16px; text-align: left; margin-top: 5px">
-            <h3 style="margin: 0px">
+            <h3
+              style="margin: 0px"
+              class="max-md:text-base max-md:break-all"
+            >
               {{ forTime }}{{ greetEmoji }}，{{ nickname }}
             </h3>
             <n-skeleton
               style="margin: 8px 0px 0px; width: 500px"
               v-if="loading"
             />
-            <p style="margin: 5px 0px 0px">{{ textHitokoto }}</p>
+            <p
+              style="margin: 5px 0px 0px"
+              class="max-md:text-[0.95rem] max-md:break-all"
+            >
+              {{ textHitokoto }}
+            </p>
           </div>
         </n-space>
       </n-card>
     </div>
 
     <!-- 内容面板 -->
-    <div style="margin-top: 20px" class="content-grid">
-      <div class="left-column">
-        <!-- 用户信息卡片 -->
-        <NCard title="用户信息" class="info-card">
+    <div
+      style="margin-top: 20px"
+      class="content-grid flex gap-6 items-stretch max-md:flex-col max-md:gap-4"
+    >
+      <div class="left-column flex-1 min-w-0 flex flex-col gap-4">
+        <NCard title="用户信息" class="info-card w-full">
           <NAlert
             v-if="!IsRealname"
             type="warning"
@@ -56,31 +71,43 @@
         </NCard>
       </div>
 
-      <div class="right-column">
-        <div class="notice-and-welcome">
-          <div class="welcome-card-container">
+      <!-- 右列脱离文档流，高度完全由左列（用户信息卡片）决定，
+           这样「欢迎卡片 + 通知内容」的总高恒等于用户信息卡片高度 -->
+      <div
+        class="right-column relative flex-1 min-w-0 max-md:gap-4 max-md:h-auto!"
+      >
+        <div
+          class="notice-and-welcome absolute inset-0 flex flex-col min-h-0 max-md:static max-md:h-auto! max-md:min-h-auto!"
+        >
+          <div
+            class="welcome-card-container w-full m-0 p-0 max-md:w-full! max-md:max-w-full max-md:min-w-0"
+          >
             <WelcomeCard />
           </div>
           <NCard
             title="通知内容"
-            class="notice-card"
+            class="notice-card flex-1 min-h-0 flex flex-col mt-3 max-md:min-h-[200px]! max-md:flex-none! max-md:w-full! max-md:max-w-full max-md:min-w-0 [&_.n-card-content]:flex-1 [&_.n-card-content]:min-h-0 [&_.n-card-content]:flex [&_.n-card-content]:flex-col max-md:[&_.n-card-content]:flex-none! max-md:[&_.n-card-content]:min-h-[150px]!"
             :loading="isNoticeLoading"
           >
             <template #default>
-              <div class="notice-scroll">
-                <NScrollbar :vertical-rail-style="{ right: '-15px' }">
-                  <div v-if="sortedNotices.length > 0" class="notice-list">
+              <div
+                class="flex-1 min-h-0 max-h-full p-1 -m-1 max-md:min-h-[150px]! max-md:max-h-[300px]! [&_.n-scrollbar]:overflow-hidden [&_.n-scrollbar]:h-full [&_.n-collapse-item]:overflow-hidden [&_.n-collapse-item]:mb-0"
+              >
+                <NScrollbar>
+                  <div v-if="sortedNotices.length > 0" class="p-1 pr-3">
                     <div
                       v-for="(notice, _index) in sortedNotices"
                       :key="notice.id"
-                      class="notice-item"
+                      class="notice-item p-[12px_16px] mb-2 rounded-lg border border-[var(--n-border-color)] cursor-pointer transition-all duration-200 ease-in-out hover:bg-[var(--n-color-hover)] hover:shadow-[0_4px_16px_var(--n-color-hover-shadow)]"
                       @click="showNoticeDetail(notice)"
                     >
-                      <div class="notice-item-header">
-                        <span class="notice-item-title">{{
+                      <div class="flex justify-between items-center gap-3">
+                        <span
+                          class="text-base font-medium flex-1 overflow-hidden text-ellipsis whitespace-nowrap"
+                          >{{
                           notice.title
                         }}</span>
-                        <div class="notice-item-meta">
+                        <div class="flex items-center gap-2 shrink-0">
                           <NTag
                             v-if="notice.type"
                             :type="
@@ -100,14 +127,19 @@
                                   : '重要'
                             }}</NTag
                           >
-                          <span class="notice-time">{{
+                          <span class="text-[13px] text-[var(--n-text-color-3)] font-normal">{{
                             formatTime(notice.created_at)
                           }}</span>
                         </div>
                       </div>
                     </div>
                   </div>
-                  <div v-else class="no-notice">暂无通知</div>
+                  <div
+                    v-else
+                    class="text-center text-[var(--n-text-color-3)] py-10 text-sm"
+                  >
+                    暂无通知
+                  </div>
                 </NScrollbar>
               </div>
             </template>
@@ -151,7 +183,7 @@
       </template>
       <NScrollbar style="max-height: 430px">
         <div
-          class="notice-detail-content"
+          class="leading-[1.8] text-[var(--n-text-color)] text-sm break-words pr-3 [&_p]:my-2"
           v-html="renderNoticeContent(selectedNotice?.message || '')"
         />
       </NScrollbar>
@@ -163,7 +195,7 @@
             align-items: center;
           "
         >
-          <span class="notice-time">{{
+          <span class="text-[13px] text-[var(--n-text-color-3)] font-normal">{{
             selectedNotice ? formatTime(selectedNotice.created_at) : ''
           }}</span>
           <NButton @click="showNoticeModal = false">关闭</NButton>
@@ -384,247 +416,4 @@ onMounted(() => {
 })
 </script>
 
-<style lang="scss" scoped>
-@use '../../assets/styles/home.scss';
 
-.gradient-bg {
-  min-height: 100vh;
-  transition: background 0.5s;
-}
-
-.welcome-banner {
-  font-size: 2rem;
-  font-weight: bold;
-  margin-bottom: 24px;
-  letter-spacing: 2px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.content-grid {
-  display: flex;
-  gap: 24px;
-  align-items: stretch;
-}
-
-.left-column,
-.right-column {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.right-column {
-  // 让右侧整体和左侧一样高
-  height: 100%;
-}
-
-.notice-and-welcome {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  flex: 1 1 0;
-  min-height: 0;
-}
-
-.notice-card {
-  flex: 1 1 0;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  margin-top: 12px;
-}
-
-.notice-card :deep(.n-card__content) {
-  flex: 1 1 0;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.notice-scroll {
-  flex: 1 1 0;
-  min-height: 0;
-  max-height: 100%;
-  margin-top: 10px;
-}
-
-.notice-scroll {
-  padding: 4px;
-  margin: -4px;
-}
-
-.notice-scroll :deep(.n-scrollbar) {
-  overflow: visible;
-}
-
-.notice-scroll :deep(.n-collapse-item) {
-  overflow: hidden;
-  margin-bottom: 0;
-}
-
-.notice-list {
-  padding: 4px;
-}
-
-.notice-time {
-  font-size: 13px;
-  color: var(--n-text-color-3);
-  font-weight: normal;
-}
-
-.no-notice {
-  text-align: center;
-  color: var(--n-text-color-3);
-  padding: 40px 0;
-  font-size: 14px;
-}
-
-.notice-item {
-  padding: 12px 16px;
-  margin-bottom: 8px;
-  border-radius: 8px;
-  border: 1px solid var(--n-border-color);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.notice-item:hover {
-  background-color: var(--n-color-hover);
-  box-shadow: 0 4px 16px var(--n-color-hover-shadow);
-}
-
-.notice-item-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-}
-
-.notice-item-title {
-  font-size: 16px;
-  font-weight: 500;
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.notice-item-meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.notice-detail-content {
-  line-height: 1.8;
-  color: var(--n-text-color);
-  font-size: 14px;
-  word-break: break-word;
-  padding-right: 12px;
-}
-
-.notice-detail-content :deep(p) {
-  margin: 8px 0;
-}
-
-.welcome-card-container {
-  width: 100%;
-  margin: 0;
-  padding: 0;
-}
-
-.card-container {
-  width: 100% !important;
-  max-width: none !important;
-  min-width: 0 !important;
-}
-
-@media (max-width: 768px) {
-  .content-grid {
-    flex-direction: column;
-    gap: 16px;
-
-    .right-column {
-      gap: 16px;
-      height: auto !important;
-    }
-  }
-  .user-card,
-  .info-card,
-  .notice-card,
-  .welcome-card-container,
-  .right-column {
-    width: 100% !important;
-    max-width: 100%;
-    min-width: 0;
-  }
-
-  .notice-and-welcome {
-    height: auto !important;
-    min-height: auto !important;
-  }
-
-  .notice-card {
-    height: auto !important;
-    min-height: 200px !important;
-    flex: none !important;
-  }
-
-  .notice-card :deep(.n-card__content) {
-    flex: none !important;
-    min-height: 150px !important;
-  }
-
-  .notice-scroll {
-    min-height: 150px !important;
-    max-height: 300px !important;
-  }
-
-  .welcome-banner {
-    font-size: 1.2rem;
-  }
-  h3 {
-    font-size: 1rem;
-    word-break: break-all;
-  }
-  p {
-    font-size: 0.95rem;
-    word-break: break-all;
-  }
-  .user-card {
-    .n-space {
-      display: flex !important;
-      flex-direction: row !important;
-      align-items: center !important;
-      flex-wrap: nowrap !important;
-    }
-    .user-card-avatar {
-      width: 48px !important;
-      height: 48px !important;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .user-card-avatar > div {
-      width: 48px !important;
-      height: 48px !important;
-      border-radius: 50% !important;
-      margin-top: 0 !important;
-      transform: scale(1.5) !important;
-      background-size: cover !important;
-      background-position: center !important;
-      display: block !important;
-    }
-    h3,
-    p {
-      text-align: left !important;
-      word-break: break-all;
-    }
-  }
-}
-</style>

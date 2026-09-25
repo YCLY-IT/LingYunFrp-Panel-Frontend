@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div class="grant-toolbar">
+  <div class="max-md:[&_.n-data-table]:text-xs">
+    <div class="flex gap-3 mb-3 flex-wrap">
       <n-button type="primary" size="medium" @click="openAddModal">
         <template #icon>
           <n-icon><AddOutline /></n-icon>
@@ -383,18 +383,3 @@ onMounted(() => {
 
 defineExpose({ fetchGrants })
 </script>
-
-<style lang="scss" scoped>
-.grant-toolbar {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 12px;
-  flex-wrap: wrap;
-}
-
-@media (max-width: 768px) {
-  :deep(.n-data-table) {
-    font-size: 12px;
-  }
-}
-</style>

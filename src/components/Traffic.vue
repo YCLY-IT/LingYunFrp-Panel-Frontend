@@ -1,5 +1,7 @@
 <template>
-  <div class="traffic-trend-container">
+  <div
+    class="w-full [&_.n-card-header]:pb-3 [&_.n-statistic]:text-center [&_.n-statistic_.n-statistic-value]:text-lg [&_.n-statistic_.n-statistic-value]:font-semibold max-md:[&_.n-card]:p-2! max-md:[&_.n-card-header]:flex-col! max-md:[&_.n-card-header]:items-start! max-md:[&_.n-card-header]:gap-2 max-md:[&_.n-card-header__main]:text-base max-md:[&_.n-card-header__main]:whitespace-nowrap max-md:[&_.n-card-header__extra]:w-full max-md:[&_.n-card-header__extra_.n-space]:flex-wrap max-md:[&_.n-card-header__extra_.n-space]:gap-2!"
+  >
     <n-card title="流量趋势分析">
       <template #header-extra>
         <n-space>
@@ -305,71 +307,3 @@ onUnmounted(() => {
   })
 })
 </script>
-
-<style scoped>
-.traffic-trend-container {
-  width: 100%;
-}
-
-:deep(.n-card-header) {
-  padding-bottom: 12px;
-}
-
-:deep(.n-statistic) {
-  text-align: center;
-}
-
-:deep(.n-statistic .n-statistic-value) {
-  font-size: 18px;
-  font-weight: 600;
-}
-
-@media (max-width: 768px) {
-  .content-info {
-    margin-bottom: 8px;
-  }
-  .notice-card,
-  .info-card,
-  .user-card {
-    padding: 8px !important;
-    margin-bottom: 8px !important;
-  }
-  .markdown-content {
-    max-height: 120px;
-    overflow-y: auto;
-    font-size: 0.95rem;
-  }
-  .traffic-wrapper {
-    width: 100%;
-    max-width: 100%;
-    max-height: 200px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    margin-bottom: 8px;
-  }
-  .n-card {
-    padding: 8px !important;
-  }
-
-  /* 标题和按钮移动端适配 */
-  :deep(.n-card-header) {
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    gap: 8px;
-  }
-
-  :deep(.n-card-header__main) {
-    font-size: 16px;
-    white-space: nowrap;
-  }
-
-  :deep(.n-card-header__extra) {
-    width: 100%;
-  }
-
-  :deep(.n-card-header__extra .n-space) {
-    flex-wrap: wrap;
-    gap: 8px !important;
-  }
-}
-</style>

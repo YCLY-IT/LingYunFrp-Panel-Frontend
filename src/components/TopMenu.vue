@@ -4,8 +4,8 @@
     position="absolute"
     style="height: 64px; z-index: 999; user-select: none"
   >
-    <div class="header-content">
-      <div class="left">
+    <div class="flex justify-between items-center h-16 px-6">
+      <div class="flex items-center gap-2">
         <NPopover
           trigger="click"
           placement="bottom-start"
@@ -13,13 +13,16 @@
           @update:show="showMenu = $event"
         >
           <template #trigger>
-            <NButton text class="menu-trigger">
+            <NButton
+              text
+              class="hidden! max-md:flex! max-md:items-center max-md:justify-center"
+            >
               <NIcon size="24">
                 <MenuOutline />
               </NIcon>
             </NButton>
           </template>
-          <div class="mobile-menu">
+          <div class="min-w-[200px] -mx-4 -my-2">
             <NScrollbar style="max-height: 500px">
               <NMenu
                 :options="menuOptions"
@@ -30,11 +33,16 @@
             </NScrollbar>
           </div>
         </NPopover>
-        <h2 class="logo" :style="{ color: themeStore.primaryColor }">
+        <h2
+          class="m-0 text-xl bg-[var(--n-text-color)] bg-clip-text max-md:text-base max-md:max-w-[120px] max-md:overflow-hidden max-md:text-ellipsis max-md:whitespace-nowrap"
+          :style="{ color: themeStore.primaryColor }"
+        >
           {{ packageData.title }}
         </h2>
       </div>
-      <div class="right">
+      <div
+        class="flex items-center max-md:gap-1 max-md:[&_.n-button]:translate-x-0! max-md:[&_.n-button]:px-1.5"
+      >
         <n-button
           quaternary
           style="font-size: 18px; transform: translateX(-30px)"
@@ -47,7 +55,7 @@
           circle
           size="small"
           @click="handleThemeToggle"
-          class="theme-toggle-btn"
+          class="transition-all duration-300 ease-in-out hover:bg-[var(--n-color-hover)] [&_.n-icon]:transition-all [&_.n-icon]:duration-300 [&_.n-icon]:ease-in-out"
           style="transform: translateX(-30px)"
         >
           <NIcon
@@ -64,10 +72,14 @@
             <template #icon>
               <NIcon>
                 <div
-                  class="avatar"
+                  class="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center max-md:[transform:translateY(-6px)_translateX(0)]!"
                   style="transform: translateY(-6px) translateX(-20px)"
                 >
-                  <img :src="avatarUrl" alt="avatar" />
+                  <img
+                    :src="avatarUrl"
+                    alt="avatar"
+                    class="w-full h-full object-cover"
+                  />
                 </div>
               </NIcon>
             </template>
@@ -252,57 +264,3 @@ onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
 })
 </script>
-
-<style scoped>
-.avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.theme-toggle-btn {
-  transition: all 0.3s ease;
-  &:hover {
-    transform: rotate(30deg);
-    background-color: var(--n-color-hover);
-  }
-  .n-icon {
-    transition: all 0.3s ease;
-  }
-}
-
-/* 移动端适配 */
-@media (max-width: 768px) {
-  .logo {
-    font-size: 16px;
-    max-width: 120px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .right {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  .right .n-button {
-    transform: translateX(0) !important;
-    padding: 0 6px;
-  }
-
-  .avatar {
-    transform: translateY(-6px) translateX(0) !important;
-  }
-}
-</style>
